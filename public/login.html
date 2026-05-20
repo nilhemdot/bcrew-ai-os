@@ -9,13 +9,31 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
   </head>
-  <body>
-    <main class="login-shell">
-      <section class="login-panel">
-        <img src="/assets/bc-logo.svg" alt="Benson Crew logo" class="login-logo" />
+  <body class="login-page">
+    <main class="login-shell" aria-labelledby="login-title">
+      <section class="login-brand-panel" aria-label="BCrew AI OS">
+        <img src="/assets/bc-logo.svg" alt="Benson Crew logo" class="login-brand-logo" />
         <div class="login-kicker">BCrew AI OS</div>
-        <h1>Log in</h1>
-        <p>Use your Benson Crew Google account. AIOS will open the right workspace for your email.</p>
+        <h1 id="login-title">Operator Access</h1>
+        <p>Foundation, strategy, sales, and ops workspaces for Benson Crew.</p>
+        <div class="login-hub-strip" aria-label="Available workspaces">
+          <span>Foundation</span>
+          <span>Strategy</span>
+          <span>Sales</span>
+          <span>Ops</span>
+        </div>
+      </section>
+
+      <section class="login-panel" aria-label="Sign in">
+        <div class="login-panel-top">
+          <img src="/assets/bc-logo.svg" alt="" class="login-logo" />
+          <div>
+            <div class="login-panel-label">Secure sign in</div>
+            <h2>Continue</h2>
+          </div>
+        </div>
+        <p class="login-copy">Use your Benson Crew Google account. AIOS will open the right workspace for your email.</p>
+        <div class="login-next" id="login-next" hidden></div>
 
         <div class="google-login-wrap" id="google-login-wrap">
           <div id="google-login-button"></div>

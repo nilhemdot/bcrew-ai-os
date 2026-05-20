@@ -8,6 +8,23 @@ function getNextPath() {
   return next
 }
 
+function getRouteLabel(path) {
+  if (!path || path === '/') return 'Command Center'
+  if (path.indexOf('/foundation') === 0) return 'Foundation'
+  if (path.indexOf('/strategic-execution') === 0) return 'Strategic Execution'
+  if (path.indexOf('/sales') === 0) return 'Sales Hub'
+  if (path.indexOf('/ops') === 0) return 'Ops Hub'
+  return 'Requested workspace'
+}
+
+function renderNextPath() {
+  var next = getNextPath()
+  var el = document.getElementById('login-next')
+  if (!el || !next) return
+  el.textContent = 'Continue to ' + getRouteLabel(next)
+  el.hidden = false
+}
+
 function showError(message) {
   var error = document.getElementById('login-error')
   if (!error) return
@@ -126,6 +143,7 @@ function setupPasswordFallback() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  renderNextPath()
   setupPasswordFallback()
 
   fetch('/api/auth/session', { cache: 'no-store' }).then(function(response) {
