@@ -1,0 +1,13 @@
+{
+  "cardId": "MODEL-ROUTING-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T06:50:00-04:00",
+  "approvalSource": "Steve approved unattended continuation after FOUNDATION-SURFACE-UPDATES-001 shipped clean, with park-and-continue sprint rules.",
+  "notes": "Approved for narrow canonical model-routing doctrine and focused proof only. Not approved: provider calls, credential or provider config mutation, paid/browser-auth, external writes, Drive permission mutation, new source access, public exposure, Scoper/agent runtime build, or subscription route activation.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/model-routing-001-plan.md",
+  "approvedPlanSha256": "c8e2b18cd0175e7626193695639da3df128988b43759024a7af44cf1a553b44f",
+  "approvedRepoHead": "57055ba0f8fad0b588d98acb9203444a058aefd2",
+  "approvalDigest": "a72e10e49dfc51cdc36391c3f44323bfb4b5b382cf48c34cf38e11e438ab653c"
+}

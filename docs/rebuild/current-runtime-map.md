@@ -1,6 +1,6 @@
 # Current Runtime Map
 
-Last updated: 2026-05-09
+Last updated: 2026-05-20
 Status: Plain-English architecture map
 
 This doc exists for one reason:
@@ -145,15 +145,48 @@ Current direction:
 
 - model access goes through the policy-aware LLM router
 - BCrew router owns the route decision; OpenClaw is one transport adapter, not the controlling system
-- the last proven subscription route was OpenClaw/Codex OAuth through `openai-codex/gpt-5.4`; repo defaults now target `openai-codex/gpt-5.5` and need a fresh post-upgrade probe
-- official API routes stay available as guarded manual fallback, not default or automatic failover
+- exact model IDs live in route configuration, probes, and provider capability records, not in this doctrine
+- official API routes are the default for production/customer-facing automated workloads
 - direct OpenAI Responses API is blocked unless an intentional paid-run override is set
 - subscription/native routes can be used only after probes classify them for the workload
-- subscription/native routes are internal capacity lanes, not the product backend and not a consumer-plan arbitrage business model
-- official APIs are the default answer for production/customer-facing automated workloads unless a subscription/native route is explicitly allowed, probed, logged, and policy-classified for that workload
+- subscription/native routes are internal capacity lanes for Steve/Foundation work, not a consumer-plan arbitrage business model
 - hub-dedicated capacity is preferred over blind account rotation
 - Codex / Claude Code remain terminal-native coding and investigation tools
-- Claude Code / Claude Agent SDK subscription adapter is the next model-layer build so Claude Max capacity can be assigned by hub under the same router
+- Claude Code / Claude Agent SDK-style routes are adapter candidates only after router probes and policy classification
+
+Model names change faster than doctrine. Do not hardcode exact model IDs in planning docs or verifier strings unless the current provider route has been probed or the official provider docs have been checked during the card. Use workload class, provider family, route key, cost cap, privacy posture, and probe status as the durable routing truth.
+
+## Model Routing Doctrine
+
+The router decides by workload class first, then by provider/route availability.
+
+| Workload class | Default posture | Route class | Required controls |
+| --- | --- | --- | --- |
+| Cheap classification, tagging, dedupe, and skip-reason labeling | Low-cost, fast, retryable | official API or already-probed internal route | per-feature cost cap, logged route key, no private broad extraction expansion |
+| Embeddings and retrieval indexing | API-backed service lane | official embedding API | source ID, chunk provenance, no subscription substitute |
+| Current-day extraction helpers and bounded structured extraction | Governed worker lane | official API by default, probed internal capacity only when allowed | target/run ledger, item failures, retry posture, source privacy boundary |
+| Synthesis, daily pulse, and strategic summaries | Quality-weighted synthesis lane | official API fallback or probed internal route | source links, confidence, cost/rate limits, tier filter before display |
+| Scoper deep tool use and gap resolution | Operator-approved deep run | probed high-reasoning route or manual builder route | explicit owner, stop control, output review, no autonomous external write |
+| Coding, repo investigation, and reviews | Terminal-native builder session | Codex / Claude Code / manual tool session | human-visible workspace, git clean closeout, no hidden worker |
+| Heartbeats, audits, health summaries, and repeated-failure repair | Fast bounded Foundation lane | deterministic checks first; model only if routed | raw-green semantics, backlog routing, no auto-code-fix |
+| High-stakes legal, financial, security, people, or access decisions | Conservative/manual-first | model may draft; human decides | source evidence, tier/privacy redaction, approval record, no auto-apply |
+| Video, screenshots, OCR, and multimodal training extraction | Bounded media lane | official video/vision API or approved browser/tool route | source permission, cost quota, artifact-size guard, transcript-first preference |
+
+Every route must record:
+
+- workload class
+- route key and provider family
+- auth path class
+- probe status
+- cost owner and cap
+- fallback route or parked state
+- privacy/tier boundary
+- source IDs touched
+- stop control
+
+Subscriptions are for humans or internal live operator capacity when allowed, probed, logged, and classified. System runtime uses official APIs and governed adapters by default. A subscription route becoming available does not automatically approve scheduled jobs, team-facing products, public exposure, private broad extraction, or external writes.
+
+If the router cannot prove a route is allowed for the workload, it parks the action with owner, reason, required approval, and next safe card. Blockers block the unsafe action, not the whole sprint.
 
 These are not separate foundations.
 
