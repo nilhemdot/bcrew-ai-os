@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CURRENT-SPRINT-ACTIVE-CARD-GATE-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-19T21:58:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/current-sprint-active-card-gate-001-plan.md",
+  "approvedPlanSha256": "e556d4981148217c59010444b34c2bcfe59e0f247727e5df5e0af68da3ea22c8",
+  "approvedRepoHead": "a23924a041edd23442b31e2d559032d73205268e",
+  "approvalSource": "Steve approved the unattended overnight sprint and asked the builder to keep going, create the next sprint if the first finishes, and not stop unless unsafe.",
+  "constraints": [
+    "work from live Current Sprint and repo truth, not chat-only instructions",
+    "blockers block unsafe actions, not the whole sprint; park blocked actions and continue safe work",
+    "no Value Builder split, source/value expansion, broad extraction, paid/provider/browser-auth work, credential mutation, Drive permission mutation, sends, or external writes overnight unless explicitly approved",
+    "green means raw green; repeated failures or raw workflow failures repair first",
+    "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
+  ],
+  "approvalDigest": "51bd7fac9afd0370dbe0cf24882cf3da676481433f4d1951dc8870a82259166f"
+}
