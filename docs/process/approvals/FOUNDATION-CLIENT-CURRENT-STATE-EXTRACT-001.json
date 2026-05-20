@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-19T22:50:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/foundation-client-current-state-extract-001-plan.md",
+  "approvedPlanSha256": "5488d35defd751461ab4ca9797b69023099023fcbbadf7eb289b80db6c3a5b16",
+  "approvedRepoHead": "49cd71cce7b1b22668f135009c359fd8dcac7fcb",
+  "approvalSource": "Steve approved unattended overnight Foundation audit-control sprint and required audit findings to become fixes, live cards, gates, or proof instead of report noise.",
+  "constraints": [
+    "do not redesign Foundation Overview",
+    "do not rewrite the Current State renderer unless proof shows the extraction invariant fails",
+    "nightly audit must stop re-opening stale monolith findings only when extracted browser proof passes",
+    "green means raw green; repeated failures repair first",
+    "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
+  ],
+  "approvalDigest": "57dfb810ad8c298d25066ef3769a03984236de8d933361c250ca74fed6e5d00c"
+}
