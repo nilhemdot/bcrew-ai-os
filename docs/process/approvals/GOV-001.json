@@ -1,0 +1,16 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "GOV-001",
+  "approvedPlanRef": "docs/process/gov-001-governance-accountability-plan.md",
+  "approvedPlanSha256": "7f9393f5ccecf0379da94dd0d727dac0a201cfce4f824a7177439476dda0af82",
+  "approvedRepoHead": "03d0dc1c4a78dce9bfed2a70e78b7f3f09d109ad",
+  "approvedBy": "Steve approved unattended Foundation sprint continuation",
+  "approvedAt": "2026-05-20T05:45:00.000-04:00",
+  "score": 10,
+  "approvalNotes": [
+    "Steve approved continuing through the Foundation sprint without babysitting; blockers block unsafe actions, not the whole sprint.",
+    "GOV-001 must use existing source-backed strategy inputs, Business Atoms, Action Router, meeting packet, and planning workflow instead of creating a new governance runtime.",
+    "No external writes, sends, provider calls, browser automation, credential mutation, Drive permission mutation, people scoring, or automatic decision/task application."
+  ],
+  "approvalDigest": "b70e96e040616a49dd7b0cf2c26377665591916e5faacc22b592369dbfdf4a9d"
+}

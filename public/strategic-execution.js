@@ -33,13 +33,18 @@
       title: 'Business Atom Board',
       body: 'Small source-backed business signals for weekly, monthly, quarterly, and annual planning.',
     },
+    governance: {
+      label: 'Governance',
+      title: 'Governance Accountability',
+      body: 'Room readiness, meeting sequence, structured outputs, drift queue, and follow-through guardrails.',
+    },
     'route-review': {
       label: 'Review Queue',
       title: 'Strategic Review',
       body: 'Only strategy prep, source-map gaps, goal gaps, and pillar decisions belong here.',
     },
   }
-  var sectionOrder = ['overview', 'planning', 'meeting', 'source-to-gap', 'business-atoms', 'route-review']
+  var sectionOrder = ['overview', 'planning', 'meeting', 'governance', 'source-to-gap', 'business-atoms', 'route-review']
 
   function appendText(parent, tagName, text, className) {
     var el = document.createElement(tagName)
@@ -194,6 +199,11 @@
     } else if (state.section === 'business-atoms') {
       strip.appendChild(makePill(String(businessAtoms.summary && businessAtoms.summary.currentAtoms || 0) + ' current atoms', businessAtoms.summary && businessAtoms.summary.currentAtoms ? 'good' : 'watch'))
       strip.appendChild(makePill(String(businessAtoms.summary && businessAtoms.summary.totalHits || 0) + ' hits', businessAtoms.summary && businessAtoms.summary.totalHits ? 'good' : 'neutral'))
+    } else if (state.section === 'governance') {
+      var governance = data.governanceAccountability || {}
+      strip.appendChild(makePill(emptyText(governance.status, 'governance missing'), statusTone(governance.status)))
+      strip.appendChild(makePill(String(governance.summary && governance.summary.driftItemCount || 0) + ' drift items', governance.summary && governance.summary.driftItemCount ? 'watch' : 'good'))
+      strip.appendChild(makePill(String(governance.summary && governance.summary.structuredOutputCount || 0) + ' outputs', governance.summary && governance.summary.structuredOutputCount ? 'good' : 'watch'))
     } else if (state.section === 'planning') {
       var workflow = data.planningWorkflow || {}
       strip.appendChild(makePill(emptyText(workflow.status, 'planning missing'), statusTone(workflow.status)))
@@ -940,6 +950,170 @@
     container.appendChild(panel)
   }
 
+  function renderGovernanceCheck(check) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-card strategy-v2-planning-item'
+    var top = document.createElement('div')
+    top.className = 'strategy-v2-card-top'
+    appendText(top, 'h4', emptyText(check.label, 'Governance check'))
+    top.appendChild(makePill(emptyText(check.status, 'watch'), statusTone(check.status)))
+    card.appendChild(top)
+    appendText(card, 'p', emptyText(check.threshold, 'Threshold missing.'), 'strategy-v2-muted')
+    appendText(card, 'strong', 'Next: ' + emptyText(check.nextTrigger, 'Review on cadence.'), 'strategy-v2-agenda-focus')
+    var sources = document.createElement('div')
+    sources.className = 'strategy-v2-meeting-sources'
+    ;(check.sourceIds || []).slice(0, 5).forEach(function(sourceId) {
+      sources.appendChild(makePill(sourceId, 'neutral'))
+    })
+    if (!(check.sourceIds || []).length) appendText(sources, 'span', 'No source IDs attached', 'strategy-v2-muted')
+    card.appendChild(sources)
+    return card
+  }
+
+  function renderGovernanceSequenceStep(step, index) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-agenda-item'
+    var marker = document.createElement('div')
+    marker.className = 'strategy-v2-agenda-marker'
+    marker.textContent = String(index + 1)
+    card.appendChild(marker)
+    var copy = document.createElement('div')
+    appendText(copy, 'h4', emptyText(step.label, 'Governance step'))
+    appendText(copy, 'strong', emptyText(step.requiredOutput, 'Required output missing'), 'strategy-v2-agenda-focus')
+    appendText(copy, 'p', emptyText(step.nextAction, 'No next action recorded.'), 'strategy-v2-muted')
+    var meta = document.createElement('div')
+    meta.className = 'strategy-v2-route-mini-meta'
+    meta.appendChild(makePill(emptyText(step.status, 'watch'), statusTone(step.status)))
+    appendText(meta, 'span', 'Owner: ' + emptyText(step.owner, 'missing'))
+    copy.appendChild(meta)
+    card.appendChild(copy)
+    return card
+  }
+
+  function renderGovernanceDriftItem(item) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-card strategy-v2-planning-item'
+    appendText(card, 'div', emptyText(item.type, 'drift').replace(/_/g, ' '), 'strategy-v2-focus-label')
+    appendText(card, 'h4', emptyText(item.title, 'Governance drift'))
+    appendText(card, 'p', emptyText(item.readout, 'No drift readout recorded.'), 'strategy-v2-muted')
+    var meta = document.createElement('div')
+    meta.className = 'strategy-v2-route-mini-meta'
+    meta.appendChild(makePill(emptyText(item.severity, 'watch'), statusTone(item.severity)))
+    appendText(meta, 'span', 'Owner: ' + emptyText(item.owner, 'missing'))
+    card.appendChild(meta)
+    appendText(card, 'strong', 'Next: ' + emptyText(item.nextAction, 'Review on governance cadence.'), 'strategy-v2-agenda-focus')
+    var sources = document.createElement('div')
+    sources.className = 'strategy-v2-meeting-sources'
+    ;(item.sourceIds || []).slice(0, 5).forEach(function(sourceId) {
+      sources.appendChild(makePill(sourceId, 'neutral'))
+    })
+    card.appendChild(sources)
+    return card
+  }
+
+  function renderGovernanceOutputItem(item) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-route-mini strategy-v2-meeting-route'
+    appendText(card, 'strong', emptyText(item.title, 'Governance output'), 'strategy-v2-route-mini-title')
+    appendText(card, 'p', emptyText(item.nextAction, 'No next action recorded.'), 'strategy-v2-muted')
+    var meta = document.createElement('div')
+    meta.className = 'strategy-v2-route-mini-meta'
+    meta.appendChild(makePill(emptyText(item.outputType, 'output'), 'neutral'))
+    meta.appendChild(makePill(emptyText(item.status, 'ready'), statusTone(item.status)))
+    appendText(meta, 'span', 'Owner: ' + emptyText(item.owner, 'missing'))
+    card.appendChild(meta)
+    return card
+  }
+
+  function renderGovernanceAccountability(container, data) {
+    var governance = data.governanceAccountability || {}
+    var summary = governance.summary || {}
+    var panel = document.createElement('section')
+    panel.className = 'panel strategy-v2-panel'
+    panel.id = 'governance'
+
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+    var copy = document.createElement('div')
+    appendText(copy, 'div', 'Governance', 'eyebrow')
+    appendText(copy, 'h3', 'Accountability packet')
+    appendText(copy, 'p', 'Read-only governance control: prepare the room, run the sequence, capture outputs, surface drift, and protect follow-through from ownerless limbo.', 'strategy-v2-muted')
+    header.appendChild(copy)
+    var statePill = document.createElement('div')
+    statePill.className = 'strategy-v2-route-pills'
+    statePill.appendChild(makePill(emptyText(governance.status, 'missing'), statusTone(governance.status)))
+    statePill.appendChild(makePill(governance.guardrails && governance.guardrails.noAutoApply ? 'No auto-apply' : 'Auto-apply risk', governance.guardrails && governance.guardrails.noAutoApply ? 'good' : 'bad'))
+    header.appendChild(statePill)
+    panel.appendChild(header)
+
+    var statGrid = document.createElement('div')
+    statGrid.className = 'strategy-v2-meeting-stat-grid'
+    statGrid.appendChild(renderMeetingStat('Sources', summary.sourceCount || 0, 'ids'))
+    statGrid.appendChild(renderMeetingStat('Checks', summary.cadenceCheckCount || 0, 'cadence'))
+    statGrid.appendChild(renderMeetingStat('Drift', summary.driftItemCount || 0, 'items'))
+    statGrid.appendChild(renderMeetingStat('Outputs', summary.structuredOutputCount || 0, 'structured'))
+    panel.appendChild(statGrid)
+
+    var sequence = document.createElement('article')
+    sequence.className = 'strategy-v2-focus-panel'
+    appendText(sequence, 'div', 'Sequence', 'eyebrow')
+    appendText(sequence, 'h3', 'How governance should run')
+    var steps = document.createElement('div')
+    steps.className = 'strategy-v2-meeting-agenda'
+    ;(governance.sequence || []).forEach(function(step, index) {
+      steps.appendChild(renderGovernanceSequenceStep(step, index))
+    })
+    sequence.appendChild(steps)
+    panel.appendChild(sequence)
+
+    var checkPanel = document.createElement('article')
+    checkPanel.className = 'strategy-v2-focus-panel'
+    appendText(checkPanel, 'div', 'Cadence Checks', 'eyebrow')
+    appendText(checkPanel, 'h3', 'What the system watches')
+    var checkGrid = document.createElement('div')
+    checkGrid.className = 'strategy-v2-goal-grid'
+    ;(governance.cadenceChecks || []).forEach(function(check) {
+      checkGrid.appendChild(renderGovernanceCheck(check))
+    })
+    checkPanel.appendChild(checkGrid)
+    panel.appendChild(checkPanel)
+
+    var driftPanel = document.createElement('article')
+    driftPanel.className = 'strategy-v2-focus-panel'
+    appendText(driftPanel, 'div', 'Drift Queue', 'eyebrow')
+    appendText(driftPanel, 'h3', 'What needs accountability')
+    var driftGrid = document.createElement('div')
+    driftGrid.className = 'strategy-v2-goal-grid'
+    ;(governance.driftItems || []).slice(0, 8).forEach(function(item) {
+      driftGrid.appendChild(renderGovernanceDriftItem(item))
+    })
+    if (!(governance.driftItems || []).length) appendText(driftGrid, 'p', 'No source-backed drift items are visible.', 'strategy-v2-muted')
+    driftPanel.appendChild(driftGrid)
+    panel.appendChild(driftPanel)
+
+    var outputPanel = document.createElement('article')
+    outputPanel.className = 'strategy-v2-focus-panel'
+    appendText(outputPanel, 'div', 'Structured Outputs', 'eyebrow')
+    appendText(outputPanel, 'h3', 'What must be captured')
+    var outputs = document.createElement('div')
+    outputs.className = 'strategy-v2-route-mini-list'
+    ;(governance.structuredOutputs || []).slice(0, 10).forEach(function(item) {
+      outputs.appendChild(renderGovernanceOutputItem(item))
+    })
+    if (!(governance.structuredOutputs || []).length) appendText(outputs, 'p', 'No governance outputs are waiting.', 'strategy-v2-muted')
+    outputPanel.appendChild(outputs)
+    panel.appendChild(outputPanel)
+
+    var guardrailPanel = document.createElement('article')
+    guardrailPanel.className = 'strategy-v2-meeting-proof'
+    appendText(guardrailPanel, 'strong', 'Guardrails')
+    ;(governance.guardrails && governance.guardrails.blockedActions || []).forEach(function(action) {
+      appendText(guardrailPanel, 'span', action)
+    })
+    panel.appendChild(guardrailPanel)
+    container.appendChild(panel)
+  }
+
   function renderOverview(container, data) {
     var goalTruth = data.goalTruth || {}
     var operatingTruth = data.operatingTruth || {}
@@ -1018,6 +1192,21 @@
       planningPreview.appendChild(planningStats)
       appendLink(planningPreview, '#planning', 'Open planning workflow', 'section-support-link')
       page.appendChild(planningPreview)
+    }
+    if (data.governanceAccountability) {
+      var governancePreview = document.createElement('article')
+      governancePreview.className = 'strategy-v2-focus-panel'
+      appendText(governancePreview, 'div', 'Governance', 'eyebrow')
+      appendText(governancePreview, 'h3', String(data.governanceAccountability.summary && data.governanceAccountability.summary.driftItemCount || 0) + ' accountability items visible')
+      appendText(governancePreview, 'p', 'Governance packet shows room readiness, cadence checks, drift, and structured outputs without auto-applying work.', 'strategy-v2-muted')
+      var governanceStats = document.createElement('div')
+      governanceStats.className = 'strategy-v2-meeting-stat-grid'
+      governanceStats.appendChild(renderMeetingStat('Checks', data.governanceAccountability.summary && data.governanceAccountability.summary.cadenceCheckCount || 0, 'cadence'))
+      governanceStats.appendChild(renderMeetingStat('Outputs', data.governanceAccountability.summary && data.governanceAccountability.summary.structuredOutputCount || 0, 'structured'))
+      governanceStats.appendChild(renderMeetingStat('Ownerless', data.governanceAccountability.summary && data.governanceAccountability.summary.ownerlessOutputCount || 0, 'outputs'))
+      governancePreview.appendChild(governanceStats)
+      appendLink(governancePreview, '#governance', 'Open governance packet', 'section-support-link')
+      page.appendChild(governancePreview)
     }
     page.appendChild(renderMeetingPacketPreview(data.meetingReady))
     page.appendChild(renderAgentEngineModel(teamGroup, capacityGroup, financeCard))
@@ -1637,6 +1826,8 @@
       renderMeetingReady(container, state.data)
     } else if (state.section === 'business-atoms') {
       renderBusinessAtoms(container, state.data)
+    } else if (state.section === 'governance') {
+      renderGovernanceAccountability(container, state.data)
     } else if (state.section === 'route-review') {
       renderRouteReview(container, state.data)
     } else {
