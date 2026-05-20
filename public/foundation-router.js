@@ -151,6 +151,8 @@ function route() {
     renderSourceLifecycle()
   } else if (sourceSectionConfigs[section]) {
     renderSourceRegistry(section)
+  } else if (section === 'user-access') {
+    renderFoundationUserAccessAdmin()
   } else if (section === 'inventory-docs') {
     renderInventoryDocs()
   } else if (section === 'inventory-archive-history') {

@@ -1,0 +1,21 @@
+{
+  "cardId": "FOUNDATION-USERS-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T07:35:00-04:00",
+  "approvedPlanRef": "docs/process/foundation-users-001-plan.md",
+  "approvedPlanSha256": "c00156b3046b6b01aace2b3b52f61e68b205b14cc7cdc316dbc979391df07168",
+  "approvedRepoHead": "733d6fef7108a4b791a267709ccf928f74f183f5",
+  "score": 9.8,
+  "notes": "Approved as part of unattended Foundation sprint. Scope is owner-only DB-backed user access admin; no external sends, credential rotation, Drive permission mutation, or public exposure.",
+  "notApproved": [
+    "external sends or emails",
+    "credential/key rotation",
+    "Drive permission mutation",
+    "public exposure changes",
+    "broad auth/tier redesign",
+    "non-owner shared-comms or Strategy expansion",
+    "password or hash display"
+  ],
+  "approvalDigest": "5acab45dd5fd6770665a8ff5da28c831eae5fece72c04b98ba16b71d4a7c19c1",
+  "approvalSchemaVersion": 2
+}

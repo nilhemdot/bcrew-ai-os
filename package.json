@@ -210,6 +210,7 @@
     "process:old-system-agent-onboarding-harvest-check": "node --env-file-if-exists=.env scripts/process-old-system-agent-onboarding-harvest-check.mjs",
     "process:agent-010-check": "node --env-file-if-exists=.env scripts/process-agent-010-check.mjs",
     "process:role-assistant-contracts-check": "node --env-file-if-exists=.env scripts/process-role-assistant-contracts-check.mjs",
+    "process:foundation-users-check": "node --env-file-if-exists=.env scripts/process-foundation-users-check.mjs",
     "process:harlan-project-registry-check": "node --env-file-if-exists=.env scripts/process-harlan-project-registry-check.mjs",
     "process:harlan-operator-loop-check": "node --env-file-if-exists=.env scripts/process-harlan-operator-loop-check.mjs",
     "process:slice-001-check": "node --env-file-if-exists=.env scripts/process-slice-001-check.mjs",

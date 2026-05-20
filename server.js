@@ -500,6 +500,7 @@ registerAuthRoutes(app, {
   attachRequestAccessContext,
   getRequestAuthUser,
   getLocalDevUser,
+  listFoundationUsers,
 })
 
 function tokensMatch(provided, expected) {

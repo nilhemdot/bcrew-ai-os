@@ -11,6 +11,7 @@ var cache = {
   currentSprint: null,
   actionReview: null,
   actionRouteReviewInbox: null,
+  foundationUsersAdmin: null,
   systemInventory: null,
   buildLog: null,
   changeLog: null,
@@ -128,6 +129,16 @@ function fetchFoundationCurrentSprint() {
     return res.json()
   }).then(function(data) {
     cache.currentSprint = data
+    return data
+  })
+}
+
+function fetchFoundationUsersAdmin() {
+  return foundationRead('/api/foundation/users/admin').then(function(res) {
+    if (!res.ok) throw new Error('Foundation user access API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.foundationUsersAdmin = data
     return data
   })
 }
@@ -345,6 +356,7 @@ function clearFoundationCaches() {
   cache.foundationHub = null
   cache.actionReview = null
   cache.actionRouteReviewInbox = null
+  cache.foundationUsersAdmin = null
   cache.systemInventory = null
   cache.fubLeadSources = {}
   cache.sourceLifecycle = null
