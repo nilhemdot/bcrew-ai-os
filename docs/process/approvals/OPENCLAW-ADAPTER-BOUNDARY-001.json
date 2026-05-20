@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "OPENCLAW-ADAPTER-BOUNDARY-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T18:05:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/openclaw-adapter-boundary-001-plan.md",
+  "approvedPlanSha256": "8b372d6789f927b67c06c050cc106a85bd79092239d049dbfd52aa89f9a5398f",
+  "approvedRepoHead": "b7899b2cf946b23e751bb91e71c731bc130a26f1",
+  "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build OPENCLAW-ADAPTER-BOUNDARY-001 immediately after Claude Code review route and before extractor proof.",
+  "approvalDigest": "4806abb002390deed37df356ae8ebe581c9972cfcb020f425d827f003865ccde"
+}
