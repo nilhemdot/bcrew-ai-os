@@ -1,0 +1,18 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "OPS-003",
+  "approvedPlanRef": "docs/process/ops-003-ops-improvement-rollup-plan.md",
+  "approvedPlanSha256": "e90aab0dab6e237d7a943fcfa225bef0cbe500fd2cd25a7c58488f917b8ad050",
+  "approvedRepoHead": "6e2a7314d28265d5fe0ba760c1e85af1a3f02d78",
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T04:26:51.000-04:00",
+  "score": 10,
+  "approvalNotes": [
+    "Approved unattended Foundation continuation after DATA-001.",
+    "Repair the bounded OPS rollup source/formula path and prove the dead NPS Scores & Reviews dependency is gone.",
+    "The only approved external content mutation is the named Freedom Sheet formula repair cells in this plan when live proof requires it.",
+    "Do not mutate Drive permissions, ClickUp, FUB, finance, credentials, OAuth scopes, provider config, sends, or broad Freedom workbook surfaces.",
+    "Close only with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, and process:foundation-ship."
+  ],
+  "approvalDigest": "ab8f040ae8f4ded054664c8cabf1eafc46f7f968d52e4d54499a85987f36637d"
+}

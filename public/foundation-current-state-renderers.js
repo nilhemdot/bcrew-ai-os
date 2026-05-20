@@ -761,6 +761,15 @@ function summarizeStructureWorkbooks(structureStatus) {
 
   var freedomAdapter = structureStatus.freedomSheetAdapter ||
     (structureStatus.dataHealth && structureStatus.dataHealth.freedomSheetAdapter)
+  var opsImprovementRollup = structureStatus.opsImprovementRollup ||
+    (structureStatus.dataHealth && structureStatus.dataHealth.opsImprovementRollup)
+  var opsPrefix = ''
+  if (opsImprovementRollup && opsImprovementRollup.summary) {
+    opsPrefix = opsImprovementRollup.status === 'healthy'
+      ? 'OPS rollup proof is healthy: dead NPS dependency gone and latest-row sanity locked. '
+      : 'OPS rollup proof needs repair: ' + (opsImprovementRollup.summary.failed || 0) + ' check' + (opsImprovementRollup.summary.failed === 1 ? '' : 's') + ' failing. '
+    if (opsImprovementRollup.status !== 'healthy') return opsPrefix + 'Open OPS-003 before trusting Ops Satisfaction values.'
+  }
   if (freedomAdapter && freedomAdapter.summary) {
     var adapterSummary = freedomAdapter.summary
     var adapterPrefix = freedomAdapter.status === 'healthy'
@@ -773,7 +782,7 @@ function summarizeStructureWorkbooks(structureStatus) {
     return workbook.status !== 'ok'
   })
   if (!drifted.length) {
-    return (freedomAdapter && freedomAdapter.summary ? (
+    return opsPrefix + (freedomAdapter && freedomAdapter.summary ? (
       'Freedom adapter maps ' + (freedomAdapter.summary.healthySourceCount || 0) + '/' + (freedomAdapter.summary.sourceCount || 0) + ' source ID rows with schema drift clear. '
     ) : '') + structureStatus.workbooks.map(function(workbook) {
       return workbook.label

@@ -391,6 +391,16 @@ Live repair completed on `2026-04-18`:
     - `O` = numeric NPS score
   - blank months now stay blank instead of pretending to have a neutral or broken score
 
+OPS-003 closeout boundary (`ops-003-ops-improvement-rollup-v1`):
+
+- the governed proof now checks the live formulas for:
+  - no remaining `NPS Scores & Reviews` formula references in the watched OPS rollup/read-layer ranges
+  - `K10` using the Owners-backed Admin Deal Data Entry month rollup
+  - `Q4` using `Data Entry - Clients, Deals, NPS & GReviews` NPS received / score rows
+  - `Ops Satisfaction` latest actuals using nonblank latest-row queries instead of blindly trusting scaffold rows
+  - `Ops Satisfaction!F5` subtracting the agent-onboarding capture target `F4`, not the signed-client target `D4`
+- this is a bounded formula/source-path repair, not the final rebuilt Ops bonus or client-experience source system
+
 Meaning closeout result:
 
 - the source architecture is clear

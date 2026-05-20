@@ -2,6 +2,7 @@
 
 import { getSheetGridData } from '../lib/google-delegated.js'
 import { buildFreedomSheetSchemaDriftSnapshot } from '../lib/data-001-freedom-source-adapter.js'
+import { evaluateOps003Snapshot, readOps003LiveSnapshot } from '../lib/ops-003-ops-improvement-rollup.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
 import { fileURLToPath } from 'node:url'
 
@@ -629,11 +630,15 @@ export async function runSheetsStructureVerification() {
     sheetStructureStatus: result,
     sourceContracts: getSourceContracts(),
   })
+  const opsImprovementRollupSnapshot = await readOps003LiveSnapshot({ fresh: false })
+  const opsImprovementRollup = evaluateOps003Snapshot(opsImprovementRollupSnapshot)
   return {
     ...result,
     freedomSheetAdapter,
+    opsImprovementRollup,
     dataHealth: {
       freedomSheetAdapter,
+      opsImprovementRollup,
     },
   }
 }
