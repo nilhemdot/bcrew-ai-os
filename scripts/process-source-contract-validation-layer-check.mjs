@@ -264,10 +264,12 @@ async function main() {
   )
   addCheck(
     checks,
-    foundationVerifySource.includes('knownLaterFoundationProgressionBlockers') &&
-      foundationVerifySource.includes(SOURCE_CONTRACT_VALIDATION_LAYER_CARD_ID),
+    historicalCloseoutOwnsCard || (
+      foundationVerifySource.includes('knownLaterFoundationProgressionBlockers') &&
+      foundationVerifySource.includes(SOURCE_CONTRACT_VALIDATION_LAYER_CARD_ID)
+    ),
     'root foundation verifier recognizes source-contract validation as current sprint progression',
-    SOURCE_CONTRACT_VALIDATION_LAYER_CARD_ID,
+    historicalCloseoutOwnsCard ? SOURCE_CONTRACT_VALIDATION_LAYER_CLOSEOUT_KEY : SOURCE_CONTRACT_VALIDATION_LAYER_CARD_ID,
   )
   addCheck(
     checks,

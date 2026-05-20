@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-CLOSEOUT-DATA-SOURCE-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-19T23:55:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/build-closeout-data-source-001-plan.md",
+  "approvedPlanSha256": "efee7538ba7c6f2990c519a8b482ad48518de821c526f23cd68146e35a5f51aa",
+  "approvedRepoHead": "c19519e95c3ee066d178f4b68c824e37cb251c84",
+  "approvalSource": "Steve approved unattended overnight Foundation audit-control sprint and required audit findings to become fixes, live cards, gates, or proof instead of report noise.",
+  "constraints": [
+    "do not redesign Recent Builds or Build Log UI",
+    "do not migrate all closeout records into a new DB table in this card",
+    "do not delete or rewrite closeout history",
+    "audit finding closes only when Build Log reads through a data-source boundary and source_contract_registry has the source row",
+    "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
+  ],
+  "approvalDigest": "e2bcddf0db4adc399dabcd03ec3277a456f4040706328ca3caf4075ab37dab05"
+}

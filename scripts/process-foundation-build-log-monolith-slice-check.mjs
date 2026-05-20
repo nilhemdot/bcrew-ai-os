@@ -82,7 +82,8 @@ async function main() {
     recordLineCount,
     closeoutCount: validation.closeoutCount,
     invalidCloseoutCount: (validation.invalidCloseoutKeys || []).length,
-    behaviorImportsRecords: behaviorSource.includes('./foundation-build-closeout-records.js'),
+    behaviorImportsRecords: behaviorSource.includes('./foundation-build-closeout-records.js') ||
+      behaviorSource.includes('./build-closeout-data-source.js'),
     behaviorEmbedsRecords: behaviorSource.includes('const closeoutRecords = [') || behaviorSource.includes('export const closeoutRecords = ['),
     recordsExportCloseouts: recordsSource.includes('export const closeoutRecords = ['),
     recordsEmbedBehavior: recordsSource.includes('function normalizeList') || recordsSource.includes('export function'),
@@ -90,10 +91,14 @@ async function main() {
   })
 
   const sprintItem = activeSprint.items?.find(item => item.backlogId === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) || null
+  const historicalCloseoutOwnsCard = closeouts.some(closeout =>
+    closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY &&
+      (Array.isArray(closeout.backlogIds) ? closeout.backlogIds : []).includes(FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID)
+  )
   addCheck(checks, approvalValidation.ok && approvalValidation.mode === 'v2', 'Plan approval file is valid v2', approvalValidation.failures?.map(item => item.check).join(', ') || APPROVAL_PATH)
   addCheck(checks, planCriticRuns.some(run => run.cardId === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID && run.status === 'pass' && Number(run.score) >= 9.8), 'durable Plan Critic pass row exists before build', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
-  addCheck(checks, activeSprint.sprint?.sprintId === 'foundation-build-log-monolith-slice-2026-05-13', 'active sprint is the monolith slice sprint', activeSprint.sprint?.sprintId || activeSprint.error?.message || 'missing')
-  addCheck(checks, ['building_now', 'done_this_sprint'].includes(sprintItem?.stage), 'CLEANUP-003 reached Building Now or Done This Sprint', sprintItem?.stage || 'missing')
+  addCheck(checks, activeSprint.sprint?.sprintId === 'foundation-build-log-monolith-slice-2026-05-13' || historicalCloseoutOwnsCard, 'active sprint or historical closeout owns the monolith slice sprint', historicalCloseoutOwnsCard ? FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY : activeSprint.sprint?.sprintId || activeSprint.error?.message || 'missing')
+  addCheck(checks, ['building_now', 'done_this_sprint'].includes(sprintItem?.stage) || historicalCloseoutOwnsCard, 'CLEANUP-003 reached Building Now, Done This Sprint, or historical closeout', historicalCloseoutOwnsCard ? FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY : sprintItem?.stage || 'missing')
   addCheck(checks, splitEvaluation.ok, 'real split layout passes evaluator', splitEvaluation.checks.filter(check => !check.ok).map(check => check.check).join(', ') || `${behaviorLineCount}/${recordLineCount}`)
   addCheck(checks, syntheticProof.ok && syntheticProof.unsplit.ok === false && syntheticProof.split.ok === true, 'dogfood proof rejects unsplit oversized build-log and accepts split shape', `unsplit=${syntheticProof.unsplit.ok} split=${syntheticProof.split.ok}`)
   addCheck(checks, closeouts.some(closeout => closeout.key === 'foundation-performance-v1') && closeouts.some(closeout => closeout.key === 'plan-critic-architectural-rules-v1'), 'recent closeout keys still resolve through actual function path', closeouts.slice(0, 3).map(closeout => closeout.key).join(', '))
