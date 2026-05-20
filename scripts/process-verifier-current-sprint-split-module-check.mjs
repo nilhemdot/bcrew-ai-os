@@ -42,6 +42,10 @@ import {
   buildFoundationCurrentSprintVerifierDogfoodProof,
   evaluateFoundationCurrentSprintVerifier,
 } from '../lib/foundation-current-sprint-verifier.js'
+import {
+  STYLESHEET_MODULE_PATHS,
+  combineImportedStylesheets,
+} from '../lib/foundation-stylesheet-monolith-split.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -212,6 +216,9 @@ async function loadEvaluationInput({ baseUrl }) {
     readTextIfExists('public/styles-foundation-workflows.css'),
   ])
   const packageJson = JSON.parse(packageSource)
+  const stylesheetModuleSources = Object.fromEntries(await Promise.all(
+    STYLESHEET_MODULE_PATHS.map(async modulePath => [modulePath, await readTextIfExists(modulePath)]),
+  ))
   const closeouts = getFoundationBuildCloseouts()
   const backlogItems = foundationHub.backlogItems || []
   const itemById = new Map(backlogItems.map(item => [item.id, item]))
@@ -267,7 +274,7 @@ async function loadEvaluationInput({ baseUrl }) {
       foundationOperationsRenderersSource,
       foundationRouterSource,
     ].join('\n'),
-    foundationStylesSource: [
+    foundationStylesSource: combineImportedStylesheets(stylesSource, stylesheetModuleSources) || [
       stylesSource,
       stylesBaseSource,
       stylesCoreSource,

@@ -1,0 +1,24 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DECISION-005",
+  "approvedPlanRef": "docs/process/decision-005-plan.md",
+  "approvedPlanSha256": "8ff5fa553d89ce1ba9ab69b5bb83bc8f8f926f85a1bbd8854428c14b71487deb",
+  "approvedRepoHead": "60cdced6c4a0bb104ce67a0da10e2de63d7f8c84",
+  "approvedBy": "Steve approved unattended Foundation sprint continuation",
+  "approvedAt": "2026-05-20T07:05:00.000-04:00",
+  "approvalSource": "Main-session sprint approval: continue card-by-card without stopping; park unsafe actions, keep safe Foundation work moving.",
+  "score": 10,
+  "constraints": [
+    "Green means raw green; do not classify broken workflow failures as fixed.",
+    "Blockers block unsafe actions, not the whole sprint.",
+    "No auto-lock, auto-apply, external writes, Drive permission mutation, credential mutation, paid/provider access, browser-auth work, or broad private extraction.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "notNext": [
+    "Do not build DECISION-006 policy/SOP artifacts inside DECISION-005.",
+    "Do not send messages or mutate external systems.",
+    "Do not start Value Builder split."
+  ],
+  "notes": "DECISION-005 is allowed to add internal decision provenance schema/store/proof and sprint closeout wiring only.",
+  "approvalDigest": "c99bbc79b06ff40b6b6cd5830783f4abcd57b2f8b543c40ee3ec6eb20d60b79a"
+}
