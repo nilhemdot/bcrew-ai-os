@@ -112,7 +112,7 @@ async function main() {
   addCheck(checks, audit.autonomousDev === false && audit.llmDetectionUsed === false, 'audit does not enable autonomous dev or LLM detection', `autonomousDev=${audit.autonomousDev} llmDetectionUsed=${audit.llmDetectionUsed}`)
   addCheck(checks, audit.syntheticProof?.ok === true, 'synthetic detector proof passes', JSON.stringify(audit.syntheticProof || {}))
   addCheck(checks, CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS.every(endpoint => endpointSet.has(endpoint)), 'endpoint coverage includes all required Foundation routes', Array.from(endpointSet).join(', '))
-  addCheck(checks, (audit.findings || []).length >= 12, 'deterministic audit reports a material finding set', String((audit.findings || []).length))
+  addCheck(checks, (audit.findings || []).length >= 10, 'deterministic audit reports the remaining material finding set as routed audit debt burns down', String((audit.findings || []).length))
   addCheck(checks, (audit.proposedCards || []).length >= 5, 'audit proposes multiple backlog follow-up fixes without creating them', String((audit.proposedCards || []).length))
   addCheck(checks, sameCounts(beforeCounts, afterCounts), 'backlog lane counts unchanged by audit command', `before=${JSON.stringify(beforeCounts)} after=${JSON.stringify(afterCounts)}`)
   const activeSprintId = activeSprint.sprint?.sprintId || ''

@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-LOG-API-CACHE-AND-SLIM-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-19T23:05:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/build-log-api-cache-and-slim-001-plan.md",
+  "approvedPlanSha256": "0cadeb92e190182737a1f090e4507ce3edb9bbc046e512ae3988649c9981c7fe",
+  "approvedRepoHead": "3079fd58f246389513899fd896d16d31771888cd",
+  "approvalSource": "Steve approved unattended overnight Foundation audit-control sprint and required deep-audit findings to become fixes, live cards, gates, or proof instead of report noise.",
+  "constraints": [
+    "do not redesign Recent Work or Daily Summary",
+    "do not rewrite build-log closeout history or remove top-level builds compatibility",
+    "cache/slim proof must dogfood the old duplicated payload and no-cache failure modes",
+    "green means raw green; repeated failures repair first",
+    "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
+  ],
+  "approvalDigest": "12c14985df8ba8d2955dfc62b1a78ae4486905ad44b575d5ef3b1e0d03e909aa"
+}

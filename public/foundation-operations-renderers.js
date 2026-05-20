@@ -1084,10 +1084,34 @@ function renderBuildCommitGroup(commitGroup) {
   return details
 }
 
+function getBuildLogBuildKey(build, index) {
+  return build && (build.buildKey || [
+    build.sha || build.shortSha || 'unknown',
+    build.closeoutKey || build.subject || 'commit',
+    index || 0,
+  ].join(':'))
+}
+
+function indexBuildLogBuilds(builds) {
+  var map = {}
+  ;(builds || []).forEach(function(build, index) {
+    map[getBuildLogBuildKey(build, index)] = build
+  })
+  return map
+}
+
+function resolveBuildLogGroupBuilds(systemGroup, buildMap) {
+  if (systemGroup && Array.isArray(systemGroup.builds) && systemGroup.builds.length) return systemGroup.builds
+  return (systemGroup && systemGroup.buildRefs || []).map(function(ref) {
+    return buildMap[ref]
+  }).filter(Boolean)
+}
+
 function renderBuildGroups(buildLog, builds) {
   var groups = buildLog.groups && buildLog.groups.length
     ? buildLog.groups
     : groupBuildsByDayAndArea(builds)
+  var buildMap = indexBuildLogBuilds(builds)
   var wrap = document.createElement('div')
   wrap.className = 'build-log-day-list'
 
@@ -1110,7 +1134,7 @@ function renderBuildGroups(buildLog, builds) {
 
       var list = document.createElement('div')
       list.className = 'build-log-list'
-      groupBuildsByCommit(systemGroup.builds || []).forEach(function(commitGroup) {
+      groupBuildsByCommit(resolveBuildLogGroupBuilds(systemGroup, buildMap)).forEach(function(commitGroup) {
         if (commitGroup.builds.length > 1) {
           list.appendChild(renderBuildCommitGroup(commitGroup))
           return
