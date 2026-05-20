@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-18
-Status: MEMORY-002 preflight returned pending approval
+Last updated: 2026-05-20
+Status: Foundation control-plane cleanup closed; Brain Fleet scoped and paused
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -21,10 +21,15 @@ Rule: if a package depends on open live inputs, open runtime activation, or open
 
 ## Short Version
 
-The Foundation is real. The system is not yet fully alive.
+The Foundation is real, but it is not clean until command truth is clean.
+
+Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`; the active card is `BRAIN-FLEET-FOUNDATION-001` in scoped/paused state. Do not start it until Steve gives the next build order.
+
+Steve's order is Foundation/control-plane cleanup, Brain Fleet, Extractor proof, Extraction scale, then Strategy Hub / `STRATEGY-003`. `STRATEGY-003` is parked until those higher-priority gates are clean.
 
 Current sprint call:
 
+- `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is done. It repaired the two stale red gates, routed May 20 deep-audit findings, and forced Current Sprint/live plan truth back to raw green before Brain Fleet, extractor, Strategy, or People work continues. The next scoped sequence is `BRAIN-FLEET-FOUNDATION-001`, `EXTRACTOR-BRAIN-FLEET-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, then `STRATEGY-003`.
 - `MEMORY-002` has a metadata-only OpenClaw native memory preflight under `memory-002-openclaw-native-memory-preflight-v1`. The preflight checks OpenClaw config validity, memory-core/active-memory/dreaming posture, and compact memory status metadata only. It keeps active-memory/dreaming enablement, OpenClaw gateway restart, and real private recall proof returned pending explicit local-runtime approval. It does not mutate OpenClaw config, restart the gateway, run active recall, run dreaming, search/promote/index memory, read or print private memory content, call providers/models, run live extraction, mutate external systems, mutate Drive permissions, or run Agent Feedback auto-send. `MEMORY-002` remains scoped/returned, not done.
 - `FOUNDATION-UP-CAPABILITY-REGISTRY-001` is closed under `foundation-up-capability-registry-v1`. V1 registers Foundation-up provider/tool capability truth for Fal image generation, ElevenLabs voice, Canva read metadata, and local terminal workers before agents or workers can claim/use them. Each row names owner, env refs by name only, permission class, cost policy, audit log, callable path, proof command, approval boundary, and blocked agent binding status. Dogfood rejects missing env refs, missing audit logs, premature provider approval, hidden workers, destructive terminal command allowlists, live side effects, and secret leaks. It does not call providers, spend credits, generate media/voice/model output, launch terminal workers, launch hidden subagents, grant runtime authority, mutate external systems, run live extraction/source crawls, or store/print secrets. It is followed by `MEMORY-002` from repo truth as safe scope/preflight only.
 - `EXTRACTION-TEAM-001` is closed under `extraction-team-runtime-v1`. V1 anchors the supervised Extraction Team runtime by composing source-auth, public queue, runtime readiness, visible worker, proposal-output, and private-source preflight gates. It is ready only as a supervised contract: public queues remain metadata-only, runtime readiness grants no live extraction approval, visible workers remain unlaunched, outputs remain proposal-only, and MyICOR/Skool stay blocked pending source-specific approval. Dogfood rejects live run start, missing runtime stage, worker launch, direct downstream write, hidden subagent, and premature private-source approval. It does not run live extraction, source lookup/API/crawl, transcript/keyframe/screenshot/download work, summarization, vision/model calls, private/paid auth, downstream writes, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, invisible workers, or extraction workers. It was followed by `FOUNDATION-UP-CAPABILITY-REGISTRY-001`.
@@ -188,7 +193,7 @@ Current sprint call:
 - The sprint does not open extraction, Skool/myICOR/Loom auth, hubs, autonomous dev, Drive permission mutation, or request-access emails. Stop at sprint review before opening the next sprint.
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is done under `current-sprint-dynamic-truth-v1`. Hardcoded Current Sprint defaults are bootstrap-only, and incomplete live sprint metadata fails closed.
 - `SPRINT-STAGE-GATE-001` is done under `sprint-stage-gate-v1`. Sprint Ready and Building Now require complete doctrine and Plan Critic pass rows; Done This Sprint requires done backlog truth and closeout proof. The dogfood proof rejected the original skipped Connector/Routing state and accepted the repaired after-action state.
-- `FOUNDATION-PLAN-RECONCILE-001` is done under `foundation-plan-reconcile-control-plane-v1`: rebuild plan/state/handoff truth now points to the active control-plane sprint, records Source Once-Over/Connector-Routing/Process Repair closeouts, and queues next source-truth cards without pulling them.
+- `FOUNDATION-PLAN-RECONCILE-001` is done under `foundation-plan-reconcile-control-plane-v1`: rebuild plan/state/handoff truth now points to the historical control-plane sprint ID `control-plane-connector-readiness-2026-05-12`, records Source Once-Over/Connector-Routing/Process Repair closeouts, and queues next source-truth cards without pulling them.
 - `CONNECTOR-CREDENTIAL-001` is done under `connector-credential-v1`: a no-secret connector credential/preflight registry now exposes connector/source IDs, provider, credential class, credential reference names, owner, last probe status, source-unlocked state, unlocked workload, and blocker reason.
 - `LLM-AUTH-AUDIT-001` is done under `llm-auth-audit-v1`: the Foundation job ledger recorded fresh model route/auth probes, OpenAI/Gemini API fallback status, OpenClaw subscription gateway status, Claude Code subscription status, missing/blocked Anthropic and Claude OAuth routes, and dry-run-only route selection.
 - `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` is done under `source-extraction-gap-followup-v1`: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-source-extraction-gap-triage.md` ranks 23 source rows needing attention across safe-next, sprint-2-candidate, needs-Steve-access, and blocked buckets without starting ingestion. The approved control-plane sprint is complete and should stop at sprint review before another sprint opens.

@@ -290,9 +290,13 @@ async function main() {
     await applyLiveState({ closeCard: args.closeCard, planReview, gitState })
   }
 
-  const [activeSprint, cards, planCriticRuns] = await Promise.all([
-    getActiveFoundationCurrentSprint(),
-    getBacklogItemsByIds(OVERNIGHT_ORDER),
+  const activeSprint = await getActiveFoundationCurrentSprint()
+  const activeSprintCardIds = Array.from(new Set([
+    ...OVERNIGHT_ORDER,
+    ...(activeSprint.items || []).map(item => String(item.cardId || item.backlogId || '').trim()).filter(Boolean),
+  ]))
+  const [cards, planCriticRuns] = await Promise.all([
+    getBacklogItemsByIds(activeSprintCardIds),
     getPlanCriticRunsByCardIds([CARD_ID]),
   ])
   const liveGate = validateCurrentSprintActiveCardGateSnapshot({
@@ -309,9 +313,15 @@ async function main() {
   addCheck(checks, planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic passes for active-card gate', buildPlanCriticResultSummary(planReview))
   addCheck(checks, dogfood.ok, 'dogfood rejects missing active-card fields and stop-whole-sprint policy', dogfood.ok ? 'pass' : JSON.stringify(dogfood))
   addCheck(checks, liveGate.ok, 'live Current Sprint active-card gate is healthy', liveGate.findings.map(item => `${item.check}: ${item.detail}`).join('; ') || liveGate.activeBlockerCardId)
-  addCheck(checks, activeSprint.sprint?.sprintId === SPRINT_ID, 'Current Sprint uses the approved overnight sprint id', activeSprint.sprint?.sprintId || 'missing')
-  addCheck(checks, activeSprint.items.length === OVERNIGHT_ORDER.length, 'Current Sprint contains the approved overnight order', String(activeSprint.items.length))
-  addCheck(checks, OVERNIGHT_ORDER.every(cardId => cards.some(card => card.id === cardId)), 'all overnight sprint cards resolve to live backlog truth', cards.map(card => card.id).join(', '))
+  addCheck(checks, activeSprint.sprint?.status === 'active' && Boolean(activeSprint.sprint?.sprintId), 'Current Sprint exposes live active sprint truth', activeSprint.sprint?.sprintId || 'missing')
+  addCheck(checks, activeSprint.items.length > 0, 'Current Sprint contains live ordered work', String(activeSprint.items.length))
+  addCheck(
+    checks,
+    activeSprint.sprint?.sprintId !== SPRINT_ID || activeSprint.items.length === OVERNIGHT_ORDER.length,
+    'historical overnight sprint order is valid when that sprint is active',
+    `${activeSprint.sprint?.sprintId || 'missing'}:${activeSprint.items.length}`,
+  )
+  addCheck(checks, OVERNIGHT_ORDER.every(cardId => cards.some(card => card.id === cardId)), 'historical overnight sprint cards still resolve to live backlog truth', cards.map(card => card.id).join(', '))
   addCheck(checks, currentCard?.priority === 'P0' && (args.closeCard ? currentCard.lane === 'done' : ['executing', 'done'].includes(currentCard?.lane)), 'active-card gate backlog row has correct lane', currentCard ? `${currentCard.lane}/${currentCard.priority}` : 'missing')
   addCheck(checks, nextCard && ['scoped', 'executing', 'done'].includes(nextCard.lane), 'next deep-audit closure gate card exists', nextCard ? `${nextCard.id}:${nextCard.lane}` : 'missing')
   addCheck(checks, planCriticRuns.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE) || args.apply || args.closeCard, 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')

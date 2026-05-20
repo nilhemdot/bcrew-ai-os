@@ -42,6 +42,14 @@ const NEXT_SPRINT_QUEUE = [
   'RESEARCH-LANE-PURGE-001',
 ]
 
+const STEVE_ORDER_CARD_IDS = [
+  'FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001',
+  'BRAIN-FLEET-FOUNDATION-001',
+  'EXTRACTOR-BRAIN-FLEET-PROOF-001',
+  'EXTRACTOR-OVERNIGHT-RUN-GUARD-001',
+  'STRATEGY-003',
+]
+
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}
   for (const arg of argv) {
@@ -155,20 +163,32 @@ async function main() {
   const currentStateShortVersion = sectionBetween(currentState, '## Short Version', '\nBuilt:')
   const staleActiveMarkers = findStaleActiveSprintMarkers(currentPlanActiveSection, currentStateShortVersion)
   const docsText = `${currentPlan}\n${currentState}`
+  const activeDocsText = `${currentPlanActiveSection}\n${currentStateShortVersion}`
+  const historicalControlPlaneCardsDocumented = SPRINT_CARD_IDS.filter(cardId => currentPlan.includes(cardId) && currentState.includes(cardId))
+  const activeBlockerDocumented = activeBlockerCardId ? activeDocsText.includes(activeBlockerCardId) : true
 
   addFinding(findings, approvalValidation.ok && Number(approvalValidation.approval?.score) >= 9.8, 'Plan Critic approval file is valid at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || '')
   addFinding(findings, packageJson.scripts?.['process:foundation-plan-reconcile-check'] === `node --env-file-if-exists=.env ${FOUNDATION_PLAN_RECONCILE_SCRIPT_PATH}`, 'package exposes focused foundation-plan reconcile proof')
   addFinding(findings, currentSprint.status === 'healthy', 'live Current Sprint API is healthy', currentSprint.status || 'missing')
-  addFinding(findings, currentSprint.sprintId === SPRINT_ID, 'live Current Sprint API reports the control-plane sprint', currentSprint.sprintId || 'missing')
-  addFinding(findings, SPRINT_CARD_IDS.every(cardId => stageItemMap.has(cardId)), 'live sprint contains all six approved cards', SPRINT_CARD_IDS.filter(cardId => !stageItemMap.has(cardId)).join(', '))
   addFinding(
     findings,
-    activeBlockerCardId === null || SPRINT_CARD_IDS.includes(activeBlockerCardId),
-    'live active blocker is one of the approved sprint cards or closed',
-    activeBlockerCardId || 'none',
+    Boolean(currentSprint.sprintId) &&
+      activeBlockerDocumented &&
+      currentPlan.includes('Current Sprint API owns the active blocker') &&
+      currentState.includes('Current Sprint API owns the active blocker'),
+    'active Current Sprint docs match live API truth',
+    `${currentSprint.sprintId || 'missing'}:${activeBlockerCardId || 'none'}:documented=${activeBlockerDocumented}`,
   )
-  addFinding(findings, currentPlan.includes(SPRINT_ID) && currentState.includes(SPRINT_ID), 'plan and state name the active control-plane sprint', `plan=${currentPlan.includes(SPRINT_ID)} state=${currentState.includes(SPRINT_ID)}`)
+  addFinding(findings, historicalControlPlaneCardsDocumented.length === SPRINT_CARD_IDS.length, 'historical control-plane sprint cards remain documented', SPRINT_CARD_IDS.filter(cardId => !historicalControlPlaneCardsDocumented.includes(cardId)).join(', '))
+  addFinding(
+    findings,
+    activeBlockerCardId === null || !SPRINT_CARD_IDS.includes(activeBlockerCardId) || currentSprint.sprintId === SPRINT_ID,
+    'historical control-plane sprint is not treated as current unless active',
+    `${currentSprint.sprintId || 'missing'}:${activeBlockerCardId || 'none'}`,
+  )
+  addFinding(findings, currentPlan.includes(SPRINT_ID) && currentState.includes(SPRINT_ID), 'plan and state preserve historical control-plane sprint closeout', `plan=${currentPlan.includes(SPRINT_ID)} state=${currentState.includes(SPRINT_ID)}`)
   addFinding(findings, currentPlan.includes('Current Sprint API owns the active blocker') && currentState.includes('Current Sprint API owns the active blocker'), 'docs route active-blocker truth to the live API')
+  addFinding(findings, STEVE_ORDER_CARD_IDS.every(cardId => currentPlan.includes(cardId) && currentState.includes(cardId)), 'docs record Steve ordered control-plane cleanup queue', STEVE_ORDER_CARD_IDS.filter(cardId => !(currentPlan.includes(cardId) && currentState.includes(cardId))).join(', '))
   addFinding(findings, staleActiveMarkers.length === 0, 'stale active sprint markers are rejected from active sections', staleActiveMarkers.join(' | '))
   addFinding(findings, REQUIRED_CLOSEOUT_KEYS.every(key => docsText.includes(key)), 'docs record shipped sprint closeouts before the control-plane sprint', REQUIRED_CLOSEOUT_KEYS.filter(key => !docsText.includes(key)).join(', '))
   addFinding(findings, SPRINT_CARD_IDS.every(cardId => currentPlan.includes(cardId) && currentState.includes(cardId)), 'docs list every approved control-plane sprint card')
@@ -212,7 +232,8 @@ async function main() {
     sprintId: currentSprint.sprintId || null,
     apiStatus: currentSprint.status || null,
     activeBlockerCardId,
-    sprintCardsPresent: SPRINT_CARD_IDS.filter(cardId => stageItemMap.has(cardId)),
+    activeSprintCardsPresent: Array.from(stageItemMap.keys()),
+    historicalControlPlaneCardsDocumented,
     queuedNextSprintCards: NEXT_SPRINT_QUEUE,
     staleActiveMarkers,
     rawProofFindings: [],

@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-18
-Version: v6.140 - MEMORY-002 preflight returned
-Status: MEMORY-002 returned pending explicit local-runtime approval
+Last updated: 2026-05-20
+Version: v6.141 - control-plane truth cleanup closed before Brain Fleet
+Status: Foundation control-plane cleanup closed; Brain Fleet scoped and paused
 
 Use this doc for one question:
 
@@ -16,21 +16,32 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`MEMORY-002` has a metadata-only preflight under `memory-002-openclaw-native-memory-preflight-v1`.
+Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`; the active blocker is `BRAIN-FLEET-FOUNDATION-001` in scoped/paused state. Do not start it until Steve gives the next build order.
 
-Result: OpenClaw memory posture is inspected from compact metadata only. `memory-core` is already present in the local runtime posture; active-memory/dreaming enablement, OpenClaw gateway restart, and real private recall proof are returned pending explicit local-runtime approval. No OpenClaw config mutation, gateway restart, active recall, dreaming run, memory search/promote/index mutation, provider/model call, private memory content readout, live extraction, or external write is approved or performed by this preflight.
+Steve's command order:
 
-Next: `MEMORY-002` remains scoped/returned, not done. Continue the next safe Foundation card from repo truth unless Steve explicitly approves local OpenClaw runtime mutation and recall proof.
+1. Foundation/control-plane cleanup
+2. Brain Fleet
+3. Extractor proof
+4. Extraction scale
+5. Strategy Hub / `STRATEGY-003`
 
-Previous Foundation-up card: `FOUNDATION-UP-CAPABILITY-REGISTRY-001` is closed.
+`STRATEGY-003` is parked. Do not start Strategy Hub, Brain Fleet implementation, extractor proof, extraction scale, People work, live extraction, provider/model calls, credential mutation, Drive permission mutation, external writes, emails, or public posts from this cleanup.
 
-Closeout: `foundation-up-capability-registry-v1`.
+Current cleanup card:
 
-Scope shipped: registered Foundation-up provider/tool capability truth for Fal image generation, ElevenLabs voice, Canva read metadata, and local terminal workers. Each row names owner, env refs by name only, permission class, cost policy, audit log, callable path, proof command, approval boundary, and blocked agent binding status. V1 is registration/proof only: provider/tool/runtime use remains blocked pending separate approval.
+1. `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` - done under `foundation-control-plane-truth-cleanup-v1`. May 20 audit findings are closed/routed/accepted with proof; active-card gate, foundation-plan reconcile, System Health, repeated-failure gate, backlog hygiene, and `foundation:verify` are green. `process:foundation-ship` and pushed clean `main` close the card.
 
-Do not call Fal, ElevenLabs, Canva write/export/upload/design APIs, OpenAI, Anthropic, Gemini, or other providers; spend provider credits; launch terminal workers; launch hidden subagents; grant Harlan/Crewbert/role assistants/extraction workers new runtime authority; mutate Drive/Gmail/ClickUp/Slack/Agent Feedback/Canva/external systems; run live extraction/source crawls/transcripts/screenshots/downloads/model calls; or store/print secret values from this card.
+Next scoped queue after cleanup:
 
-Prior next-step boundary: continue `MEMORY-002` from repo truth as safe scope/preflight only. That preflight is now complete and returned pending approval; do not mutate OpenClaw runtime, private memory, or external systems unless the next card has process approval and proof.
+1. `BRAIN-FLEET-FOUNDATION-001` - current scoped blocker after cleanup, not started here.
+2. `EXTRACTOR-BRAIN-FLEET-PROOF-001` - extractor proof after Brain Fleet foundation.
+3. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - extraction scale guard after proof.
+4. `STRATEGY-003` - Strategy Hub only after Foundation, Brain Fleet, extractor proof, and extraction scale gates allow it.
+
+May 20 deep audit truth: the 03:00 nightly deep audit ran and produced 7 deterministic findings, 0 P0. P1/P2 findings are closed, routed, or explicitly accepted through live backlog cards and closeout proof; the deep-audit closure gate remains healthy.
+
+Historical closeout context: `MEMORY-002` returned pending explicit local-runtime approval under `memory-002-openclaw-native-memory-preflight-v1`; `FOUNDATION-UP-CAPABILITY-REGISTRY-001` is closed under `foundation-up-capability-registry-v1`; `EXTRACTION-TEAM-001` is closed under `extraction-team-runtime-v1`; public skills/source-auth/extraction preflight slices remain closed or blocked as recorded below. None of those historical notes overrides the live Current Sprint API.
 
 Previous supervised extractor runtime: `EXTRACTION-TEAM-001` is closed under `extraction-team-runtime-v1`; live extraction, source lookup/API/crawl, transcripts, keyframes, screenshots, downloads, summarization, vision/model calls, private/paid/community/course auth, downstream writes, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, invisible workers, and extraction workers remain blocked without separate approval.
 

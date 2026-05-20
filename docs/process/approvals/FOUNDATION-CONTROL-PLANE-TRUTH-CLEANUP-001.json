@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T10:30:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/foundation-control-plane-truth-cleanup-001-plan.md",
+  "approvedPlanSha256": "eefbb27f138979bf33e48bf013d97b1e2f8462380aab218586a0055053142337",
+  "approvedRepoHead": "5116cde88289d694411d2c77186f8783478c1e60",
+  "approvalSource": "Steve direct mission on 2026-05-20: make Foundation 100% clean/green before Brain Fleet, extractor, Strategy, or People work; do not start STRATEGY-003.",
+  "constraints": [
+    "Foundation/control-plane cleanup comes before Brain Fleet, extractor, Strategy, or People work",
+    "do not start STRATEGY-003 from this card",
+    "green means raw green; do not hide failures by classification",
+    "May 20 deep-audit P1/P2 findings must be closed, routed, or explicitly accepted with proof",
+    "final closeout requires System Health raw 0 risk / 0 watch, repeated-failure gate healthy, backlog hygiene healthy, foundation:verify green, process:foundation-ship green, and clean pushed main"
+  ],
+  "approvalDigest": "ad355842e25ecafd5e54b2703371dcb5b3a919bae962c719e828a432ac466d42"
+}
