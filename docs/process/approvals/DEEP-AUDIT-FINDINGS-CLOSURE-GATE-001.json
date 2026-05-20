@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-19T22:31:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/deep-audit-findings-closure-gate-001-plan.md",
+  "approvedPlanSha256": "f589afbb29b6e6b10b92b60f02ef57ef1b68203059861c73227bcb7705b7d763",
+  "approvedRepoHead": "a740a2d7c1ed2c7e2183ec25e6c4b323d8df0c26",
+  "approvalSource": "Steve approved unattended overnight Foundation audit-control work and explicitly required that audit findings become fixes, live cards, gates, or proof instead of report noise.",
+  "constraints": [
+    "do not implement audit findings inside the closure gate",
+    "all P0/P1/P2 findings must route to live backlog truth or shipped proof",
+    "scoped findings are not fixed; keep the next P1 card active",
+    "green means raw green; repeated failures repair first",
+    "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
+  ],
+  "approvalDigest": "c0dc2e623b196c2b3ea27a724d6408fac97bc303104538734fc0c58b697f04c3"
+}
