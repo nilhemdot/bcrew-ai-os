@@ -1,0 +1,26 @@
+{
+  "cardId": "INTEL-THREAD-CONTEXT-001",
+  "score": 10,
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T02:45:00.000-04:00",
+  "approvalSource": "Steve approved unattended Foundation execution: keep going card-by-card, park unsafe blockers, and continue safe work.",
+  "notes": "Approved as the next safe card after KPI-LEAD-VALIDATION-001. Scope is read-only Strategic Intelligence proof enrichment: expose thread completeness, reply-backed context, direction, latest activity, source account, evidence use, corroboration, and weak-proof flags. Not approved: new extraction/sync/crawl/browser/OCR/transcription/provider work, source-system writes, action-route apply changes, Drive permission mutation, credential/key rotation, paid/provider access, browser-auth, or broad private extraction.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/intel-thread-context-001-plan.md",
+  "approvedPlanSha256": "994aa9e9f8552715371ab81b92543c556d92a22625fceca8d240e7a27521e607",
+  "approvedRepoHead": "5d793ae93b544c00bf368dad7f47ef55b32a0c21",
+  "changedFiles": [
+    "lib/intel-thread-context.js",
+    "lib/intelligence-action-router.js",
+    "public/strategic-execution.js",
+    "lib/foundation-verifier-followup-backlog-assurance.js",
+    "scripts/process-intel-thread-context-check.mjs",
+    "package.json",
+    "docs/process/intel-thread-context-001-plan.md",
+    "docs/process/approvals/INTEL-THREAD-CONTEXT-001.json",
+    "docs/handoffs/2026-05-20-intel-thread-context-closeout.md",
+    "lib/foundation-build-closeout-intelligence-records.js",
+    "lib/foundation-verify-coverage-card-ids.js"
+  ],
+  "approvalDigest": "a7df2c5848dab5786a3d31505c701e5c94d8eba66dd7d5c84e80507a3ef42130"
+}

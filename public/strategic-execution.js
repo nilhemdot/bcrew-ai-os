@@ -1151,6 +1151,31 @@
         appendText(proofCard, 'p', 'Participants: ' + item.participants.join(', '), 'strategy-v2-proof-small')
       }
       appendText(proofCard, 'p', emptyText(item.threadStatus, 'Thread status not captured'), 'strategy-v2-proof-small')
+      if (item.threadContext) {
+        var context = item.threadContext
+        appendText(
+          proofCard,
+          'p',
+          [
+            context.threadStatus || 'Thread status not captured',
+            context.latestActivityAt ? 'latest ' + formatDateTime(context.latestActivityAt) : 'latest activity missing',
+            context.direction && context.direction.label ? context.direction.label : '',
+            context.corroboration && context.corroboration.label ? context.corroboration.label : '',
+          ].filter(Boolean).join(' | '),
+          'strategy-v2-proof-small'
+        )
+        var weakFlags = Array.isArray(context.weakFlags) ? context.weakFlags : []
+        if (weakFlags.length) {
+          var flags = document.createElement('div')
+          flags.className = 'strategy-v2-proof-facts'
+          weakFlags.forEach(function(flag) {
+            flags.appendChild(makePill(flag.label || flag.code || 'weak proof', flag.severity === 'risk' ? 'bad' : 'watch'))
+          })
+          proofCard.appendChild(flags)
+        } else if (context.confidenceLabel) {
+          proofCard.appendChild(makePill(context.confidenceLabel, 'good'))
+        }
+      }
       if (item.quote) {
         appendText(proofCard, 'blockquote', item.quote, 'strategy-v2-proof-quote')
       }

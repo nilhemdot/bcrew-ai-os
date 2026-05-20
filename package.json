@@ -444,6 +444,7 @@
     "process:strategy-009-check": "node --env-file-if-exists=.env scripts/process-strategy-009-check.mjs",
     "process:kpi-appt-quality-check": "node --env-file-if-exists=.env scripts/process-kpi-appt-quality-check.mjs",
     "process:kpi-lead-validation-check": "node --env-file-if-exists=.env scripts/process-kpi-lead-validation-check.mjs",
+    "process:intel-thread-context-check": "node --env-file-if-exists=.env scripts/process-intel-thread-context-check.mjs",
     "process:avatar-import-check": "node --env-file-if-exists=.env scripts/process-avatar-import-check.mjs",
     "auto-deploy:rollback": "node --env-file-if-exists=.env scripts/auto-deploy-rollback.mjs",
     "process:auto-deploy-rollback-check": "node --env-file-if-exists=.env scripts/process-auto-deploy-rollback-check.mjs",
