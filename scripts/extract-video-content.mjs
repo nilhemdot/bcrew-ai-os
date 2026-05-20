@@ -22,8 +22,10 @@ function parseArgs(argv) {
   const result = {}
   for (const arg of argv) {
     if (!arg.startsWith('--')) continue
-    const [key, value] = arg.slice(2).split('=')
-    result[key] = value ?? true
+    const separatorIndex = arg.indexOf('=')
+    const key = separatorIndex >= 0 ? arg.slice(2, separatorIndex) : arg.slice(2)
+    const value = separatorIndex >= 0 ? arg.slice(separatorIndex + 1) : true
+    result[key] = value
   }
   return result
 }
@@ -343,6 +345,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2))
   const targetKey = String(args.target || args.crawlTarget || DEFAULT_TARGET).trim()
   const inventoryTargetKey = String(args.inventoryTarget || DEFAULT_INVENTORY_TARGET).trim()
+  const onlyExternalId = String(args.onlyExternalId || '').trim()
   const actor = String(args.actor || process.env.FOUNDATION_JOB_ACTOR || 'video-content-extractor').trim()
   const limit = Math.min(100, Math.max(1, Number(args.limit || args.maxItems || 5) || 5))
   const maxTextChars = Math.max(10000, Number(args.maxTextChars || 250000) || 250000)
@@ -361,12 +364,14 @@ async function main() {
     const items = await listVideoContentExtractionQueue({
       inventoryTargetKey,
       extractionTargetKey: targetKey,
+      externalId: onlyExternalId,
       limit,
     })
 
     console.log('Video content extraction bite')
     console.log(`  Target: ${targetKey}`)
     console.log(`  Inventory target: ${inventoryTargetKey}`)
+    if (onlyExternalId) console.log(`  Exact external ID: ${onlyExternalId}`)
     console.log(`  Queue selected: ${items.length}`)
 
     if (dryRun) {

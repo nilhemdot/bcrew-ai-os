@@ -21,9 +21,11 @@ function parseArgs(argv) {
   const result = {}
   for (const arg of argv) {
     if (!arg.startsWith('--')) continue
-    const [key, value] = arg.slice(2).split('=')
+    const separatorIndex = arg.indexOf('=')
+    const key = separatorIndex >= 0 ? arg.slice(2, separatorIndex) : arg.slice(2)
+    const value = separatorIndex >= 0 ? arg.slice(separatorIndex + 1) : true
     const normalizedKey = String(key || '').replace(/-([a-z0-9])/g, (_match, char) => char.toUpperCase())
-    result[normalizedKey] = value ?? true
+    result[normalizedKey] = value
   }
   return result
 }
@@ -68,6 +70,7 @@ function getTargetRunner(target, options = {}) {
   const maxItemsPerRun = numberFromBudget(target, 'maxItemsPerRun', 25)
   const maxFoldersPerRun = numberFromBudget(target, 'maxFoldersPerRun', 1)
   const retryFailed = boolValue(options.retryFailed)
+  const onlyExternalId = String(options.onlyExternalId || '').trim()
 
   if (target.targetKey === 'calendar-current-day') {
     const windowHours = numberFromBudget(target, 'windowHours', Number(target.cursorState?.windowHours) || 72)
@@ -284,6 +287,7 @@ function getTargetRunner(target, options = {}) {
         `--target=${target.targetKey}`,
         `--limit=${maxItemsPerRun}`,
         `--maxTextChars=${maxTextChars}`,
+        ...(onlyExternalId ? [`--onlyExternalId=${onlyExternalId}`] : []),
         '--controlledByTargetRunner=true',
       ],
       inspectedPattern: /Video content items inspected:\s*(\d+)/i,
@@ -517,6 +521,7 @@ async function main() {
   const dryRun = boolValue(args.dryRun)
   const force = boolValue(args.force)
   const retryFailed = boolValue(args.retryFailed)
+  const onlyExternalId = String(args.onlyExternalId || '').trim()
 
   if (!targetKey) {
     throw new Error('Pass --target=<target-key>. Example: --target=gmail-current-day')
@@ -527,7 +532,7 @@ async function main() {
   const target = await findTarget(targetKey)
   if (!target) throw new Error(`Unknown extraction target: ${targetKey}`)
 
-  let runner = getTargetRunner(target, { retryFailed })
+  let runner = getTargetRunner(target, { retryFailed, onlyExternalId })
   const maxRuntimeSeconds = numberFromBudget(target, 'maxRuntimeSeconds', 900)
   const leaseSeconds = maxRuntimeSeconds + 60
 
@@ -638,6 +643,7 @@ async function main() {
         inspectedDelta,
         archivedDelta,
         extractedDelta,
+        retireEligible: !onlyExternalId,
         cursorState,
         metadata: {
           command: [runner.command, ...runner.args],

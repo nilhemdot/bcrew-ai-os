@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-20
-Version: v6.152 - Extractor Brain Fleet proof closed; YouTube runtime proof next
-Status: Extractor Brain Fleet proof is closed as deterministic governed proof; YouTube Build Intel runtime proof is active next; Strategy/People are parked
+Version: v6.153 - YouTube Build Intel runtime proof closed; Skool exact approval next
+Status: YouTube Build Intel runtime proof is closed for the first approved public item; Skool/MyICOR/overnight extraction remain blocked on exact source approval; Strategy/People are parked
 
 Use this doc for one question:
 
@@ -16,7 +16,7 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`, `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`, `BRAIN-FLEET-FOUNDATION-001` is closed under `brain-fleet-foundation-v1`, `HARLAN-AUTH-ESCALATION-LOOP-001` is closed under `harlan-auth-escalation-loop-v1`, `BRAIN-FLEET-QUOTA-LEDGER-001` is closed under `brain-fleet-quota-ledger-v1`, `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` is closed under `brain-fleet-model-capability-registry-v1`, `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001` is closed under `codex-direct-subscription-route-v1`, `GEMINI-VIDEO-BRAIN-ROUTE-001` is closed under `gemini-video-brain-route-v1`, `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001` is closed under `claude-code-review-brain-route-v1`, `OPENCLAW-ADAPTER-BOUNDARY-001` is closed under `openclaw-adapter-boundary-v1`, and `EXTRACTOR-BRAIN-FLEET-PROOF-001` is closed under `extractor-brain-fleet-proof-v1`. The active blocker is `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001`; run one approved public YouTube Build Intel runtime proof only, then a bounded last-20 batch only after the first item passes and raw Foundation gates remain green.
+Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`, `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`, `BRAIN-FLEET-FOUNDATION-001` is closed under `brain-fleet-foundation-v1`, `HARLAN-AUTH-ESCALATION-LOOP-001` is closed under `harlan-auth-escalation-loop-v1`, `BRAIN-FLEET-QUOTA-LEDGER-001` is closed under `brain-fleet-quota-ledger-v1`, `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` is closed under `brain-fleet-model-capability-registry-v1`, `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001` is closed under `codex-direct-subscription-route-v1`, `GEMINI-VIDEO-BRAIN-ROUTE-001` is closed under `gemini-video-brain-route-v1`, `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001` is closed under `claude-code-review-brain-route-v1`, `OPENCLAW-ADAPTER-BOUNDARY-001` is closed under `openclaw-adapter-boundary-v1`, `EXTRACTOR-BRAIN-FLEET-PROOF-001` is closed under `extractor-brain-fleet-proof-v1`, and `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001` is closed under `youtube-build-intel-runtime-proof-v1`. The active blocker is `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`; do not run Skool, MyICOR, Loom, or other private/paid extraction until Steve has approved the exact source item, permission class, max scope, artifact handling, and stop conditions.
 
 Steve's current command order:
 
@@ -53,10 +53,13 @@ Closed recovery and Brain Fleet readiness cards:
 8. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001` - done under `claude-code-review-brain-route-v1`. V1 adds the bounded Claude Code review route proof, records local CLI auth, selected model, Agent SDK posture, experimental policy posture, explicit unknown quota reset posture, Brain Fleet ledger truth, and route-probe evidence. It does not run Claude ultrareview, background agents, Agent SDK app runtime, extractor work, credential mutation, or external writes; extractor v1 is not blocked on Claude ambiguity.
 9. `OPENCLAW-ADAPTER-BOUNDARY-001` - done under `openclaw-adapter-boundary-v1`. V1 demotes OpenClaw to provider-adapter status: OpenClaw routes are labeled adapter-only, not architecture owner, same-workload non-OpenClaw fallback truth is required, hard-dependency dogfood fails closed, and the OpenClaw credential row stays unchanged. It does not run an OpenClaw provider/model probe, repair gateway/auth state, run extraction, mutate credentials, or send external writes.
 10. `EXTRACTOR-BRAIN-FLEET-PROOF-001` - done under `extractor-brain-fleet-proof-v1`. V1 runs the first governed extractor proof through Brain Fleet using the exact approved archived public YouTube transcript artifact, records skipped-provider Brain Fleet ledger truth, persists a proof report artifact, atoms, atom hits, training notes, Build Intel review routes, duplicate/staleness guards, and skipped/error reasons. It does not run provider calls, fetch fresh transcripts, crawl sources, use paid/private auth, mutate credentials, or write externally.
+11. `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001` - done under `youtube-build-intel-runtime-proof-v1`. V1 runs one governed public YouTube Build Intel runtime proof for the exact approved Nick Saraev video `K65vd9EYbDU`, routes it through the existing extraction target runner with an exact external-ID filter, records transcript artifact/provenance, stores report artifact/atoms/hits/training notes/review routes, writes skipped-provider Brain Fleet ledger truth, and logs duplicate/staleness/chapter-capture stop controls. It does not run a broad last-20 batch, private/paid extraction, provider calls, credential mutation, or external writes.
 
-Sequential queue after the extractor Brain Fleet proof closeout:
+Sequential queue after the YouTube Build Intel runtime proof closeout:
 
-1. `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001` - one approved public YouTube Build Intel runtime proof after extractor proof passes.
+1. `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001` - blocked until Steve approves the exact private/community source item and scope.
+2. `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001` - blocked until Steve approves the exact paid-course source item and scope.
+3. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - only after approved source proofs and raw Foundation health stay green.
 
 May 20 deep audit truth: the 03:00 nightly deep audit ran and produced 7 deterministic findings, 0 P0. P1/P2 findings are closed, routed, or explicitly accepted through live backlog cards and closeout proof; the deep-audit closure gate remains healthy.
 

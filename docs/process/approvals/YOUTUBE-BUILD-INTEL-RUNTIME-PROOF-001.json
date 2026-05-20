@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T18:45:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-build-intel-runtime-proof-001-plan.md",
+  "approvedPlanSha256": "9b8501ce956949e81bd300c410f6879c7a7a8302d199d37fc8624aa835414fd9",
+  "approvedRepoHead": "c32623887192f13e2501dc338e3fbe820d8311aa",
+  "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: run YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001 after EXTRACTOR-BRAIN-FLEET-PROOF-001, starting with the exact approved Nick Saraev public YouTube video K65vd9EYbDU before any last-20 batch.",
+  "approvalDigest": "54fdde232e008866f48d791b2468d132069d402973e81d8bbf7a7e7e17b1e624"
+}
