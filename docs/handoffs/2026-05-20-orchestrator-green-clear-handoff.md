@@ -24,14 +24,21 @@
   - bounded `whyItMatters` at 120 characters
   - source/owner and long why text remain trimmed
 - `lib/foundation-daily-exec-summary.js` now accepts live Phase G completion truth and done-card closeout truth when compact backlog rows do not carry every historical closeout detail.
+- `scripts/process-foundation-health-watch-to-green-check.mjs` is now historical-aware:
+  - accepts the verified `foundation-health-watch-to-green-v1` closeout after sprint rollover
+  - treats old health rows as "classified if present" instead of requiring resolved red/yellow rows to remain visible
+  - skips live Current Sprint writes from `--apply --close-card` once the sprint has already rolled forward
 
 ## Proof Commands
 
 - `node --check lib/hub-read-routes.js`
 - `node --check lib/foundation-daily-exec-summary.js`
+- `node --check scripts/process-foundation-health-watch-to-green-check.mjs`
 - `npm run process:daily-exec-summary-check -- --json`
 - `npm run process:foundation-hub-full-payload-reduce-check -- --json`
 - `npm run process:foundation-full-diagnostics-perf-check -- --json`
+- `npm run process:foundation-health-watch-to-green-check -- --json`
+- `npm run process:foundation-health-watch-to-green-check -- --apply --close-card --json`
 - `npm run foundation:verify -- --json-summary`
 - `npm run foundation:job -- --job=foundation-verify --force`
 - `npm run foundation:job -- --job=connector-uptime-monitor --force`
@@ -45,7 +52,7 @@
 
 ## Known Note
 
-`npm run process:foundation-health-watch-to-green-check -- --json` is stale against the newer active sprint and fails its historical proof assertions, even though live System Health, `foundation:verify`, and the system-health nightly audit are green. Do not treat that focused historical proof as the current sprint blocker unless a fresh Foundation card is opened to modernize it.
+Resolved after the green/clear audit: `npm run process:foundation-health-watch-to-green-check -- --json` is historical-aware and should no longer make Builders think the live system is red after the active sprint rolls forward. It now accepts the verified `foundation-health-watch-to-green-v1` closeout and treats old health rows as "classified if present" rather than requiring stale red/yellow rows to remain visible forever.
 
 ## Next Builder
 

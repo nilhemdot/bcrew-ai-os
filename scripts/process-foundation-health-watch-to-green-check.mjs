@@ -28,6 +28,9 @@ import {
   buildFoundationSystemHealthSnapshot,
 } from '../lib/foundation-system-health.js'
 import {
+  evaluateSprintCheckHistoricalMode,
+} from '../lib/sprint-check-historical-mode.js'
+import {
   FOUNDATION_HEALTH_WATCH_TO_GREEN_APPROVAL_PATH,
   FOUNDATION_HEALTH_WATCH_TO_GREEN_CARD_ID as CARD_ID,
   FOUNDATION_HEALTH_WATCH_TO_GREEN_CHANGED_FILES,
@@ -349,8 +352,28 @@ async function ensureLiveState({ closeCard = false, planReview, healthSummary } 
     operation: 'create/update health watch-to-green backlog card, Plan Critic row, and Current Sprint overlay',
     allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
   })
-  await upsertLiveCardAndPlanCritic({ closeCard, planReview, healthSummary })
   const previous = await getActiveFoundationCurrentSprint()
+  const currentSprintId = previous?.sprint?.sprintId || previous?.sprint?.sprint_id || ''
+  if (currentSprintId && currentSprintId !== SPRINT_ID) {
+    const [card] = await getBacklogItemsByIds([CARD_ID])
+    const sprintMode = evaluateSprintCheckHistoricalMode({
+      activeSprint: previous,
+      card,
+      closeouts: getFoundationBuildCloseouts(),
+      cardId: CARD_ID,
+      expectedSprintId: SPRINT_ID,
+      closeoutKey: CLOSEOUT_KEY,
+    })
+    if (sprintMode.ok && sprintMode.mode === 'historical_closeout') {
+      return {
+        skipped: true,
+        reason: 'active sprint has rolled forward; verified historical closeout already owns this proof',
+        sprintMode,
+      }
+    }
+    throw new Error(`Refusing to rewrite active Current Sprint ${currentSprintId} back to historical ${SPRINT_ID}; repair the historical closeout/card state instead.`)
+  }
+  await upsertLiveCardAndPlanCritic({ closeCard, planReview, healthSummary })
   await upsertFoundationCurrentSprintOverlay(
     {
       sprint: {
@@ -385,6 +408,11 @@ async function ensureLiveState({ closeCard = false, planReview, healthSummary } 
       reason: 'Steve required Foundation health green or explicit non-misleading classification before source activation.',
     },
   )
+  return {
+    skipped: false,
+    reason: 'updated active health watch-to-green sprint state',
+    sprintMode: null,
+  }
 }
 
 function containsUnsafeRuntimeCall(source = '') {
@@ -474,8 +502,9 @@ async function main() {
     repoRoot,
   })
 
+  let liveStateWrite = null
   if (args.apply || args.closeCard) {
-    await ensureLiveState({ closeCard: args.closeCard, planReview, healthSummary })
+    liveStateWrite = await ensureLiveState({ closeCard: args.closeCard, planReview, healthSummary })
     liveSystemHealth = await buildLiveSystemHealth()
     healthSummary = summarizeFoundationHealthWatchToGreen(liveSystemHealth)
   }
@@ -511,9 +540,20 @@ async function main() {
   const sprintItem = (activeSprint.items || []).find(item => item.cardId === CARD_ID) || null
   const nextSprintItem = (activeSprint.items || []).find(item => item.cardId === NEXT_CARD_ID) || null
   const closeout = getFoundationBuildCloseouts().find(record => record.key === CLOSEOUT_KEY) || null
+  const sprintMode = evaluateSprintCheckHistoricalMode({
+    activeSprint,
+    card,
+    closeouts: getFoundationBuildCloseouts(),
+    cardId: CARD_ID,
+    expectedSprintId: SPRINT_ID,
+    closeoutKey: CLOSEOUT_KEY,
+  })
   const systemHealthDogfood = buildFoundationSystemHealthDogfoodProof()
   const watchToGreenDogfood = buildFoundationHealthWatchToGreenDogfoodProof()
   const classifiedFindings = liveSystemHealth.findings.filter(finding => finding.classification)
+  const findingById = new Map(liveSystemHealth.findings.map(finding => [finding.id, finding]))
+  const rawNonGreenPresent = healthSummary.rawRiskCount > 0 || healthSummary.rawWatchCount > 0
+  const visibleNonGreenPresent = liveSystemHealth.findings.some(finding => ['risk', 'watch'].includes(finding.rollupLevel))
   const unsafeRuntimeHits = [
     ...containsUnsafeRuntimeCall(healthModuleSource),
     ...containsUnsafeRuntimeCall(cardModuleSource),
@@ -525,16 +565,19 @@ async function main() {
   addCheck(checks, planCriticRuns.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE), 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.cardId}:${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, card?.priority === 'P0' && (args.closeCard ? card.lane === 'done' : ['executing', 'done'].includes(card?.lane)), 'live backlog card exists and is P0', card ? `${card.lane}/${card.priority}` : 'missing')
   addCheck(checks, nextCard && ['scoped', 'executing', 'done'].includes(nextCard.lane), 'audit router card remains live next', nextCard ? `${nextCard.lane}/${nextCard.priority}` : 'missing')
-  addCheck(checks, activeSprint.sprint?.sprintId === SPRINT_ID, 'Current Sprint remains green/main/audit/source activation sprint', activeSprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintItem && (args.closeCard ? sprintItem.stage === 'done_this_sprint' : ['building_now', 'done_this_sprint'].includes(sprintItem.stage)), 'Current Sprint includes health card in expected stage', sprintItem?.stage || 'missing')
-  addCheck(checks, !args.closeCard || activeSprint.sprint?.activeBlockerCardId === NEXT_CARD_ID, 'Current Sprint active blocker advances to audit router after close', activeSprint.sprint?.activeBlockerCardId || 'missing')
-  addCheck(checks, !args.closeCard || nextSprintItem, 'next card remains visible after health card closes', nextSprintItem?.stage || 'missing')
+  addCheck(checks, sprintMode.ok, 'Current Sprint or verified historical closeout owns health watch-to-green proof', `${sprintMode.mode}: ${sprintMode.reason}`)
+  addCheck(checks, sprintMode.mode === 'historical_closeout' || (sprintItem && (args.closeCard ? sprintItem.stage === 'done_this_sprint' : ['building_now', 'done_this_sprint'].includes(sprintItem.stage))), 'Current Sprint contains health card only while its sprint is active', sprintItem?.stage || sprintMode.mode)
+  addCheck(checks, sprintMode.mode === 'historical_closeout' || !args.closeCard || activeSprint.sprint?.activeBlockerCardId === NEXT_CARD_ID, 'Current Sprint advances to audit router only while closing the active historical sprint', activeSprint.sprint?.activeBlockerCardId || sprintMode.mode)
+  addCheck(checks, sprintMode.mode === 'historical_closeout' || !args.closeCard || nextSprintItem, 'next card remains visible after active health card closes', nextSprintItem?.stage || sprintMode.mode)
+  if (liveStateWrite?.skipped) {
+    addCheck(checks, sprintMode.mode === 'historical_closeout', '--apply/--close-card is a no-op after sprint rollover', liveStateWrite.reason)
+  }
   addCheck(checks, healthSummary.ok === true && healthSummary.classificationStatus === 'healthy', 'live system health has no unclassified red/yellow rows', JSON.stringify(healthSummary))
-  addCheck(checks, healthSummary.rawRiskCount > 0 || healthSummary.rawWatchCount > 0, 'raw non-green rows stay visible after classification', `raw=${healthSummary.rawRiskCount}/${healthSummary.rawWatchCount}`)
+  addCheck(checks, rawNonGreenPresent || !visibleNonGreenPresent, 'raw non-green rows stay visible when present; fully green health may have none', `raw=${healthSummary.rawRiskCount}/${healthSummary.rawWatchCount}`)
   addCheck(checks, classifiedFindings.every(finding => finding.classification?.owner && finding.classification?.reason && finding.classification?.threshold && finding.classification?.nextAction), 'classified rows include owner, reason, threshold, and next action', classifiedFindings.map(finding => finding.id).join(', '))
-  addCheck(checks, liveSystemHealth.findings.some(finding => finding.id === 'scheduled_job_meeting-notes-sync-current' && finding.classification?.owner === 'Steve' && finding.classification?.repairCardId === 'EXTRACT-CURRENT-001'), 'meeting-notes current sync stays Steve approval-bound', 'scheduled_job_meeting-notes-sync-current')
-  addCheck(checks, liveSystemHealth.findings.some(finding => finding.id === 'scheduled_job_gmail-sync-current' && finding.classification?.repairCardId === 'EXTRACT-CURRENT-001'), 'Gmail current sync routes to EXTRACT-CURRENT-001 instead of live rerun', 'scheduled_job_gmail-sync-current')
-  addCheck(checks, liveSystemHealth.findings.some(finding => finding.id === 'scheduled_job_meeting-transcripts-extract-backlog' && finding.classification?.repairCardId === 'EXTRACT-BACKFILL-001'), 'meeting transcript backlog routes to EXTRACT-BACKFILL-001', 'scheduled_job_meeting-transcripts-extract-backlog')
+  addCheck(checks, !findingById.has('scheduled_job_meeting-notes-sync-current') || (findingById.get('scheduled_job_meeting-notes-sync-current').classification?.owner === 'Steve' && findingById.get('scheduled_job_meeting-notes-sync-current').classification?.repairCardId === 'EXTRACT-CURRENT-001'), 'meeting-notes current sync is green/resolved or Steve approval-bound', 'scheduled_job_meeting-notes-sync-current')
+  addCheck(checks, !findingById.has('scheduled_job_gmail-sync-current') || findingById.get('scheduled_job_gmail-sync-current').classification?.repairCardId === 'EXTRACT-CURRENT-001', 'Gmail current sync is green/resolved or routes to EXTRACT-CURRENT-001', 'scheduled_job_gmail-sync-current')
+  addCheck(checks, !findingById.has('scheduled_job_meeting-transcripts-extract-backlog') || findingById.get('scheduled_job_meeting-transcripts-extract-backlog').classification?.repairCardId === 'EXTRACT-BACKFILL-001', 'meeting transcript backlog is green/resolved or routes to EXTRACT-BACKFILL-001', 'scheduled_job_meeting-transcripts-extract-backlog')
   addCheck(checks, liveSystemHealth.findings.filter(finding => String(finding.id || '').startsWith('endpoint_budget_')).every(finding => finding.classification?.repairCardId === 'FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001'), 'endpoint budget rows route to endpoint freshness card', `${healthSummary.endpointRoutedCount} row(s)`)
   addCheck(checks, liveSystemHealth.findings.filter(finding => String(finding.id || '').startsWith('doc_artifact_handoff_')).every(finding => finding.classification?.repairCardId === 'FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001'), 'hot-doc rows route to handoff cleanup card', `${healthSummary.hotDocRoutedCount} row(s)`)
   addCheck(checks, liveSystemHealth.findings.filter(finding => String(finding.id || '').startsWith('file_size_')).every(finding => finding.classification?.repairCardId === 'FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001'), 'file-size rows route to file-size classifier card', `${healthSummary.fileSizeRoutedCount} row(s)`)
@@ -563,6 +606,8 @@ async function main() {
       systemHealth: systemHealthDogfood.ok,
       watchToGreen: watchToGreenDogfood.ok,
     },
+    sprintMode,
+    liveStateWrite,
     checkCount: checks.length,
     failedCount: failed.length,
     checks,
