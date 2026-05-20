@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "STRATEGIC-INTEL-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-19T21:35:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/strategic-intel-001-plan.md",
+  "approvedPlanSha256": "177949aa62bb529f382e448ea059bd18ff285a9319b36a8e34d077e41a2c1373",
+  "approvedRepoHead": "b40e12605280e5b9254ebea7efe1c0a07c7f9431",
+  "approvalSource": "Steve approved continuing the Foundation gold-capture sprint after the useful old-system and deep-audit discussion was carded; Strategic Intelligence is the active blocker.",
+  "constraints": [
+    "build from current source-backed intelligence tables only",
+    "no old agent sprawl, old runtime execution, broad extraction, browser automation, provider/model calls, or external writes",
+    "schema/seed/sprint writes require explicit close-card proof posture",
+    "do not fake resolved-to-applied metrics; encode and measure the target separately from actual current status",
+    "advance Current Sprint to DECISION-008 after clean closeout"
+  ],
+  "approvalDigest": "fab5ef950e129f581a7f2e37d14d38cc9da5e53efd8944144730afb09a508f08"
+}
