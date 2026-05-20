@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DECISION-008",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-19T23:35:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/decision-008-plan.md",
+  "approvedPlanSha256": "e87626f4d68b0ffb8229645727af7ffd82649d3c8fce34c8bc4a62d87de8df85",
+  "approvedRepoHead": "105c4f762af832c9e3418011cbb2bed64174293a",
+  "approvalSource": "Steve approved continuing the overnight Foundation sprint without babysitting; DECISION-008 is the active blocker after CSS surface decouple.",
+  "constraints": [
+    "read from intelligence_strategic_issues and preserve issue/route/source refs",
+    "write resolution feedback back to the strategic issue ledger before closeout",
+    "internal DB proof may create open questions and proposed decisions only",
+    "do not lock/apply decisions, build Scoper/UI, run extraction, call providers, or perform external writes",
+    "advance Current Sprint to INTEL-SCOPER-001 after clean closeout"
+  ],
+  "approvalDigest": "44f737994702d115cf24395c8dd98c11d5c0fbf7c5d22549212fc6237fb64894"
+}
