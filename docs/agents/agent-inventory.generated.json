@@ -1,0 +1,5533 @@
+{
+  "schemaVersion": 1,
+  "cardId": "PILLAR-5-AGENT-INVENTORY-001",
+  "closeoutKey": "pillar-5-agent-inventory-v1",
+  "generatedAt": "2026-05-20T00:42:09.140Z",
+  "sourceMaterial": {
+    "modules": [
+      "lib/agent-capability-registry.js",
+      "lib/foundation-jobs.js"
+    ],
+    "evidenceFiles": [
+      "~/bcrew-buddy-reference/dashboard/agent-data.json",
+      "docs/audits/2026-05-19-old-system-research-team-harvest.json",
+      "docs/agents/old-system-agent-onboarding-harvest.md",
+      "docs/system-capabilities.generated.json"
+    ],
+    "existingCloseoutKeys": [
+      "agent-capability-registry-v1",
+      "old-system-agent-onboarding-harvest-v1",
+      "old-system-research-team-harvest-v1",
+      "pillar-4-system-capabilities-v1"
+    ]
+  },
+  "summary": {
+    "currentAgentCount": 2,
+    "currentCapabilityCount": 2,
+    "legacyAgentCount": 90,
+    "harvestedSkillCount": 121,
+    "jobCount": 40,
+    "scheduledJobCount": 28,
+    "manualJobCount": 12,
+    "legacyStatusCounts": {
+      "WORKING": 81,
+      "DEGRADED": 4,
+      "PLANNED": 4,
+      "GHOST": 1
+    },
+    "currentStatusCounts": {
+      "planned_guarded": 2
+    },
+    "jobRuntimeModeCounts": {
+      "scheduled": 28,
+      "manual": 12
+    },
+    "harvestedSkillFlagCounts": {
+      "research_or_intel": 118,
+      "external_scouting": 121,
+      "synthesis_or_director": 113,
+      "extractor_pattern": 87,
+      "internal_source_scouting": 84
+    },
+    "promotedCardCount": 0,
+    "runtimeApprovedAgentCount": 0
+  },
+  "boundaries": {
+    "generatedFromLiveTruth": true,
+    "legacyAgentsAreEvidenceOnly": true,
+    "oldCodeImported": false,
+    "liveAgentRuntimeApprovedByThisCard": false,
+    "hiddenWorkersApprovedByThisCard": false,
+    "modelCallsApprovedByThisCard": false,
+    "externalWritesApprovedByThisCard": false,
+    "privateProfileContentCopied": false,
+    "secretValuesStored": false,
+    "notNext": [
+      "Do not launch agents, workers, scouts, or hidden subagents.",
+      "Do not import old-system agent code or prompts as active runtime truth.",
+      "Do not treat old-system WORKING status as current new-system runtime status.",
+      "Do not copy private profile content, team emails, chat IDs, tokens, raw memories, or secret values.",
+      "Do not call providers, run model calls, start extraction, mutate external systems, or approve sends.",
+      "Do not build the System Capabilities UI surface; that is SYSTEM-004.",
+      "Do not start Value Builder split."
+    ]
+  },
+  "registryEvaluation": {
+    "ok": true,
+    "status": "ready",
+    "summary": {
+      "agentCount": 2,
+      "capabilityCount": 2,
+      "claimCount": 3,
+      "violationCount": 0
+    }
+  },
+  "currentAgents": [
+    {
+      "agentId": "current:harlan-pilot",
+      "displayName": "Harlan",
+      "sourceKind": "current_foundation_registry",
+      "sourceStatus": "planned_guarded",
+      "honestStatus": "planned_guarded",
+      "owner": "Steve / Foundation",
+      "role": "personal-operator-assistant",
+      "purpose": "Answer operator questions only when the needed source and capability proof is declared.",
+      "permissionTier": "read_only_preflight",
+      "capabilityIds": [
+        "foundation-status-read"
+      ],
+      "sourceRefs": [
+        "lib/agent-capability-registry.js:buildAgentCapabilityRegistry"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:agent-capability-registry-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": false,
+      "nextAction": "Stay guarded until an explicit runtime card approves live agent operation."
+    },
+    {
+      "agentId": "current:crewbert-foundation",
+      "displayName": "Crewbert",
+      "sourceKind": "current_foundation_registry",
+      "sourceStatus": "planned_guarded",
+      "honestStatus": "planned_guarded",
+      "owner": "Foundation",
+      "role": "foundation-system-orchestrator",
+      "purpose": "Coordinate Foundation work from live backlog truth after the runtime template exists.",
+      "permissionTier": "read_only_preflight",
+      "capabilityIds": [
+        "repo-status-read"
+      ],
+      "sourceRefs": [
+        "lib/agent-capability-registry.js:buildAgentCapabilityRegistry"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:agent-capability-registry-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": false,
+      "nextAction": "Stay guarded until an explicit runtime card approves live agent operation."
+    }
+  ],
+  "legacyAgents": [
+    {
+      "agentId": "legacy:crewbert",
+      "displayName": "Crewbert",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Director of Strategic Intelligence",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Briefings, scheduling, strategy, all MCP tools",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:ace",
+      "displayName": "Ace",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "Steve",
+      "role": "Executive Assistant",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Calendar, email, strategic context",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:nick-assist",
+      "displayName": "Nick's Assistant",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "Nick",
+      "role": "Sales Leadership Support",
+      "teamRefs": [
+        "assistants"
+      ],
+      "capabilitySummary": "Production data, sales metrics, meeting prep",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:carson-assist",
+      "displayName": "Carson's Assistant",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "Carson",
+      "role": "Operations Support",
+      "teamRefs": [
+        "assistants"
+      ],
+      "capabilitySummary": "Onboarding, ClickUp, process tracking",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:tanner-assist",
+      "displayName": "Tanner's Assistant",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "Tanner",
+      "role": "Marketing Support",
+      "teamRefs": [
+        "assistants"
+      ],
+      "capabilitySummary": "Freedom Sheet, content planning, brand",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:georgia-assist",
+      "displayName": "Georgia's Assistant",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "DEGRADED",
+      "honestStatus": "legacy_degraded_evidence_only",
+      "owner": "Georgia",
+      "role": "Retention Support",
+      "teamRefs": [
+        "assistants"
+      ],
+      "capabilitySummary": "Retention metrics, culture diagnostics",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:sprint-master",
+      "displayName": "Sprint Master",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Sprint Planning + Backlog Prioritization",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "Sprint planning, velocity tracking, backlog prioritization",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:head-of-code",
+      "displayName": "Head of Code",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Autonomous Code Execution",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "Code audits, autonomous builds, quality checks",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:plan-critic",
+      "displayName": "Plan Critic",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Automated Plan Quality Gate",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "Plan review, quality scoring, revision feedback, architecture alignment checks",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:qa-reviewer",
+      "displayName": "QA Reviewer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Automated Quality Assurance",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "TypeScript validation, sensitive file detection, JSON syntax, server health, API sweep, multi-perspective LLM review",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:review-loop",
+      "displayName": "Review Loop",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Feedback Router + Revision Coordinator",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "Feedback classification, agent routing (Frontend Dev / Head of Code), revision context assembly, loop tracking",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:agent-roster",
+      "displayName": "Agent Roster",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Agent Roster Health Check",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "Roster health, agent tracking",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:director-intelligence",
+      "displayName": "Master Director of Intelligence",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Cross-department intelligence synthesis + pattern spotting",
+      "teamRefs": [
+        "intelligence"
+      ],
+      "capabilitySummary": "Reads department director briefs, cross-department pattern spotting, weekly insight reports, integration request evaluation",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:course-scout",
+      "displayName": "Course Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Course Extraction + Coaching Call Processing",
+      "teamRefs": [
+        "intelligence"
+      ],
+      "capabilitySummary": "Course extraction, coaching calls, resource library crawls",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:external-scout",
+      "displayName": "External Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "YouTube, Skool & Community Intelligence",
+      "teamRefs": [
+        "intelligence"
+      ],
+      "capabilitySummary": "YouTube monitoring, Skool communities, skills marketplaces, GitHub, Reddit, X/Twitter intelligence",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:platform-intel",
+      "displayName": "Platform Intel",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Platform & AI Research Intelligence",
+      "teamRefs": [
+        "intelligence"
+      ],
+      "capabilitySummary": "Anthropic channels, Claude Code changelog, MCP ecosystem, AI architecture trends, competitive intel",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:content-intelligence",
+      "displayName": "Content Intelligence",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Marketing Intelligence + Brand Execution Tracking",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Freedom Sheet analysis, content velocity, brand compliance, marketing meeting notes",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:content-writer",
+      "displayName": "Content Writer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Automated Content Generation",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Brand-compliant content generation, template-based posts, listing content, Freedom Sheet themes",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-scheduler",
+      "displayName": "Scheduler",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "DEGRADED",
+      "honestStatus": "legacy_degraded_evidence_only",
+      "owner": "System",
+      "role": "Automated Social Posting",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Scheduled posting to Facebook/Instagram, engagement tracking, posting consistency",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:brand-guardian",
+      "displayName": "Brand Guardian",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Brand Compliance Gate",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Pre-post brand review, tone compliance, visual consistency, off-brand detection",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:production-monitor",
+      "displayName": "Production Monitor",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "$13K/Agent Tracking + Production Intelligence",
+      "teamRefs": [
+        "sales"
+      ],
+      "capabilitySummary": "Production data, Owners Dashboard, underperformance alerts, pace projections",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:deal-analyst",
+      "displayName": "Deal Analyst",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Deal Flow Analysis + Pipeline Health",
+      "teamRefs": [
+        "sales"
+      ],
+      "capabilitySummary": "Deal flow analysis, pipeline health, conversion metrics",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:coaching-intelligence",
+      "displayName": "Coaching Intelligence",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Training Effectiveness + Performance Coaching",
+      "teamRefs": [
+        "sales"
+      ],
+      "capabilitySummary": "Training effectiveness, performance coaching recommendations, skill gap analysis",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:onboarding-monitor",
+      "displayName": "Onboarding Monitor",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Onboarding Pipeline Tracking + Ops Health",
+      "teamRefs": [
+        "operations"
+      ],
+      "capabilitySummary": "Onboarding velocity, agent progress, process compliance, ops meeting intelligence",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:process-enforcer",
+      "displayName": "Process Enforcer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "SOP Compliance + Task Enforcement",
+      "teamRefs": [
+        "operations"
+      ],
+      "capabilitySummary": "SOP tracking, compliance metrics, task bottleneck detection",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:ops-dashboards",
+      "displayName": "Ops Dashboards",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "PLANNED",
+      "honestStatus": "planned_evidence_only",
+      "owner": "System",
+      "role": "Operations Metrics + Pipeline Visualization",
+      "teamRefs": [
+        "operations"
+      ],
+      "capabilitySummary": "Onboarding dashboard, process health, operational KPIs",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:meeting-classifier",
+      "displayName": "Meeting Classifier",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Meeting Note Classification (SAFE/RESTRICTED)",
+      "teamRefs": [
+        "strategy"
+      ],
+      "capabilitySummary": "Meeting note classification, content sensitivity detection, routing control",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:meeting-analyst",
+      "displayName": "Meeting Analyst",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "PLANNED",
+      "honestStatus": "planned_evidence_only",
+      "owner": "System",
+      "role": "Meeting Intelligence + Action Item Extraction",
+      "teamRefs": [
+        "future"
+      ],
+      "capabilitySummary": "Meeting notes, action items, pattern detection",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:scoreboard-agent",
+      "displayName": "Scoreboard Agent",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Production Dashboards + Leaderboards",
+      "teamRefs": [
+        "sales"
+      ],
+      "capabilitySummary": "Production dashboards, leaderboards",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:missive-agent",
+      "displayName": "Missive Agent",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Inbox Triage + Client Routing",
+      "teamRefs": [
+        "strategy"
+      ],
+      "capabilitySummary": "Inbox triage, client routing, conversation search, label management, contact lookup",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:email-intelligence",
+      "displayName": "Email Intelligence",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Email Signal Extraction + Decision Tracking",
+      "teamRefs": [
+        "strategy"
+      ],
+      "capabilitySummary": "Missive inbox scan, Gmail search, decision extraction, action item tracking, open loop cross-reference",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:ops-signal-monitor",
+      "displayName": "Ops Signal Monitor",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Operational Signal Detection + System Health",
+      "teamRefs": [
+        "strategy"
+      ],
+      "capabilitySummary": "Agent failure detection, ClickUp overdue scan, Missive stale conversations, scheduled task health",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:deep-research",
+      "displayName": "Deep Research",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "PLANNED",
+      "honestStatus": "planned_evidence_only",
+      "owner": "System",
+      "role": "Market Research + Competitive Intel",
+      "teamRefs": [
+        "future"
+      ],
+      "capabilitySummary": "Market research, competitive analysis",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:frontend-dev",
+      "displayName": "Front-End Developer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Web Interface Builder",
+      "teamRefs": [
+        "dev-product",
+        "marketing"
+      ],
+      "capabilitySummary": "React, Vite, Tailwind CSS, responsive design, brand-aligned interfaces, Gemini UX review loop",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:uiux-specialist",
+      "displayName": "UI/UX Specialist",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Interface Review + Design Quality Gate",
+      "teamRefs": [
+        "dev-product",
+        "marketing"
+      ],
+      "capabilitySummary": "UX review, brand compliance, responsive audit, information architecture",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:visual-designer",
+      "displayName": "Visual Designer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Design Mockups + Layout Creation",
+      "teamRefs": [
+        "dev-product",
+        "marketing"
+      ],
+      "capabilitySummary": "Layout mockups, Paper.design, brand-aligned visual design, design-first workflow",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:org-design",
+      "displayName": "Org Design",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "PLANNED",
+      "honestStatus": "planned_evidence_only",
+      "owner": "System",
+      "role": "Team Structure + KPI Cascade Design",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Org charts, role design, KPI cascades, reporting lines, hiring plans",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:backlog-monitor",
+      "displayName": "Backlog Monitor",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Backlog Health Auditing",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "Stale item detection, duplicate identification, ghost completions, ClickUp cross-reference, priority alignment checks",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:brand-sync",
+      "displayName": "Brand Sync",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Brand Guidelines Sync from Google Drive",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Weekly brand guidelines PDF change detection on Google Drive, alert on updates",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:email-rules",
+      "displayName": "Email Rules",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Email Routing + Approval Gate",
+      "teamRefs": [
+        "strategy"
+      ],
+      "capabilitySummary": "Email approval workflows, first-time recipient proofing, duplicate prevention, feedback routing",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:eod-wrap",
+      "displayName": "EOD Wrap",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "Steve",
+      "role": "End-of-Day Summary + Tomorrow Preview",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "ClickUp day summary, tomorrow calendar, morning flag review, autonomous dev summary, marketing rollup",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:executive-brief",
+      "displayName": "Executive Brief",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Daily Executive Action Brief",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "ClickUp scan, priority cross-reference, Freedom Sheet metrics, Owners Dashboard production, Supabase KPIs, calendar prep, meeting intelligence, trend tracking",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:feedback-triage",
+      "displayName": "Feedback Triage",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "GHOST",
+      "honestStatus": "legacy_unknown_evidence_only",
+      "owner": "System",
+      "role": "Feedback Queue Classification + Routing",
+      "teamRefs": [
+        "feedback"
+      ],
+      "capabilitySummary": "Feedback classification, routing to intelligence/ops/strategy, pattern detection, auto-close shipped items",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:full-report",
+      "displayName": "Full Report",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "Steve",
+      "role": "Complete System Export",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Full project export: source code, configs, docs, skills, dashboard, PM2, database schema, MCP config",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:meeting-filer",
+      "displayName": "Meeting Filer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Orphaned Meeting Notes Auto-Filing",
+      "teamRefs": [
+        "strategy"
+      ],
+      "capabilitySummary": "Find orphaned Google Meet notes, file to correct Drive folder, classify SAFE/RESTRICTED",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:meeting-prep",
+      "displayName": "Meeting Prep",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Daily Meeting Context Prep",
+      "teamRefs": [
+        "strategy"
+      ],
+      "capabilitySummary": "Calendar scan, meeting classification, context pull by level (full/medium/light), dedup tracking, calendar invite auto-request (weekly)",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:memory-audit",
+      "displayName": "Memory Audit",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Conversation Memory Gap Detection",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Daily gap check between conversation-memory.md and decisions-log.md, staleness alerts",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:memory-review",
+      "displayName": "Memory Review",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Monthly Memory Rebuild + Archive",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Monthly MEMORY.md audit, stale content archival, state verification against DB and files, line count enforcement",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:memory-writer",
+      "displayName": "Memory Writer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Structured Memory Logging",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Briefing history logging, conversation memory logging, pattern detection, trend tracking, commitment tracking",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:midday-pulse",
+      "displayName": "Midday Pulse",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "Steve",
+      "role": "Lightweight Mid-Day Status Check",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "ClickUp task movement, open loop check, morning flag review, quick status summary",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:strategic-work",
+      "displayName": "Strategic Work",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Structured Strategic Analysis Sessions",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Context-loaded strategic analysis, policy drafting, document evaluation, automatic write-back to decisions/open-loops/backlog",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:strategy",
+      "displayName": "Strategy OS",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Strategy Operating System + Priority Access",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Priority status checks, brand decision routing, open loops, backlog access, governance reference, strategy file routing",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:tracking-steve",
+      "displayName": "Tracking Steve",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "Steve",
+      "role": "Steve's Commitment Tracker",
+      "teamRefs": [
+        "core"
+      ],
+      "capabilitySummary": "Commitment inventory from strategy files/email/calendar/ClickUp/meeting notes, overdue escalation, mid-week follow-up",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:skill-improver",
+      "displayName": "Skill Improver",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Self-improving SKILL.md pipeline (DEV-029)",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "Eval assertions, reflection pass, A/B testing, auto-improve SKILL.md files",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-platform-scout",
+      "displayName": "Marketing Platform Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Monitor algorithm changes, features, and tactics across Instagram, Facebook, LinkedIn, X, YouTube, SEO, Google Business Profile, AI Search, Email, and CRO",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Monitor algorithm changes, features, and tactics across Instagram, Facebook, LinkedIn, X, YouTube, SEO, Google Business Profile, AI Search, Email, and CRO",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-industry-scout",
+      "displayName": "Marketing Industry Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Real estate competitor monitoring, CRO benchmarks, industry content trends, and vertical-specific marketing intelligence",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Real estate competitor monitoring, CRO benchmarks, industry content trends, and vertical-specific marketing intelligence",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-director-intel",
+      "displayName": "Marketing Director of Intelligence",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Synthesizes marketing platform and industry scout reports into actionable briefs, scores findings, auto-adds high-scoring items to backlog",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Synthesizes marketing platform and industry scout reports into actionable briefs, scores findings, auto-adds high-scoring items to backlog",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-sprint-master",
+      "displayName": "Marketing Sprint Master",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Marketing content sprint planning and daily content prioritization",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Content sprint planning, marketing backlog prioritization, intelligence-to-action routing, campaign scheduling",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-campaign-planner",
+      "displayName": "Campaign Planner",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "30-day content calendars, email sequences, multi-platform campaign design",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "30-day content calendars, email drip sequences, multi-platform campaigns, seasonal planning",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-graphic-designer",
+      "displayName": "Graphic Designer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Visual content creation: carousels, infographics, social graphics",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Carousel design, infographic creation, social media graphics, Paper.design mockups, 21st.dev components",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-content-repurposer",
+      "displayName": "Content Repurposer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Adapts source content to 5+ platform-specific versions",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Multi-platform content adaptation, carousel scripts, thread creation, email conversion, platform formatting",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-content-editor",
+      "displayName": "Content Editor",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Editorial quality gate between content creation and brand review",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Copy editing, hook strength analysis, CTA effectiveness scoring, platform optimization, voice alignment",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-seo-strategist",
+      "displayName": "SEO Strategist",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Keyword research, programmatic SEO page generation, site audit",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Keyword research, programmatic SEO pages, search ranking analysis, local SEO, AI search optimization",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-cro-analyst",
+      "displayName": "CRO Analyst",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Conversion rate optimization for landing pages, email funnels, CTAs",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Landing page audit, email funnel analysis, CTA scoring, conversion benchmarking, A/B recommendations",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-ecosystem-scout",
+      "displayName": "Marketing Ecosystem Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Monitors how the best marketing teams use AI for content, videos, workflows, and new tools. Feeds daily intelligence to improve BCrew marketing team capabilities.",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Web research, tool evaluation, workflow analysis, MCP server discovery",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:top-agent-social",
+      "displayName": "Top Agent Social Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Watches top-performing real estate agents on social media to extract content patterns, hooks, and strategies",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Watches top-performing real estate agents on social media to extract content patterns, hooks, and strategies",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:viral-trends",
+      "displayName": "Viral Trends Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Scans trending formats, hooks, audio, and topics across all platforms for time-sensitive content opportunities",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Scans trending formats, hooks, audio, and topics across all platforms for time-sensitive content opportunities",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:lead-gen-research",
+      "displayName": "Lead Gen Research Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Researches what homebuyers and sellers are actually asking about to feed RETAIN content and lead magnets",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Researches what homebuyers and sellers are actually asking about to feed RETAIN content and lead magnets",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:agent-recruiting-intel",
+      "displayName": "Agent Recruiting Intel Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Monitors what real estate agents say about switching brokerages to feed ATTRACT recruiting content",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Monitors what real estate agents say about switching brokerages to feed ATTRACT recruiting content",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:community-skills",
+      "displayName": "Community & Skills Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Scans for Claude Code community skills, MCP servers, and tools that BCrew should adopt",
+      "teamRefs": [
+        "intelligence"
+      ],
+      "capabilitySummary": "Scans for Claude Code community skills, MCP servers, and tools that BCrew should adopt",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:internal-coaching",
+      "displayName": "Internal Scout: Coaching & Leadership",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Mines Google Drive for coaching calls and leadership training content from all BCrew leaders",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Mines Google Drive for coaching calls and leadership training content from all BCrew leaders",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:internal-slack",
+      "displayName": "Internal Scout: Slack & Team Culture",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "DEGRADED",
+      "honestStatus": "legacy_degraded_evidence_only",
+      "owner": "System",
+      "role": "Monitors Slack channels for wins, culture moments, insights, and authentic team content",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Monitors Slack channels for wins, culture moments, insights, and authentic team content",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:internal-email",
+      "displayName": "Internal Scout: Team Email & Client Signals",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Monitors team email for client questions, objections, and stories that feed RETAIN content",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Monitors team email for client questions, objections, and stories that feed RETAIN content",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:internal-market",
+      "displayName": "Internal Scout: Market & Deals",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Mines Google Drive for sold data, client wins, market insights, and neighborhood expertise",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Mines Google Drive for sold data, client wins, market insights, and neighborhood expertise",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:internal-meetings",
+      "displayName": "Internal Scout: Meetings & Strategy",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Mines Google Drive for team meeting notes, strategic decisions, and thought leadership content",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Mines Google Drive for team meeting notes, strategic decisions, and thought leadership content",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:internal-skool",
+      "displayName": "Internal Scout: Skool & Training",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "DEGRADED",
+      "honestStatus": "legacy_degraded_evidence_only",
+      "owner": "System",
+      "role": "Mines BCrew Skool platform for course content, Loom videos, and training material to repurpose",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Mines BCrew Skool platform for course content, Loom videos, and training material to repurpose",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:content-archive",
+      "displayName": "Content Archive Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Analyzes BCrew published content across all platforms to identify what works and what to repurpose",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Analyzes BCrew published content across all platforms to identify what works and what to repurpose",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:dev-director-intel",
+      "displayName": "Dev Director of Intelligence",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Synthesizes dev scout reports into daily dev-specific briefs with scored findings",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "Dev scout synthesis, scoring, dedup, auto-file 13+ to scoping queue, daily dev brief",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:feedback-scout",
+      "displayName": "Feedback Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Cross-system feedback extraction and department routing",
+      "teamRefs": [
+        "intelligence"
+      ],
+      "capabilitySummary": "Slack feedback extraction, Gmail complaint scanning, Missive signal detection, assistant memory mining, corrections log processing, department-routed feedback reports",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:implementation-scoper",
+      "displayName": "Implementation Scoper",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Researches thin backlog items and writes full sprint cards with implementation specs",
+      "teamRefs": [
+        "intelligence"
+      ],
+      "capabilitySummary": "Researches thin backlog items and writes full sprint cards with implementation specs",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:marketing-scoper",
+      "displayName": "Marketing Scoper",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Researches marketing findings, writes enriched content cards to content-backlog",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Researches marketing findings, writes enriched content cards to content-backlog",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-avatar-client",
+      "displayName": "Client Avatar Researcher",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Monthly deep research on 10 RETAIN client avatars",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Monthly deep research on 10 RETAIN client avatars: pain points, search queries, language, objections, platform behavior, buying signals",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-ig-fb-specialist",
+      "displayName": "IG/FB Platform Specialist",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Weekly deep research on Meta algorithm, IG format trends, competitor IG analysis, posting optimization",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Weekly deep research on Meta algorithm, IG format trends, competitor IG analysis, posting optimization",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-ig-scoper",
+      "displayName": "IG Scoper",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Daily IG/FB content direction with scoping cards",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Daily IG/FB content direction with scoping cards",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:mktg-avatar-agent",
+      "displayName": "Agent Avatar Researcher",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Monthly deep research on 5 ATTRACT agent recruiting avatars",
+      "teamRefs": [
+        "marketing"
+      ],
+      "capabilitySummary": "Monthly deep research on 5 ATTRACT agent recruiting avatars: switching triggers, brokerage complaints, career desires, compensation expectations",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:error-log-scout",
+      "displayName": "Error/Log Scout",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "System error monitoring and failure pattern detection",
+      "teamRefs": [
+        "intelligence",
+        "dev-product"
+      ],
+      "capabilitySummary": "System error monitoring and failure pattern detection",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:compliance-enforcer",
+      "displayName": "Compliance Enforcer",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Post-creation validator. Checks franchise model compliance, tools registry references, system-architecture rules, dashboard wiring, SKILL.md template adherence.",
+      "teamRefs": [
+        "dev-product"
+      ],
+      "capabilitySummary": "Post-creation validator. Checks franchise model compliance, tools registry references, system-architecture rules, dashboard wiring, SKILL.md template adherence.",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:bcrew-decision-codifier",
+      "displayName": "Decision Codifier",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Decision confirmation processing and codification across email, meetings, Slack, and conversations",
+      "teamRefs": [
+        "strategy"
+      ],
+      "capabilitySummary": "Gmail search, decision queue management, decisions-log.md writes, ClickUp task creation, permission-filtered notifications",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:sales-director-intel",
+      "displayName": "Sales Director of Intelligence",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Synthesizes sales scout outputs into daily sales-specific briefs with scored findings",
+      "teamRefs": [
+        "intelligence"
+      ],
+      "capabilitySummary": "Sales scout synthesis, scoring, dedup, auto-file 13+ to scoping queue, daily sales brief",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    },
+    {
+      "agentId": "legacy:ops-director-intel",
+      "displayName": "Ops Director of Intelligence",
+      "sourceKind": "old_system_evidence",
+      "sourceStatus": "WORKING",
+      "honestStatus": "legacy_claim_working_evidence_only",
+      "owner": "System",
+      "role": "Synthesizes ops scout outputs into daily ops-specific briefs with scored findings",
+      "teamRefs": [
+        "intelligence"
+      ],
+      "capabilitySummary": "Ops scout synthesis, scoring, dedup, auto-file 13+ to scoping queue, daily ops brief",
+      "modelClaim": "Opus",
+      "sourceRefs": [
+        "~/bcrew-buddy-reference/dashboard/agent-data.json",
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ],
+      "runtimeApproved": false,
+      "evidenceOnly": true,
+      "nextAction": "Use as evidence only; promote through a new source contract/capability/runtime card before use."
+    }
+  ],
+  "jobs": [
+    {
+      "jobKey": "foundation-verify",
+      "title": "Foundation Verifier",
+      "jobType": "health_check",
+      "lane": "health",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [],
+      "command": "npm",
+      "args": "run foundation:verify",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "verification-runs",
+      "title": "Verification Runs",
+      "jobType": "health_check",
+      "lane": "health",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [],
+      "command": "npm",
+      "args": "run process:verification-runs-check -- --json=true",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "code-quality-nightly-audit",
+      "title": "Code Quality Nightly Audit",
+      "jobType": "health_check",
+      "lane": "health",
+      "priority": "P0",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "report_only",
+      "sourceIds": [],
+      "command": "npm",
+      "args": "run process:code-quality-nightly-audit-check -- --json",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "recurring-deep-audit",
+      "title": "Recurring Senior-Engineer Deep Audit",
+      "jobType": "review",
+      "lane": "health",
+      "priority": "P1",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "report_only",
+      "sourceIds": [],
+      "command": "npm",
+      "args": "run process:recurring-deep-audit-check -- --json",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "nightly-deep-audit",
+      "title": "Nightly Hybrid Deep Audit",
+      "jobType": "review",
+      "lane": "health",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "report_only",
+      "sourceIds": [],
+      "command": "npm",
+      "args": "run process:nightly-deep-audit-upgrade-check -- --json --endpointTimeoutMs=8000 --runLlmReview",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "system-health-nightly-audit",
+      "title": "System Health Nightly Audit",
+      "jobType": "health_check",
+      "lane": "health",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "report_only",
+      "sourceIds": [],
+      "command": "npm",
+      "args": "run process:system-health-nightly-audit-check -- --json --write-report",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "foundation-lessons-learned-loop",
+      "title": "Foundation Lessons Learned Loop",
+      "jobType": "review",
+      "lane": "health",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [],
+      "command": "npm",
+      "args": "run process:foundation-lessons-learned-loop-check -- --json",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "connector-uptime-monitor",
+      "title": "Connector Uptime Monitor",
+      "jobType": "health_check",
+      "lane": "health",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [
+        "SRC-CLICKUP-001",
+        "SRC-FUB-001",
+        "SRC-GMAIL-001",
+        "SRC-MISSIVE-001",
+        "SRC-SLACK-001",
+        "SRC-SUPABASE-001"
+      ],
+      "command": "npm",
+      "args": "run process:foundation-operating-reliability-check -- --json --no-api",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "shared-comms-coverage",
+      "title": "Shared Comms Coverage",
+      "jobType": "health_check",
+      "lane": "coverage",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [
+        "SRC-GMAIL-001",
+        "SRC-MISSIVE-001",
+        "SRC-MEETINGS-001",
+        "SRC-SLACK-001"
+      ],
+      "command": "npm",
+      "args": "run shared-comms:coverage",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "llm-auth-audit",
+      "title": "LLM Auth Path Audit",
+      "jobType": "llm_audit",
+      "lane": "model",
+      "priority": "P0",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [],
+      "command": "npm",
+      "args": "run llm:auth-audit",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "extraction-control-seed",
+      "title": "Extraction Control Seed",
+      "jobType": "control_plane",
+      "lane": "extract",
+      "priority": "P0",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [
+        "SRC-GMAIL-001",
+        "SRC-GCAL-001",
+        "SRC-MISSIVE-001",
+        "SRC-MEETINGS-001",
+        "SRC-SLACK-001",
+        "SRC-GDRIVE-001",
+        "SRC-SKOOL-001",
+        "SRC-VIDEO-001",
+        "SRC-LOOM-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:control-seed",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "gmail-sync-current",
+      "title": "Gmail Current Sync",
+      "jobType": "current_sync",
+      "lane": "archive",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-GMAIL-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=gmail-current-day",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "calendar-sync-current",
+      "title": "Google Calendar Current Sync",
+      "jobType": "current_sync",
+      "lane": "archive",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-GCAL-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=calendar-current-day",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "missive-sync-current",
+      "title": "Missive Current Sync",
+      "jobType": "current_sync",
+      "lane": "archive",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-MISSIVE-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=missive-current-day",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "email-attachment-extract-bite",
+      "title": "Email Attachment Extraction Bite",
+      "jobType": "corpus_extraction",
+      "lane": "extract",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-GMAIL-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=email-attachments-backfill",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "meeting-notes-sync-current",
+      "title": "Meeting Notes Current Sync",
+      "jobType": "current_sync",
+      "lane": "archive",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-MEETINGS-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=meetings-current-day",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "meeting-notes-retry-failed",
+      "title": "Meeting Notes Failed-Item Retry",
+      "jobType": "recovery",
+      "lane": "archive",
+      "priority": "P1",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-MEETINGS-001"
+      ],
+      "command": "npm",
+      "args": "run meeting-notes:retry-failed",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "extraction-retry-failed",
+      "title": "Extraction Failed-Item Retry",
+      "jobType": "recovery",
+      "lane": "archive",
+      "priority": "P1",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-MEETINGS-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:retry-failed -- --target=meetings-current-day --limit=10",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "slack-sync-current",
+      "title": "Slack Current Sync",
+      "jobType": "current_sync",
+      "lane": "archive",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-SLACK-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=slack-current-day",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "slack-extract-latest",
+      "title": "Slack Candidate Extraction",
+      "jobType": "extraction",
+      "lane": "extract",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-SLACK-001"
+      ],
+      "command": "npm",
+      "args": "run slack:extract-candidates -- --onlyWithoutCandidates=true --limit=1",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "drive-corpus-inventory-bite",
+      "title": "Drive Corpus Inventory Bite",
+      "jobType": "corpus_inventory",
+      "lane": "archive",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [
+        "SRC-GDRIVE-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=drive-corpus-backfill",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "drive-content-extract-bite",
+      "title": "Drive Content Extraction Bite",
+      "jobType": "corpus_extraction",
+      "lane": "extract",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-GDRIVE-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=drive-content-extract-backfill",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "video-link-inventory-bite",
+      "title": "Video Link Inventory Bite",
+      "jobType": "corpus_inventory",
+      "lane": "archive",
+      "priority": "P1",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [
+        "SRC-VIDEO-001",
+        "SRC-LOOM-001",
+        "SRC-GDRIVE-001",
+        "SRC-SKOOL-001",
+        "SRC-GMAIL-001",
+        "SRC-MISSIVE-001",
+        "SRC-MEETINGS-001",
+        "SRC-SLACK-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=video-link-inventory",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "video-content-extract-bite",
+      "title": "Video Content Extraction Bite",
+      "jobType": "corpus_extraction",
+      "lane": "extract",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-VIDEO-001",
+        "SRC-YOUTUBE-INTEL-001",
+        "SRC-LOOM-001",
+        "SRC-GDRIVE-001",
+        "SRC-SKOOL-001",
+        "SRC-MEETINGS-001"
+      ],
+      "command": "npm",
+      "args": "run extraction:target -- --target=video-content-extract-backfill",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "gmail-extract-latest",
+      "title": "Gmail Candidate Extraction",
+      "jobType": "extraction",
+      "lane": "extract",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-GMAIL-001"
+      ],
+      "command": "npm",
+      "args": "run gmail:extract-candidates -- --onlyWithoutCandidates=true --limit=3",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "missive-extract-latest",
+      "title": "Missive Candidate Extraction",
+      "jobType": "extraction",
+      "lane": "extract",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-MISSIVE-001"
+      ],
+      "command": "npm",
+      "args": "run missive:extract-candidates -- --onlyWithoutCandidates=true --limit=3",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "meeting-transcript-gaps",
+      "title": "Meeting Transcript Gap Report",
+      "jobType": "health_check",
+      "lane": "coverage",
+      "priority": "P1",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [
+        "SRC-MEETINGS-001"
+      ],
+      "command": "npm",
+      "args": "run meeting-notes:report-gaps",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "meeting-transcript-recent-gap-verify",
+      "title": "Meeting Recent Gap Verifier",
+      "jobType": "health_check",
+      "lane": "coverage",
+      "priority": "P1",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [
+        "SRC-MEETINGS-001"
+      ],
+      "command": "npm",
+      "args": "run meeting-notes:verify-recent-gaps -- --days=14",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "meeting-transcripts-extract-backlog",
+      "title": "Meeting Transcript Extraction Backlog",
+      "jobType": "extraction",
+      "lane": "extract",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-MEETINGS-001"
+      ],
+      "command": "npm",
+      "args": "run meeting-notes:extract-candidates -- --onlyWithoutCandidates=true --limit=3",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "admin-deal-review-readonly",
+      "title": "Admin Deal Review Inspection",
+      "jobType": "review",
+      "lane": "transactions",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-OWNERS-001",
+        "SRC-FUB-001"
+      ],
+      "command": "npm",
+      "args": "run deal-review:admin -- --queued --limit=10 --write",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "admin-deal-backlog-review",
+      "title": "Admin Deal Backlog Inspection",
+      "jobType": "review",
+      "lane": "transactions",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-OWNERS-001",
+        "SRC-FUB-001",
+        "SRC-CLICKUP-001"
+      ],
+      "command": "npm",
+      "args": "run deal-review:admin -- --backlog --backlog-limit=5 --backlog-since=2025-06-01 --write",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "conditional-deal-review-readonly",
+      "title": "Conditional Deal Forecast Sync",
+      "jobType": "sync",
+      "lane": "transactions",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-CLICKUP-001",
+        "SRC-OWNERS-001"
+      ],
+      "command": "npm",
+      "args": "run clickup:conditional-forecast",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "agent-roster-review",
+      "title": "Agent Onboarding / Roster Inspection",
+      "jobType": "review",
+      "lane": "people",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-CLICKUP-001"
+      ],
+      "command": "npm",
+      "args": "run agent-roster:review",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "agent-feedback-auto-send-readiness",
+      "title": "Agent Feedback Production Auto-Send",
+      "jobType": "send",
+      "lane": "people",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "external_write",
+      "sourceIds": [
+        "SRC-CLICKUP-001"
+      ],
+      "command": "npm",
+      "args": "run agent-feedback:auto-send -- --mode=live --includeCandidates=false",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "agent-feedback-reminder-readiness",
+      "title": "Agent Feedback Live Reminders",
+      "jobType": "send",
+      "lane": "people",
+      "priority": "P1",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "external_write",
+      "sourceIds": [
+        "SRC-CLICKUP-001"
+      ],
+      "command": "npm",
+      "args": "run agent-feedback:reminders -- --mode=live --includeCandidates=false",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "shared-comms-intelligence-bite",
+      "title": "Strategy Intelligence Synthesis Bite",
+      "jobType": "intelligence_bite",
+      "lane": "synthesis",
+      "priority": "P0",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "read_only",
+      "sourceIds": [
+        "SRC-GMAIL-001",
+        "SRC-MISSIVE-001",
+        "SRC-MEETINGS-001",
+        "SRC-SLACK-001"
+      ],
+      "command": "npm",
+      "args": "run shared-comms:intelligence-bite",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "shared-comms-synthesis-v1",
+      "title": "Shared Comms Strategy Synthesis V1",
+      "jobType": "synthesis",
+      "lane": "synthesis",
+      "priority": "P0",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-GMAIL-001",
+        "SRC-MISSIVE-001",
+        "SRC-MEETINGS-001",
+        "SRC-SLACK-001"
+      ],
+      "command": "npm",
+      "args": "run synthesis:brief -- --limit=120 --maxItems=12",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "intelligence-synthesis-spine-refresh",
+      "title": "Intelligence Spine Synthesis Refresh",
+      "jobType": "synthesis",
+      "lane": "synthesis",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-GMAIL-001",
+        "SRC-MISSIVE-001",
+        "SRC-MEETINGS-001",
+        "SRC-SLACK-001"
+      ],
+      "command": "npm",
+      "args": "run intelligence:synthesis-refresh",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "intelligence-action-router-proposals",
+      "title": "Intelligence Action Router Proposals",
+      "jobType": "routing",
+      "lane": "action",
+      "priority": "P0",
+      "runtimeMode": "scheduled",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-GMAIL-001",
+        "SRC-MISSIVE-001",
+        "SRC-MEETINGS-001",
+        "SRC-SLACK-001"
+      ],
+      "command": "npm",
+      "args": "run intelligence:action-router-proposals",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    },
+    {
+      "jobKey": "strategy-evidence-packet-v1",
+      "title": "Strategy Evidence Packet V1",
+      "jobType": "synthesis",
+      "lane": "strategy",
+      "priority": "P0",
+      "runtimeMode": "manual",
+      "enabled": true,
+      "mutationPosture": "operational_write",
+      "sourceIds": [
+        "SRC-STRATEGY-001",
+        "SRC-GDRIVE-001",
+        "SRC-MEETINGS-001",
+        "SRC-GMAIL-001",
+        "SRC-MISSIVE-001",
+        "SRC-SLACK-001",
+        "SRC-YOUTUBE-INTEL-001",
+        "SRC-FUB-001",
+        "SRC-SUPABASE-001",
+        "SRC-FINANCE-001",
+        "SRC-OWNERS-001",
+        "SRC-CLICKUP-001"
+      ],
+      "command": "npm",
+      "args": "run strategy:evidence-packet -- --limit=180 --artifactLimit=28 --maxItems=18",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:foundation-operating-reliability-check"
+      ]
+    }
+  ],
+  "harvestedSkills": [
+    {
+      "skillId": "acestep",
+      "relativePath": ".agents/skills/acestep/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "elevenlabs",
+      "relativePath": ".agents/skills/elevenlabs/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "ffmpeg",
+      "relativePath": ".agents/skills/ffmpeg/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "frontend-design",
+      "relativePath": ".agents/skills/frontend-design/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "ltx2",
+      "relativePath": ".agents/skills/ltx2/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "moviepy",
+      "relativePath": ".agents/skills/moviepy/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "playwright-recording",
+      "relativePath": ".agents/skills/playwright-recording/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "qwen-edit",
+      "relativePath": ".agents/skills/qwen-edit/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "remotion-best-practices",
+      "relativePath": ".agents/skills/remotion-best-practices/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "remotion",
+      "relativePath": ".agents/skills/remotion/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "runpod",
+      "relativePath": ".agents/skills/runpod/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "video_toolkit",
+      "relativePath": ".agents/skills/video_toolkit/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-agent-recruiting-intel",
+      "relativePath": "skills/bcrew-agent-recruiting-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-assist-agent",
+      "relativePath": "skills/bcrew-assist-agent/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-assist-carson",
+      "relativePath": "skills/bcrew-assist-carson/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-assist-georgia",
+      "relativePath": "skills/bcrew-assist-georgia/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-assist-nick",
+      "relativePath": "skills/bcrew-assist-nick/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-assist-steve",
+      "relativePath": "skills/bcrew-assist-steve/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-assist-tanner",
+      "relativePath": "skills/bcrew-assist-tanner/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-attract-brief",
+      "relativePath": "skills/bcrew-attract-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-backlog-monitor",
+      "relativePath": "skills/bcrew-backlog-monitor/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-brand-guardian",
+      "relativePath": "skills/bcrew-brand-guardian/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-brand-sync",
+      "relativePath": "skills/bcrew-brand-sync/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-coaching-intelligence",
+      "relativePath": "skills/bcrew-coaching-intelligence/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-command-brief",
+      "relativePath": "skills/bcrew-command-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-community-skills",
+      "relativePath": "skills/bcrew-community-skills/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-compliance-enforcer",
+      "relativePath": "skills/bcrew-compliance-enforcer/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-content-archive",
+      "relativePath": "skills/bcrew-content-archive/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-content-intelligence",
+      "relativePath": "skills/bcrew-content-intelligence/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-content-writer",
+      "relativePath": "skills/bcrew-content-writer/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-course-scout",
+      "relativePath": "skills/bcrew-course-scout/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-deal-analyst",
+      "relativePath": "skills/bcrew-deal-analyst/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-decision-codifier",
+      "relativePath": "skills/bcrew-decision-codifier/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-dev-director-intel",
+      "relativePath": "skills/bcrew-dev-director-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-director-intelligence",
+      "relativePath": "skills/bcrew-director-intelligence/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-email-intelligence",
+      "relativePath": "skills/bcrew-email-intelligence/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-email-rules",
+      "relativePath": "skills/bcrew-email-rules/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-eod-wrap",
+      "relativePath": "skills/bcrew-eod-wrap/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-error-log-scout",
+      "relativePath": "skills/bcrew-error-log-scout/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-executive-brief",
+      "relativePath": "skills/bcrew-executive-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-external-scout",
+      "relativePath": "skills/bcrew-external-scout/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-feedback-scout",
+      "relativePath": "skills/bcrew-feedback-scout/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-feedback-triage",
+      "relativePath": "skills/bcrew-feedback-triage/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-feedback",
+      "relativePath": "skills/bcrew-feedback/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-finance-director-intel",
+      "relativePath": "skills/bcrew-finance-director-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-foundation-router",
+      "relativePath": "skills/bcrew-foundation-router/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-frontend-dev",
+      "relativePath": "skills/bcrew-frontend-dev/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-full-report",
+      "relativePath": "skills/bcrew-full-report/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-grow-brief",
+      "relativePath": "skills/bcrew-grow-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-head-of-code",
+      "relativePath": "skills/bcrew-head-of-code/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-implementation-scoper",
+      "relativePath": "skills/bcrew-implementation-scoper/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-internal-coaching",
+      "relativePath": "skills/bcrew-internal-coaching/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-internal-email",
+      "relativePath": "skills/bcrew-internal-email/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-internal-market",
+      "relativePath": "skills/bcrew-internal-market/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-internal-meetings",
+      "relativePath": "skills/bcrew-internal-meetings/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-internal-skool",
+      "relativePath": "skills/bcrew-internal-skool/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-internal-slack",
+      "relativePath": "skills/bcrew-internal-slack/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-lead-gen-research",
+      "relativePath": "skills/bcrew-lead-gen-research/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-leadership-scoreboard",
+      "relativePath": "skills/bcrew-leadership-scoreboard/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-marketing-brief",
+      "relativePath": "skills/bcrew-marketing-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-marketing-scoper",
+      "relativePath": "skills/bcrew-marketing-scoper/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-meeting-classifier",
+      "relativePath": "skills/bcrew-meeting-classifier/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-meeting-filer",
+      "relativePath": "skills/bcrew-meeting-filer/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-meeting-prep",
+      "relativePath": "skills/bcrew-meeting-prep/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-memory-audit",
+      "relativePath": "skills/bcrew-memory-audit/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-memory-review",
+      "relativePath": "skills/bcrew-memory-review/SKILL.md",
+      "flags": [
+        "external_scouting",
+        "internal_source_scouting"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-memory-writer",
+      "relativePath": "skills/bcrew-memory-writer/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-midday-pulse",
+      "relativePath": "skills/bcrew-midday-pulse/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-missive",
+      "relativePath": "skills/bcrew-missive/SKILL.md",
+      "flags": [
+        "external_scouting",
+        "internal_source_scouting"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-analyst",
+      "relativePath": "skills/bcrew-mktg-analyst/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-attract-researcher",
+      "relativePath": "skills/bcrew-mktg-attract-researcher/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-avatar-agent",
+      "relativePath": "skills/bcrew-mktg-avatar-agent/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-avatar-client",
+      "relativePath": "skills/bcrew-mktg-avatar-client/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-campaign-planner",
+      "relativePath": "skills/bcrew-mktg-campaign-planner/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-content-editor",
+      "relativePath": "skills/bcrew-mktg-content-editor/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-content-repurposer",
+      "relativePath": "skills/bcrew-mktg-content-repurposer/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-creative-director",
+      "relativePath": "skills/bcrew-mktg-creative-director/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-cro-analyst",
+      "relativePath": "skills/bcrew-mktg-cro-analyst/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-director-intel",
+      "relativePath": "skills/bcrew-mktg-director-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-ecosystem-scout",
+      "relativePath": "skills/bcrew-mktg-ecosystem-scout/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-graphic-designer",
+      "relativePath": "skills/bcrew-mktg-graphic-designer/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-ig-fb-specialist",
+      "relativePath": "skills/bcrew-mktg-ig-fb-specialist/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-ig-scoper",
+      "relativePath": "skills/bcrew-mktg-ig-scoper/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-industry-scout",
+      "relativePath": "skills/bcrew-mktg-industry-scout/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-platform-scout",
+      "relativePath": "skills/bcrew-mktg-platform-scout/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-retain-researcher",
+      "relativePath": "skills/bcrew-mktg-retain-researcher/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-scheduler",
+      "relativePath": "skills/bcrew-mktg-scheduler/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-seo-strategist",
+      "relativePath": "skills/bcrew-mktg-seo-strategist/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-sprint-master",
+      "relativePath": "skills/bcrew-mktg-sprint-master/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-mktg-video-editor",
+      "relativePath": "skills/bcrew-mktg-video-editor/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-onboarding-monitor",
+      "relativePath": "skills/bcrew-onboarding-monitor/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-ops-brief",
+      "relativePath": "skills/bcrew-ops-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-ops-director-intel",
+      "relativePath": "skills/bcrew-ops-director-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-ops-signal-monitor",
+      "relativePath": "skills/bcrew-ops-signal-monitor/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-owner-brief",
+      "relativePath": "skills/bcrew-owner-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-plan-critic",
+      "relativePath": "skills/bcrew-plan-critic/SKILL.md",
+      "flags": [
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-platform-intel",
+      "relativePath": "skills/bcrew-platform-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-process-enforcer",
+      "relativePath": "skills/bcrew-process-enforcer/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-production-monitor",
+      "relativePath": "skills/bcrew-production-monitor/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-qa-reviewer",
+      "relativePath": "skills/bcrew-qa-reviewer/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-recruiting-director-intel",
+      "relativePath": "skills/bcrew-recruiting-director-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-reply-parser",
+      "relativePath": "skills/bcrew-reply-parser/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-retain-brief",
+      "relativePath": "skills/bcrew-retain-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-retention-director-intel",
+      "relativePath": "skills/bcrew-retention-director-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-retention-intel",
+      "relativePath": "skills/bcrew-retention-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-review-loop",
+      "relativePath": "skills/bcrew-review-loop/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-sales-director-intel",
+      "relativePath": "skills/bcrew-sales-director-intel/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-scoreboard",
+      "relativePath": "skills/bcrew-scoreboard/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-skill-improver",
+      "relativePath": "skills/bcrew-skill-improver/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-sprint-master",
+      "relativePath": "skills/bcrew-sprint-master/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-strategic-work",
+      "relativePath": "skills/bcrew-strategic-work/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-strategy",
+      "relativePath": "skills/bcrew-strategy/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-system-auditor",
+      "relativePath": "skills/bcrew-system-auditor/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-system-eod-brief",
+      "relativePath": "skills/bcrew-system-eod-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-system-morning-brief",
+      "relativePath": "skills/bcrew-system-morning-brief/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-top-agent-social",
+      "relativePath": "skills/bcrew-top-agent-social/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-tracking-steve",
+      "relativePath": "skills/bcrew-tracking-steve/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-uiux-specialist",
+      "relativePath": "skills/bcrew-uiux-specialist/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-verification-agent",
+      "relativePath": "skills/bcrew-verification-agent/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-viral-trends",
+      "relativePath": "skills/bcrew-viral-trends/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    },
+    {
+      "skillId": "bcrew-visual-designer",
+      "relativePath": "skills/bcrew-visual-designer/SKILL.md",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest",
+      "sourceRefs": [
+        "docs/audits/2026-05-19-old-system-research-team-harvest.json"
+      ],
+      "proofRefs": [
+        "process:pillar-5-agent-inventory-check",
+        "process:old-system-research-team-harvest-check"
+      ]
+    }
+  ],
+  "promotedCards": [],
+  "contentSha256": "31907153270e3b919cedaa606a93a2d62cac289b5b187f7cd0fed5dcb488c254"
+}

@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PILLAR-5-AGENT-INVENTORY-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T20:41:19-04:00",
+  "approvalSource": "Steve approved continuing the Foundation gold-capture and capability sprint card-by-card after all gold from the long planning conversation was captured.",
+  "notes": "Approved to generate honest Agent Inventory from current Foundation registry/job truth and old-system evidence only. Do not approve agent runtime, old-code import, hidden workers, model/provider calls, extraction, external writes, private profile copying, or Value Builder split.",
+  "approvedPlanRef": "docs/process/pillar-5-agent-inventory-001-plan.md",
+  "approvedPlanSha256": "1b960e3c51da42a0a62da647398202cca830c833181cc19d3d09d2e78a571789",
+  "approvedRepoHead": "818db20f9900ff871635a236dbd7548353c730da",
+  "approvedChanges": [
+    "Add reusable PILLAR-5 Agent Inventory generator module.",
+    "Generate JSON and Markdown agent/job inventory artifacts from current agent registry, Foundation job definitions, old-system agent roster evidence, and old-system research harvest truth.",
+    "Add focused proof and closeout wiring for PILLAR-5.",
+    "Advance Current Sprint to SYSTEM-004 after closeout."
+  ],
+  "notNext": [
+    "No agent launch, hidden subagent, worker launch, provider/model call, live extraction, source-system mutation, external write/send, Drive permission mutation, credential mutation, or provider config change.",
+    "No import of old-system code, prompts, or old WORKING status as current runtime truth.",
+    "No private profile content, team emails, chat IDs, raw memories, tokens, or secret values in generated artifacts.",
+    "No System Capabilities UI surface; that is SYSTEM-004.",
+    "No Value Builder split."
+  ],
+  "approvalDigest": "856137582b6016e3f192b3877075167b2dd82652aac6d8aec994bba37c04862f"
+}

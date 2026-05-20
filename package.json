@@ -126,6 +126,7 @@
     "process:memory-003-conversation-archive-check": "node --env-file-if-exists=.env scripts/process-memory-003-conversation-archive-check.mjs",
     "process:memory-004-lessons-ip-check": "node --env-file-if-exists=.env scripts/process-memory-004-lessons-ip-check.mjs",
     "process:pillar-4-system-capabilities-check": "node --env-file-if-exists=.env scripts/process-pillar-4-system-capabilities-check.mjs",
+    "process:pillar-5-agent-inventory-check": "node --env-file-if-exists=.env scripts/process-pillar-5-agent-inventory-check.mjs",
     "process:nightly-audit-scheduler-due-fix-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-scheduler-due-fix-check.mjs",
     "process:nightly-audit-run-proof-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-run-proof-check.mjs",
     "process:system-health-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-system-health-nightly-audit-check.mjs",
