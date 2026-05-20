@@ -1,14 +1,28 @@
 # Google Drive Corpus Source Note
 
 Source ID: `SRC-GDRIVE-001`
-Last updated: 2026-04-26
-Status: Pending Revalidation
+Last updated: 2026-05-20
+Status: V1 Source Boundary Locked for current Foundation read-side reality
 
 ## Purpose
 
 Google Drive is a Foundation corpus source. The first job is not to reorganize everything. The first job is to inventory one bounded folder bite at a time, preserve evidence links, classify value, and only propose copies/derived outputs after the system knows what it reviewed.
 
 The original shared drives should not be moved, deleted, or ACL-stripped in this phase.
+
+## Current V1 Boundary
+
+`SRC-GDRIVE-001` is signed off for current Foundation read-side use through:
+
+- delegated Google Workspace Drive reads,
+- governed `drive-corpus-backfill` inventory metadata,
+- governed `drive-content-extract-backfill` content extraction,
+- local Drive document/PDF/spreadsheet/text artifacts with source links and provenance,
+- Strategy Folder evidence intake as source evidence, not canonical strategy truth.
+
+This boundary does not approve Drive permission mutation, request-access sends, broad private Drive sweeps, credential or OAuth scope changes, raw Drive exposure to broad team/agent surfaces, media/video/vision extraction, or treating the Strategy Folder as the canonical strategy layer.
+
+Canonical strategy docs, Strategy Hub, and Action Router own cleaned strategy decisions, priorities, owners, and follow-through after Drive evidence is reviewed.
 
 ## Shared Drive Roots
 

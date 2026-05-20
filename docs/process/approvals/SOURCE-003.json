@@ -1,0 +1,13 @@
+{
+  "cardId": "SOURCE-003",
+  "score": 10,
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T03:55:00.000-04:00",
+  "approvalSource": "Steve approved unattended Foundation execution: keep going card-by-card, park unsafe actions, and close SOURCE-003 from live repo truth.",
+  "notes": "Approved SOURCE-003 to lock Google Drive as a signed-off read-side current-reality source contract without Drive permission mutation, request-access sends, file writes, credential/OAuth mutation, broad Drive sweeps, broad raw exposure, media/vision/provider/browser-auth extraction, or canonical strategy rewrite from Drive.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/source-003-drive-source-contract-plan.md",
+  "approvedPlanSha256": "096d2f036dc69bcc7c091a18335a4a6469a255006e6386abba178564400ac9d9",
+  "approvedRepoHead": "02907dfa3a39f8e6be665c061c8f40b038c66ea7",
+  "approvalDigest": "30890708e96f7a78c3e905fe87389c86c0ad80677871c0b9c75858eec62badbf"
+}
