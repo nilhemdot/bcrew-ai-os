@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BRAIN-FLEET-FOUNDATION-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T13:55:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/brain-fleet-foundation-001-plan.md",
+  "approvedPlanSha256": "153b01ed4379a688fc97f1e93e5e71834d9de23e19a63df449735c40b31bb5ae",
+  "approvedRepoHead": "e9d794f1254fabef20562e299e48acb51f9d6f29",
+  "approvalSource": "Steve direct May 20 recovery/run order: after System Health watch clears and Foundation gates are green, start BRAIN-FLEET-FOUNDATION-001; no-auth contract only over existing llm_credentials/llm_routes; reuse existing LLM router and credential registry; do not run live provider probes.",
+  "constraints": [
+    "Build Brain Fleet foundation only after System Health raw 0 risk / 0 watch and process gates are healthy",
+    "No-auth contract/interface and synthetic proof only",
+    "Reuse existing LLM router and credential registry; do not rebuild them",
+    "Do not run live provider probes from this card",
+    "Do not mutate credentials, provider config, source systems, or external systems",
+    "Harlan auth escalation, quota ledger, and model capability registry must ship before live provider probes or extraction proof",
+    "Keep Strategy and People parked"
+  ],
+  "approvalDigest": "eba1f6909c637b02d3b2fdbbc6aac858c02cda0b19e231ddd105bbcf9897aea7"
+}
