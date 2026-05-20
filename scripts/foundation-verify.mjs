@@ -4459,7 +4459,7 @@ async function main() {
     foundationUiCompleteSource,
     foundationUiCompleteSynthetic,
     foundationVerificationRuns,
-    foundationVerifySource,
+    foundationVerifySource: foundationVerifyRootSource,
     marketmastersStrategySource,
     marketingSourceMapNoteSource,
     packageJson,

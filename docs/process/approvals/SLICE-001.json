@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SLICE-001",
+  "approvedBy": "Steve continuous Foundation execution approval + Codex Foundation builder session",
+  "approvedAt": "2026-05-20T01:55:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved continuous overnight Foundation work and SLICE-001 is the active blocker in FOUNDATION-TRUSTED-LOOP-AND-SAFE-SURFACES-2026-05-20.",
+  "scopeSummary": "Define and prove the first trusted assistant loop contract: source prerequisites, read-only inputs, allowed draft/proposal actions, approval-bound writes, evidence output, failure policy, and safe continuation. No live Harlan runtime, provider/model calls, live extraction, external writes, Drive permission mutation, Calendar writes, credential/source access mutation, broad private backfill, raw private memory/profile values in repo truth, hidden subagents, or parallel builders.",
+  "approvedPlanRef": "docs/process/slice-001-trusted-assistant-loop-plan.md",
+  "approvedPlanSha256": "232bd88fa145d8292873b4bc79aeab883ac2a2731f89de1e5101441c0c426047",
+  "approvedRepoHead": "1224bdd630d81e4852e736fca55b85401fe0720b",
+  "notApproved": [
+    "Do not launch a live Harlan runtime from this card.",
+    "Do not build Harlan UI, voice, avatar, or outbound identity work.",
+    "Do not run live extraction or broad private backfill.",
+    "Do not call providers or models as proof for this card.",
+    "Do not send Gmail, Slack, Telegram, ClickUp, Drive, Calendar, or Agent Feedback messages.",
+    "Do not mutate Google Drive permissions.",
+    "Do not mutate credentials, provider keys, auth scopes, or source access.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B or mutate Drive permissions.",
+    "Do not store raw private profile or memory values in repo truth.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "12f6d2309d6c028c9161a807d1987524aeec9101430c19d5e5777f6363497a51"
+}

@@ -308,6 +308,8 @@ It should build in this order:
 5. one trusted assistant loop
 6. then specialist expansion
 
+The trusted loop contract lives at [Trusted Assistant Loop](../agents/trusted-assistant-loop.md). It makes the first loop evidence-bound and read-only by default, with approval-bound writes parked instead of stopping all safe sprint work.
+
 ## First Real Agent Sequence
 
 The first sequence should be:

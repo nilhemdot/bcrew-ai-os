@@ -325,3 +325,5 @@ If you need the short operating answer:
 4. lock Harlan / Crewbert / project-registry architecture
 5. turn on one trusted assistant loop
 6. only then expand the agent layer
+
+`SLICE-001` defines that trusted loop as a contract/proof gate before runtime expansion: declared sources, read-only inputs, evidence output, approval-bound writes, and blockers-block-actions behavior.

@@ -33,10 +33,13 @@ There are three agent types:
 
 - [Personal Agent Onboarding](personal-agent-onboarding.md)
 - [Role Assistant Contracts](role-assistant-contracts.md)
+- [Trusted Assistant Loop](trusted-assistant-loop.md)
 
 Personal agents need an onboarding loop before broad rollout. The loop should help build a private personal profile, learn the person's role/goals/preferences, collect feedback, and eventually send one useful daily nugget tied to that person's work and permissions. `ME.md` is only a working label for that profile.
 
 Role assistants need explicit contracts before runtime expansion. The contract catalog defines what each assistant sees, does, escalates, trusts, reports, blocks, and requires approval for.
+
+The first trusted assistant loop defines the source prerequisites, evidence format, write boundaries, and blocked-action behavior that Harlan must prove before wider agent/source expansion.
 
 ## Current Rule
 

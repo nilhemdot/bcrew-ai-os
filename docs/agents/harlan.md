@@ -34,6 +34,8 @@ Harlan's cross-project reach must come from an explicit project registry, not hi
 
 Harlan's first useful operator loop must answer current Foundation truth from declared sources before any runtime expansion. See [Harlan Operator Loop](harlan-operator-loop.md).
 
+Harlan's first trusted assistant loop must also prove source prerequisites, read-only inputs, evidence output, write boundaries, and blocker handling before broader connectors or agents expand. See [Trusted Assistant Loop](trusted-assistant-loop.md).
+
 ## Personal Onboarding Direction
 
 Harlan should eventually help Steve build and maintain a private personal profile that captures role, business goals, personal goals Steve chooses to share, family/life context Steve chooses to share, communication preferences, operating preferences, and approval boundaries.

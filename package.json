@@ -210,6 +210,7 @@
     "process:role-assistant-contracts-check": "node --env-file-if-exists=.env scripts/process-role-assistant-contracts-check.mjs",
     "process:harlan-project-registry-check": "node --env-file-if-exists=.env scripts/process-harlan-project-registry-check.mjs",
     "process:harlan-operator-loop-check": "node --env-file-if-exists=.env scripts/process-harlan-operator-loop-check.mjs",
+    "process:slice-001-check": "node --env-file-if-exists=.env scripts/process-slice-001-check.mjs",
     "process:parallel-builder-worktree-protocol-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-worktree-protocol-check.mjs",
     "process:parallel-builder-operating-system-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-operating-system-check.mjs",
     "process:parallel-builder-merge-lane-enforcement-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-merge-lane-enforcement-check.mjs",
