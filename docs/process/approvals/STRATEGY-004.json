@@ -1,0 +1,18 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "STRATEGY-004",
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T02:20:00.000-04:00",
+  "approvalSource": "Steve approved continuous Foundation execution and STRATEGY-004 as the active sprint blocker.",
+  "approvedPlanRef": "docs/process/strategy-004-planning-workflow-plan.md",
+  "approvedPlanSha256": "4cc3edb0532c2bcd590cd80fa241a546a0071a8ba6a7383ed0141e636b2a857a",
+  "approvedRepoHead": "8dbcbb3d1b3a76c42858ae07917d0f71ad2425c0",
+  "score": 10,
+  "status": "approved",
+  "approvalNotes": [
+    "Bounded source-backed planning workflow only.",
+    "No old Strategy Advisor chat, provider calls, external writes, extraction, or auto-applied decisions.",
+    "Continue card-by-card and advance to STRATEGY-009 after clean closeout."
+  ],
+  "approvalDigest": "48db0d0f40dd73521e1e3cf37e4a9818be67a714f7d3c48441c84f4385883d0e"
+}

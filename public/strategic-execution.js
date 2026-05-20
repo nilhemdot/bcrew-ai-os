@@ -54,7 +54,7 @@
 
   function sectionFromHash() {
     var hash = window.location.hash.replace('#', '')
-    return ['overview', 'meeting', 'source-to-gap', 'route-review'].indexOf(hash) === -1 ? 'overview' : hash
+    return ['overview', 'planning', 'meeting', 'source-to-gap', 'route-review'].indexOf(hash) === -1 ? 'overview' : hash
   }
 
   function statusTone(value) {
@@ -140,6 +140,11 @@
         title: 'Strategy Command',
         body: 'Current pace, capacity pressure, cash posture, and strategy-specific review items.',
       },
+      planning: {
+        label: 'Planning Workflow',
+        title: 'Quarterly Planning',
+        body: 'Source-backed priority, carry-forward, stop, and missing-data queues for the next planning conversation.',
+      },
       meeting: {
         label: 'Meeting Packet',
         title: 'Ownership Meeting',
@@ -178,6 +183,11 @@
     ))
     if (state.section === 'route-review') {
       strip.appendChild(makePill(String(pendingStrategyRoutes) + ' strategy reviews', pendingStrategyRoutes ? 'watch' : 'good'))
+    } else if (state.section === 'planning') {
+      var workflow = data.planningWorkflow || {}
+      strip.appendChild(makePill(emptyText(workflow.status, 'planning missing'), statusTone(workflow.status)))
+      strip.appendChild(makePill(String(count(workflow.priorityCandidates)) + ' priorities', count(workflow.priorityCandidates) ? 'watch' : 'neutral'))
+      strip.appendChild(makePill(String(count(workflow.missingDataGaps)) + ' data gaps', count(workflow.missingDataGaps) ? 'watch' : 'good'))
     } else {
       strip.appendChild(makePill(emptyText(teamGroup && teamGroup.statusLabel, 'Team pace missing'), statusTone(teamGroup && teamGroup.statusLabel)))
       strip.appendChild(makePill(String(pendingStrategyRoutes) + ' strategy reviews', pendingStrategyRoutes ? 'watch' : 'good'))
@@ -575,6 +585,114 @@
     container.appendChild(panel)
   }
 
+  function renderPlanningQueueItem(item) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-card strategy-v2-planning-item'
+    appendText(card, 'div', emptyText(item.type, 'planning item').replace(/_/g, ' '), 'strategy-v2-focus-label')
+    appendText(card, 'h4', emptyText(item.title, 'Planning item'))
+    appendText(card, 'p', emptyText(item.readout, 'No readout recorded.'), 'strategy-v2-muted')
+    appendText(card, 'p', emptyText(item.whyNow, 'Review before planning.'), 'strategy-v2-meeting-question')
+    var meta = document.createElement('div')
+    meta.className = 'strategy-v2-route-mini-meta'
+    meta.appendChild(makePill(emptyText(item.status, 'review'), statusTone(item.status)))
+    appendText(meta, 'span', 'Owner: ' + emptyText(item.owner, 'missing'))
+    appendText(meta, 'span', 'Proof: ' + String(count(item.provenanceRefs)))
+    card.appendChild(meta)
+    appendText(card, 'strong', 'Next: ' + emptyText(item.nextAction, 'Choose a planning disposition.'), 'strategy-v2-agenda-focus')
+    var sources = document.createElement('div')
+    sources.className = 'strategy-v2-meeting-sources'
+    ;(item.sourceIds || []).slice(0, 5).forEach(function(sourceId) {
+      sources.appendChild(makePill(sourceId, 'neutral'))
+    })
+    if (!(item.sourceIds || []).length && (item.provenanceRefs || []).length) {
+      sources.appendChild(makePill('proof refs attached', 'neutral'))
+    }
+    card.appendChild(sources)
+    return card
+  }
+
+  function renderPlanningQueue(title, eyebrow, items, emptyCopy) {
+    var panel = document.createElement('article')
+    panel.className = 'strategy-v2-focus-panel'
+    appendText(panel, 'div', eyebrow, 'eyebrow')
+    appendText(panel, 'h3', title)
+    var list = document.createElement('div')
+    list.className = 'strategy-v2-goal-grid'
+    ;(items || []).slice(0, 6).forEach(function(item) {
+      list.appendChild(renderPlanningQueueItem(item))
+    })
+    if (!(items || []).length) {
+      appendText(list, 'p', emptyCopy || 'No source-backed items in this queue.', 'strategy-v2-muted')
+    }
+    panel.appendChild(list)
+    return panel
+  }
+
+  function renderPlanningWorkflow(container, data) {
+    var workflow = data.planningWorkflow || {}
+    var proof = workflow.proofSummary || {}
+    var panel = document.createElement('section')
+    panel.className = 'panel strategy-v2-panel strategy-v2-planning-panel'
+    panel.id = 'planning'
+
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+    var copy = document.createElement('div')
+    appendText(copy, 'div', 'Planning Workflow', 'eyebrow')
+    appendText(copy, 'h3', emptyText(workflow.title, 'Quarterly planning workflow'))
+    appendText(copy, 'p', emptyText(workflow.primaryRead, 'No source-backed planning workflow is available yet.'), 'strategy-v2-muted')
+    header.appendChild(copy)
+    var statePill = document.createElement('div')
+    statePill.className = 'strategy-v2-route-pills'
+    statePill.appendChild(makePill(emptyText(workflow.status, 'missing'), statusTone(workflow.status)))
+    statePill.appendChild(makePill(String(proof.hiddenOperationalRoutes || 0) + ' ops routes hidden', 'neutral'))
+    header.appendChild(statePill)
+    panel.appendChild(header)
+
+    var statGrid = document.createElement('div')
+    statGrid.className = 'strategy-v2-meeting-stat-grid'
+    statGrid.appendChild(renderMeetingStat('Priority', count(workflow.priorityCandidates), 'items'))
+    statGrid.appendChild(renderMeetingStat('Carry', count(workflow.carryForwardCandidates), 'items'))
+    statGrid.appendChild(renderMeetingStat('Stop', count(workflow.stopCandidates), 'items'))
+    statGrid.appendChild(renderMeetingStat('Gaps', count(workflow.missingDataGaps), 'items'))
+    panel.appendChild(statGrid)
+
+    var steps = document.createElement('article')
+    steps.className = 'strategy-v2-focus-panel'
+    appendText(steps, 'div', 'Review Steps', 'eyebrow')
+    appendText(steps, 'h3', 'How to use this packet')
+    var stepList = document.createElement('div')
+    stepList.className = 'strategy-v2-meeting-agenda'
+    ;(workflow.reviewSteps || []).forEach(function(step, index) {
+      stepList.appendChild(renderAgendaItem({
+        title: emptyText(step.label, 'Review step'),
+        focus: emptyText(step.detail, 'Review the source-backed planning item.'),
+        question: 'Confirm disposition before this becomes applied work.',
+        nextAction: 'Use Strategy review controls or Scoper outputs; do not apply from this packet.',
+        sourceIds: step.sourceIds || [],
+      }, index))
+    })
+    steps.appendChild(stepList)
+    panel.appendChild(steps)
+
+    panel.appendChild(renderPlanningQueue('Priority candidates', 'Decide', workflow.priorityCandidates, 'No priority candidates are source-backed yet.'))
+    panel.appendChild(renderPlanningQueue('Carry forward candidates', 'Carry Forward', workflow.carryForwardCandidates, 'No carry-forward candidates are ready.'))
+    panel.appendChild(renderPlanningQueue('Stop candidates', 'Stop', workflow.stopCandidates, 'No stop candidates are ready.'))
+    panel.appendChild(renderPlanningQueue('Missing data gaps', 'Data Gaps', workflow.missingDataGaps, 'No missing-data gaps are visible.'))
+
+    var proofPanel = document.createElement('article')
+    proofPanel.className = 'strategy-v2-meeting-proof'
+    appendText(proofPanel, 'strong', 'Planning proof')
+    appendText(proofPanel, 'span', 'Strategic issues: ' + String(proof.issueCount || 0))
+    appendText(proofPanel, 'span', 'Scoper outputs: ' + String(proof.scoperOutputCount || 0))
+    appendText(proofPanel, 'span', 'Retrieval eval: ' + emptyText(proof.retrievalEvalStatus, 'not surfaced'))
+    ;(proof.sourceIds || []).slice(0, 8).forEach(function(sourceId) {
+      proofPanel.appendChild(makePill(sourceId, 'neutral'))
+    })
+    panel.appendChild(proofPanel)
+    container.appendChild(panel)
+  }
+
   function renderOverview(container, data) {
     var goalTruth = data.goalTruth || {}
     var operatingTruth = data.operatingTruth || {}
@@ -624,6 +742,21 @@
       tone: 'neutral',
     }))
     page.appendChild(kpis)
+    if (data.planningWorkflow) {
+      var planningPreview = document.createElement('article')
+      planningPreview.className = 'strategy-v2-focus-panel'
+      appendText(planningPreview, 'div', 'Planning Workflow', 'eyebrow')
+      appendText(planningPreview, 'h3', emptyText(data.planningWorkflow.title, 'Quarterly planning workflow'))
+      appendText(planningPreview, 'p', emptyText(data.planningWorkflow.primaryRead, 'Planning workflow is not ready yet.'), 'strategy-v2-muted')
+      var planningStats = document.createElement('div')
+      planningStats.className = 'strategy-v2-meeting-stat-grid'
+      planningStats.appendChild(renderMeetingStat('Priority', count(data.planningWorkflow.priorityCandidates), 'items'))
+      planningStats.appendChild(renderMeetingStat('Carry', count(data.planningWorkflow.carryForwardCandidates), 'items'))
+      planningStats.appendChild(renderMeetingStat('Gaps', count(data.planningWorkflow.missingDataGaps), 'items'))
+      planningPreview.appendChild(planningStats)
+      appendLink(planningPreview, '#planning', 'Open planning workflow', 'section-support-link')
+      page.appendChild(planningPreview)
+    }
     page.appendChild(renderMeetingPacketPreview(data.meetingReady))
     page.appendChild(renderAgentEngineModel(teamGroup, capacityGroup, financeCard))
 
@@ -1190,7 +1323,7 @@
     panel.id = 'trust-gate'
     appendText(panel, 'div', 'Trust Gate', 'eyebrow')
     appendText(panel, 'h3', 'Advisor remains blocked')
-    appendText(panel, 'p', 'Strategy Hub v2 can only render source-to-gap snapshots and strategy-marked review records until the next accepted hub slice changes that gate.', 'strategy-v2-muted')
+    appendText(panel, 'p', 'Strategy Hub v2 now renders deterministic source-backed planning queues, but it still cannot produce unsupported advisor-chat recommendations or apply decisions automatically.', 'strategy-v2-muted')
     appendLink(panel, '/doc?path=' + encodeURIComponent(manifestPath), 'Open source-to-gap manifest', 'section-support-link')
     container.appendChild(panel)
   }
@@ -1211,6 +1344,8 @@
     if (state.section === 'source-to-gap') {
       renderSourceToGap(container, state.data)
       renderOperatingTruth(container, state.data)
+    } else if (state.section === 'planning') {
+      renderPlanningWorkflow(container, state.data)
     } else if (state.section === 'meeting') {
       renderMeetingReady(container, state.data)
     } else if (state.section === 'route-review') {
