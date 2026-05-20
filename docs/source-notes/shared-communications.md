@@ -130,6 +130,7 @@ What already exists now:
 - current repo now has the first governed archive slice for shared communications:
   - Gmail thread artifacts archived in PostgreSQL
   - Gmail PDF/text attachment artifacts archived in PostgreSQL through `email-attachments-backfill`
+  - Google Calendar current-window event artifacts archived in PostgreSQL through `calendar-current-day`
   - Missive thread artifacts archived in PostgreSQL
   - Slack thread artifacts archived in PostgreSQL
   - meeting-note artifacts archived in PostgreSQL
@@ -140,8 +141,15 @@ What already exists now:
   - transcript-gap reporting for organizers and recurring series, so forward-looking transcript failures can be found explicitly instead of guessed from missing summaries
   - a Crewbert Drive mirror path that can copy and organize archived meeting notes / transcripts without changing source-file ACLs yet
   - governed candidate extraction now live for meeting transcripts, Gmail threads, Missive threads, and Slack threads with Foundation context
-  - governed Gmail attachment extraction now live for PDFs and text-like blobs, with images, audio, video, Office, slides, spreadsheets, and calendar invites marked by explicit skip reasons instead of silently disappearing
+  - governed Gmail attachment extraction now live for PDFs, text-like blobs, and calendar invite text artifacts, with images, audio, video, Office, slides, and spreadsheets marked by explicit skip reasons instead of silently disappearing
 - old repo still holds additional Missive search patterns worth borrowing
+
+Current Calendar boundary:
+
+- Google Calendar is signed off for delegated read-side current reality through `calendar-current-day` and `calendar-sync-current`.
+- V1 archives bounded event/cadence context only: title, start/end, location, organizer/status/link metadata, and attendee metadata/counts.
+- V1 does not archive event descriptions, raw notes, invite bodies, or attachments.
+- V1 does not approve Calendar writes, event creation/update/delete, invites, RSVP handling, credential mutation, broad calendar extraction, or treating Calendar as meeting-note/transcript truth.
 
 Current attachment boundary:
 

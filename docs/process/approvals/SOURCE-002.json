@@ -1,0 +1,13 @@
+{
+  "cardId": "SOURCE-002",
+  "score": 10,
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T03:30:00.000-04:00",
+  "approvalSource": "Steve approved unattended Foundation execution: keep going card-by-card, park unsafe actions, and close SOURCE-002 from live repo truth.",
+  "notes": "Approved SOURCE-002 to lock Google Calendar as a signed-off read-side current-reality source contract without Calendar writes, invites, RSVP handling, event mutation, credential mutation, broad calendar extraction, Drive permission mutation, or meeting-note/transcript conflation.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/source-002-calendar-source-contract-plan.md",
+  "approvedPlanSha256": "23c5c7c83e7d24aaecd72a76f571752eb8627a2b36d94a5fd1c6d834089d1b0b",
+  "approvedRepoHead": "74b4c8126b418f340abec94b0192faa131ff7cf5",
+  "approvalDigest": "e71cfb5c0f16d818dbb0e3babef2d260fa3c005469aa559870b09865f73d3547"
+}
