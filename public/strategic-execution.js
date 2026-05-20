@@ -630,6 +630,169 @@
     return panel
   }
 
+  function scoperUiFromData(data) {
+    return data && data.planningWorkflow && data.planningWorkflow.scoperUi || {}
+  }
+
+  function scoperOutputsFromData(data) {
+    var ui = scoperUiFromData(data)
+    return Array.isArray(ui.outputs) ? ui.outputs : []
+  }
+
+  function evidenceTone(type) {
+    if (type === 'source' || type === 'decision') return 'good'
+    if (type === 'gap' || type === 'draft_task') return 'watch'
+    return 'neutral'
+  }
+
+  function renderScoperEvidencePointers(pointers, emptyCopy) {
+    var wrap = document.createElement('div')
+    wrap.className = 'strategy-v2-scoper-evidence'
+    ;(pointers || []).slice(0, 12).forEach(function(pointer) {
+      var link = document.createElement('a')
+      link.className = 'strategy-v2-scoper-evidence-link strategy-v2-pill strategy-v2-pill-' + evidenceTone(pointer.type)
+      link.href = pointer.href || '#planning'
+      link.textContent = emptyText(pointer.label || pointer.ref, 'proof ref')
+      link.title = emptyText(pointer.type, 'proof')
+      wrap.appendChild(link)
+    })
+    if (!(pointers || []).length) {
+      appendText(wrap, 'span', emptyCopy || 'No refs attached.', 'strategy-v2-muted')
+    }
+    return wrap
+  }
+
+  function renderScoperSection(section) {
+    var details = document.createElement('details')
+    details.className = 'strategy-v2-scoper-section'
+    details.open = section.key === 'gaps' || section.key === 'next_steps'
+    appendText(details, 'summary', emptyText(section.title, 'Scoper section'))
+    var items = Array.isArray(section.items) ? section.items : []
+    if (!items.length) {
+      appendText(details, 'p', emptyText(section.empty, 'No items recorded.'), 'strategy-v2-muted')
+      return details
+    }
+    if (section.key === 'partial' || section.key === 'verified') {
+      details.appendChild(renderScoperEvidencePointers(items, section.empty))
+    } else {
+      var list = document.createElement('div')
+      list.className = 'strategy-v2-scoper-section-list'
+      items.forEach(function(item) {
+        var row = document.createElement('div')
+        row.className = 'strategy-v2-scoper-row'
+        appendText(row, 'span', emptyText(item.type, section.key).replace(/_/g, ' '), 'strategy-v2-focus-label')
+        appendText(row, 'p', emptyText(item.label, 'Scoper item'), 'strategy-v2-muted')
+        if (item.href) appendLink(row, item.href, item.type === 'draft_task' ? 'Open review path' : 'Open proof', 'section-support-link')
+        list.appendChild(row)
+      })
+      details.appendChild(list)
+    }
+    return details
+  }
+
+  function renderScoperOutputCard(output) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-card strategy-v2-scoper-card'
+    card.id = 'scoper-output-' + emptyText(output.scoperOutputId, 'missing').replace(/[^a-z0-9_-]+/gi, '-')
+    var top = document.createElement('div')
+    top.className = 'strategy-v2-card-top'
+    var copy = document.createElement('div')
+    appendText(copy, 'h4', emptyText(output.title, output.proposedCardId || 'Scoper output'))
+    appendText(copy, 'p', emptyText(output.summary, 'No Scoper summary recorded.'), 'strategy-v2-muted')
+    top.appendChild(copy)
+    var pills = document.createElement('div')
+    pills.className = 'strategy-v2-route-pills'
+    pills.appendChild(makePill(emptyText(output.status, 'review'), statusTone(output.status)))
+    pills.appendChild(makePill(emptyText(output.confidence, 'confidence missing') + ' confidence', statusTone(output.confidence)))
+    pills.appendChild(makePill('Owner: ' + emptyText(output.owner, 'missing'), 'neutral'))
+    top.appendChild(pills)
+    card.appendChild(top)
+
+    var meta = document.createElement('div')
+    meta.className = 'strategy-v2-route-meta'
+    appendText(meta, 'span', emptyText(output.proposedCardId, 'proposed card missing'))
+    appendText(meta, 'span', 'Evidence: ' + String(count(output.evidencePointers)))
+    appendText(meta, 'span', 'Routes: ' + String(count(output.routeRefs)))
+    card.appendChild(meta)
+
+    ;(output.sections || []).forEach(function(section) {
+      card.appendChild(renderScoperSection(section))
+    })
+
+    var blocked = document.createElement('details')
+    blocked.className = 'strategy-v2-technical-refs'
+    appendText(blocked, 'summary', 'Blocked auto-actions')
+    ;(output.blockedActions || []).forEach(function(action) {
+      appendText(blocked, 'p', action)
+    })
+    if (!(output.blockedActions || []).length) appendText(blocked, 'p', 'No blocked action notes recorded.')
+    card.appendChild(blocked)
+
+    var actions = document.createElement('div')
+    actions.className = 'strategy-v2-route-actions'
+    var routeAction = output.draftTaskAction || {}
+    var routeLink = document.createElement('a')
+    routeLink.className = 'strategy-v2-action-btn strategy-v2-action-primary'
+    routeLink.href = routeAction.href || '#route-review'
+    routeLink.textContent = emptyText(routeAction.label, 'Open review path')
+    routeLink.title = 'Use the existing human approval path. This UI does not auto-create backlog work.'
+    actions.appendChild(routeLink)
+    card.appendChild(actions)
+    return card
+  }
+
+  function renderScoperOutputPanel(data) {
+    var ui = scoperUiFromData(data)
+    var outputs = scoperOutputsFromData(data)
+    var panel = document.createElement('article')
+    panel.className = 'strategy-v2-focus-panel strategy-v2-scoper-panel'
+    appendText(panel, 'div', 'Scoper Outputs', 'eyebrow')
+    appendText(panel, 'h3', 'Gap-resolving Scoper review')
+    appendText(panel, 'p', emptyText(ui.summary, 'No Scoper outputs are available yet.'), 'strategy-v2-muted')
+    var stats = document.createElement('div')
+    stats.className = 'strategy-v2-meeting-stat-grid'
+    stats.appendChild(renderMeetingStat('Outputs', outputs.length, 'scoped'))
+    stats.appendChild(renderMeetingStat('Sources', count(ui.sourceIds), 'ids'))
+    stats.appendChild(renderMeetingStat('Routes', count(ui.routeRefs), 'refs'))
+    stats.appendChild(renderMeetingStat('Mode', ui.noAutoCreatesBacklog ? 'Review' : 'Repair', 'only'))
+    panel.appendChild(stats)
+    var list = document.createElement('div')
+    list.className = 'strategy-v2-scoper-list'
+    outputs.slice(0, 6).forEach(function(output) {
+      list.appendChild(renderScoperOutputCard(output))
+    })
+    if (!outputs.length) {
+      appendText(list, 'p', 'No Scoper outputs are ready for the Strategy Hub review surface.', 'strategy-v2-muted')
+    }
+    panel.appendChild(list)
+    return panel
+  }
+
+  function relatedScoperOutputsForRoute(route, data) {
+    var routeId = emptyText(route && route.routeId, '')
+    if (!routeId) return []
+    return scoperOutputsFromData(data).filter(function(output) {
+      return (output.routeRefs || []).indexOf(routeId) !== -1
+    })
+  }
+
+  function renderRouteScoperOutputs(route, data) {
+    var outputs = relatedScoperOutputsForRoute(route, data)
+    if (!outputs.length) return null
+    var details = document.createElement('details')
+    details.className = 'strategy-v2-provenance strategy-v2-scoper-route-proof'
+    appendText(details, 'summary', 'Scoper output')
+    outputs.slice(0, 2).forEach(function(output) {
+      var block = document.createElement('div')
+      block.className = 'strategy-v2-scoper-route-block'
+      appendText(block, 'strong', emptyText(output.title, output.proposedCardId || 'Scoper output'))
+      appendText(block, 'p', emptyText(output.summary, 'No Scoper summary recorded.'), 'strategy-v2-muted')
+      block.appendChild(renderScoperEvidencePointers(output.evidencePointers || [], 'No evidence pointers attached.'))
+      details.appendChild(block)
+    })
+    return details
+  }
+
   function renderPlanningWorkflow(container, data) {
     var workflow = data.planningWorkflow || {}
     var proof = workflow.proofSummary || {}
@@ -677,6 +840,7 @@
     steps.appendChild(stepList)
     panel.appendChild(steps)
 
+    panel.appendChild(renderScoperOutputPanel(data))
     panel.appendChild(renderPlanningQueue('Priority candidates', 'Decide', workflow.priorityCandidates, 'No priority candidates are source-backed yet.'))
     panel.appendChild(renderPlanningQueue('Carry forward candidates', 'Carry Forward', workflow.carryForwardCandidates, 'No carry-forward candidates are ready.'))
     panel.appendChild(renderPlanningQueue('Stop candidates', 'Stop', workflow.stopCandidates, 'No stop candidates are ready.'))
@@ -1240,6 +1404,8 @@
     appendText(provenance, 'summary', 'Source proof')
     renderSourceProof(provenance, route)
     card.appendChild(provenance)
+    var scoperRouteOutput = renderRouteScoperOutputs(route, state.data)
+    if (scoperRouteOutput) card.appendChild(scoperRouteOutput)
 
     renderRouteControls(card, route)
 

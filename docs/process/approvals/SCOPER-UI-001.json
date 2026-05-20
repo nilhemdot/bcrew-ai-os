@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SCOPER-UI-001",
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T03:20:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/scoper-ui-001-plan.md",
+  "approvedPlanSha256": "41878567990320af93d9f8e9966833e17f4db243b831e23d363007fa81a6660f",
+  "approvedRepoHead": "084d397348e5ae9e916c5deca4d3e8c7e58ef5be",
+  "approvalSource": "Steve approved unattended Foundation execution: keep going card-by-card, park unsafe blockers, and continue safe work. SCOPER-UI-001 is the active blocker after INTEL-THREAD-CONTEXT-001.",
+  "notes": "Scope is Strategy Hub display of existing proposal-only Scoper outputs. Not approved: auto-created backlog cards, route apply workflow changes, source extraction/sync/crawl, provider/model/browser work, external writes, Drive permission mutation, credential/key rotation, paid/provider access, browser-auth, or broad private extraction.",
+  "changedFiles": [
+    "lib/scoper-ui.js",
+    "lib/strategy-planning-workflow.js",
+    "public/strategic-execution.js",
+    "public/styles-strategy-sales.css",
+    "scripts/process-scoper-ui-check.mjs",
+    "package.json",
+    "docs/process/scoper-ui-001-plan.md",
+    "docs/process/approvals/SCOPER-UI-001.json",
+    "docs/handoffs/2026-05-20-scoper-ui-closeout.md",
+    "lib/foundation-build-closeout-intelligence-records.js",
+    "lib/foundation-verify-coverage-card-ids.js"
+  ],
+  "approvalDigest": "cefc324b0e2fdf0be266577b84cab777eb54b6d24806f4075a913d207af141ed"
+}
