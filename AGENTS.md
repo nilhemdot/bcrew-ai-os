@@ -244,6 +244,12 @@ When a major surface or doc pass is close to sign-off, do not just move on becau
 
 This is how we avoid hidden gaps, thin backlog cards, and "we talked about it but never promoted it" drift.
 
+## Operator Shortcuts
+
+Steve may use compact prompt shortcuts such as `/dual-track`, `/multi-lane`, `/builder-status`, `/green-check`, `/extract-hit-list`, or `/checkpoint-stab`. When he does, do not answer from generic memory or generic engineering instinct.
+
+First read `docs/process/operator-shortcuts.md`, then follow the matching shortcut protocol before answering or acting. These shortcuts exist because prompt-only rules are unreliable unless the agent reloads repo truth and current live state.
+
 ## Foundation Rebuild Discipline
 
 Use these rules only for durable system work. Do not turn every conversation into memory or doctrine.
