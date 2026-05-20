@@ -268,6 +268,7 @@ Use these rules only for durable system work. Do not turn every conversation int
 - Plans that add to files already over 5,000 lines, introduce write paths in `check` scripts, touch live state from verifier/check paths, or omit focused proof are architecture-risk plans. They should be revised before build unless Steve explicitly overrides with a documented reason.
 - Do not celebrate velocity by itself. Fast shipping without architectural review is how the old-system failure pattern returns. If files pass roughly 3,000 lines, flag them; past 5,000 lines, require a split/extraction plan; past 10,000 lines, treat the file as actively dangerous until proven otherwise.
 - Performance budgets are senior-engineer responsibility. If an operator route exceeds roughly 2 seconds or returns multi-megabyte payloads, stop treating it as polish and route it as Foundation reliability work.
+- Foundation closeout must leave served code fresh. `process:foundation-ship` already restarts the dashboard and worker before served-code proof; if you commit/push Foundation changes through a focused proof path instead, manually restart `ai.bcrew.dashboard` and `ai.bcrew.foundation-worker`, then rerun `foundation:verify` before handing off. Do not leave the next builder to discover a stale served-commit failure.
 
 ## Chat Archive Discipline
 

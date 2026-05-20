@@ -3,12 +3,14 @@
 ## State
 
 - Main branch was repaired and verified after `BRAIN-FLEET-FOUNDATION-001`.
-- Active Current Sprint blocker is `HARLAN-AUTH-ESCALATION-LOOP-001`.
+- Active Current Sprint focus card is `HARLAN-AUTH-ESCALATION-LOOP-001` (stored in the legacy `activeBlocker` field; not a system-health blocker).
 - Manual `foundation:verify -- --json-summary` is green: 518/518.
 - Scheduled `foundation-verify` job was forced through the ledger and succeeded.
 - Scheduled `connector-uptime-monitor` job was forced through the ledger and succeeded.
 - Build-lane repeated-failure action gate is healthy.
 - System Health nightly audit is healthy.
+- Dashboard and Foundation worker were restarted after the final push so served code matches `HEAD`.
+- Scheduled `foundation-verify` job was forced again after restart and succeeded against `4f20f29a`.
 - Deep-audit findings closure gate is healthy.
 - Current Sprint active-card gate is healthy.
 - Current Sprint dynamic truth is healthy.
@@ -40,6 +42,8 @@
 - `npm run process:foundation-health-watch-to-green-check -- --json`
 - `npm run process:foundation-health-watch-to-green-check -- --apply --close-card --json`
 - `npm run foundation:verify -- --json-summary`
+- `launchctl kickstart -k gui/$(id -u)/ai.bcrew.dashboard`
+- `launchctl kickstart -k gui/$(id -u)/ai.bcrew.foundation-worker`
 - `npm run foundation:job -- --job=foundation-verify --force`
 - `npm run foundation:job -- --job=connector-uptime-monitor --force`
 - `npm run process:build-lane-repeated-failure-action-gate-check -- --json`
