@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-GATE-CHECK-SERIALIZATION-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T13:38:19-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/foundation-gate-check-serialization-001-plan.md",
+  "approvedPlanSha256": "6afc16111d49923a184d1a9d613d737d2800a954073c06ed97e2b332cae0efe6",
+  "approvedRepoHead": "5e0f49e557e6fd93f35bc8a5e36a1b454125324d",
+  "approvalSource": "Steve direct fresh-run and recovery orders on 2026-05-20: fix FOUNDATION-GATE-CHECK-SERIALIZATION-001 before Brain Fleet/extractor readiness; if the serialization guard caused the timeout/failure, repair it; build one lane only; heavy Foundation DB checks run sequentially until serialization guard ships.",
+  "constraints": [
+    "FOUNDATION-GATE-CHECK-SERIALIZATION-001 runs before Brain Fleet and extractor readiness",
+    "do not start Strategy, People, or Brain Fleet work from this recovery run",
+    "green means raw green; do not hide failures by classification",
+    "heavy Foundation DB checks run sequentially until serialization guard ships",
+    "owner-token reentry is only for child proof checks spawned by the active lock owner",
+    "do not weaken real DB/schema/verifier failures",
+    "no live provider probes, extraction, external writes, or credential mutation in this card"
+  ],
+  "approvalDigest": "c79bcc8e35c0d2f4cfffabbbec2dd9ab66a0aab1dae69ac133f7ad04abff9185"
+}

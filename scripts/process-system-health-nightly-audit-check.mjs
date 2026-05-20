@@ -43,6 +43,7 @@ import {
   assertCurrentProcessCheckWriteAllowed,
 } from '../lib/process-write-guard.js'
 import { buildDocArtifactBloatSnapshot } from '../lib/doc-artifact-bloat-guard.js'
+import { runSerializedFoundationGateCheck } from '../lib/foundation-gate-check-serialization.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -320,8 +321,9 @@ async function main() {
   if (failures.length) process.exitCode = 1
 }
 
-main().catch(async error => {
-  console.error(error instanceof Error ? error.stack || error.message : String(error))
-  await closeFoundationDb().catch(() => {})
-  process.exitCode = 1
-})
+runSerializedFoundationGateCheck('process:system-health-nightly-audit-check', () => main())
+  .catch(async error => {
+    console.error(error instanceof Error ? error.stack || error.message : String(error))
+    await closeFoundationDb().catch(() => {})
+    process.exitCode = 1
+  })

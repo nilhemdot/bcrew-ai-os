@@ -21,6 +21,8 @@ npm run process:foundation-ship -- --card=<CARD_ID> --planApprovalRef=docs/proce
 
 The wrapper intentionally runs `foundation:verify` once at the end. It passes an explicit skip reason into `process:ship-check` so the same live verifier does not run twice in the same wrapper call.
 
+DB-heavy Foundation proof checks run sequentially through the shared heavy-gate serialization guard. `foundation:verify`, `process:system-health-nightly-audit-check`, `process:build-lane-repeated-failure-action-gate-check`, and `backlog:hygiene` take the local heavy-gate lock before touching live Foundation DB state. Child proof checks spawned by the current lock owner may re-enter with the inherited owner token so `foundation:verify` can run its delegated health checks without self-deadlocking. Unrelated heavy checks still wait on the shared lock. The lock prevents misleading raw health failures from concurrent proof contention; it does not catch, downgrade, or hide real DB/schema/verifier failures.
+
 The runtime restart happens before `process:ship-check` because that check proves the served dashboard commit equals repo `HEAD`. Before the worker restart, the wrapper writes `.git/foundation-worker-ship-pause.json` so the worker can record its current commit and process ID without selecting due scheduled jobs during the ship gate. The marker is cleared in a `finally` path and expires automatically if the ship gate is interrupted. Use `--skipRuntimeRestart=true` only for a deliberate one-off investigation.
 
 After all gates pass, the wrapper records a local proof file in `.git/foundation-ship-proof.json`. The repo-managed pre-push hook uses that local proof to confirm protected Foundation changes were shipped through the canonical gate.

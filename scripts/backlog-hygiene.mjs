@@ -14,6 +14,7 @@ import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   recordBuildLaneFailureEventsFromChecks,
 } from '../lib/build-lane-failure-telemetry.js'
+import { runSerializedFoundationGateCheck } from '../lib/foundation-gate-check-serialization.js'
 
 function parseArgs(argv) {
   const result = {}
@@ -102,7 +103,7 @@ async function main() {
   }
 }
 
-main()
+runSerializedFoundationGateCheck('backlog:hygiene', () => main())
   .catch(error => {
     console.error(error instanceof Error ? error.message : 'Backlog hygiene failed.')
     process.exitCode = 1

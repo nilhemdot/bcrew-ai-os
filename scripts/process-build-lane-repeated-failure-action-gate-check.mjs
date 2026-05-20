@@ -51,6 +51,7 @@ import {
   assertProcessCheckWriteAllowed,
   isProcessCheckWriteRequested,
 } from '../lib/process-write-guard.js'
+import { runSerializedFoundationGateCheck } from '../lib/foundation-gate-check-serialization.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -663,7 +664,7 @@ async function main() {
   if (failed.length) process.exitCode = 1
 }
 
-main()
+runSerializedFoundationGateCheck('process:build-lane-repeated-failure-action-gate-check', () => main())
   .catch(error => {
     console.error('Build Lane Repeated Failure Action Gate check failed.')
     console.error(error instanceof Error ? error.stack || error.message : String(error))

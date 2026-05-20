@@ -42,11 +42,26 @@ const NEXT_SPRINT_QUEUE = [
   'RESEARCH-LANE-PURGE-001',
 ]
 
-const STEVE_ORDER_CARD_IDS = [
-  'FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001',
+const STEVE_FRESH_RUN_ORDER_CARD_IDS = [
+  'FOUNDATION-GATE-CHECK-SERIALIZATION-001',
   'BRAIN-FLEET-FOUNDATION-001',
+  'HARLAN-AUTH-ESCALATION-LOOP-001',
+  'BRAIN-FLEET-QUOTA-LEDGER-001',
+  'BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001',
+  'CODEX-DIRECT-SUBSCRIPTION-ROUTE-001',
+  'GEMINI-VIDEO-BRAIN-ROUTE-001',
+  'CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001',
+  'OPENCLAW-ADAPTER-BOUNDARY-001',
   'EXTRACTOR-BRAIN-FLEET-PROOF-001',
+  'YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001',
+]
+
+const STEVE_APPROVAL_GATED_CONTINUATION_CARD_IDS = [
+  'SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001',
+  'MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001',
   'EXTRACTOR-OVERNIGHT-RUN-GUARD-001',
+  'BUILD-INTEL-EXTRACTION-IMPLEMENTATION',
+  'FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001',
   'STRATEGY-003',
 ]
 
@@ -188,7 +203,8 @@ async function main() {
   )
   addFinding(findings, currentPlan.includes(SPRINT_ID) && currentState.includes(SPRINT_ID), 'plan and state preserve historical control-plane sprint closeout', `plan=${currentPlan.includes(SPRINT_ID)} state=${currentState.includes(SPRINT_ID)}`)
   addFinding(findings, currentPlan.includes('Current Sprint API owns the active blocker') && currentState.includes('Current Sprint API owns the active blocker'), 'docs route active-blocker truth to the live API')
-  addFinding(findings, STEVE_ORDER_CARD_IDS.every(cardId => currentPlan.includes(cardId) && currentState.includes(cardId)), 'docs record Steve ordered control-plane cleanup queue', STEVE_ORDER_CARD_IDS.filter(cardId => !(currentPlan.includes(cardId) && currentState.includes(cardId))).join(', '))
+  addFinding(findings, STEVE_FRESH_RUN_ORDER_CARD_IDS.every(cardId => currentPlan.includes(cardId) && currentState.includes(cardId)), 'docs record Steve fresh Brain Fleet/extractor readiness run order', STEVE_FRESH_RUN_ORDER_CARD_IDS.filter(cardId => !(currentPlan.includes(cardId) && currentState.includes(cardId))).join(', '))
+  addFinding(findings, STEVE_APPROVAL_GATED_CONTINUATION_CARD_IDS.every(cardId => currentPlan.includes(cardId) && currentState.includes(cardId)), 'docs record approval-gated continuation and parked Strategy boundary', STEVE_APPROVAL_GATED_CONTINUATION_CARD_IDS.filter(cardId => !(currentPlan.includes(cardId) && currentState.includes(cardId))).join(', '))
   addFinding(findings, staleActiveMarkers.length === 0, 'stale active sprint markers are rejected from active sections', staleActiveMarkers.join(' | '))
   addFinding(findings, REQUIRED_CLOSEOUT_KEYS.every(key => docsText.includes(key)), 'docs record shipped sprint closeouts before the control-plane sprint', REQUIRED_CLOSEOUT_KEYS.filter(key => !docsText.includes(key)).join(', '))
   addFinding(findings, SPRINT_CARD_IDS.every(cardId => currentPlan.includes(cardId) && currentState.includes(cardId)), 'docs list every approved control-plane sprint card')

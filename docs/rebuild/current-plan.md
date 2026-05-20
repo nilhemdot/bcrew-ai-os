@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-20
-Version: v6.141 - control-plane truth cleanup closed before Brain Fleet
-Status: Foundation control-plane cleanup closed; Brain Fleet scoped and paused
+Version: v6.143 - gate-check serialization closed before Brain Fleet
+Status: Foundation gate-check serialization is closed; Brain Fleet is scoped next; Strategy/People are parked
 
 Use this doc for one question:
 
@@ -16,28 +16,42 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`; the active blocker is `BRAIN-FLEET-FOUNDATION-001` in scoped/paused state. Do not start it until Steve gives the next build order.
+Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1` and `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`. The active blocker is `BRAIN-FLEET-FOUNDATION-001` in scoped state only; do not start Brain Fleet build work until Steve explicitly approves the next run after the pushed green closeout.
 
-Steve's command order:
+Steve's current command order:
 
-1. Foundation/control-plane cleanup
-2. Brain Fleet
-3. Extractor proof
-4. Extraction scale
-5. Strategy Hub / `STRATEGY-003`
+1. `FOUNDATION-GATE-CHECK-SERIALIZATION-001`
+2. `BRAIN-FLEET-FOUNDATION-001`
+3. `HARLAN-AUTH-ESCALATION-LOOP-001`
+4. `BRAIN-FLEET-QUOTA-LEDGER-001`
+5. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001`
+6. `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001`
+7. `GEMINI-VIDEO-BRAIN-ROUTE-001`
+8. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001`
+9. `OPENCLAW-ADAPTER-BOUNDARY-001`
+10. `EXTRACTOR-BRAIN-FLEET-PROOF-001`
+11. `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001`
 
-`STRATEGY-003` is parked. Do not start Strategy Hub, Brain Fleet implementation, extractor proof, extraction scale, People work, live extraction, provider/model calls, credential mutation, Drive permission mutation, external writes, emails, or public posts from this cleanup.
+Continue past that only with exact Steve-approved source items:
 
-Current cleanup card:
+1. `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`
+2. `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`
+3. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`
+4. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
 
-1. `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` - done under `foundation-control-plane-truth-cleanup-v1`. May 20 audit findings are closed/routed/accepted with proof; active-card gate, foundation-plan reconcile, System Health, repeated-failure gate, backlog hygiene, and `foundation:verify` are green. `process:foundation-ship` and pushed clean `main` close the card.
+`STRATEGY-003` and People work are parked. Do not start Strategy Hub, People work, broad extraction, broad Skool/MyICOR/Loom crawl, credential mutation, Drive permission mutation, external writes, emails, public posts, or provider/account workarounds that violate terms.
 
-Next scoped queue after cleanup:
+Closed recovery card:
 
-1. `BRAIN-FLEET-FOUNDATION-001` - current scoped blocker after cleanup, not started here.
-2. `EXTRACTOR-BRAIN-FLEET-PROOF-001` - extractor proof after Brain Fleet foundation.
-3. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - extraction scale guard after proof.
-4. `STRATEGY-003` - Strategy Hub only after Foundation, Brain Fleet, extractor proof, and extraction scale gates allow it.
+1. `FOUNDATION-GATE-CHECK-SERIALIZATION-001` - done under `foundation-gate-check-serialization-v1`. A concurrent proof bundle produced a Postgres deadlock while the same System Health check passed sequentially. Heavy DB-backed Foundation proof checks now serialize locally, dogfood concurrent attempts, allow owner-token child reentry for delegated verifier health checks, and still fail closed on real DB/schema/verifier failures before Brain Fleet work starts.
+
+Sequential queue after the pushed green recovery closeout:
+
+1. `BRAIN-FLEET-FOUNDATION-001` - scoped next, not started in this recovery; no-auth provider-agnostic contract only; reuse existing LLM router and credential registry; no live provider probes.
+2. `HARLAN-AUTH-ESCALATION-LOOP-001` - auth-needed/DONE loop before live provider probes.
+3. `BRAIN-FLEET-QUOTA-LEDGER-001` and `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` - ledger and capability truth before probes.
+4. Bounded route probes: Codex direct subscription, Gemini video/long-context, Claude Code/Agent SDK experimental, then OpenClaw adapter boundary.
+5. `EXTRACTOR-BRAIN-FLEET-PROOF-001` and one approved YouTube Build Intel runtime proof.
 
 May 20 deep audit truth: the 03:00 nightly deep audit ran and produced 7 deterministic findings, 0 P0. P1/P2 findings are closed, routed, or explicitly accepted through live backlog cards and closeout proof; the deep-audit closure gate remains healthy.
 

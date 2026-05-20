@@ -35,6 +35,7 @@ import {
   formatFoundationGateRetryMessage,
   runWithFoundationGateRetry,
 } from '../lib/foundation-gate-reliability.js'
+import { runSerializedFoundationGateCheck } from '../lib/foundation-gate-check-serialization.js'
 import {
   PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID,
   RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
@@ -4955,15 +4956,18 @@ async function main() {
   if (!jsonSummary) console.log('Foundation verification passed.')
 }
 
-runWithFoundationGateRetry(
+runSerializedFoundationGateCheck(
   'foundation:verify',
-  () => main(),
-  buildFoundationVerifyRetryOptions({
-    retries: 1,
-    onRetry: event => {
-      console.error(formatFoundationGateRetryMessage('foundation:verify', event))
-    },
-  }),
+  () => runWithFoundationGateRetry(
+    'foundation:verify',
+    () => main(),
+    buildFoundationVerifyRetryOptions({
+      retries: 1,
+      onRetry: event => {
+        console.error(formatFoundationGateRetryMessage('foundation:verify', event))
+      },
+    }),
+  ),
 )
   .catch(error => {
     console.error('Foundation verification failed.')

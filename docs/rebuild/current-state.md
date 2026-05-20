@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
 Last updated: 2026-05-20
-Status: Foundation control-plane cleanup closed; Brain Fleet scoped and paused
+Status: Foundation gate-check serialization is closed; Brain Fleet is scoped next; Strategy/People are parked
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -21,15 +21,30 @@ Rule: if a package depends on open live inputs, open runtime activation, or open
 
 ## Short Version
 
-The Foundation is real, but it is not clean until command truth is clean.
+The Foundation is real, and the gate-check serialization blocker is closed before the long Brain Fleet/extractor run.
 
-Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`; the active card is `BRAIN-FLEET-FOUNDATION-001` in scoped/paused state. Do not start it until Steve gives the next build order.
+Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1` and `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`. The active card is `BRAIN-FLEET-FOUNDATION-001` in scoped state only; Brain Fleet build work has not started in this recovery run.
 
-Steve's order is Foundation/control-plane cleanup, Brain Fleet, Extractor proof, Extraction scale, then Strategy Hub / `STRATEGY-003`. `STRATEGY-003` is parked until those higher-priority gates are clean.
+Steve's order is:
+
+1. `FOUNDATION-GATE-CHECK-SERIALIZATION-001`
+2. `BRAIN-FLEET-FOUNDATION-001`
+3. `HARLAN-AUTH-ESCALATION-LOOP-001`
+4. `BRAIN-FLEET-QUOTA-LEDGER-001`
+5. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001`
+6. `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001`
+7. `GEMINI-VIDEO-BRAIN-ROUTE-001`
+8. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001`
+9. `OPENCLAW-ADAPTER-BOUNDARY-001`
+10. `EXTRACTOR-BRAIN-FLEET-PROOF-001`
+11. `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001`
+
+Continue only with exact source approval for `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, and `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`. `STRATEGY-003` and People work are parked until those higher-priority gates are clean and Steve approves continuing.
 
 Current sprint call:
 
-- `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is done. It repaired the two stale red gates, routed May 20 deep-audit findings, and forced Current Sprint/live plan truth back to raw green before Brain Fleet, extractor, Strategy, or People work continues. The next scoped sequence is `BRAIN-FLEET-FOUNDATION-001`, `EXTRACTOR-BRAIN-FLEET-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, then `STRATEGY-003`.
+- `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is done. A concurrent proof bundle produced a Postgres deadlock while the same System Health check passed sequentially. The shipped fix is a shared local serialization guard for DB-heavy Foundation proof checks, documented sequential behavior, owner-token child reentry for delegated verifier health checks, and dogfood proving concurrent proof attempts do not create misleading raw health failures while real DB/schema/verifier failures still fail closed.
+- `BRAIN-FLEET-FOUNDATION-001` is scoped next after the pushed green closeout. It is no-auth contract/interface work only over existing `llm_credentials` and `llm_routes`; no live provider probes, external writes, credential mutation, or extractor runtime work start inside the serialization card or this recovery run.
 - `MEMORY-002` has a metadata-only OpenClaw native memory preflight under `memory-002-openclaw-native-memory-preflight-v1`. The preflight checks OpenClaw config validity, memory-core/active-memory/dreaming posture, and compact memory status metadata only. It keeps active-memory/dreaming enablement, OpenClaw gateway restart, and real private recall proof returned pending explicit local-runtime approval. It does not mutate OpenClaw config, restart the gateway, run active recall, run dreaming, search/promote/index memory, read or print private memory content, call providers/models, run live extraction, mutate external systems, mutate Drive permissions, or run Agent Feedback auto-send. `MEMORY-002` remains scoped/returned, not done.
 - `FOUNDATION-UP-CAPABILITY-REGISTRY-001` is closed under `foundation-up-capability-registry-v1`. V1 registers Foundation-up provider/tool capability truth for Fal image generation, ElevenLabs voice, Canva read metadata, and local terminal workers before agents or workers can claim/use them. Each row names owner, env refs by name only, permission class, cost policy, audit log, callable path, proof command, approval boundary, and blocked agent binding status. Dogfood rejects missing env refs, missing audit logs, premature provider approval, hidden workers, destructive terminal command allowlists, live side effects, and secret leaks. It does not call providers, spend credits, generate media/voice/model output, launch terminal workers, launch hidden subagents, grant runtime authority, mutate external systems, run live extraction/source crawls, or store/print secrets. It is followed by `MEMORY-002` from repo truth as safe scope/preflight only.
 - `EXTRACTION-TEAM-001` is closed under `extraction-team-runtime-v1`. V1 anchors the supervised Extraction Team runtime by composing source-auth, public queue, runtime readiness, visible worker, proposal-output, and private-source preflight gates. It is ready only as a supervised contract: public queues remain metadata-only, runtime readiness grants no live extraction approval, visible workers remain unlaunched, outputs remain proposal-only, and MyICOR/Skool stay blocked pending source-specific approval. Dogfood rejects live run start, missing runtime stage, worker launch, direct downstream write, hidden subagent, and premature private-source approval. It does not run live extraction, source lookup/API/crawl, transcript/keyframe/screenshot/download work, summarization, vision/model calls, private/paid auth, downstream writes, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, invisible workers, or extraction workers. It was followed by `FOUNDATION-UP-CAPABILITY-REGISTRY-001`.
