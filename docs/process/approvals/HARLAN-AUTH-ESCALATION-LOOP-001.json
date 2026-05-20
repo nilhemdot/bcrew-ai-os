@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "HARLAN-AUTH-ESCALATION-LOOP-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T16:00:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/harlan-auth-escalation-loop-001-plan.md",
+  "approvedPlanSha256": "dd394d1664f2d67068c9a4b12893684f4786fc51f369a8dd64f0627c3181d14e",
+  "approvedRepoHead": "1294d48dfb0375c69d6ea10c36d38b5d24f76bcc",
+  "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build HARLAN-AUTH-ESCALATION-LOOP-001 immediately after Brain Fleet foundation and before quota ledger, capability registry, live provider probes, or extractor proof.",
+  "constraints": [
+    "Build Harlan auth-needed escalation before live provider probes or extractor proof",
+    "Harvest the named old BCrew-Buddy auth escalation sources",
+    "Proof must simulate 2FA/auth-needed, dedup/no spam, timeout/fail-closed, DONE/retry/resume, and no credential mutation",
+    "No external messages except an explicitly approved Steve-only test; this v1 proof is dry-run only",
+    "Do not mutate credentials, provider config, source systems, llm_credentials, or llm_routes",
+    "Do not broad-crawl Skool, MyICOR, Loom, or any paid/private source",
+    "Keep Strategy and People parked"
+  ],
+  "approvalDigest": "e24b53750ad7d46e9200bf0b25e5647b946e698b1b813c4b7905e1ee724715d3"
+}

@@ -34,6 +34,8 @@ Harlan's cross-project reach must come from an explicit project registry, not hi
 
 Harlan's first useful operator loop must answer current Foundation truth from declared sources before any runtime expansion. See [Harlan Operator Loop](harlan-operator-loop.md).
 
+Harlan's auth escalation path for Brain Fleet and extractors must record `auth_needed`, block as `blocked-auth`, wait for Steve `DONE`, re-verify, and fail closed without credential mutation or proof-time external sends. See [Harlan Auth Escalation Loop](harlan-auth-escalation-loop.md).
+
 Harlan's first trusted assistant loop must also prove source prerequisites, read-only inputs, evidence output, write boundaries, and blocker handling before broader connectors or agents expand. See [Trusted Assistant Loop](trusted-assistant-loop.md).
 
 ## Personal Onboarding Direction
