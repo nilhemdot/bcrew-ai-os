@@ -51,6 +51,7 @@ import {
   getPendingDocUpdate,
   getRecentChangeEvents,
   initFoundationDb,
+  listSourceCrawlItems,
   listPendingDocUpdates,
   markPendingDocUpdateApplied,
   markPendingDocUpdateFailed,
@@ -119,6 +120,9 @@ import {
 import {
   buildCreatorWatchlistSnapshot,
 } from './lib/build-intel-watchlist.js'
+import {
+  buildYoutubeCreatorDailyWatchReadSnapshot,
+} from './lib/youtube-creator-daily-watch.js'
 import {
   buildMultimodalExtractorContractSnapshot,
 } from './lib/multimodal-extractor-contract.js'
@@ -1445,12 +1449,15 @@ registerFoundationBuildIntelRoutes(app, {
   sendApiError,
   getFoundationSnapshot,
   getActiveFoundationCurrentSprint,
+  getExtractionControlSnapshot,
   listFoundationFeedbackItems,
   listFoundationAcknowledgedStates,
+  listSourceCrawlItems,
   searchSharedCommunicationArtifactsForContext,
   getFoundationBuildCloseouts,
   getSourceContracts,
   buildCreatorWatchlistSnapshot,
+  buildYoutubeCreatorDailyWatchReadSnapshot,
   buildMultimodalExtractorContractSnapshot,
   buildResearchInboxContractSnapshot,
   buildFoundationControlCompressionSnapshot,

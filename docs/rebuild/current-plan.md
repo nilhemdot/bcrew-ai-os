@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-21
-Version: v6.157 - Clean Current Sprint workspace for YouTube To Dev Team Intelligence V1
-Status: Mark Kashef public YouTube scout is closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `YOUTUBE-CREATOR-DAILY-WATCH-001`; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Version: v6.158 - YouTube creator daily watch foundation
+Status: Public YouTube creator daily watch is closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `DEV-TEAM-HUB-V0-001`; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 
 Use this doc for one question:
 
@@ -16,7 +16,7 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`, created from [YouTube To Dev Team Intelligence Sprint Checkpoint](../handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md), closed control card `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001`, and daily-watch correction card `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001`.
+Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`, created from [YouTube To Dev Team Intelligence Sprint Checkpoint](../handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md), closed control card `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001`, daily-watch correction card `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001`, and daily-watch implementation closeout `YOUTUBE-CREATOR-DAILY-WATCH-001`.
 
 The plan is:
 
@@ -29,13 +29,14 @@ Closed setup:
 3. `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001` - this plan was promoted into live backlog and Current Sprint order.
 4. `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001` - daily public creator watch was inserted as the active next card; Mark last 50 and other approved creators last 20 are now explicit sprint depth rules.
 5. `YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001` - the Current Sprint workspace is clean for this new sprint; old shipped cards now stay in Backlog done and Recent Work, not `Done This Sprint`.
+6. `YOUTUBE-CREATOR-DAILY-WATCH-001` - scheduled public no-auth creator watch is live under `youtube-creator-daily-watch-v1`; it checks canonical known public YouTube creator refs daily, applies Mark last-50 and other-creator last-20 baseline rules, dedupes video metadata into `source_crawl_items`, preserves first-seen/last-seen/source provenance, and exposes the proposal-only report `research-pool:youtube-creator-daily-watch`.
 
 Active sprint order:
 
-`Done This Sprint` is intentionally empty at sprint start. The old shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
+`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001`. The old pre-sprint shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
 
-1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - active next card. Build the scheduled public no-auth creator-channel watch; Mark initial baseline depth is last 50, other approved public creators start at last 20, and daily deltas are deduped into a reviewable research pool.
-2. `DEV-TEAM-HUB-V0-001` - build the read-only Dev Team Hub over Foundation report/atom/review-route and creator-watch truth.
+1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - done under `youtube-creator-daily-watch-v1`.
+2. `DEV-TEAM-HUB-V0-001` - active next card. Build the read-only Dev Team Hub over Foundation report/atom/review-route and creator-watch truth.
 3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - classify and approval-route YouTube description/resource/download/purchase links.
 4. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - add quotas, stop conditions, artifact/provenance controls, stale-run prevention, and morning review before broader runs.
 5. `MARK-KASHEF-LAST-50-BASELINE-001` - process Mark's approved public last-50 baseline after the watch and guard are proven.
