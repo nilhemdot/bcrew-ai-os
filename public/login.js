@@ -36,8 +36,22 @@ function showPasswordFallback() {
   if (form) form.hidden = false
 }
 
+function setupPasswordFallbackLink() {
+  var link = document.getElementById('login-password-link')
+  if (!link) return
+  var params = new URLSearchParams(window.location.search)
+  params.set('password', '1')
+  link.href = '/login?' + params.toString()
+}
+
 function shouldShowPasswordFallback() {
   return new URLSearchParams(window.location.search).get('password') === '1'
+}
+
+function getGoogleButtonWidth() {
+  var target = document.getElementById('google-login-button')
+  var width = target && target.getBoundingClientRect ? Math.floor(target.getBoundingClientRect().width) : 360
+  return Math.min(360, Math.max(220, width || 360))
 }
 
 function submitGoogleCredential(credential) {
@@ -87,12 +101,13 @@ function renderGoogleButton() {
       size: 'large',
       text: 'signin_with',
       shape: 'rectangular',
-      width: 360,
+      width: getGoogleButtonWidth(),
     }
   )
 }
 
 function setupPasswordFallback() {
+  setupPasswordFallbackLink()
   if (shouldShowPasswordFallback()) showPasswordFallback()
 
   var form = document.getElementById('login-form')

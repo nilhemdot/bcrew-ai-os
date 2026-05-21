@@ -5,21 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Log In · BCrew AI OS</title>
     <link rel="stylesheet" href="/styles.css?v=20260425i" />
+    <link rel="stylesheet" href="/login.css?v=20260521a" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
-  <body>
-    <main class="login-shell">
-      <section class="login-panel">
-        <img src="/assets/bc-logo.svg" alt="Benson Crew logo" class="login-logo" />
-        <div class="login-kicker">BCrew AI OS</div>
-        <h1>Log in</h1>
-        <p>Use your Benson Crew Google account. AIOS will open the right workspace for your email.</p>
+  <body class="login-page">
+    <main class="login-shell" aria-labelledby="login-title">
+      <section class="login-stage" aria-label="Benson Crew AI OS">
+        <div class="login-stage-copy">
+          <div class="login-stage-kicker">Benson Crew's AI OS</div>
+          <h1 class="login-stage-headline">Sold Signs Everywhere.</h1>
+        </div>
+        <img src="/assets/mascot-sbt.png" alt="" class="login-mascot" aria-hidden="true" />
+      </section>
+
+      <section class="login-panel" aria-label="Sign in">
+        <div class="login-logo-frame">
+          <img src="/assets/bc-logo.svg" alt="Benson Crew logo" class="login-logo" />
+        </div>
+        <div class="login-kicker">Sign In</div>
+        <h2 id="login-title">BCrew AI OS</h2>
+        <p>Use your Benson Crew Google account to open AIOS.</p>
 
         <div class="google-login-wrap" id="google-login-wrap">
           <div id="google-login-button"></div>
           <div class="login-error" id="login-error" role="alert" hidden></div>
+          <a class="login-fallback-link" id="login-password-link" href="/login?password=1">Use email instead</a>
         </div>
 
         <form class="login-form login-form-fallback" id="login-form" hidden>
