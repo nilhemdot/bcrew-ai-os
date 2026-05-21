@@ -4,6 +4,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  CONNECTOR_HEALTH_STATUSES,
   CONNECTOR_UPTIME_MONITOR_JOB_KEY,
   FOUNDATION_OPERATING_RELIABILITY_CARD_IDS,
   FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY,
@@ -44,11 +45,13 @@ function parseArgs(argv = process.argv.slice(2)) {
   const args = {
     json: false,
     noApi: false,
+    connectorOnly: false,
     baseUrl: process.env.BCREW_FOUNDATION_BASE_URL || 'http://localhost:3000',
   }
   for (const arg of argv) {
     if (arg === '--json' || arg === '--json=true') args.json = true
     else if (arg === '--no-api' || arg === '--noApi') args.noApi = true
+    else if (arg === '--connector-only' || arg === '--connectorOnly') args.connectorOnly = true
     else if (arg.startsWith('--baseUrl=')) args.baseUrl = arg.slice('--baseUrl='.length)
   }
   return args
@@ -97,8 +100,107 @@ function doctrineOk(item = {}) {
   )
 }
 
+const CONNECTOR_PASS_STATUSES = new Set([
+  CONNECTOR_HEALTH_STATUSES.healthy,
+  CONNECTOR_HEALTH_STATUSES.stale,
+])
+
+function connectorUptimeFailureRows(connectorUptime = {}) {
+  return (Array.isArray(connectorUptime.rows) ? connectorUptime.rows : [])
+    .filter(row => !CONNECTOR_PASS_STATUSES.has(row.status))
+}
+
+function buildOperatingReliabilityFailureGate({ morningHealth = {} } = {}) {
+  const failedJobCount = Number(morningHealth.summary?.failedJobCount || 0)
+  const connectorDownCount = Number(morningHealth.summary?.connectorDownCount || 0)
+  if (failedJobCount === 0 && connectorDownCount === 0) {
+    return { ok: true, detail: 'failedJobs=0 connectorDown=0' }
+  }
+
+  return {
+    ok: false,
+    detail: `failedJobs=${failedJobCount} connectorDown=${connectorDownCount}`,
+  }
+}
+
+async function runConnectorOnlyCheck(args) {
+  const checks = []
+  const snapshot = await getFoundationSnapshot()
+  const sourceContracts = getSourceContracts()
+  const sourceConnectors = getSourceConnectors()
+  const connectorUptime = buildConnectorUptimeSnapshot({
+    sourceContracts,
+    sourceConnectors,
+    foundationJobs: snapshot.foundationJobs,
+  })
+  const failingRows = connectorUptimeFailureRows(connectorUptime)
+  const uptimeJob = getFoundationJobDefinitions().find(job => job.key === CONNECTOR_UPTIME_MONITOR_JOB_KEY)
+
+  addCheck(
+    checks,
+    connectorUptime.rows.length === OPERATING_RELIABILITY_CONNECTOR_GROUPS.length &&
+      OPERATING_RELIABILITY_CONNECTOR_GROUPS.every(group => connectorUptime.rows.some(row => row.key === group.key)),
+    'connector uptime covers ClickUp, FUB, Google, Slack, Missive, and KPI/Supabase',
+    connectorUptime.rows.map(row => `${row.key}:${row.status}`).join(', '),
+  )
+  addCheck(
+    checks,
+    connectorUptime.reportOnly === true && connectorUptime.readOnly === true && connectorUptime.autoFixes === false && connectorUptime.writesBacklog === false,
+    'connector uptime is read-only and report-only',
+    JSON.stringify({
+      reportOnly: connectorUptime.reportOnly,
+      readOnly: connectorUptime.readOnly,
+      autoFixes: connectorUptime.autoFixes,
+      writesBacklog: connectorUptime.writesBacklog,
+    }),
+  )
+  addCheck(
+    checks,
+    failingRows.length === 0,
+    'connector-only scheduled proof depends only on connector health',
+    failingRows.map(row => `${row.key}:${row.status}`).join(', ') || connectorUptime.rows.map(row => `${row.key}:${row.status}`).join(', '),
+  )
+  addCheck(
+    checks,
+    uptimeJob?.runtimeMode === 'scheduled' &&
+      uptimeJob?.mutationPosture === 'read_only' &&
+      uptimeJob?.scheduleMutationGuard?.ok === true &&
+      (uptimeJob?.args || []).includes('--connector-only'),
+    'connector uptime monitor job is scheduled read-only and connector-only',
+    uptimeJob ? `${uptimeJob.runtimeMode}/${uptimeJob.mutationPosture}/${uptimeJob.scheduleMutationGuard?.ok}/${(uptimeJob.args || []).join(' ')}` : 'missing job',
+  )
+
+  await closeFoundationDb()
+
+  const failures = checks.filter(check => !check.ok)
+  const result = {
+    ok: failures.length === 0,
+    status: failures.length ? 'unhealthy' : 'healthy',
+    scope: 'connector_uptime_only',
+    cards: ['CONNECTOR-UPTIME-MONITOR-001'],
+    summary: connectorUptime.summary,
+    findings: failures,
+    checks,
+    connectorUptime,
+  }
+
+  if (args.json) {
+    console.log(JSON.stringify(result, null, 2))
+  } else {
+    console.log(`Connector Uptime Monitor check: ${result.status}`)
+    for (const check of checks) {
+      console.log(`${check.ok ? 'PASS' : 'FAIL'} ${check.check}${check.detail ? ` -> ${check.detail}` : ''}`)
+    }
+  }
+  if (failures.length) process.exitCode = 1
+}
+
 async function main() {
   const args = parseArgs()
+  if (args.connectorOnly) {
+    await runConnectorOnlyCheck(args)
+    return
+  }
   const checks = []
   const requiredFiles = [
     ...Object.values(PLAN_REFS),
@@ -226,6 +328,9 @@ async function main() {
     closeouts: getFoundationBuildCloseouts(),
   })
   const dogfood = buildFoundationOperatingReliabilityDogfoodProof()
+  const operatingReliabilityFailureGate = buildOperatingReliabilityFailureGate({
+    morningHealth,
+  })
 
   addCheck(
     checks,
@@ -272,10 +377,9 @@ async function main() {
   )
   addCheck(
     checks,
-    morningHealth.summary?.failedJobCount === 0 &&
-      morningHealth.summary?.connectorDownCount === 0,
+    operatingReliabilityFailureGate.ok,
     'operating reliability proof does not exit green with failed jobs or down connectors',
-    `failedJobs=${morningHealth.summary?.failedJobCount || 0} connectorDown=${morningHealth.summary?.connectorDownCount || 0}`,
+    operatingReliabilityFailureGate.detail,
   )
   addCheck(
     checks,
@@ -291,9 +395,10 @@ async function main() {
     checks,
     uptimeJob?.runtimeMode === 'scheduled' &&
       uptimeJob?.mutationPosture === 'read_only' &&
-      uptimeJob?.scheduleMutationGuard?.ok === true,
-    'connector uptime monitor job is scheduled read-only and accepted by mutation guard',
-    uptimeJob ? `${uptimeJob.runtimeMode}/${uptimeJob.mutationPosture}/${uptimeJob.scheduleMutationGuard?.ok}` : 'missing job',
+      uptimeJob?.scheduleMutationGuard?.ok === true &&
+      (uptimeJob?.args || []).includes('--connector-only'),
+    'connector uptime monitor job is scheduled read-only, connector-only, and accepted by mutation guard',
+    uptimeJob ? `${uptimeJob.runtimeMode}/${uptimeJob.mutationPosture}/${uptimeJob.scheduleMutationGuard?.ok}/${(uptimeJob.args || []).join(' ')}` : 'missing job',
   )
   addCheck(
     checks,

@@ -50,6 +50,10 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SPRINT_ID = 'FOUNDATION-GREEN-MAIN-AUDIT-AND-SOURCE-ACTIVATION-2026-05-19'
+const HEALTH_RECOVERY_DEPENDENCY_JOB_KEYS = new Set([
+  FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY,
+  'system-health-nightly-audit',
+])
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -136,6 +140,7 @@ function buildSystemHealthGate({ args, processResult }) {
 
   const allowedIds = new Set([
     `scheduled_job_${FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY}`,
+    'scheduled_job_system-health-nightly-audit',
     'runtime_jobs_failed',
   ])
   const findings = Array.isArray(health.findings) ? health.findings.filter(isNonGreenFinding) : []
@@ -155,12 +160,15 @@ function buildSystemHealthGate({ args, processResult }) {
   const scheduledOk = !nonGreenIds.has(`scheduled_job_${FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY}`) ||
     selfScheduledFinding?.jobKey === FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY
   const runtimeOk = !nonGreenIds.has('runtime_jobs_failed') ||
-    (runtimeFailedKeys.length === 1 && runtimeFailedKeys[0] === FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY)
+    (
+      runtimeFailedKeys.length > 0 &&
+      runtimeFailedKeys.every(key => HEALTH_RECOVERY_DEPENDENCY_JOB_KEYS.has(key))
+    )
 
   if (!unexpectedIds.length && scheduledOk && runtimeOk) {
     return {
       ok: true,
-      detail: `self-run transition allowed while ${FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY} proves recovery: ${[...nonGreenIds].join(', ') || 'none'}`,
+      detail: `health recovery transition allowed while ${[...nonGreenIds].join(', ') || 'none'} recover`,
     }
   }
 
@@ -183,14 +191,14 @@ function buildRepeatedFailureGate({ args, processResult }) {
 
   const actionGate = processResult.json?.actionGate || {}
   const blockingItems = Array.isArray(actionGate.blockingItems) ? actionGate.blockingItems : []
-  const selfBlocks = blockingItems.filter(item =>
+  const recoveryBlocks = blockingItems.filter(item =>
     item?.source === 'foundation_job_runs' &&
-      item?.key === FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY
+      HEALTH_RECOVERY_DEPENDENCY_JOB_KEYS.has(item?.key)
   )
-  if (blockingItems.length > 0 && blockingItems.length === selfBlocks.length) {
+  if (blockingItems.length > 0 && blockingItems.length === recoveryBlocks.length) {
     return {
       ok: true,
-      detail: `self-run transition allowed while ${FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY} proves repeated-failure recovery`,
+      detail: `health recovery transition allowed while ${recoveryBlocks.map(item => item.key).join(', ')} prove repeated-failure recovery`,
     }
   }
 
