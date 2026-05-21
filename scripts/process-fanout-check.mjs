@@ -110,7 +110,7 @@ function extractClaimedNpmScriptsFromText(text) {
     const value = normalizeCommandName(match[1])
     if (!value.includes(':')) continue
     const prefix = value.split(':')[0]
-    if (/^(http|https|localhost|source|status|route|strategy|foundation|runtime|recent|build|proof|process|health|fetch)$/i.test(prefix)) continue
+    if (/^(http|https|localhost|source|status|route|strategy|foundation|runtime|recent|build|proof|process|health|fetch|scout|atom|hit|artifact)$/i.test(prefix)) continue
     claims.add(value)
   }
   return Array.from(claims)
