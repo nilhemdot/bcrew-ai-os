@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "WEB-GODMODE-LIVE-OPERATOR-002",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T22:15:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/web-godmode-live-operator-002-plan.md",
+  "approvedPlanSha256": "ee5d829e2dd8dc3eef95db2a1c5c4d73a14c3b899aff3c198ad0924c7a28bba8",
+  "approvedRepoHead": "7a4f8f939e3ed18e2df0ebbce962ae6876b908f7",
+  "approvalSource": "Steve direct chat approval supplied the Mark Kashef public YouTube channel and exact first public video link for the GOD-mode extractor recovery proof before any Skool/private/paid extraction.",
+  "approvalDigest": "0c2911b3d88019f811262ce9ef0015ab2f5f12d2c006a7a0c9a952ce723204bd"
+}

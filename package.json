@@ -114,6 +114,7 @@
     "process:old-system-research-team-harvest-check": "node --env-file-if-exists=.env scripts/process-old-system-research-team-harvest-check.mjs",
     "process:foundation-operator-pulse-check": "node --env-file-if-exists=.env scripts/process-foundation-operator-pulse-check.mjs",
     "process:web-godmode-check": "node --env-file-if-exists=.env scripts/process-web-godmode-check.mjs",
+    "process:web-godmode-live-operator-check": "node --env-file-if-exists=.env scripts/process-web-godmode-live-operator-check.mjs",
     "process:loom-check": "node --env-file-if-exists=.env scripts/process-loom-check.mjs",
     "process:meeting-video-check": "node --env-file-if-exists=.env scripts/process-meeting-video-check.mjs",
     "process:skool-worker-check": "node --env-file-if-exists=.env scripts/process-skool-worker-check.mjs",
