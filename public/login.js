@@ -76,7 +76,9 @@ function submitGoogleCredential(credential) {
 }
 
 function renderGoogleButton() {
+  var buttonWrap = document.getElementById('google-login-button')
   if (!sessionState || !sessionState.googleConfigured || !sessionState.googleClientId) {
+    if (buttonWrap) buttonWrap.hidden = true
     showError('Google login is not configured yet.')
     showPasswordFallback()
     return
@@ -87,6 +89,8 @@ function renderGoogleButton() {
     return
   }
 
+  if (buttonWrap) buttonWrap.hidden = false
+
   window.google.accounts.id.initialize({
     client_id: sessionState.googleClientId,
     callback: function(response) {
@@ -94,13 +98,15 @@ function renderGoogleButton() {
     },
   })
 
+  var googleTarget = document.getElementById('google-login-gsi') || buttonWrap
   window.google.accounts.id.renderButton(
-    document.getElementById('google-login-button'),
+    googleTarget,
     {
-      theme: 'outline',
+      theme: 'filled_black',
       size: 'large',
-      text: 'signin_with',
+      text: 'continue_with',
       shape: 'rectangular',
+      logo_alignment: 'left',
       width: getGoogleButtonWidth(),
     }
   )

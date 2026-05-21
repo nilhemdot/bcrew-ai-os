@@ -6,16 +6,15 @@
     <title>Log In · BCrew AI OS</title>
     <link rel="preload" href="/fonts/Stratum1-Bold.otf" as="font" type="font/otf" crossorigin />
     <link rel="preload" href="/fonts/Stratum1-Black.otf" as="font" type="font/otf" crossorigin />
-    <link rel="preload" href="/assets/bg.webp" as="image" fetchpriority="high" />
     <link
       rel="preload"
-      href="/assets/mascot-sbt-1520.webp"
+      href="/assets/mascot-7-1600.webp"
       as="image"
       fetchpriority="high"
-      imagesrcset="/assets/mascot-sbt-760.webp 760w, /assets/mascot-sbt-1520.webp 1520w"
-      imagesizes="(max-width: 980px) 100vw, 760px"
+      imagesrcset="/assets/mascot-7-900.webp 900w, /assets/mascot-7-1600.webp 1600w"
+      imagesizes="(max-width: 980px) 100vw, 720px"
     />
-    <link rel="stylesheet" href="/login.css?v=20260521c" />
+    <link rel="stylesheet" href="/login.css?v=20260521d" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -38,13 +37,13 @@
         <picture class="login-mascot-picture" aria-hidden="true">
           <source
             type="image/webp"
-            srcset="/assets/mascot-sbt-760.webp 760w, /assets/mascot-sbt-1520.webp 1520w"
-            sizes="(max-width: 980px) 100vw, 760px"
+            srcset="/assets/mascot-7-900.webp 900w, /assets/mascot-7-1600.webp 1600w"
+            sizes="(max-width: 980px) 100vw, 720px"
           />
           <img
-            src="/assets/mascot-sbt.png"
-            width="2560"
-            height="1280"
+            src="/assets/mascot-7.png"
+            width="4800"
+            height="3584"
             alt=""
             class="login-mascot"
             decoding="async"
@@ -60,10 +59,20 @@
         </div>
         <div class="login-kicker">Sign In</div>
         <h2 id="login-title">BCrew AI OS</h2>
-        <p>Use your Benson Crew Google account to open AIOS.</p>
 
         <div class="google-login-wrap" id="google-login-wrap">
-          <div id="google-login-button"></div>
+          <div class="login-google-button" id="google-login-button">
+            <div class="login-google-visual" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 18 18" focusable="false" aria-hidden="true">
+                <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.079-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+                <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.836.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.331C2.438 15.983 5.482 18 9 18z"/>
+                <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+                <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+              </svg>
+              <span>Continue with Google</span>
+            </div>
+            <div class="login-google-gsi" id="google-login-gsi"></div>
+          </div>
           <div class="login-error" id="login-error" role="alert" hidden></div>
           <a class="login-fallback-link" id="login-password-link" href="/login?password=1">Use email instead</a>
         </div>
@@ -83,6 +92,6 @@
       </section>
     </main>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="/login.js?v=20260425a"></script>
+    <script src="/login.js?v=20260521b"></script>
   </body>
 </html>
