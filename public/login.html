@@ -15,11 +15,18 @@
       imagesrcset="/assets/mascot-sbt-760.webp 760w, /assets/mascot-sbt-1520.webp 1520w"
       imagesizes="(max-width: 980px) 100vw, 760px"
     />
-    <link rel="stylesheet" href="/styles.css?v=20260425i" />
-    <link rel="stylesheet" href="/login.css?v=20260521b" />
+    <link rel="stylesheet" href="/login.css?v=20260521c" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    </noscript>
   </head>
   <body class="login-page">
     <main class="login-shell" aria-labelledby="login-title">

@@ -1,15 +1,23 @@
 @font-face {
   font-family: 'login-stratum-1';
   src: url('/fonts/Stratum1-Bold.otf') format('opentype');
-  font-display: fallback;
+  font-display: optional;
   font-weight: 700;
 }
 
 @font-face {
   font-family: 'login-stratum-1';
   src: url('/fonts/Stratum1-Black.otf') format('opentype');
-  font-display: fallback;
+  font-display: optional;
   font-weight: 900;
+}
+
+html {
+  min-height: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 .login-page {
@@ -29,7 +37,12 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  font-family: var(--login-body);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .login-page::before {
