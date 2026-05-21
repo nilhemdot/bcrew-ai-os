@@ -225,6 +225,7 @@
     "process:extractor-brain-fleet-proof-check": "node --env-file-if-exists=.env scripts/process-extractor-brain-fleet-proof-check.mjs",
     "process:youtube-build-intel-runtime-proof-check": "node --env-file-if-exists=.env scripts/process-youtube-build-intel-runtime-proof-check.mjs",
     "process:youtube-scout-latest-video-vision-check": "node --env-file-if-exists=.env scripts/process-youtube-scout-latest-video-vision-check.mjs",
+    "process:youtube-dev-team-intelligence-sprint-plan-check": "node --env-file-if-exists=.env scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs",
     "process:slice-001-check": "node --env-file-if-exists=.env scripts/process-slice-001-check.mjs",
     "process:parallel-builder-worktree-protocol-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-worktree-protocol-check.mjs",
     "process:parallel-builder-operating-system-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-operating-system-check.mjs",

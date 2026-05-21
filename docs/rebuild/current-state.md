@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-20
-Status: WEB GODMODE live operator proof is closed for the exact Mark Kashef public video; public YouTube latest/vision is next; Skool/MyICOR/overnight extraction remain blocked on exact source approval; Strategy/People are parked
+Last updated: 2026-05-21
+Status: Mark Kashef public YouTube scout is closed; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `DEV-TEAM-HUB-V0-001` is next; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -23,24 +23,29 @@ Rule: if a package depends on open live inputs, open runtime activation, or open
 
 The Foundation is real, the gate-check serialization blocker is closed, Brain Fleet foundation v1 is closed as contract-only work, Harlan auth escalation v1 is closed as dry-run contract work, Brain Fleet quota ledger v1 is closed as ledger-only proof, Brain Fleet model capability registry v1 is closed as read-only route truth, direct Codex subscription route v1 is closed as bounded local-tooling proof, Gemini video route v1 is closed as bounded API proof, Claude Code review route v1 is closed as bounded experimental local proof, OpenClaw adapter boundary v1 is closed as route/doctrine proof, extractor Brain Fleet proof v1 is closed as deterministic governed proof, YouTube Build Intel runtime proof v1 is closed for the first approved public item, and WEB GODMODE live operator v1 is closed for the exact Mark Kashef public video.
 
-Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`, `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`, `BRAIN-FLEET-FOUNDATION-001` is closed under `brain-fleet-foundation-v1`, `HARLAN-AUTH-ESCALATION-LOOP-001` is closed under `harlan-auth-escalation-loop-v1`, `BRAIN-FLEET-QUOTA-LEDGER-001` is closed under `brain-fleet-quota-ledger-v1`, `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` is closed under `brain-fleet-model-capability-registry-v1`, `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001` is closed under `codex-direct-subscription-route-v1`, `GEMINI-VIDEO-BRAIN-ROUTE-001` is closed under `gemini-video-brain-route-v1`, `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001` is closed under `claude-code-review-brain-route-v1`, `OPENCLAW-ADAPTER-BOUNDARY-001` is closed under `openclaw-adapter-boundary-v1`, `EXTRACTOR-BRAIN-FLEET-PROOF-001` is closed under `extractor-brain-fleet-proof-v1`, `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001` is closed under `youtube-build-intel-runtime-proof-v1`, and `WEB-GODMODE-LIVE-OPERATOR-002` is closed under `web-godmode-live-operator-v1`. The active card is `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002`; use the proven one-video public/no-auth operator path for the bounded Mark Kashef public latest/last-20 YouTube scout. Do not run Skool, MyICOR, Loom, Gumroad, Calendly, purchases, opt-ins, comments/member, or other private/paid/auth-required extraction until Steve has approved the exact source item, permission class, max scope, artifact handling, and stop conditions.
+Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`.
 
-Steve's order is:
+Closed setup:
 
-1. `FOUNDATION-GATE-CHECK-SERIALIZATION-001`
-2. `BRAIN-FLEET-FOUNDATION-001`
-3. `HARLAN-AUTH-ESCALATION-LOOP-001`
-4. `BRAIN-FLEET-QUOTA-LEDGER-001`
-5. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001`
-6. `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001`
-7. `GEMINI-VIDEO-BRAIN-ROUTE-001`
-8. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001`
-9. `OPENCLAW-ADAPTER-BOUNDARY-001`
-10. `EXTRACTOR-BRAIN-FLEET-PROOF-001`
-11. `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001`
-12. `WEB-GODMODE-LIVE-OPERATOR-002`
+- `WEB-GODMODE-LIVE-OPERATOR-002` proved one exact public Mark video could be opened and captured.
+- `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002` found the Mark latest/last-20 queue and persisted one real scout report with 7 proposal-only atoms and 7 evidence hits.
+- `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001` promoted the sprint plan into live backlog and Current Sprint order.
 
-Continue next with `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002` and `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` for public/no-auth YouTube only, then exact source approval for `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, and `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`. `STRATEGY-003` and People work are parked until those higher-priority gates are clean and Steve approves continuing.
+Active next card: `DEV-TEAM-HUB-V0-001`.
+
+Sprint order:
+
+1. `DEV-TEAM-HUB-V0-001`
+2. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`
+3. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`
+4. `YOUTUBE-LATEST-20-INTEL-RUN-001`
+5. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001`
+6. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
+7. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
+
+Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, and `AGENT-BRAIN-FOUNDATION-SEPARATION-001`.
+
+Approval-gated continuation and parked Strategy boundary remain documented for `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001`, `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`, and `STRATEGY-003`.
 
 Current sprint call:
 

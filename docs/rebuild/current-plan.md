@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-20
-Version: v6.154 - GOD-mode live operator proof closed; public YouTube latest/vision next
-Status: WEB GODMODE live operator proof is closed for the exact Mark Kashef public video; public YouTube latest/vision is next; Skool/MyICOR/overnight extraction remain blocked on exact source approval; Strategy/People are parked
+Last updated: 2026-05-21
+Version: v6.155 - YouTube To Dev Team Intelligence V1 carded as live sprint
+Status: Mark Kashef public YouTube scout is closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `DEV-TEAM-HUB-V0-001`; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 
 Use this doc for one question:
 
@@ -16,33 +16,33 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`, `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`, `BRAIN-FLEET-FOUNDATION-001` is closed under `brain-fleet-foundation-v1`, `HARLAN-AUTH-ESCALATION-LOOP-001` is closed under `harlan-auth-escalation-loop-v1`, `BRAIN-FLEET-QUOTA-LEDGER-001` is closed under `brain-fleet-quota-ledger-v1`, `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` is closed under `brain-fleet-model-capability-registry-v1`, `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001` is closed under `codex-direct-subscription-route-v1`, `GEMINI-VIDEO-BRAIN-ROUTE-001` is closed under `gemini-video-brain-route-v1`, `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001` is closed under `claude-code-review-brain-route-v1`, `OPENCLAW-ADAPTER-BOUNDARY-001` is closed under `openclaw-adapter-boundary-v1`, `EXTRACTOR-BRAIN-FLEET-PROOF-001` is closed under `extractor-brain-fleet-proof-v1`, `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001` is closed under `youtube-build-intel-runtime-proof-v1`, and `WEB-GODMODE-LIVE-OPERATOR-002` is closed under `web-godmode-live-operator-v1`. The active blocker is `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002`; use the proven one-video public/no-auth operator path for the bounded Mark Kashef public latest/last-20 YouTube scout. Do not run Skool, MyICOR, Loom, Gumroad, Calendly, purchases, opt-ins, comments/member, or other private/paid/auth-required extraction until Steve has approved the exact source item, permission class, max scope, artifact handling, and stop conditions.
+Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`, created from [YouTube To Dev Team Intelligence Sprint Checkpoint](../handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md) and closed control card `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001`.
 
-Steve's current command order:
+The plan is:
 
-1. `FOUNDATION-GATE-CHECK-SERIALIZATION-001`
-2. `BRAIN-FLEET-FOUNDATION-001`
-3. `HARLAN-AUTH-ESCALATION-LOOP-001`
-4. `BRAIN-FLEET-QUOTA-LEDGER-001`
-5. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001`
-6. `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001`
-7. `GEMINI-VIDEO-BRAIN-ROUTE-001`
-8. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001`
-9. `OPENCLAW-ADAPTER-BOUNDARY-001`
-10. `EXTRACTOR-BRAIN-FLEET-PROOF-001`
-11. `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001`
-12. `WEB-GODMODE-LIVE-OPERATOR-002`
+`SRC-YOUTUBE-INTEL-001 -> Mark Kashef public YouTube -> transcript/description/screenshots/resource links -> observations -> atoms/candidates/scout reports -> Dev Team Hub -> Intelligence Director -> approval-gated backlog promotion`
 
-Continue past that with the public YouTube scout first, then exact Steve-approved source items:
+Closed setup:
 
-1. `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002`
-2. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`
-3. `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`
-4. `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`
-5. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`
-6. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
+1. `WEB-GODMODE-LIVE-OPERATOR-002` - one exact public Mark video could be opened/captured with transcript, description/resource-link, and screenshot metadata.
+2. `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002` - Mark latest/last-20 public videos were discovered; one seed video was captured deeply; the scout report, 7 proposal-only atoms, and 7 evidence hits were persisted.
+3. `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001` - this plan was promoted into live backlog and Current Sprint order.
 
-`STRATEGY-003` and People work are parked. Do not start Strategy Hub, People work, broad extraction, broad Skool/MyICOR/Loom crawl, credential mutation, Drive permission mutation, external writes, emails, public posts, or provider/account workarounds that violate terms.
+Active sprint order:
+
+1. `DEV-TEAM-HUB-V0-001` - active next card. Build the read-only Dev Team Hub over Foundation report/atom/review-route truth.
+2. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - classify and approval-route YouTube description/resource/download/purchase links.
+3. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - add quotas, stop conditions, artifact/provenance controls, stale-run prevention, and morning review before broader runs.
+4. `YOUTUBE-LATEST-20-INTEL-RUN-001` - process approved Mark public YouTube videos deeper than title metadata.
+5. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - generate the Director report/view with evidence, scores, suggested card, blockers, duplicate/stale checks, and next action.
+6. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - approve source-backed build opportunities into backlog cards or existing-card attachments.
+7. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION` - close the full Build Intel extraction loop only after the slices above are proven.
+
+Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, and `AGENT-BRAIN-FOUNDATION-SEPARATION-001`.
+
+Approval-gated continuation and parked Strategy boundary remain documented for `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001`, `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`, and `STRATEGY-003`.
+
+Do not run Skool, MyICOR, Loom, Gumroad, Calendly, purchases, opt-ins, comments/member, private/auth-required extraction, Strategy, People, Drive permission mutation, external writes, emails, public posts, or provider/account workarounds from this sprint.
 
 Closed recovery and Brain Fleet readiness cards:
 

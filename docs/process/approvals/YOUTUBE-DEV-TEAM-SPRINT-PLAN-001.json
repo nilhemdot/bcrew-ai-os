@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-DEV-TEAM-SPRINT-PLAN-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-21T15:15:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-dev-team-intelligence-sprint-plan-001-plan.md",
+  "approvedPlanSha256": "abf203f6178bd7965ab42b5088886640b45772936526e3e22d3ee94fb49bc574",
+  "approvedRepoHead": "c347341f33787f08d4e164c70ff09cd6a4a05fed",
+  "approvalSource": "Steve direct May 21 instruction: the YouTube To Dev Team Intelligence V1 plan is the active sprint and must be promoted into live backlog/current-sprint card order so Builders do not rely on chat memory.",
+  "approvalDigest": "899f8fcf5021209227b63d7022d09b0758e02b4d5daafded4ecb39a17fca6b82"
+}
