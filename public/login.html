@@ -4,8 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Log In · BCrew AI OS</title>
+    <link rel="preload" href="/fonts/Stratum1-Bold.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/fonts/Stratum1-Black.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/assets/bg.webp" as="image" fetchpriority="high" />
+    <link
+      rel="preload"
+      href="/assets/mascot-sbt-1520.webp"
+      as="image"
+      fetchpriority="high"
+      imagesrcset="/assets/mascot-sbt-760.webp 760w, /assets/mascot-sbt-1520.webp 1520w"
+      imagesizes="(max-width: 980px) 100vw, 760px"
+    />
     <link rel="stylesheet" href="/styles.css?v=20260425i" />
-    <link rel="stylesheet" href="/login.css?v=20260521a" />
+    <link rel="stylesheet" href="/login.css?v=20260521b" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -17,7 +28,23 @@
           <div class="login-stage-kicker">Benson Crew's AI OS</div>
           <h1 class="login-stage-headline">Sold Signs Everywhere.</h1>
         </div>
-        <img src="/assets/mascot-sbt.png" alt="" class="login-mascot" aria-hidden="true" />
+        <picture class="login-mascot-picture" aria-hidden="true">
+          <source
+            type="image/webp"
+            srcset="/assets/mascot-sbt-760.webp 760w, /assets/mascot-sbt-1520.webp 1520w"
+            sizes="(max-width: 980px) 100vw, 760px"
+          />
+          <img
+            src="/assets/mascot-sbt.png"
+            width="2560"
+            height="1280"
+            alt=""
+            class="login-mascot"
+            decoding="async"
+            fetchpriority="high"
+            loading="eager"
+          />
+        </picture>
       </section>
 
       <section class="login-panel" aria-label="Sign in">

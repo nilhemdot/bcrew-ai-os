@@ -1,17 +1,34 @@
+@font-face {
+  font-family: 'login-stratum-1';
+  src: url('/fonts/Stratum1-Bold.otf') format('opentype');
+  font-display: fallback;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'login-stratum-1';
+  src: url('/fonts/Stratum1-Black.otf') format('opentype');
+  font-display: fallback;
+  font-weight: 900;
+}
+
 .login-page {
   --login-ink: #0a0f1a;
   --login-blue: #0084c9;
   --login-white: #ffffff;
   --login-grey-text: #4b5563;
-  --login-display: 'stratum-1-web', 'Arial Black', sans-serif;
+  --login-display: 'login-stratum-1', 'Arial Black', sans-serif;
   --login-body: 'Open Sans', system-ui, sans-serif;
   min-height: 100vh;
   min-height: 100svh;
   color: var(--login-white);
-  background:
+  background-color: var(--login-blue);
+  background-image:
     linear-gradient(100deg, rgba(0, 132, 201, 0.9) 0%, rgba(0, 95, 163, 0.72) 46%, rgba(10, 15, 26, 0.62) 100%),
-    url('/assets/bg.png') center/cover no-repeat,
-    var(--login-blue);
+    image-set(url('/assets/bg.webp') type('image/webp'), url('/assets/bg.png') type('image/png'));
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   overflow-x: hidden;
 }
 
@@ -69,7 +86,8 @@
 }
 
 .login-stage-headline {
-  max-width: 10.8ch;
+  max-width: min(100%, 12.8ch);
+  min-height: clamp(100px, 12.04vw, 160px);
   margin: 0;
   color: var(--login-white);
   font-family: var(--login-display);
@@ -77,21 +95,34 @@
   font-weight: 900;
   line-height: 0.86;
   letter-spacing: 0;
+  overflow-wrap: normal;
+  hyphens: manual;
   text-transform: uppercase;
+  text-wrap: balance;
   text-shadow: 0 16px 42px rgba(0, 40, 80, 0.34);
+  word-break: normal;
 }
 
-.login-mascot {
+.login-mascot-picture {
+  aspect-ratio: 2 / 1;
+  contain: layout paint;
+  display: block;
   position: absolute;
   z-index: 1;
   left: clamp(12px, 3vw, 46px);
   bottom: clamp(-18px, -2vw, 6px);
   width: min(760px, 78vw);
   max-height: 52vh;
+  pointer-events: none;
+}
+
+.login-mascot {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   object-position: left bottom;
   filter: drop-shadow(0 24px 46px rgba(0, 20, 40, 0.34));
-  pointer-events: none;
 }
 
 .login-page .login-panel {
@@ -307,17 +338,21 @@
   }
 
   .login-stage-headline {
-    max-width: 11ch;
+    max-width: min(100%, 12.8ch);
+    min-height: clamp(76px, 18.92vw, 124px);
     font-size: clamp(44px, 11vw, 72px);
   }
 
-  .login-mascot {
+  .login-mascot-picture {
     position: relative;
     left: auto;
     bottom: auto;
     width: min(620px, 100%);
     max-height: 32vh;
     margin-top: 12px;
+  }
+
+  .login-mascot {
     object-position: center bottom;
   }
 
@@ -338,9 +373,10 @@
 
   .login-stage-headline {
     font-size: 42px;
+    min-height: 73px;
   }
 
-  .login-mascot {
+  .login-mascot-picture {
     max-height: 26vh;
   }
 
