@@ -26,19 +26,34 @@ async function fetchJson(baseUrl, pathname) {
   return response.json()
 }
 
+function mergeBacklogCardDetail(foundationHub, card) {
+  if (!card?.id) return foundationHub
+  const backlogItems = Array.isArray(foundationHub.backlogItems) ? foundationHub.backlogItems : []
+  const existing = backlogItems.find(item => item.id === card.id)
+  return {
+    ...foundationHub,
+    backlogItems: existing
+      ? backlogItems.map(item => item.id === card.id ? { ...item, ...card } : item)
+      : [...backlogItems, card],
+  }
+}
+
 async function main() {
   const args = parseArgs()
   const baseUrl = String(args.baseUrl || process.env.FOUNDATION_BASE_URL || 'http://localhost:3000')
   await assertFoundationDbReadyForReadOnlyGate('process:agent-feedback-production-autosend-enable-check')
   const [
-    foundationHub,
+    foundationHubSummary,
     foundationBuildLog,
     opsHub,
+    productionCardDetail,
   ] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation-hub'),
     fetchJson(baseUrl, '/api/foundation/build-log?limit=80'),
     fetchJson(baseUrl, '/api/ops-hub'),
+    fetchJson(baseUrl, `/api/foundation/backlog/${AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID}`),
   ])
+  const foundationHub = mergeBacklogCardDetail(foundationHubSummary, productionCardDetail.card)
   const status = await buildAgentFeedbackProductionAutoSendEnableStatus({
     repoRoot: process.cwd(),
     foundationHub,

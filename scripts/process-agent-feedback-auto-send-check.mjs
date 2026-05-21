@@ -24,19 +24,34 @@ async function fetchJson(baseUrl, pathname) {
   return response.json()
 }
 
+function mergeBacklogCardDetail(foundationHub, card) {
+  if (!card?.id) return foundationHub
+  const backlogItems = Array.isArray(foundationHub.backlogItems) ? foundationHub.backlogItems : []
+  const existing = backlogItems.find(item => item.id === card.id)
+  return {
+    ...foundationHub,
+    backlogItems: existing
+      ? backlogItems.map(item => item.id === card.id ? { ...item, ...card } : item)
+      : [...backlogItems, card],
+  }
+}
+
 async function main() {
   const args = parseArgs()
   const baseUrl = String(args.baseUrl || process.env.FOUNDATION_BASE_URL || 'http://localhost:3000')
   await assertFoundationDbReadyForReadOnlyGate('process:agent-feedback-auto-send-check')
   const [
-    foundationHub,
+    foundationHubSummary,
     foundationBuildLog,
     opsHub,
+    autoSendCardDetail,
   ] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation-hub'),
     fetchJson(baseUrl, '/api/foundation/build-log?limit=80'),
     fetchJson(baseUrl, '/api/ops-hub'),
+    fetchJson(baseUrl, `/api/foundation/backlog/${AGENT_FEEDBACK_AUTO_SEND_CARD_ID}`),
   ])
+  const foundationHub = mergeBacklogCardDetail(foundationHubSummary, autoSendCardDetail.card)
   const status = await buildAgentFeedbackAutoSendStatus({
     repoRoot: process.cwd(),
     foundationHub,
@@ -60,7 +75,10 @@ async function main() {
   console.log(`  Georgia Day-30 action: ${status.summary.georgiaDay30Action}`)
   console.log(`  Georgia Day-30 eligible: ${status.summary.georgiaDay30Eligible ? 'yes' : 'no'}`)
   console.log(`  Georgia recipient source: ${status.summary.georgiaDay30RecipientSource || 'missing'}`)
-  console.log(`  BCC roles applied: ${status.summary.georgiaDay30BccRolesApplied.join(', ') || 'none'}`)
+  const georgiaDay30BccRolesApplied = Array.isArray(status.summary.georgiaDay30BccRolesApplied)
+    ? status.summary.georgiaDay30BccRolesApplied
+    : []
+  console.log(`  BCC roles applied: ${georgiaDay30BccRolesApplied.join(', ') || 'none'}`)
   console.log(`  Default cannot send: ${status.summary.defaultCannotSend ? 'yes' : 'no'}`)
   console.log(`  Toggle alone cannot send: ${status.summary.toggleAloneCannotSend ? 'yes' : 'no'}`)
   console.log(`  Allowlist alone cannot send: ${status.summary.allowlistAloneCannotSend ? 'yes' : 'no'}`)
