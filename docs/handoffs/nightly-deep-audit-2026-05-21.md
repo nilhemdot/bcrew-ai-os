@@ -1,18 +1,19 @@
 # Nightly Deep Audit Report - 2026-05-21
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
-Generated at: `2026-05-21T07:00:19.672Z`
+Generated at: `2026-05-21T17:09:52.007Z`
 Report path: `docs/handoffs/nightly-deep-audit-2026-05-21.md`
 
 ## Morning Read
 
 - Status: `deep_review_executed`
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev.
-- Deterministic findings: 7 total (0 P0, 5 P1, 2 P2, 0 P3)
-- Changed files selected: 0
+- Active deterministic findings: 0 total (0 P0, 0 P1, 0 P2, 0 P3)
+- Closed detector signals reconciled out of active audit: 7 of 7
+- Changed files selected: 3
 - High-risk review targets: 12
 - LLM review mode: `bounded_senior_review_executed`
-- Deep senior review rollup: `healthy` (deep senior review executed with 8 finding(s))
+- Deep senior review rollup: `healthy` (deep senior review executed with 0 active finding(s) and 0 reconciled closed finding(s))
 - Dogfood against May 13 failures: passed
 - Doc/report artifact bloat: `healthy` (0 red, 0 yellow)
 
@@ -20,9 +21,9 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-21.md`
 
 - Previous report: `docs/handoffs/nightly-deep-audit-2026-05-20.json`
 - New findings: 0
-- Still open: 6
-- Resolved: 0
-- Finding delta: 0
+- Still open: 0
+- Resolved: 6
+- Finding delta: -6
 
 ## LLM Review Boundary
 
@@ -30,34 +31,40 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-21.md`
 - Selected route: `foundation-deep-audit-openclaw-chatgpt`
 - Provider/model: `openclaw / openai-codex/gpt-5.4`
 - Route blocker: none
-- Finding count: 8
+- Active finding count: 0
+- Closed senior-review repeats reconciled out: 0
 - Note: Deep senior review executed through the approved router with report-only/no-autofix posture.
 
 Deep senior review executed through the approved router.
 
 ## Senior Review Findings
 
-- P1 Verifier mixes active sprint assertions with historical closeout proof (scripts/foundation-verify.mjs:3085) -> ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001; owner=Foundation Builder; next=Split historical closeout proof from active sprint assertions and require separate pass/fail reporting paths.
-- P1 Foundation Hub route remains a monolithic hot handler (server.js:1) -> FOUNDATION-HUB-PAYLOAD-EXTRACT-001; owner=Foundation Builder; next=Extract hub payload builders by domain and reduce the central handler to orchestration and response wiring.
-- P1 Process check mutates live active sprint overlay state (scripts/process-extract-current-check.mjs:551) -> PROCESS-CHECK-APPLY-BOUNDARY-001; owner=Foundation Builder; next=Move overlay mutation out of the check path, or gate it behind an explicit repair/apply mode with default read-only verification.
-- P1 Foundation UI still embeds current-state summary truth (scripts/process-extract-current-check.mjs:363) -> FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001; owner=Foundation Builder; next=Replace embedded summary truth with live-derived summary inputs and add proof that the UI reflects source-backed current state.
-- P1 Source contract count baseline is still hardcoded (lib/foundation-current-sprint.js:920) -> SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001; owner=Foundation Builder; next=Derive the count baseline dynamically from the contract registry and update checks to validate relationships instead of fixed exact totals.
-- P1 Dynamic counts process check still relies on fixed source-count assumptions (scripts/process-source-lifecycle-dynamic-counts-check.mjs:187) -> SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001; owner=Foundation Builder; next=Refactor the checker to validate live-derived lifecycle counts and remove exact encoded baselines.
-- P2 Focused checks still assume exact dated active sprint IDs (lib/foundation-current-sprint.js:107) -> SPRINT-CHECK-HISTORICAL-MODE-001; owner=Foundation Builder; next=Introduce historical-mode/current-mode resolution so checks target the active sprint through live state instead of dated constants.
-- P2 Foundation frontend still exceeds DOM rebuild budget (public/foundation.html:1) -> FOUNDATION-FRONTEND-DOM-BUDGET-001; owner=Foundation Builder; next=Split large render paths into smaller components/builders and reduce repeated full rebuild patterns in Foundation surfaces.
+- none
+
+## Reconciled Closed Audit Signals
+
+- Deterministic detector signals reconciled: 7
+- Senior-review repeats reconciled: 0
+- P1 active-vs-historical-verifier-mixing: covered by `active-vs-historical-verifier-split-v1`
+- P1 foundation-hub-route-monolith: covered by `foundation-route-budget-cleanup-v1`
+- P1 hardcoded-foundation-ui-current-summary: covered by `foundation-ui-live-summary-sources-v1`
+- P1 hardcoded-source-count-baseline: covered by `source-lifecycle-dynamic-counts-v1`
+- P1 hardcoded-source-count-baseline: covered by `source-lifecycle-dynamic-counts-v1`
+- P2 focused-check-active-sprint-id-assumption: covered by `focused-sprint-id-historical-aware-v1`
+- P2 foundation-dom-rebuild-risk: covered by `foundation-css-surface-decouple-v1`
 
 ## Endpoint And Payload Trend
 
-- /api/foundation-hub: 144ms, 551598B, risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: 24ms, 199925B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: 475ms, 629487B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: 96ms, 279224B, risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: 121ms, 551316B, risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: 30ms, 199929B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: 411ms, 637672B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: 78ms, 279205B, risk=healthy (Within V1 audit budget.)
 - /api/foundation/gstack-build-intel: 30ms, 33222B, risk=healthy (Within V1 audit budget.)
 
 ## Largest Files
 
 - scripts/foundation-verify.mjs: 4998 LOC, 277372B
-- public/foundation.js: 2987 LOC, 113797B
+- public/foundation.js: 2987 LOC, 113810B
 - lib/foundation-build-closeout-process-gate-records.js: 2980 LOC, 212376B
 - lib/foundation-db-schema-seed-store.js: 2757 LOC, 141992B
 - lib/foundation-build-closeout-tightening-records.js: 2599 LOC, 226069B
@@ -129,7 +136,7 @@ import {
 ### P1 public/foundation.js
 
 - Lines: 2987
-- Bytes: 113797
+- Bytes: 113810
 - Reasons: frontend_route_cache_surface
 
 ```
@@ -142,18 +149,18 @@ import {
 function renderBacklog() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading live backlog.</p>'
+  var focusedIds = getSection() === 'backlog'
+    ? getSectionFocus().split(',').map(function(id) { return id.trim() }).filter(Boolean)
+    : []
 
   Promise.all([
-    fetchFoundationBacklog(),
+    fetchFoundationBacklog({ ids: focusedIds }),
     fetchActionReview().catch(function(error) {
       return { error: error.message || 'Action Review could not load.' }
     }),
   ]).then(function(results) {
     var hub = results[0]
     var actionReview = results[1]
-    var focusedIds = getSection() === 'backlog'
-      ? getSectionFocus().split(',').map(function(id) { return id.trim() }).filter(Boolean)
-      : []
     backlogScopeRegistry = (hub.meta && hub.meta.backlogScopes && hub.meta.backlogScopes.length)
       ? hub.meta.backlogScopes.slice()
       : fallbackBacklogScopes.slice()
@@ -263,6 +270,63 @@ function isLocalRequest(req) {
   ) {
 ```
 
+### P1 lib/foundation-jobs.js
+
+- Lines: 1414
+- Bytes: 60710
+- Reasons: changed_since_baseline
+
+```
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  parseProcessWriteFlags,
+} from './process-write-guard.js'
+import {
+  RECURRING_DEEP_AUDIT_CADENCE,
+  RECURRING_DEEP_AUDIT_JOB_KEY,
+} from './recurring-deep-audit.js'
+import {
+  NIGHTLY_DEEP_AUDIT_JOB_KEY,
+  NIGHTLY_DEEP_AUDIT_SCHEDULE_LOCAL_TIME,
+  NIGHTLY_DEEP_AUDIT_SCHEDULE_TIMEZONE,
+} from './nightly-deep-audit-constants.js'
+import {
+  FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY,
+} from './foundation-lessons-learned-loop.js'
+import {
+  FOUNDATION_JOB_MUTATION_ALLOWLIST_CARD_ID,
+  evaluateFoundationJobMutationAllowlist,
+} from './foundation-job-mutation-allowlist.js'
+import {
+  buildAdminDealBacklogReviewArgs,
+  buildAdminDealBacklogReviewInputs,
+  buildAdminDealBacklogReviewSummary,
+} from './admin-deal-policy-source-contract.js'
+
+export const PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID = 'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001'
+
+export const FOUNDATION_JOB_MUTATION_POSTURES = Object.freeze({
+  readOnly: 'read_only',
+  reportOnly: 'report_only',
+  mutating: 'mutating',
+  externalWrite: 'external_write',
+  operationalWrite: 'operational_write',
+  unknown: 'unknown',
+})
+
+const MUTATING_PROCESS_CHECK_FLAGS = new Set([
+  PROCESS_CHECK_WRITE_FLAGS.apply,
+  PROCESS_CHECK_WRITE_FLAGS.closeCard,
+  PROCESS_CHECK_WRITE_FLAGS.mutateSprint,
+])
+
+function parseLocalTime(value) {
+  const match = String(value || '').trim().match(/^(\d{1,2}):(\d{2})$/)
+  if (!match) return null
+  const hour = Number(match[1])
+  const minute = Number(match[2])
+```
+
 ### P1 lib/connector-uptime-monitor.js
 
 - Lines: 1063
@@ -320,6 +384,63 @@ export const CONNECTOR_HEALTH_STATUSES = Object.freeze({
   unknown: 'unknown',
 ```
 
+### P1 scripts/process-foundation-lessons-learned-loop-check.mjs
+
+- Lines: 714
+- Bytes: 35297
+- Reasons: changed_since_baseline, process_check_surface
+
+```
+    await client.query('ROLLBACK')
+    throw error
+  } finally {
+    client.release()
+    await pool.end()
+  }
+
+  const previous = activeSprint || await getActiveFoundationCurrentSprint()
+  await upsertFoundationCurrentSprintOverlay(
+    {
+      sprint: {
+        ...(previous.sprint || {}),
+        sprintId: previous.sprint?.sprintId || SPRINT_ID,
+        status: 'active',
+        goal: 'Make Foundation raw-green, self-improving, backlog-clean, operationally controlled, and ready to resume source/extract work without rebuilding tech debt.',
+        activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
+        metadata: {
+          ...(previous.sprint?.metadata || {}),
+          currentStatus: closeCard ? 'lessons_learned_loop_closed' : 'lessons_learned_loop_active',
+          lastClosedCardId: closeCard ? CARD_ID : previous.sprint?.metadata?.lastClosedCardId,
+          nextAction: closeCard
+            ? `Continue ${NEXT_CARD_ID}; lessons learned loop is live.`
+            : `${CARD_ID} blocks the Foundation queue until documentation-only lessons fail and privacy-bound action routing passes.`,
+          lessonsLearnedLoopSummary: {
+            status: closeCard ? 'healthy' : 'active',
+            scheduledJobKey: FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY,
+            privacyPosture: 'local_private_metadata_only',
+            documentedOnlyRejected: true,
+            closeoutKey: CLOSEOUT_KEY,
+          },
+        },
+      },
+      items: buildSprintItems(previous, { closeCard }),
+    },
+    'codex-foundation-lessons-learned-loop',
+    {
+      apply: true,
+      allowItemReplacement: true,
+      expectedPreviousActiveSprintId: previous.sprint?.sprintId || SPRINT_ID,
+      reason: 'FOUNDATION-LESSONS-LEARNED-LOOP-001 closes the self-improvement loop and advances to P0 backlog reality cleanup.',
+    },
+  )
+}
+
+function containsUnsafeRuntimeCall(source = '') {
+  const executableSource = String(source || '').replace(/(['"`])(?:\\.|(?!\1)[\s\S])*\1/g, '')
+  const patterns = [
+    /\bfetch\s*\(/,
+```
+
 ### P1 scripts/process-extract-current-check.mjs
 
 - Lines: 551
@@ -375,6 +496,63 @@ async function main() {
   await initFoundationDb()
 
   const jobKeys = [
+```
+
+### P1 scripts/process-foundation-operating-reliability-check.mjs
+
+- Lines: 475
+- Bytes: 19752
+- Reasons: changed_since_baseline, process_check_surface
+
+```
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import {
+  CONNECTOR_HEALTH_STATUSES,
+  CONNECTOR_UPTIME_MONITOR_JOB_KEY,
+  FOUNDATION_OPERATING_RELIABILITY_CARD_IDS,
+  FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY,
+  FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH,
+  FOUNDATION_OPERATING_RELIABILITY_SPRINT_ID,
+  OPERATING_RELIABILITY_CONNECTOR_GROUPS,
+  buildConnectorUptimeSnapshot,
+  buildFoundationOperatingReliabilityDogfoodProof,
+  buildFoundationOperatingReliabilitySnapshot,
+  buildMorningHealthSnapshot,
+  buildRuntimeActivationSnapshot,
+} from '../lib/connector-uptime-monitor.js'
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  closeFoundationDb,
+  getActiveFoundationCurrentSprint,
+  getBacklogItemsByIds,
+  getFoundationSnapshot,
+  getPlanCriticRunsByCardIds,
+} from '../lib/foundation-db.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
+import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
+import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
+import { getSourceConnectors, getSourceContracts } from '../lib/source-contracts.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const repoRoot = path.resolve(__dirname, '..')
+
+const PLAN_REFS = {
+  'CONNECTOR-UPTIME-MONITOR-001': 'docs/process/connector-uptime-monitor-001-plan.md',
+  'SOURCE-023': 'docs/process/source-023-connector-hardening-plan.md',
+  'RUNTIME-ACTIVATION-001': 'docs/process/runtime-activation-001-operating-reliability-plan.md',
+  'SYSTEM-HEALTH-AUDITOR-001': 'docs/process/system-health-auditor-001-operating-reliability-plan.md',
+  'PLAN-STATE-RECONCILE-001': 'docs/process/plan-state-reconcile-001-plan.md',
+}
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = {
+    json: false,
+    noApi: false,
+    connectorOnly: false,
 ```
 
 ### P1 scripts/process-source-lifecycle-dynamic-counts-check.mjs
@@ -491,120 +669,6 @@ import {
   VERIFICATION_RUNS_SCRIPT_PATH,
 ```
 
-### P3 lib/foundation-intelligence-audit-verifier.js
-
-- Lines: 1606
-- Bytes: 103152
-- Reasons: changed/review target
-
-```
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import {
-  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS,
-  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY,
-  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH,
-  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_SCRIPT_PATH,
-  buildBuildIntelExtractionImplementationSnapshot,
-} from './build-intel-extraction-implementation.js'
-import {
-  BUILD_INTEL_KARPATHY_LLM_KB_PREFLIGHT_CARD_ID,
-  BUILD_INTEL_KARPATHY_LLM_KB_PREFLIGHT_CLOSEOUT_KEY,
-  BUILD_INTEL_KARPATHY_LLM_KB_PREFLIGHT_CLOSEOUT_PATH,
-  BUILD_INTEL_KARPATHY_LLM_KB_PREFLIGHT_SCRIPT_PATH,
-  buildKarpathyLlmKbPreflightSnapshot,
-} from './build-intel-karpathy-llm-kb-preflight.js'
-import {
-  BUILD_INTEL_CREATOR_WATCHLIST_EXPANSION_CARD_ID,
-  BUILD_INTEL_CREATOR_WATCHLIST_EXPANSION_CLOSEOUT_KEY,
-  BUILD_INTEL_CREATOR_WATCHLIST_EXPANSION_CLOSEOUT_PATH,
-  BUILD_INTEL_CREATOR_WATCHLIST_EXPANSION_SCRIPT_PATH,
-  buildBuildIntelCreatorWatchlistExpansionDogfoodProof,
-  buildBuildIntelCreatorWatchlistExpansionSnapshot,
-} from './build-intel-creator-watchlist-expansion.js'
-import {
-  COURSE_SOURCE_AUTH_BOUNDARY_CARD_ID,
-  COURSE_SOURCE_AUTH_BOUNDARY_CLOSEOUT_KEY,
-  COURSE_SOURCE_AUTH_BOUNDARY_CLOSEOUT_PATH,
-  COURSE_SOURCE_AUTH_BOUNDARY_SCRIPT_PATH,
-  buildCourseSourceAuthBoundaryDogfoodProof,
-  buildCourseSourceAuthBoundarySnapshot,
-} from './course-source-auth-boundary.js'
-import {
-  YOUTUBE_BUILD_INTEL_BATCH_CARD_ID,
-  YOUTUBE_BUILD_INTEL_BATCH_CLOSEOUT_KEY,
-  YOUTUBE_BUILD_INTEL_BATCH_CLOSEOUT_PATH,
-  YOUTUBE_BUILD_INTEL_BATCH_SCRIPT_PATH,
-  buildYoutubeBuildIntelBatchDogfoodProof,
-  buildYoutubeBuildIntelBatchSnapshot,
-} from './youtube-build-intel-batch.js'
-import {
-  EXTRACTION_TO_KB_ATOM_PIPELINE_CARD_ID,
-  EXTRACTION_TO_KB_ATOM_PIPELINE_CLOSEOUT_KEY,
-  EXTRACTION_TO_KB_ATOM_PIPELINE_CLOSEOUT_PATH,
-  EXTRACTION_TO_KB_ATOM_PIPELINE_SCRIPT_PATH,
-  buildExtractionToKbAtomPipelineDogfoodProof,
-  buildExtractionToKbAtomPipelineSnapshot,
-} from './extraction-to-kb-atom-pipeline.js'
-```
-
-### P3 lib/foundation-jobs.js
-
-- Lines: 1414
-- Bytes: 60676
-- Reasons: changed/review target
-
-```
-import {
-  PROCESS_CHECK_WRITE_FLAGS,
-  parseProcessWriteFlags,
-} from './process-write-guard.js'
-import {
-  RECURRING_DEEP_AUDIT_CADENCE,
-  RECURRING_DEEP_AUDIT_JOB_KEY,
-} from './recurring-deep-audit.js'
-import {
-  NIGHTLY_DEEP_AUDIT_JOB_KEY,
-  NIGHTLY_DEEP_AUDIT_SCHEDULE_LOCAL_TIME,
-  NIGHTLY_DEEP_AUDIT_SCHEDULE_TIMEZONE,
-} from './nightly-deep-audit-constants.js'
-import {
-  FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY,
-} from './foundation-lessons-learned-loop.js'
-import {
-  FOUNDATION_JOB_MUTATION_ALLOWLIST_CARD_ID,
-  evaluateFoundationJobMutationAllowlist,
-} from './foundation-job-mutation-allowlist.js'
-import {
-  buildAdminDealBacklogReviewArgs,
-  buildAdminDealBacklogReviewInputs,
-  buildAdminDealBacklogReviewSummary,
-} from './admin-deal-policy-source-contract.js'
-
-export const PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID = 'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001'
-
-export const FOUNDATION_JOB_MUTATION_POSTURES = Object.freeze({
-  readOnly: 'read_only',
-  reportOnly: 'report_only',
-  mutating: 'mutating',
-  externalWrite: 'external_write',
-  operationalWrite: 'operational_write',
-  unknown: 'unknown',
-})
-
-const MUTATING_PROCESS_CHECK_FLAGS = new Set([
-  PROCESS_CHECK_WRITE_FLAGS.apply,
-  PROCESS_CHECK_WRITE_FLAGS.closeCard,
-  PROCESS_CHECK_WRITE_FLAGS.mutateSprint,
-])
-
-function parseLocalTime(value) {
-  const match = String(value || '').trim().match(/^(\d{1,2}):(\d{2})$/)
-  if (!match) return null
-  const hour = Number(match[1])
-  const minute = Number(match[2])
-```
-
 ### P3 lib/code-quality-nightly-audit.js
 
 - Lines: 1230
@@ -662,79 +726,16 @@ export async function buildCodeQualityNightlyAudit({
     'package.json',
 ```
 
-### P3 lib/foundation-current-sprint-store.js
-
-- Lines: 790
-- Bytes: 29711
-- Reasons: changed/review target
-
-```
-    foundationDbSource: `
-      import { createFoundationCurrentSprintStore } from './foundation-current-sprint-store.js'
-      const foundationCurrentSprintStore = createFoundationCurrentSprintStore({})
-      export const getActiveFoundationCurrentSprint = foundationCurrentSprintStore.getActiveFoundationCurrentSprint
-    `,
-    currentSprintStoreSource: `
-      export function createFoundationCurrentSprintStore() {
-        async function getActiveFoundationCurrentSprint() {}
-        async function upsertFoundationCurrentSprintOverlay() {}
-        async function buildCurrentSprintMutationGuardsDogfoodProof() {}
-        const code = 'FOUNDATION_CURRENT_SPRINT_MUTATION_BLOCKED expectedPreviousActiveSprintId allowItemReplacement mutationPosture itemDiff'
-        return { getActiveFoundationCurrentSprint, upsertFoundationCurrentSprintOverlay, buildCurrentSprintMutationGuardsDogfoodProof, code }
-      }
-    `,
-    foundationDbLineCount: 19000,
-  })
-  return {
-    ok: unsplit.ok === false && split.ok === true,
-    unsplit,
-    split,
-    dogfoodInvariant: 'The old unsplit shape fails evaluation; the split shape only passes when the store module owns behavior and foundation-db wires through it.',
-  }
-}
-
-export function createFoundationCurrentSprintStore({
-  pool,
-  withFoundationTransaction,
-  insertChangeEvent,
-  mapBacklogRow,
-} = {}) {
-  if (!pool) throw new Error('Current Sprint store requires a pool.')
-  if (typeof withFoundationTransaction !== 'function') throw new Error('Current Sprint store requires withFoundationTransaction.')
-  if (typeof insertChangeEvent !== 'function') throw new Error('Current Sprint store requires insertChangeEvent.')
-  if (typeof mapBacklogRow !== 'function') throw new Error('Current Sprint store requires mapBacklogRow.')
-
-  function mapFoundationSprintRow(row) {
-    if (!row) return null
-    return {
-      sprintId: row.sprint_id,
-      status: row.status,
-      goal: row.goal,
-      activeBlockerCardId: row.active_blocker_card_id,
-      startedAt: row.started_at,
-      closedAt: row.closed_at,
-      metadata: row.metadata || {},
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    }
-```
-
 ## Top Deterministic Findings
 
-- P1 active-vs-historical-verifier-mixing: Verifier mixes active sprint assertions with historical closeout proof -> ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001
-- P1 foundation-hub-route-monolith: Foundation Hub route builds many domains in one handler -> FOUNDATION-HUB-PAYLOAD-EXTRACT-001
-- P1 hardcoded-foundation-ui-current-summary: Foundation UI embeds current-state summary truth -> FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001
-- P1 hardcoded-source-count-baseline: Source contract count is encoded as an exact baseline -> SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001
-- P1 hardcoded-source-count-baseline: Source contract count is encoded as an exact baseline -> SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001
-- P2 focused-check-active-sprint-id-assumption: Focused checks assert exact dated active sprint IDs -> SPRINT-CHECK-HISTORICAL-MODE-001
-- P2 foundation-dom-rebuild-risk: Foundation frontend has heavy DOM rebuild signals -> FOUNDATION-FRONTEND-DOM-BUDGET-001
+- none
 
 ## Doc / Report Artifact Bloat
 
 - Status: `healthy`
-- Handoff files: 198
-- Handoff hot lines: 14221
-- Nightly artifacts: 11
+- Handoff files: 202
+- Handoff hot lines: 16602
+- Nightly artifacts: 15
 - Red/yellow findings: 0/0
 
 - none
@@ -762,23 +763,23 @@ export function createFoundationCurrentSprintStore({
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-21T07:00:20.386Z`
+Generated at: `2026-05-21T17:09:52.642Z`
 
 ## Morning Read
 
 - Status: `report_ready`
-- Findings: 7 total (0 P0, 5 P1, 2 P2, 0 P3)
-- Proposed backlog fixes: 6
+- Findings: 0 total (0 P0, 0 P1, 0 P2, 0 P3)
+- Proposed backlog fixes: 0
 - Detection mode: deterministic code first; no LLM detection used.
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work.
 - Synthetic proof: passed (hardcoded=2, mutator=1, slowEndpoint=risk)
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=144ms payload=551598B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=24ms payload=199925B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=475ms payload=629487B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=96ms payload=279224B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=121ms payload=551316B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=30ms payload=199929B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=411ms payload=637672B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=78ms payload=279205B risk=healthy (Within V1 audit budget.)
 - /api/foundation/gstack-build-intel: status=200 latency=30ms payload=33222B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
@@ -789,7 +790,7 @@ Assets:
 - public/foundation-nav-config.js: 8513B raw, 2367B gzip, 177 lines
 - public/foundation-data.js: 15198B raw, 3075B gzip, 494 lines
 - public/foundation-doc-markdown-renderers.js: 37274B raw, 7467B gzip, 1213 lines
-- public/foundation.js: 113797B raw, 22403B gzip, 2987 lines
+- public/foundation.js: 113810B raw, 22415B gzip, 2987 lines
 - public/foundation-backlog-renderers.js: 12173B raw, 2904B gzip, 303 lines
 - public/foundation-action-route-review-inbox-renderers.js: 9997B raw, 2767B gzip, 234 lines
 - public/foundation-source-registry-renderers.js: 60541B raw, 11908B gzip, 1537 lines
@@ -810,7 +811,7 @@ DOM budget:
 
 Largest files:
 - scripts/foundation-verify.mjs: 4998 LOC, 277372B
-- public/foundation.js: 2987 LOC, 113797B
+- public/foundation.js: 2987 LOC, 113810B
 - lib/foundation-build-closeout-process-gate-records.js: 2980 LOC, 212376B
 - lib/foundation-db-schema-seed-store.js: 2757 LOC, 141992B
 - lib/foundation-build-closeout-tightening-records.js: 2599 LOC, 226069B
@@ -820,85 +821,21 @@ Largest files:
 
 ## Top Findings
 
-### P1 Verifier mixes active sprint assertions with historical closeout proof
-- Card lane: `VERIFIER-ASSUMPTION-REGISTRY-001`
-- Type: `drift_risk`
-- Evidence: `scripts/foundation-verify.mjs:3085` (historicalCardHasVerifiedCloseout), `scripts/foundation-verify.mjs:3109` (activeSprintAtOrPast), `scripts/foundation-verify.mjs:3115` (historicalCardHasVerifiedCloseout), `scripts/foundation-verify.mjs:4165` (historicalCardHasVerifiedCloseout), `scripts/foundation-verify.mjs:4370` (activeSprintAtOrPast), `scripts/foundation-verify.mjs:4451` (activeSprintAtOrPast)
-- Why it matters: A current-sprint advancement assertion can pass from a historical closeout unless active and historical helpers are separate.
-- Proposed owner/card: Foundation Verifier / `ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001`
-- Detector: active versus historical helper detector
 
-### P1 Foundation Hub route builds many domains in one handler
-- Card lane: `FOUNDATION-MONOLITH-RISK-AUDIT-001`
-- Type: `refactor_candidate`
-- Evidence: `server.js`
-- Why it matters: Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.
-- Proposed owner/card: Foundation Engineering / `FOUNDATION-HUB-PAYLOAD-EXTRACT-001`
-- Detector: largest file/function ownership detector
-- False-positive note: This is not approval to refactor during the audit sprint.
-
-### P1 Foundation UI embeds current-state summary truth
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-extract-current-check.mjs:363`
-- Why it matters: Static UI copy can report stale health, source, or KPI counts after APIs change.
-- Proposed owner/card: Foundation UI / `FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001`
-- Detector: currentSummary/static-live-copy detector
-- False-positive note: Static maturity explainers are acceptable; live checkpoint wording is not.
-
-### P1 Source contract count is encoded as an exact baseline
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `lib/foundation-current-sprint.js:920`
-- Why it matters: Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.
-- Proposed owner/card: Source Lifecycle / `SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001`
-- Detector: source-count literal detector
-- False-positive note: Accepted historical closeout text can stay if it is not used as current live truth.
-
-### P1 Source contract count is encoded as an exact baseline
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-source-lifecycle-dynamic-counts-check.mjs:187`
-- Why it matters: Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.
-- Proposed owner/card: Source Lifecycle / `SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001`
-- Detector: source-count literal detector
-- False-positive note: Accepted historical closeout text can stay if it is not used as current live truth.
-
-### P2 Focused checks assert exact dated active sprint IDs
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `lib/foundation-current-sprint.js:107` (const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12), `lib/foundation-current-sprint.js:149` (const FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID = 'foundation-source-once-over-2026-05-12), `lib/foundation-current-sprint-store.js:5` (const FOUNDATION_DB_STORE_SPLIT_SPRINT_ID = 'foundation-db-store-split-2026-05-14), `lib/code-quality-nightly-audit.js:38` (const CODE_QUALITY_NIGHTLY_AUDIT_SPRINT_ID = 'foundation-code-quality-nightly-audit-2026-05-13), `lib/code-quality-nightly-audit.js:968` (const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12), `lib/code-quality-nightly-audit.js:974` (const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12)
-- Why it matters: One-time closeout checks are unsafe as nightly checks after rollover if they hard-fail on the current active sprint.
-- Proposed owner/card: Foundation Process / `SPRINT-CHECK-HISTORICAL-MODE-001`
-- Detector: dated active-sprint assertion detector
-- False-positive note: Active live-truth literals still fail as P0; dated card/sprint metadata is a review finding unless a focused proof hard-fails after rollover.
-
-### P2 Foundation frontend has heavy DOM rebuild signals
-- Card lane: `FOUNDATION-FRONTEND-PERF-AUDIT-001`
-- Type: `performance_risk`
-- Evidence: `public/foundation.html:104`, `public/foundation.html:1` (Foundation frontend scripts call document.createElement 1768 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2260 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 76 times, above the 50 aggregate review budget.)
-- Why it matters: Backlog, source, current-state, and runtime filters can churn large DOM trees on each interaction as card/source counts grow.
-- Proposed owner/card: Foundation Frontend / `FOUNDATION-FRONTEND-DOM-BUDGET-001`
-- Detector: DOM budget snapshot status=review createElement=1768 appendChild=2260 innerHTML=76
 
 ## Findings By Sprint Card
 
-- `CODEBASE-HARDCODE-AUDIT-001`: 4 findings
+- `CODEBASE-HARDCODE-AUDIT-001`: 0 findings
 - `FOUNDATION-API-PERF-AUDIT-001`: 0 findings
-- `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 1 finding
-- `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 1 finding
-- `VERIFIER-ASSUMPTION-REGISTRY-001`: 1 finding
+- `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 0 findings
+- `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 0 findings
+- `VERIFIER-ASSUMPTION-REGISTRY-001`: 0 findings
 - `SPRINT-STATE-MUTATION-AUDIT-001`: 0 findings
 - `NIGHTLY-AUDIT-REPORT-001`: 0 findings
 
 ## Proposed Backlog Fixes
 
-- `ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001`
-- `FOUNDATION-HUB-PAYLOAD-EXTRACT-001`
-- `FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001`
-- `SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001`
-- `SPRINT-CHECK-HISTORICAL-MODE-001`
-- `FOUNDATION-FRONTEND-DOM-BUDGET-001`
+
 
 ## Browser QA Route Matrix Proposal
 

@@ -106,6 +106,7 @@ async function main() {
   const job = getFoundationJobDefinitions().find(item => item.key === NIGHTLY_DEEP_AUDIT_JOB_KEY) || null
   const dogfood = buildNightlyDeepAuditUpgradeDogfoodProof()
   const realLoopDogfood = buildDeepAuditorRealLoopDogfoodProof()
+  const foundationJsSource = await fs.readFile(path.join(repoRoot, 'public/foundation.js'), 'utf8')
   const audit = await buildNightlyDeepAuditUpgrade({
     repoRoot,
     baseUrl: args.baseUrl,
@@ -187,6 +188,32 @@ async function main() {
   )
   addCheck(
     checks,
+    audit.deterministicFindingReconciliation?.summary?.reconciledClosedFindingCount >= 0 &&
+      Array.isArray(audit.deterministicFindingReconciliation?.activeFindings) &&
+      Array.isArray(audit.deterministicFindingReconciliation?.reconciledFindings),
+    'nightly audit separates active findings from verified closed audit signals',
+    JSON.stringify(audit.deterministicFindingReconciliation?.summary || {}),
+  )
+  addCheck(
+    checks,
+    !(audit.deterministicFindingReconciliation?.reconciledFindings || []).some(reconciled =>
+      (audit.deterministicAudit?.findings || []).some(active =>
+        active.id === reconciled.id &&
+          (active.refs?.[0]?.path || '') === (reconciled.refs?.[0]?.path || '')
+      )
+    ),
+    'verified closed audit signals are not reported as active deterministic findings',
+    (audit.deterministicFindingReconciliation?.reconciledFindings || []).map(item => item.id).join(', ') || 'none',
+  )
+  addCheck(
+    checks,
+    foundationJsSource.includes('fetchFoundationBacklog({ ids: focusedIds })') &&
+      foundationJsSource.indexOf("var focusedIds = getSection() === 'backlog'") < foundationJsSource.indexOf('fetchFoundationBacklog({ ids: focusedIds })'),
+    'focused backlog view fetches requested IDs server-side before loading backlog',
+    'public/foundation.js renderBacklog',
+  )
+  addCheck(
+    checks,
     audit.coverage?.backend === true && audit.coverage?.frontend === true && audit.coverage?.endpointMetrics === true,
     'audit covers backend, frontend, and required endpoint metrics',
     JSON.stringify(audit.coverage || {}),
@@ -239,8 +266,9 @@ async function main() {
         : artifacts.markdown.includes('Deep senior review did not execute')) &&
       artifacts.markdown.includes('Doc / Report Artifact Bloat') &&
       artifacts.markdown.includes('Dogfood Proof') &&
+      artifacts.markdown.includes('Closed detector signals reconciled out of active audit') &&
       artifacts.markdown.includes(NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY),
-    'rendered report contains boundaries, review packets, deep-review execution truth, doc bloat, dogfood, and closeout key',
+    'rendered report contains boundaries, review packets, deep-review execution truth, closure reconciliation, doc bloat, dogfood, and closeout key',
     artifacts.reportPath,
   )
   addCheck(

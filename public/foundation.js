@@ -2143,18 +2143,18 @@ function renderLiveDocFreshnessPanel(docPath, sourceSnapshot, sourceContracts) {
 function renderBacklog() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading live backlog.</p>'
+  var focusedIds = getSection() === 'backlog'
+    ? getSectionFocus().split(',').map(function(id) { return id.trim() }).filter(Boolean)
+    : []
 
   Promise.all([
-    fetchFoundationBacklog(),
+    fetchFoundationBacklog({ ids: focusedIds }),
     fetchActionReview().catch(function(error) {
       return { error: error.message || 'Action Review could not load.' }
     }),
   ]).then(function(results) {
     var hub = results[0]
     var actionReview = results[1]
-    var focusedIds = getSection() === 'backlog'
-      ? getSectionFocus().split(',').map(function(id) { return id.trim() }).filter(Boolean)
-      : []
     backlogScopeRegistry = (hub.meta && hub.meta.backlogScopes && hub.meta.backlogScopes.length)
       ? hub.meta.backlogScopes.slice()
       : fallbackBacklogScopes.slice()

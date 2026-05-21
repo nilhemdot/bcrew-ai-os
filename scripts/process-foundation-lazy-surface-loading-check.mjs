@@ -398,8 +398,20 @@ async function main() {
   addCheck(checks, selfReview.status === 'pass' && Number(selfReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'plan passes Plan Critic', buildPlanCriticResultSummary(selfReview))
   addCheck(checks, planCriticPass, 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, Boolean(card) && (!args.closeCard || card.lane === 'done'), 'live lazy loading card exists', card ? `${card.id}:${card.lane}` : 'missing')
-  addCheck(checks, sprint.sprint?.sprintId === FOUNDATION_LAZY_SURFACE_LOADING_SPRINT_ID, 'Current Sprint is lazy surface loading', sprint.sprint?.sprintId || 'missing')
-  addCheck(checks, (sprint.items || []).some(item => item.cardId === FOUNDATION_LAZY_SURFACE_LOADING_CARD_ID), 'Current Sprint contains lazy loading item', (sprint.items || []).map(item => item.cardId).join(', '))
+  addCheck(
+    checks,
+    sprint.sprint?.sprintId === FOUNDATION_LAZY_SURFACE_LOADING_SPRINT_ID || card?.lane === 'done',
+    'Current Sprint is lazy surface loading while active or card is historically done',
+    card?.lane === 'done' ? `${card.id}:done` : sprint.sprint?.sprintId || 'missing',
+  )
+  addCheck(
+    checks,
+    (sprint.items || []).some(item => item.cardId === FOUNDATION_LAZY_SURFACE_LOADING_CARD_ID) || card?.lane === 'done',
+    'Current Sprint contains lazy loading item while active or card is historically done',
+    (sprint.items || []).some(item => item.cardId === FOUNDATION_LAZY_SURFACE_LOADING_CARD_ID)
+      ? (sprint.items || []).map(item => item.cardId).join(', ')
+      : card?.lane || 'missing',
+  )
   addCheck(checks, architecture.ok, 'lazy surface loading architecture passes', architecture.findings.map(finding => `${finding.code}:${finding.detail}`).join('; ') || 'healthy')
   addCheck(checks, securityAccessSource.includes("route('GET', '/api/foundation/backlog'"), 'security access registers backlog list route', 'GET /api/foundation/backlog')
   addCheck(checks, dogfood.ok, 'dogfood rejects broad Hub loading and missing backlog route', dogfood.invariant)

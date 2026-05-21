@@ -489,8 +489,13 @@ async function main() {
     const nextItem = (refreshedSprint.items || []).find(item => item.cardId === NEXT_CARD_ID)
     const closeoutRecord = closeouts.find(record => record.key === LLM_ROUTER_CLOSEOUT_KEY)
     const llmRouterCard = cards.find(card => card.id === LLM_ROUTER_CARD_ID) || null
+    const historicalDone = llmRouterCard?.lane === 'done' &&
+      closeoutRecord?.operatorCloseout === true &&
+      (closeoutRecord.backlogIds || []).includes(LLM_ROUTER_CARD_ID)
     const stagePostureIsSafe = args.closeCard
       ? nextItem?.stage === 'scoping'
+      : historicalDone
+        ? true
       : currentItem?.stage === 'building_now' ||
         (currentItem?.stage === 'done_this_sprint' && llmRouterCard?.lane === 'done')
     const checks = []
@@ -500,8 +505,22 @@ async function main() {
     addCheck(checks, evaluation.ok, 'LLM router migration evaluation is healthy', evaluation.failed.map(item => item.check).join('; ') || JSON.stringify(evaluation.summary))
     addCheck(checks, cards.some(card => card.id === LLM_ROUTER_CARD_ID), 'live backlog card exists', cards.map(card => card.id).join(', ') || 'missing')
     addCheck(checks, planCriticRuns.some(run => run.status === 'pass' && Number(run.score) >= 9.8) || planReview.status === 'pass', 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || `${planReview.status}/${planReview.score}`)
-    addCheck(checks, currentItem?.existingWorkCheck?.existingCode?.length || currentItem?.existingWorkCheck?.existingCode, 'Current Sprint LLM card has existing-code doctrine', currentItem?.stage || 'missing')
-    addCheck(checks, stagePostureIsSafe, 'Current Sprint stage posture is safe', args.closeCard ? `${NEXT_CARD_ID}:${nextItem?.stage}` : `${LLM_ROUTER_CARD_ID}:${currentItem?.stage}`)
+    addCheck(
+      checks,
+      historicalDone || currentItem?.existingWorkCheck?.existingCode?.length || currentItem?.existingWorkCheck?.existingCode,
+      'Current Sprint LLM card has existing-code doctrine while active or verified historical closeout',
+      historicalDone ? `${LLM_ROUTER_CARD_ID}:done` : currentItem?.stage || 'missing',
+    )
+    addCheck(
+      checks,
+      stagePostureIsSafe,
+      'Current Sprint stage posture is safe while active or historically done',
+      args.closeCard
+        ? `${NEXT_CARD_ID}:${nextItem?.stage}`
+        : historicalDone
+          ? `${LLM_ROUTER_CARD_ID}:done`
+          : `${LLM_ROUTER_CARD_ID}:${currentItem?.stage}`,
+    )
     addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint status is healthy after LLM router sync', currentSprintStatus.findings?.map(item => item.detail).join('; ') || 'healthy')
     addCheck(checks, closeoutRecord?.operatorCloseout === true && (closeoutRecord.backlogIds || []).includes(LLM_ROUTER_CARD_ID), 'closeout registry exposes LLM router card', closeoutRecord?.key || 'missing')
     if (args.closeCard) {
