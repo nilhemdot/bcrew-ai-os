@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-21
-Version: v6.156 - Daily creator watch inserted into YouTube To Dev Team Intelligence V1
+Version: v6.157 - Clean Current Sprint workspace for YouTube To Dev Team Intelligence V1
 Status: Mark Kashef public YouTube scout is closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `YOUTUBE-CREATOR-DAILY-WATCH-001`; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 
 Use this doc for one question:
@@ -28,8 +28,11 @@ Closed setup:
 2. `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002` - Mark latest/last-20 public videos were discovered; one seed video was captured deeply; the scout report, 7 proposal-only atoms, and 7 evidence hits were persisted.
 3. `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001` - this plan was promoted into live backlog and Current Sprint order.
 4. `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001` - daily public creator watch was inserted as the active next card; Mark last 50 and other approved creators last 20 are now explicit sprint depth rules.
+5. `YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001` - the Current Sprint workspace is clean for this new sprint; old shipped cards now stay in Backlog done and Recent Work, not `Done This Sprint`.
 
 Active sprint order:
+
+`Done This Sprint` is intentionally empty at sprint start. The old shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
 
 1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - active next card. Build the scheduled public no-auth creator-channel watch; Mark initial baseline depth is last 50, other approved public creators start at last 20, and daily deltas are deduped into a reviewable research pool.
 2. `DEV-TEAM-HUB-V0-001` - build the read-only Dev Team Hub over Foundation report/atom/review-route and creator-watch truth.

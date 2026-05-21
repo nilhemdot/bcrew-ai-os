@@ -514,18 +514,10 @@ async function applyLiveState({ planReview }) {
   await upsertBacklogRows()
   await upsertPlanCriticRun(planReview)
 
-  const sprintCardIds = new Set(SPRINT_CARDS.map(card => card.id))
-  const existingDone = (previous.items || [])
-    .filter(item => item.stage === 'done_this_sprint')
-    .filter(item => !sprintCardIds.has(item.cardId))
-    .sort((a, b) => Number(a.order || 999) - Number(b.order || 999))
-  const nextItems = [
-    ...existingDone,
-    ...SPRINT_CARDS.map((card, index) => sprintItem(card, {
-      order: existingDone.length + index + 1,
-      currentHead,
-    })),
-  ].map((item, index) => ({ ...item, order: index + 1 }))
+  const nextItems = SPRINT_CARDS.map((card, index) => sprintItem(card, {
+    order: index + 1,
+    currentHead,
+  }))
 
   await upsertFoundationCurrentSprintOverlay(
     {
@@ -539,6 +531,9 @@ async function applyLiveState({ planReview }) {
           ...(previous.sprint?.metadata || {}),
           closeoutKey: CLOSEOUT_KEY,
           sprintUpdateCardId: CARD_ID,
+          sprintPlanRef: 'docs/rebuild/current-plan.md',
+          sprintProcessPlanRef: 'docs/process/youtube-dev-team-intelligence-sprint-plan-001-plan.md',
+          sprintCorrectionPlanRef: PLAN_PATH,
           sourceIds: ['SRC-CREATOR-WATCHLIST-001', 'SRC-YOUTUBE-INTEL-001'],
           activeBlockerCardId: ACTIVE_CARD_ID,
           currentStatus: 'youtube_creator_daily_watch_required',

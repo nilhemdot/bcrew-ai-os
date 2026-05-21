@@ -31,10 +31,13 @@ Closed setup:
 - `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002` found the Mark latest/last-20 queue and persisted one real scout report with 7 proposal-only atoms and 7 evidence hits.
 - `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001` promoted the sprint plan into live backlog and Current Sprint order.
 - `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001` corrected the sprint so daily public creator watch is required; Mark starts with last 50 and other approved public creators start with last 20.
+- `YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001` cleaned the Current Sprint workspace for this new sprint; old shipped cards now stay in Backlog done and Recent Work, not `Done This Sprint`.
 
 Active next card: `YOUTUBE-CREATOR-DAILY-WATCH-001`.
 
 Sprint order:
+
+`Done This Sprint` is intentionally empty at sprint start. The old shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
 
 1. `YOUTUBE-CREATOR-DAILY-WATCH-001`
 2. `DEV-TEAM-HUB-V0-001`

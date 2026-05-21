@@ -848,6 +848,14 @@ function renderCurrentSprintPanel(currentSprint) {
   intro.className = 'section-intro'
   intro.textContent = (cadence && cadence.executiveSummary) || 'Execution-control overlay on live backlog. Prior done and returned cards live in Backlog and Recent Work.'
   left.appendChild(intro)
+  var sprintMetadata = (currentSprint && currentSprint.metadata) || {}
+  if (sprintMetadata.sprintPlanRef) {
+    var sprintPlanLink = document.createElement('a')
+    sprintPlanLink.className = 'doc-source-link'
+    sprintPlanLink.href = '/doc?path=' + encodeURIComponent(sprintMetadata.sprintPlanRef)
+    sprintPlanLink.textContent = sprintMetadata.sprintPlanRef
+    left.appendChild(renderBuildFact('Sprint plan', sprintPlanLink))
+  }
   header.appendChild(left)
   header.appendChild(renderBuildPill(currentSprint && currentSprint.status === 'healthy' ? 'Healthy' : 'Needs attention', currentSprint && currentSprint.status === 'healthy' ? 'foundation-system-pill build-log-status-pill build-log-status-shipped' : 'foundation-system-pill current-sprint-risk-pill'))
   panel.appendChild(header)
