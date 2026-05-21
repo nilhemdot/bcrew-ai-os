@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
 Last updated: 2026-05-21
-Status: Mark Kashef public YouTube scout is closed; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `DEV-TEAM-HUB-V0-001` is next; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Status: Mark Kashef public YouTube scout is closed; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `YOUTUBE-CREATOR-DAILY-WATCH-001` is next; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -30,18 +30,21 @@ Closed setup:
 - `WEB-GODMODE-LIVE-OPERATOR-002` proved one exact public Mark video could be opened and captured.
 - `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002` found the Mark latest/last-20 queue and persisted one real scout report with 7 proposal-only atoms and 7 evidence hits.
 - `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001` promoted the sprint plan into live backlog and Current Sprint order.
+- `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001` corrected the sprint so daily public creator watch is required; Mark starts with last 50 and other approved public creators start with last 20.
 
-Active next card: `DEV-TEAM-HUB-V0-001`.
+Active next card: `YOUTUBE-CREATOR-DAILY-WATCH-001`.
 
 Sprint order:
 
-1. `DEV-TEAM-HUB-V0-001`
-2. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`
-3. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`
-4. `YOUTUBE-LATEST-20-INTEL-RUN-001`
-5. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001`
-6. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
-7. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
+1. `YOUTUBE-CREATOR-DAILY-WATCH-001`
+2. `DEV-TEAM-HUB-V0-001`
+3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`
+4. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`
+5. `MARK-KASHEF-LAST-50-BASELINE-001`
+6. `YOUTUBE-LATEST-20-INTEL-RUN-001`
+7. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001`
+8. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
+9. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
 
 Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, and `AGENT-BRAIN-FOUNDATION-SEPARATION-001`.
 

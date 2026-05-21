@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-21
-Version: v6.155 - YouTube To Dev Team Intelligence V1 carded as live sprint
-Status: Mark Kashef public YouTube scout is closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `DEV-TEAM-HUB-V0-001`; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Version: v6.156 - Daily creator watch inserted into YouTube To Dev Team Intelligence V1
+Status: Mark Kashef public YouTube scout is closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `YOUTUBE-CREATOR-DAILY-WATCH-001`; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 
 Use this doc for one question:
 
@@ -16,27 +16,30 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`, created from [YouTube To Dev Team Intelligence Sprint Checkpoint](../handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md) and closed control card `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001`.
+Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`, created from [YouTube To Dev Team Intelligence Sprint Checkpoint](../handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md), closed control card `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001`, and daily-watch correction card `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001`.
 
 The plan is:
 
-`SRC-YOUTUBE-INTEL-001 -> Mark Kashef public YouTube -> transcript/description/screenshots/resource links -> observations -> atoms/candidates/scout reports -> Dev Team Hub -> Intelligence Director -> approval-gated backlog promotion`
+`SRC-CREATOR-WATCHLIST-001 + SRC-YOUTUBE-INTEL-001 -> daily public creator watch -> Mark last 50 / other creators last 20 -> transcript/description/screenshots/resource links -> observations -> atoms/candidates/scout reports -> Dev Team Hub -> Intelligence Director -> approval-gated backlog promotion`
 
 Closed setup:
 
 1. `WEB-GODMODE-LIVE-OPERATOR-002` - one exact public Mark video could be opened/captured with transcript, description/resource-link, and screenshot metadata.
 2. `YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002` - Mark latest/last-20 public videos were discovered; one seed video was captured deeply; the scout report, 7 proposal-only atoms, and 7 evidence hits were persisted.
 3. `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001` - this plan was promoted into live backlog and Current Sprint order.
+4. `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001` - daily public creator watch was inserted as the active next card; Mark last 50 and other approved creators last 20 are now explicit sprint depth rules.
 
 Active sprint order:
 
-1. `DEV-TEAM-HUB-V0-001` - active next card. Build the read-only Dev Team Hub over Foundation report/atom/review-route truth.
-2. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - classify and approval-route YouTube description/resource/download/purchase links.
-3. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - add quotas, stop conditions, artifact/provenance controls, stale-run prevention, and morning review before broader runs.
-4. `YOUTUBE-LATEST-20-INTEL-RUN-001` - process approved Mark public YouTube videos deeper than title metadata.
-5. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - generate the Director report/view with evidence, scores, suggested card, blockers, duplicate/stale checks, and next action.
-6. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - approve source-backed build opportunities into backlog cards or existing-card attachments.
-7. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION` - close the full Build Intel extraction loop only after the slices above are proven.
+1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - active next card. Build the scheduled public no-auth creator-channel watch; Mark initial baseline depth is last 50, other approved public creators start at last 20, and daily deltas are deduped into a reviewable research pool.
+2. `DEV-TEAM-HUB-V0-001` - build the read-only Dev Team Hub over Foundation report/atom/review-route and creator-watch truth.
+3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - classify and approval-route YouTube description/resource/download/purchase links.
+4. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - add quotas, stop conditions, artifact/provenance controls, stale-run prevention, and morning review before broader runs.
+5. `MARK-KASHEF-LAST-50-BASELINE-001` - process Mark's approved public last-50 baseline after the watch and guard are proven.
+6. `YOUTUBE-LATEST-20-INTEL-RUN-001` - process approved public last-20 videos for other creators deeper than title metadata.
+7. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - generate the Director report/view with evidence, scores, suggested card, blockers, duplicate/stale checks, and next action.
+8. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - approve source-backed build opportunities into backlog cards or existing-card attachments.
+9. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION` - close the full Build Intel extraction loop only after the slices above are proven.
 
 Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, and `AGENT-BRAIN-FOUNDATION-SEPARATION-001`.
 
