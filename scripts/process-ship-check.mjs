@@ -15,6 +15,9 @@ import {
   closeFoundationDb,
   getFoundationSnapshot,
 } from '../lib/foundation-db.js'
+import {
+  evaluateCloseoutPromiseContinuation,
+} from '../lib/promise-to-proof-integrity-gate.js'
 
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
@@ -146,6 +149,17 @@ async function main() {
   }
   ensure(checks, (closeout?.backlogIds || []).includes(cardId), 'closeout links the target card', (closeout?.backlogIds || []).join(', ') || 'missing')
   ensure(checks, (closeout?.proofCommands || []).some(command => command.includes('foundation:verify')), 'closeout includes foundation:verify proof', (closeout?.proofCommands || []).join(' | '))
+  const promiseContinuation = evaluateCloseoutPromiseContinuation({
+    card,
+    closeout,
+    backlogItems: foundation.backlogItems || [],
+  })
+  ensure(
+    checks,
+    promiseContinuation.ok,
+    'partial V1 capability closeout has an open continuation card',
+    promiseContinuation.reason + (promiseContinuation.continuationIds.length ? `: ${promiseContinuation.continuationIds.join(', ')}` : ''),
+  )
 
   const repoHead = await getRepoHead()
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')

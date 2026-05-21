@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PROMISE-TO-PROOF-INTEGRITY-GATE-001",
+  "approvedPlanRef": "docs/process/promise-to-proof-integrity-gate-001-plan.md",
+  "approvedPlanSha256": "8a2607c0c5cd8b1c24e5c7fc81d6cc84b06dea6c9e05d6dac87710bcea86c08e",
+  "approvedRepoHead": "79e97b909e181c69bf1f5a0d9a0f085e17e539f7",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T20:55:00-04:00",
+  "score": 10,
+  "approvalSource": "Steve explicitly requested a full regroup, resurrection of buried V1 product promises, and a durable solution so partial V1 cards cannot be marked fully complete without continuation work.",
+  "scopeSummary": "Add promise-to-proof ship gating, open product continuation cards, link historical V1 cards to continuations, and close only the process gate while leaving product continuations open.",
+  "constraints": [
+    "Do not build GOD-mode extractor in this process gate.",
+    "Do not close product continuation cards.",
+    "Do not run private Skool/MyICOR navigation, paid/provider work, browser-auth extraction, sends, Drive permission mutation, or external writes.",
+    "The target card itself must not count as its own continuation.",
+    "Future partial V1 capability closeouts must name a separate open continuation card."
+  ],
+  "approvalDigest": "6f280677bf90a10edd77a565423b87fac82af4f7e02148fede4f7c406ecf7b63"
+}
