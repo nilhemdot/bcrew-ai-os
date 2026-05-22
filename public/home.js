@@ -1,36 +1,17 @@
-/* ── Status Bar ────────────────────────────────────────────────── */
+var launcherSession = null
 
-function populateStatusBar(systemStatus) {
-  var connected = 0
-  var pending = 0
-
-  systemStatus.forEach(function(item) {
-    if (item.status === 'connected') connected++
-    if (item.status === 'pending') pending++
-  })
-
-  var sourcesEl = document.getElementById('home-sources')
-  var pendingEl = document.getElementById('home-pending')
-
-  if (sourcesEl) sourcesEl.textContent = connected + ' sources connected'
-  if (pendingEl) pendingEl.textContent = pending + ' pending'
+function launcherQuery(selector) {
+  return document.querySelector(selector)
 }
 
-/* ── Harlan Chat ──────────────────────────────────────────────── */
-
-var harlanPanelReady = false
-var harlanResponseIndex = 0
-var harlanStatus = {
-  modelLabel: 'Preview UI',
-  memoryLabel: 'Assistant Memory Not Wired',
-  sourceLabel: 'Foundation Data Loading',
+function launcherQueryAll(selector) {
+  return Array.prototype.slice.call(document.querySelectorAll(selector))
 }
 
-var harlanCannedResponses = [
-  "Foundation data is live, but this chat surface is still preview-only.",
-  "Once the backend is wired, I'll be able to read strategy, backlog, and decisions live.",
-  "Right now I'm a preview, not the final assistant loop.",
-]
+function setText(selector, value) {
+  var el = launcherQuery(selector)
+  if (el) el.textContent = value
+}
 
 function getAdminHeaders() {
   try {
@@ -41,293 +22,303 @@ function getAdminHeaders() {
   }
 }
 
+function normalizeRole(role) {
+  if (role === 'owner') return 'owner'
+  if (role === 'sales') return 'sales'
+  if (role === 'ops') return 'ops'
+  return ''
+}
+
 function getAllowedHubs(role) {
-  if (role === 'owner') return ['foundation', 'strategy', 'sales', 'ops']
+  if (role === 'owner') {
+    return ['foundation', 'strategy', 'marketing', 'sales', 'recruiting', 'retention', 'ops', 'dev', 'finance']
+  }
   if (role === 'sales') return ['sales']
   if (role === 'ops') return ['sales', 'ops']
   return []
 }
 
+function getPrimaryRoute(role) {
+  if (role === 'ops') return '/ops'
+  if (role === 'sales') return '/sales'
+  return '/foundation'
+}
+
+function getRoleLabel(user) {
+  var role = normalizeRole(user && user.role)
+  if (role === 'owner') return 'EXEC LEADERSHIP \u00b7 T1'
+  if (role === 'sales') return 'SALES \u00b7 ACCESS'
+  if (role === 'ops') return 'OPS \u00b7 ACCESS'
+  return 'ACCESS'
+}
+
+function getAccessTag(user) {
+  return normalizeRole(user && user.role) === 'owner' ? 'FULL ACCESS' : 'LIMITED ACCESS'
+}
+
+function getDisplayName(user) {
+  if (user && user.name) return String(user.name).trim()
+  if (user && user.email) return String(user.email).split('@')[0].replace(/[._-]+/g, ' ')
+  return 'Crew'
+}
+
+function getFirstName(user) {
+  var name = getDisplayName(user).trim()
+  return name.split(/\s+/)[0] || 'Crew'
+}
+
+function getInitials(user) {
+  var parts = getDisplayName(user).trim().split(/\s+/).filter(Boolean)
+  if (!parts.length) return '--'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+}
+
+function formatUserName(user) {
+  return getDisplayName(user).toUpperCase()
+}
+
+function formatDateTime() {
+  var now = new Date()
+  var parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Toronto',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZoneName: 'short',
+  }).formatToParts(now)
+
+  function get(type) {
+    var part = parts.find(function(item) { return item.type === type })
+    return part ? part.value : ''
+  }
+
+  return {
+    date: get('day') + ' ' + get('month').toLowerCase() + ' ' + get('year'),
+    time: get('hour') + ':' + get('minute') + ' ' + get('dayPeriod') + ' ' + get('timeZoneName'),
+  }
+}
+
+function getTorontoHour() {
+  var value = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Toronto',
+    hour: 'numeric',
+    hour12: false,
+  }).format(new Date())
+  return parseInt(value, 10)
+}
+
+function getGreeting() {
+  var hour = getTorontoHour()
+  if (hour >= 12 && hour < 17) return 'Good afternoon'
+  if (hour >= 17 && hour < 22) return 'Good evening'
+  if (hour >= 22 || hour < 5) return 'Late shift'
+  return 'Good morning'
+}
+
+function tickLauncherTime() {
+  var clock = launcherQuery('#launcher-clock')
+  var greeting = launcherQuery('#launcher-greeting')
+  var formatted = formatDateTime()
+  if (clock) clock.innerHTML = formatted.date + ' <b>&middot; ' + formatted.time + '</b>'
+  if (greeting) greeting.textContent = getGreeting()
+}
+
+function setPrimaryAction(user) {
+  var action = launcherQuery('#launcher-primary-action')
+  if (!action) return
+  var role = normalizeRole(user && user.role)
+  action.href = getPrimaryRoute(role)
+  if (role === 'owner') {
+    action.innerHTML = '7 calls waiting on you <span aria-hidden="true">&rarr;</span>'
+    return
+  }
+  if (role === 'sales') {
+    action.innerHTML = 'Open Sales Hub <span aria-hidden="true">&rarr;</span>'
+    return
+  }
+  if (role === 'ops') {
+    action.innerHTML = 'Open Ops Hub <span aria-hidden="true">&rarr;</span>'
+    return
+  }
+  action.innerHTML = 'Open your hub <span aria-hidden="true">&rarr;</span>'
+}
+
+function updateUserChrome(user) {
+  setText('#launcher-avatar', getInitials(user))
+  setText('#launcher-user-name', formatUserName(user))
+  setText('#launcher-user-role', getRoleLabel(user))
+  setText('#launcher-first-name', getFirstName(user))
+  setPrimaryAction(user)
+}
+
+function updateAccessSummary(user, allowedCount) {
+  var tag = launcherQuery('#launcher-access-tag')
+  var summary = launcherQuery('#launcher-hubs-summary')
+  var accessLabel = getAccessTag(user)
+  var role = normalizeRole(user && user.role)
+  var count = Number.isFinite(allowedCount) ? allowedCount : getAllowedHubs(role).filter(function(hub) {
+    return hub !== 'foundation'
+  }).length
+
+  if (tag) {
+    tag.textContent = accessLabel
+    tag.classList.toggle('launcher-limited', accessLabel !== 'FULL ACCESS')
+  }
+
+  if (summary) {
+    summary.textContent = 'showing ' + count + ' of 8 \u00b7 viewing as ' + getFirstName(user) + ' \u00b7 ' + getRoleLabel(user).replace(' \u00b7 ', ' / ')
+  }
+}
+
+function setRouteCardLocked(card, locked) {
+  var status = card.querySelector('.launcher-hub-status')
+  if (!card.dataset.originalHref) card.dataset.originalHref = card.getAttribute('href') || '#'
+
+  card.classList.toggle('launcher-route-locked', locked)
+  card.setAttribute('aria-disabled', locked ? 'true' : 'false')
+  if (locked) {
+    card.setAttribute('href', '#')
+    if (status) {
+      if (!status.dataset.originalText) status.dataset.originalText = status.textContent
+      status.textContent = 'LOCKED'
+    }
+    return
+  }
+
+  if (status && status.dataset.originalText) status.textContent = status.dataset.originalText
+  if (card.dataset.routeEnabled === 'true') {
+    card.setAttribute('href', card.dataset.originalHref)
+  } else {
+    card.setAttribute('href', '#')
+  }
+}
+
 function applyHubAccess(user) {
-  var role = user && user.role ? user.role : ''
+  var role = normalizeRole(user && user.role)
   var allowed = getAllowedHubs(role)
-  document.querySelectorAll('.hub-card').forEach(function(card) {
+  var gridAllowedCount = 0
+
+  launcherQueryAll('.launcher-route-card[data-hub]').forEach(function(card) {
     var hub = card.getAttribute('data-hub')
     var isAllowed = allowed.indexOf(hub) !== -1
-    card.classList.toggle('hub-card-locked', !isAllowed)
-    card.setAttribute('aria-disabled', isAllowed ? 'false' : 'true')
-    if (!card.dataset.originalHref) card.dataset.originalHref = card.getAttribute('href') || '#'
-    card.setAttribute('href', isAllowed ? card.dataset.originalHref : '#')
+    var routeEnabled = card.dataset.routeEnabled === 'true'
+    if (isAllowed && hub !== 'foundation') gridAllowedCount++
+    setRouteCardLocked(card, !isAllowed)
+    card.classList.toggle('launcher-route-unavailable', isAllowed && !routeEnabled)
+  })
 
-    var status = card.querySelector('.hub-status')
-    if (status && !isAllowed) {
-      status.className = 'hub-status hub-status-locked'
-      status.innerHTML = '<div class="hub-dot"></div> Locked'
-    }
+  updateAccessSummary(user, gridAllowedCount)
+}
+
+function nudgeCard(card) {
+  card.classList.remove('launcher-card-nudge')
+  window.requestAnimationFrame(function() {
+    card.classList.add('launcher-card-nudge')
+    window.setTimeout(function() {
+      card.classList.remove('launcher-card-nudge')
+    }, 260)
   })
 }
 
-function populateLimitedStatusBar(user) {
-  var sourcesEl = document.getElementById('home-sources')
-  var pendingEl = document.getElementById('home-pending')
-  if (sourcesEl) sourcesEl.textContent = user && user.role === 'sales'
-    ? 'Sales Hub access'
-    : user && user.role === 'ops'
-      ? 'Ops + Sales Hub access'
-      : 'Limited access'
-  if (pendingEl) pendingEl.textContent = 'Other hubs locked'
-}
-
-document.addEventListener('click', function(event) {
-  var card = event.target.closest && event.target.closest('.hub-card')
-  if (!card || !card.classList.contains('hub-card-locked')) return
+function handleRouteCardClick(event) {
+  var card = event.target.closest && event.target.closest('.launcher-route-card')
+  if (!card) return
+  var locked = card.classList.contains('launcher-route-locked')
+  var unavailable = card.dataset.routeEnabled !== 'true'
+  if (!locked && !unavailable) return
   event.preventDefault()
-})
-
-function buildHarlanPanel() {
-  var panel = document.getElementById('harlan-panel')
-  if (!panel) return
-
-  panel.innerHTML = ''
-
-  var header = document.createElement('div')
-  header.className = 'harlan-header'
-
-  var headerInfo = document.createElement('div')
-  headerInfo.className = 'harlan-header-info'
-
-  var h4 = document.createElement('h4')
-  h4.textContent = 'Harlan'
-  headerInfo.appendChild(h4)
-
-  var subtitle = document.createElement('p')
-  subtitle.textContent = 'Strategic Assistant'
-  headerInfo.appendChild(subtitle)
-
-  var pills = document.createElement('div')
-  pills.className = 'harlan-status-pills'
-
-  var pillData = [
-    { text: harlanStatus.modelLabel, color: 'blue' },
-    { text: harlanStatus.memoryLabel, color: 'green' },
-    { text: harlanStatus.sourceLabel, color: 'green' },
-  ]
-
-  pillData.forEach(function(item) {
-    var pill = document.createElement('span')
-    pill.className = 'harlan-pill harlan-pill-' + item.color
-
-    var dot = document.createElement('span')
-    dot.className = 'harlan-pill-dot'
-    pill.appendChild(dot)
-    pill.appendChild(document.createTextNode(' ' + item.text))
-
-    pills.appendChild(pill)
-  })
-
-  headerInfo.appendChild(pills)
-  header.appendChild(headerInfo)
-
-  var closeBtn = document.createElement('button')
-  closeBtn.className = 'harlan-close'
-  closeBtn.id = 'harlan-close'
-  closeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
-  header.appendChild(closeBtn)
-
-  panel.appendChild(header)
-
-  var body = document.createElement('div')
-  body.className = 'harlan-body'
-
-  var messages = document.createElement('div')
-  messages.className = 'harlan-messages'
-  messages.id = 'harlan-messages'
-  body.appendChild(messages)
-
-  panel.appendChild(body)
-
-  var inputRow = document.createElement('div')
-  inputRow.className = 'harlan-input-row'
-
-  var input = document.createElement('input')
-  input.className = 'harlan-input'
-  input.id = 'harlan-input'
-  input.type = 'text'
-  input.placeholder = 'Ask Harlan anything...'
-  input.autocomplete = 'off'
-  inputRow.appendChild(input)
-
-  var sendBtn = document.createElement('button')
-  sendBtn.className = 'harlan-send'
-  sendBtn.id = 'harlan-send'
-  sendBtn.disabled = true
-  sendBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>'
-  inputRow.appendChild(sendBtn)
-
-  panel.appendChild(inputRow)
-
-  closeBtn.addEventListener('click', closeHarlan)
-  input.addEventListener('input', handleHarlanInputChange)
-  input.addEventListener('keydown', handleHarlanKeydown)
-  sendBtn.addEventListener('click', sendHarlanMessage)
+  nudgeCard(card)
 }
 
-function addHarlanMessage(text, role) {
-  var messages = document.getElementById('harlan-messages')
-  if (!messages) return
-
-  var msg = document.createElement('div')
-  msg.className = 'harlan-msg harlan-msg-' + role
-  msg.textContent = text
-  messages.appendChild(msg)
-
-  messages.scrollTop = messages.scrollHeight
+function gradeFromScore(score) {
+  var value = Number(score)
+  if (!Number.isFinite(value)) return 'B+'
+  if (value >= 90) return 'A'
+  if (value >= 80) return 'A-'
+  if (value >= 73) return 'B+'
+  if (value >= 66) return 'B'
+  if (value >= 60) return 'C'
+  return 'Watch'
 }
 
-function showTypingIndicator() {
-  var messages = document.getElementById('harlan-messages')
-  if (!messages) return
-
-  var typing = document.createElement('div')
-  typing.className = 'harlan-typing'
-  typing.id = 'harlan-typing'
-
-  for (var i = 0; i < 3; i++) {
-    var dot = document.createElement('div')
-    dot.className = 'harlan-typing-dot'
-    typing.appendChild(dot)
-  }
-
-  messages.appendChild(typing)
-  messages.scrollTop = messages.scrollHeight
+function setFoundationStat(selector, main, unit) {
+  var el = launcherQuery(selector)
+  if (!el) return
+  el.innerHTML = String(main) + '<span>' + String(unit) + '</span>'
 }
 
-function removeTypingIndicator() {
-  var typing = document.getElementById('harlan-typing')
-  if (typing) typing.parentNode.removeChild(typing)
-}
+function populateSourceStatus(data) {
+  if (!data || typeof data !== 'object') return
 
-function openHarlan() {
-  var panel = document.getElementById('harlan-panel')
-  var toggle = document.getElementById('harlan-toggle')
-  if (!panel) return
+  var sources = Array.isArray(data.sources) ? data.sources : []
+  var systems = Array.isArray(data.groupedSystems) ? data.groupedSystems : []
+  var systemStatus = Array.isArray(data.systemStatus) ? data.systemStatus : []
+  var liveStatusCount = systemStatus.filter(function(item) {
+    return item && (item.status === 'connected' || item.status === 'live')
+  }).length
+  var pendingCount = systemStatus.filter(function(item) {
+    return item && item.status === 'pending'
+  }).length
+  var score = data.sourceTrustScoring && data.sourceTrustScoring.summary
+    ? data.sourceTrustScoring.summary.averageScore
+    : null
 
-  if (!harlanPanelReady) {
-    buildHarlanPanel()
-    harlanPanelReady = true
-    addHarlanMessage(
-      "Hey Steve. Foundation data is live, but this chat surface is still preview-only until the assistant backend is wired.",
-      'harlan'
-    )
-  }
+  if (sources.length) setFoundationStat('#launcher-source-count', sources.length, 'items')
+  if (systems.length) setFoundationStat('#launcher-system-count', systems.length, 'live')
+  setFoundationStat('#launcher-trust-grade', gradeFromScore(score), 'grade')
+  if (liveStatusCount) setFoundationStat('#launcher-cascade-age', liveStatusCount + '/' + systemStatus.length, 'live')
 
-  panel.classList.remove('harlan-hidden')
-  if (toggle) toggle.style.display = 'none'
-
-  var input = document.getElementById('harlan-input')
-  if (input) input.focus()
-}
-
-function closeHarlan() {
-  var panel = document.getElementById('harlan-panel')
-  var toggle = document.getElementById('harlan-toggle')
-  if (!panel) return
-
-  panel.classList.add('harlan-hidden')
-  if (toggle) toggle.style.display = ''
-}
-
-function handleHarlanInputChange() {
-  var input = document.getElementById('harlan-input')
-  var sendBtn = document.getElementById('harlan-send')
-  if (!input || !sendBtn) return
-
-  sendBtn.disabled = input.value.trim() === ''
-}
-
-function handleHarlanKeydown(e) {
-  if (e.key === 'Enter') {
-    e.preventDefault()
-    sendHarlanMessage()
-  }
-  if (e.key === 'Escape') {
-    e.preventDefault()
-    closeHarlan()
+  var statusSummary = launcherQuery('#launcher-hubs-summary')
+  if (statusSummary && launcherSession && normalizeRole(launcherSession.user && launcherSession.user.role) === 'owner') {
+    statusSummary.textContent = 'showing 8 of 8 \u00b7 ' + liveStatusCount + ' live layers \u00b7 ' + pendingCount + ' pending'
   }
 }
 
-function sendHarlanMessage() {
-  var input = document.getElementById('harlan-input')
-  var sendBtn = document.getElementById('harlan-send')
-  if (!input || !sendBtn) return
+function fetchSourceStatusIfAllowed(user) {
+  if (normalizeRole(user && user.role) !== 'owner') return
 
-  var text = input.value.trim()
-  if (!text) return
-
-  addHarlanMessage(text, 'user')
-
-  input.value = ''
-  sendBtn.disabled = true
-
-  showTypingIndicator()
-
-  setTimeout(function() {
-    removeTypingIndicator()
-    var response = harlanCannedResponses[harlanResponseIndex % harlanCannedResponses.length]
-    harlanResponseIndex++
-    addHarlanMessage(response, 'harlan')
-  }, 800)
+  fetch('/api/source-of-truth', { headers: getAdminHeaders(), cache: 'no-store' })
+    .then(function(res) {
+      if (!res.ok) throw new Error('Source status fetch failed.')
+      return res.json()
+    })
+    .then(populateSourceStatus)
+    .catch(function() {
+      setFoundationStat('#launcher-cascade-age', 'Live', 'now')
+    })
 }
 
-function handleGlobalKeydown(e) {
-  if (e.key === 'Escape') {
-    var panel = document.getElementById('harlan-panel')
-    if (panel && !panel.classList.contains('harlan-hidden')) {
-      closeHarlan()
-    }
-  }
-}
-
-/* ── Init ─────────────────────────────────────────────────────── */
-
-;(function init() {
+function bootLauncherSession() {
   fetch('/api/auth/session', { cache: 'no-store' })
     .then(function(res) {
       if (!res.ok) throw new Error('Session fetch failed.')
       return res.json()
     })
     .then(function(session) {
-      var user = session.user || null
-      applyHubAccess(user)
-
-      if (!user || user.role !== 'owner') {
-        populateLimitedStatusBar(user)
-        return null
+      launcherSession = session || null
+      var user = session && session.user ? session.user : null
+      if (!session || !session.authenticated || !user) {
+        window.location.assign('/login?next=/')
+        return
       }
-
-      return fetch('/api/source-of-truth', { headers: getAdminHeaders() })
-        .then(function(res) {
-          if (!res.ok) throw new Error('Status bar fetch failed.')
-          return res.json()
-        })
-        .then(function(data) {
-          if (data.systemStatus) {
-            var connected = 0
-            data.systemStatus.forEach(function(item) {
-              if (item.status === 'connected') connected++
-            })
-            harlanStatus.sourceLabel = connected + ' Foundation sources live'
-          }
-          if (data.systemStatus) populateStatusBar(data.systemStatus)
-        })
+      updateUserChrome(user)
+      applyHubAccess(user)
+      fetchSourceStatusIfAllowed(user)
     })
     .catch(function() {
       applyHubAccess(null)
-      populateLimitedStatusBar(null)
+      setText('#launcher-user-name', 'SIGNED OUT')
+      setText('#launcher-user-role', 'LOGIN REQUIRED')
     })
+}
 
-  var toggle = document.getElementById('harlan-toggle')
-  if (toggle) toggle.addEventListener('click', openHarlan)
-
-  document.addEventListener('keydown', handleGlobalKeydown)
-})()
+document.addEventListener('DOMContentLoaded', function() {
+  tickLauncherTime()
+  window.setInterval(tickLauncherTime, 60000)
+  document.addEventListener('click', handleRouteCardClick)
+  bootLauncherSession()
+})

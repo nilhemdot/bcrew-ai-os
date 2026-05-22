@@ -93,6 +93,7 @@ async function main() {
     scriptSource,
     nightlyAuditSource,
     foundationVerifySource,
+    operatorBudgetVerifierSource,
     foundationHtmlSource,
     currentPlan,
     currentState,
@@ -110,6 +111,7 @@ async function main() {
     readText(FOUNDATION_FRONTEND_ASSET_BUDGET_SCRIPT_PATH),
     readText('lib/code-quality-nightly-audit.js'),
     readText('scripts/foundation-verify.mjs'),
+    readText('lib/foundation-operator-budget-verifier.js'),
     readText('public/foundation.html'),
     readText('docs/rebuild/current-plan.md'),
     readText('docs/rebuild/current-state.md'),
@@ -239,10 +241,10 @@ async function main() {
   addCheck(
     checks,
     foundationVerifySource.includes('FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID') &&
-      foundationVerifySource.includes('buildFoundationFrontendAssetBudgetDogfoodProof') &&
-      foundationVerifySource.includes('FOUNDATION-FRONTEND-ASSET-BUDGET-001 tracks served Foundation JS/CSS asset budgets'),
+      operatorBudgetVerifierSource.includes('buildFoundationFrontendAssetBudgetDogfoodProof') &&
+      operatorBudgetVerifierSource.includes('FOUNDATION-FRONTEND-ASSET-BUDGET-001 tracks served Foundation JS/CSS asset budgets'),
     'foundation verifier has ID-named frontend asset budget coverage',
-    'root verifier references asset budget constants and dogfood',
+    'root verifier delegates asset budget inputs and operator-budget verifier owns dogfood coverage',
   )
   if (closeout || card?.lane === 'done') {
     addCheck(

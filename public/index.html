@@ -3,94 +3,303 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BCrew AI OS</title>
-    <link rel="stylesheet" href="/styles.css?v=20260425b">
+    <title>BCrew AI OS - Command Center</title>
+    <link
+      rel="preload"
+      as="font"
+      href="/fonts/Stratum1-Black.otf"
+      type="font/otf"
+      crossorigin
+    >
+    <link
+      rel="preload"
+      as="font"
+      href="/fonts/Stratum1-Bold.otf"
+      type="font/otf"
+      crossorigin
+    >
+    <link
+      rel="preload"
+      as="font"
+      href="/fonts/Stratum1-Medium.otf"
+      type="font/otf"
+      crossorigin
+    >
+    <link
+      rel="preload"
+      as="image"
+      href="/assets/mascot-6-1400.webp"
+      imagesrcset="/assets/mascot-6-900.webp 900w, /assets/mascot-6-1400.webp 1400w"
+      imagesizes="(max-width: 700px) 1px, (max-width: 1100px) 38vw, 30vw"
+    >
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260425b">
+    <link rel="stylesheet" href="/hub-launcher.css?v=20260521a">
   </head>
-  <body>
-    <div class="home-bg"></div>
-
-    <div class="home">
-      <div class="home-content">
-
-        <img src="/assets/bc-logo.svg" alt="Benson Crew logo" class="home-logo">
-
-        <div class="home-kicker">BCrew AI OS</div>
-
-        <h1 class="home-title">Command Center</h1>
-
-        <p class="home-subtitle">Strategy, source truth, and execution for Benson Crew.</p>
-
-        <div class="hub-grid">
-
-          <a class="hub-card" data-hub="foundation" href="/foundation">
-            <div class="hub-icon" style="background:rgba(0,132,201,0.08)">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0084C9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M10 9h4"/></svg>
-            </div>
-            <h3>Foundation</h3>
-            <p>Business strategy, source of truth, operating memory, and decisions.</p>
-            <div class="hub-meta">
-              <div class="hub-status hub-status-live"><div class="hub-dot"></div> Live</div>
-              <div class="hub-arrow">&rsaquo;</div>
-            </div>
-          </a>
-
-          <a class="hub-card" data-hub="strategy" href="/strategic-execution">
-            <div class="hub-icon" style="background:rgba(245,158,11,0.08)">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="rgba(245,158,11,0.15)" stroke="#f59e0b"/></svg>
-            </div>
-            <h3>Strategic Execution</h3>
-            <p>Quarterly priorities, strategic issues, and the active execution layer.</p>
-            <div class="hub-meta">
-              <div class="hub-status hub-status-live"><div class="hub-dot"></div> Live</div>
-              <div class="hub-arrow">&rsaquo;</div>
-            </div>
-          </a>
-
-          <a class="hub-card" data-hub="sales" href="/sales">
-            <div class="hub-icon" style="background:rgba(34,197,94,0.08)">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6 18V9"/><path d="M12 18V5"/><path d="M18 18v-7"/><path d="M5 9h2"/><path d="M11 5h2"/><path d="M17 11h2"/></svg>
-            </div>
-            <h3>Sales Hub</h3>
-            <p>Active listing inventory, stale-listing focus, and sales leader follow-up.</p>
-            <div class="hub-meta">
-              <div class="hub-status hub-status-live"><div class="hub-dot"></div> Live</div>
-              <div class="hub-arrow">&rsaquo;</div>
-            </div>
-          </a>
-
-          <a class="hub-card" data-hub="ops" href="/ops">
-            <div class="hub-icon" style="background:rgba(14,165,233,0.08)">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/><circle cx="8" cy="5" r="2" fill="rgba(14,165,233,0.15)"/><circle cx="16" cy="12" r="2" fill="rgba(14,165,233,0.15)"/><circle cx="10" cy="19" r="2" fill="rgba(14,165,233,0.15)"/></svg>
-            </div>
-            <h3>Ops Hub</h3>
-            <p>Actionable inbox for deal, conditional, FUB, and Owners cleanup work.</p>
-            <div class="hub-meta">
-              <div class="hub-status hub-status-live"><div class="hub-dot"></div> Live</div>
-              <div class="hub-arrow">&rsaquo;</div>
-            </div>
-          </a>
-
+  <body class="launcher-page">
+    <header class="launcher-topbar">
+      <div class="launcher-brand">
+        <div class="launcher-logo-frame">
+          <img src="/assets/bc-logo.svg" alt="Benson Crew logo">
         </div>
-
-        <div class="home-statusbar">
-          <div class="home-statusbar-item"><div class="home-statusbar-dot"></div> System online</div>
-          <div class="home-statusbar-item"><div class="home-statusbar-dot"></div> Foundation live</div>
-          <div class="home-statusbar-item" id="home-sources"><div class="home-statusbar-dot"></div> Sources loading...</div>
-          <div class="home-statusbar-item" id="home-pending"><div class="home-statusbar-dot home-statusbar-dot-amber"></div> Checking...</div>
+        <div class="launcher-brand-name">
+          BCREW AI OS <span aria-hidden="true">&middot;</span><span>command center</span>
         </div>
-
       </div>
-    </div>
 
-    <button class="harlan-toggle" id="harlan-toggle" aria-label="Open Harlan">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-      <div class="harlan-online-dot"></div>
-    </button>
-    <div class="harlan-panel harlan-hidden" id="harlan-panel"></div>
+      <div class="launcher-topbar-right">
+        <span class="launcher-clock" id="launcher-clock">Loading time <b>&middot; EDT</b></span>
+        <span class="launcher-live"><span class="launcher-live-dot"></span>SYSTEM LIVE</span>
+        <div class="launcher-user" id="launcher-user" aria-live="polite">
+          <span class="launcher-avatar" id="launcher-avatar">--</span>
+          <span class="launcher-user-copy">
+            <span class="launcher-user-name" id="launcher-user-name">LOADING</span>
+            <span class="launcher-user-role" id="launcher-user-role">ACCESS</span>
+          </span>
+          <span class="launcher-user-chevron" aria-hidden="true">&#9662;</span>
+        </div>
+      </div>
+    </header>
 
-    <script src="/home.js?v=20260425b"></script>
+    <main class="launcher-main" aria-labelledby="launcher-title">
+      <section class="launcher-hero">
+        <div class="launcher-hero-copy">
+          <div class="launcher-eyebrow" id="launcher-greeting">Good morning</div>
+          <h1 class="launcher-title" id="launcher-title">
+            <span id="launcher-first-name">Crew</span>.
+            <span class="launcher-title-highlight" id="launcher-motivation">Let's get after it.</span>
+          </h1>
+          <a class="launcher-hero-action" id="launcher-primary-action" href="/foundation">
+            Review Foundation <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+        <div class="launcher-hero-mascot" aria-hidden="true">
+          <picture>
+            <source
+              type="image/webp"
+              srcset="/assets/mascot-6-900.webp 900w, /assets/mascot-6-1400.webp 1400w"
+              sizes="(max-width: 700px) 1px, (max-width: 1100px) 38vw, 30vw"
+            >
+            <img
+              src="/assets/mascot-6.png"
+              alt=""
+              width="3263"
+              height="3584"
+              fetchpriority="high"
+              decoding="async"
+            >
+          </picture>
+        </div>
+      </section>
+
+      <section class="launcher-mission" aria-label="Benson Crew mission">
+        <div class="launcher-mission-label">Our Mission</div>
+        <div class="launcher-mission-line">
+          Build a <span>$2B</span> team and light the way for <span>10K agents</span> to join us at Real.
+        </div>
+      </section>
+
+      <section class="launcher-kpis" aria-label="Company scorecard">
+        <article class="launcher-kpi launcher-kpi-attract">
+          <div class="launcher-kpi-head">
+            <div class="launcher-kpi-label"><span>01</span> ATTRACT &middot; RECRUITING + MARKETING</div>
+          </div>
+          <div class="launcher-kpi-body launcher-kpi-split">
+            <div>
+              <div class="launcher-kpi-sub-label">TEAM</div>
+              <div class="launcher-kpi-number">37<span>/ 52</span></div>
+              <div class="launcher-kpi-pace launcher-kpi-behind">Down &middot; Behind 15</div>
+            </div>
+            <div>
+              <div class="launcher-kpi-sub-label">COMMUNITY</div>
+              <div class="launcher-kpi-number">686<span>/ 700</span></div>
+              <div class="launcher-kpi-pace launcher-kpi-ahead">Up &middot; Ahead +22</div>
+            </div>
+          </div>
+          <div class="launcher-kpi-foot">Target: <b>4/mo</b> net adds.</div>
+        </article>
+
+        <article class="launcher-kpi launcher-kpi-grow">
+          <div class="launcher-kpi-head">
+            <div class="launcher-kpi-label"><span>02</span> GROW &middot; PRODUCTIVITY</div>
+          </div>
+          <div class="launcher-kpi-body">
+            <div class="launcher-kpi-sub-label">AVG GCI &middot; 10-MO ROLLING</div>
+            <div class="launcher-kpi-number">$9.4K<span>/ $13K</span></div>
+            <div class="launcher-kpi-pace launcher-kpi-behind">Down &middot; Behind $3.6K</div>
+          </div>
+          <div class="launcher-kpi-foot">Rolling avg / monthly target.</div>
+        </article>
+
+        <article class="launcher-kpi launcher-kpi-retain">
+          <div class="launcher-kpi-head">
+            <div class="launcher-kpi-label"><span>03</span> RETAIN &middot; AGENT SATISFACTION</div>
+          </div>
+          <div class="launcher-kpi-body">
+            <div class="launcher-kpi-sub-label">ASI SCORE</div>
+            <div class="launcher-kpi-number">8.2<span>/ 10</span></div>
+            <div class="launcher-kpi-pace launcher-kpi-ahead">Strong</div>
+          </div>
+          <div class="launcher-kpi-foot"><b>2</b> risk flags &middot; <b>15</b> departed YTD.</div>
+        </article>
+      </section>
+
+      <a
+        class="launcher-foundation launcher-route-card"
+        data-hub="foundation"
+        data-route-enabled="true"
+        href="/foundation"
+      >
+        <div class="launcher-foundation-num">00</div>
+        <div class="launcher-foundation-content">
+          <div class="launcher-foundation-top">
+            <div class="launcher-foundation-title-wrap">
+              <h2 class="launcher-foundation-title">FOUNDATION <span>UP.</span></h2>
+              <span class="launcher-foundation-live"><span class="launcher-live-dot"></span>PROPAGATING</span>
+            </div>
+            <p class="launcher-foundation-tag">
+              Strategy &middot; Brand &middot; Data &middot; System - <b>change once, cascade everywhere.</b>
+            </p>
+          </div>
+          <div class="launcher-foundation-bottom">
+            <div class="launcher-foundation-stat">
+              <div class="launcher-foundation-stat-num" id="launcher-source-count">52<span>items</span></div>
+              <div class="launcher-foundation-stat-label">SOURCES</div>
+            </div>
+            <div class="launcher-foundation-stat">
+              <div class="launcher-foundation-stat-num" id="launcher-system-count">12<span>live</span></div>
+              <div class="launcher-foundation-stat-label">SYSTEMS</div>
+            </div>
+            <div class="launcher-foundation-stat">
+              <div class="launcher-foundation-stat-num" id="launcher-trust-grade">B+<span>grade</span></div>
+              <div class="launcher-foundation-stat-label">SYSTEM</div>
+            </div>
+            <div class="launcher-foundation-stat">
+              <div class="launcher-foundation-stat-num" id="launcher-cascade-age">Live<span>now</span></div>
+              <div class="launcher-foundation-stat-label">LAST CASCADE</div>
+            </div>
+            <span class="launcher-foundation-cta">ENTER FOUNDATION <span aria-hidden="true">&rarr;</span></span>
+          </div>
+        </div>
+      </a>
+
+      <div class="launcher-hubs-head">
+        <h2>Hubs &middot; Your Stations</h2>
+        <div class="launcher-hubs-summary">
+          <span class="launcher-access-tag" id="launcher-access-tag">LOADING</span>
+          <span id="launcher-hubs-summary">loading access...</span>
+        </div>
+      </div>
+
+      <section class="launcher-hubs" aria-label="Available hubs">
+        <a
+          class="launcher-hub launcher-route-card"
+          data-hub="strategy"
+          data-route-enabled="true"
+          href="/strategic-execution"
+        >
+          <div class="launcher-hub-top"><span class="launcher-hub-num">01</span><span class="launcher-hub-status launcher-hub-status-partial">PARTIAL</span></div>
+          <h3>Strategy</h3>
+          <p>Quarterly priorities + dept reviews.</p>
+          <div class="launcher-hub-win"><b>3</b> priorities &middot; <b>2</b> issues</div>
+          <div class="launcher-hub-foot"><span>Steve &middot; JK</span><span>open &rarr;</span></div>
+        </a>
+
+        <a
+          class="launcher-hub launcher-route-card launcher-hub-planned"
+          data-hub="marketing"
+          data-route-enabled="false"
+          href="#marketing"
+        >
+          <div class="launcher-hub-top"><span class="launcher-hub-num">02</span><span class="launcher-hub-status launcher-hub-status-planned">PLANNED</span></div>
+          <h3>Marketing</h3>
+          <p>Content, campaigns, brand assets.</p>
+          <div class="launcher-hub-win">Video Lab &middot; brand pending</div>
+          <div class="launcher-hub-foot"><span>Tanner</span><span>queued</span></div>
+        </a>
+
+        <a
+          class="launcher-hub launcher-route-card"
+          data-hub="sales"
+          data-route-enabled="true"
+          href="/sales"
+        >
+          <div class="launcher-hub-top"><span class="launcher-hub-num">03</span><span class="launcher-hub-status launcher-hub-status-planned">PLANNED</span></div>
+          <h3>Sales</h3>
+          <p>Deals, production, scoreboard.</p>
+          <div class="launcher-hub-win"><b>116</b> sold &middot; <b>$73M</b> YTD</div>
+          <div class="launcher-hub-foot"><span>Nick</span><span>open &rarr;</span></div>
+        </a>
+
+        <a
+          class="launcher-hub launcher-route-card launcher-hub-planned"
+          data-hub="recruiting"
+          data-route-enabled="false"
+          href="#recruiting"
+        >
+          <div class="launcher-hub-top"><span class="launcher-hub-num">04</span><span class="launcher-hub-status launcher-hub-status-planned">PLANNED</span></div>
+          <h3>Recruiting</h3>
+          <p>Attract pipeline + agent acquisition.</p>
+          <div class="launcher-hub-win">target <b>4/mo</b> &middot; pace below</div>
+          <div class="launcher-hub-foot"><span>Scott</span><span>queued</span></div>
+        </a>
+
+        <a
+          class="launcher-hub launcher-route-card launcher-hub-planned"
+          data-hub="retention"
+          data-route-enabled="false"
+          href="#retention"
+        >
+          <div class="launcher-hub-top"><span class="launcher-hub-num">05</span><span class="launcher-hub-status launcher-hub-status-planned">PLANNED</span></div>
+          <h3>Retention</h3>
+          <p>Agent risk + intervention queue.</p>
+          <div class="launcher-hub-win"><b>2</b> flags &middot; <b>15</b> departed</div>
+          <div class="launcher-hub-foot"><span>Georgia</span><span>queued</span></div>
+        </a>
+
+        <a
+          class="launcher-hub launcher-route-card launcher-hub-live"
+          data-hub="ops"
+          data-route-enabled="true"
+          href="/ops"
+        >
+          <div class="launcher-hub-top"><span class="launcher-hub-num">06</span><span class="launcher-hub-status launcher-hub-status-live"><span class="launcher-live-dot"></span>LIVE</span></div>
+          <h3>Ops</h3>
+          <p>Admin / Conditional / FUB cleanup.</p>
+          <div class="launcher-hub-win"><b>47</b> cleanups this week</div>
+          <div class="launcher-hub-foot"><span>Carson</span><span>open &rarr;</span></div>
+        </a>
+
+        <a
+          class="launcher-hub launcher-route-card launcher-hub-carve"
+          data-hub="dev"
+          data-route-enabled="false"
+          href="#dev-build"
+        >
+          <div class="launcher-hub-top"><span class="launcher-hub-num">07</span><span class="launcher-hub-status launcher-hub-status-carve">CARVE OUT</span></div>
+          <h3>Dev &middot; Build</h3>
+          <p>Backlog, ship gates, runtime.</p>
+          <div class="launcher-hub-win"><b>22</b> commits &middot; DB SPLIT live</div>
+          <div class="launcher-hub-foot"><span>Codex</span><span>not built</span></div>
+        </a>
+
+        <a
+          class="launcher-hub launcher-route-card launcher-hub-planned"
+          data-hub="finance"
+          data-route-enabled="false"
+          href="#finance"
+        >
+          <div class="launcher-hub-top"><span class="launcher-hub-num">08</span><span class="launcher-hub-status launcher-hub-status-planned">PLANNED</span></div>
+          <h3>Finance</h3>
+          <p>Revenue, costs, margin.</p>
+          <div class="launcher-hub-win"><b>0/5</b> sources &middot; <b>blocked</b></div>
+          <div class="launcher-hub-foot"><span>Ahsan</span><span>queued</span></div>
+        </a>
+      </section>
+    </main>
+
+    <script src="/home.js?v=20260521a"></script>
   </body>
 </html>
