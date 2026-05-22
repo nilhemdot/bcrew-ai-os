@@ -1,5 +1,32 @@
 var launcherSession = null
 
+var launcherMotivations = [
+  "Let's get after it.",
+  'Another day to build.',
+  'Make today count.',
+  'Every deal matters.',
+  'Energy over everything.',
+  'Focus wins.',
+  'Build. Ship. Win.',
+  'Time to go.',
+  'We work, it works.',
+  'Today = momentum.',
+  'Sold signs everywhere.',
+  'Show up, suit up, win.',
+  'Engine on.',
+  'Push the system forward.',
+  "One trunk. Eight hubs. Let's roll.",
+]
+
+var LAUNCHER_BHAG_DOC_ROUTE = '/api/doc?path=docs/strategy/bhag-model.md'
+var LAUNCHER_ENGINE_DOC_ROUTE = '/api/doc?path=docs/strategy/agent-engine.md'
+var LAUNCHER_SOURCE_OF_TRUTH_ROUTE = '/api/source-of-truth'
+var LAUNCHER_SOURCE_LIFECYCLE_ROUTE = '/api/foundation/source-lifecycle'
+var LAUNCHER_SOURCE_MATURITY_ROUTE = '/api/foundation/source-maturity-grid'
+var LAUNCHER_CURRENT_SPRINT_ROUTE = '/api/foundation/current-sprint'
+var LAUNCHER_SALES_ROUTE = '/api/sales-hub'
+var LAUNCHER_OPS_ROUTE = '/api/ops-hub'
+
 function launcherQuery(selector) {
   return document.querySelector(selector)
 }
@@ -20,6 +47,121 @@ function getAdminHeaders() {
   } catch (error) {
     return {}
   }
+}
+
+function fetchLauncherJson(route) {
+  return fetch(route, { headers: getAdminHeaders(), cache: 'no-store' }).then(function(res) {
+    if (!res.ok) throw new Error('Launcher truth fetch failed: ' + route)
+    return res.json()
+  })
+}
+
+function setLauncherSourceMeta(selector, route, sourceIds) {
+  var el = launcherQuery(selector)
+  if (!el) return
+  el.dataset.sourceRoute = route || ''
+  el.dataset.sourceId = Array.isArray(sourceIds) ? sourceIds.filter(Boolean).join(',') : String(sourceIds || '')
+}
+
+function clearElement(el) {
+  while (el && el.firstChild) el.removeChild(el.firstChild)
+}
+
+function setSourcedText(selector, value, route, sourceIds) {
+  var el = launcherQuery(selector)
+  if (!el) return
+  el.textContent = value || 'Needs source'
+  setLauncherSourceMeta(selector, route, sourceIds)
+}
+
+function setSourcedNumberWithTarget(selector, main, target, route, sourceIds) {
+  var el = launcherQuery(selector)
+  if (!el) return
+  clearElement(el)
+  el.appendChild(document.createTextNode(main || 'Needs source'))
+  if (target) {
+    var span = document.createElement('span')
+    span.textContent = '/ ' + target
+    el.appendChild(span)
+  }
+  setLauncherSourceMeta(selector, route, sourceIds)
+}
+
+function setHubWin(selector, parts, route, sourceIds) {
+  var el = launcherQuery(selector)
+  if (!el) return
+  clearElement(el)
+  ;(parts || ['Needs source']).forEach(function(part) {
+    if (part && typeof part === 'object' && Object.prototype.hasOwnProperty.call(part, 'strong')) {
+      var strong = document.createElement('b')
+      strong.textContent = part.strong
+      el.appendChild(strong)
+      return
+    }
+    el.appendChild(document.createTextNode(String(part)))
+  })
+  setLauncherSourceMeta(selector, route, sourceIds)
+}
+
+function formatCount(value) {
+  var number = Number(value)
+  if (!Number.isFinite(number)) return ''
+  return number.toLocaleString('en-US')
+}
+
+function cleanAgentCount(value) {
+  return String(value || '').replace(/\s+agents?\b/i, '').trim()
+}
+
+function cleanPerMonth(value) {
+  return String(value || '').replace(/\s*\/\s*mo\b/i, '').trim()
+}
+
+function normalizePerMonth(value) {
+  return String(value || '').replace(/\s*\/\s*mo\b/i, '/mo').trim()
+}
+
+function parsePercent(value) {
+  var match = String(value || '').match(/-?\d+(?:\.\d+)?/)
+  return match ? Number(match[0]) : null
+}
+
+function sourceRows(doc) {
+  return Array.isArray(doc && doc.sourceSnapshot) ? doc.sourceSnapshot : []
+}
+
+function findSourceRow(doc, groupTitle, label) {
+  return sourceRows(doc).find(function(row) {
+    return row && row.groupTitle === groupTitle && row.label === label
+  }) || null
+}
+
+function sourceIdsFromRows(rows) {
+  return Array.from(new Set((rows || []).map(function(row) {
+    return row && row.sourceId
+  }).filter(Boolean)))
+}
+
+function firstFiniteValue(values) {
+  for (var index = 0; index < values.length; index++) {
+    var value = values[index]
+    if (Number.isFinite(Number(value))) return value
+  }
+  return null
+}
+
+function setPace(selector, row, route) {
+  var el = launcherQuery(selector)
+  if (!el) return
+  el.classList.remove('launcher-kpi-ahead', 'launcher-kpi-behind')
+  if (!row || !row.value) {
+    el.textContent = 'Needs source'
+    return
+  }
+  el.textContent = row.value
+  if (/ahead|above|strong/i.test(row.value)) el.classList.add('launcher-kpi-ahead')
+  if (/behind|below|risk/i.test(row.value)) el.classList.add('launcher-kpi-behind')
+  setLauncherSourceMeta(selector, route, row.sourceId)
 }
 
 function normalizeRole(role) {
@@ -119,6 +261,12 @@ function getGreeting() {
   return 'Good morning'
 }
 
+function setRotatingMotivation() {
+  var motivation = launcherQuery('#launcher-motivation')
+  if (!motivation || !launcherMotivations.length) return
+  motivation.textContent = launcherMotivations[Math.floor(Math.random() * launcherMotivations.length)]
+}
+
 function tickLauncherTime() {
   var clock = launcherQuery('#launcher-clock')
   var greeting = launcherQuery('#launcher-greeting')
@@ -133,7 +281,7 @@ function setPrimaryAction(user) {
   var role = normalizeRole(user && user.role)
   action.href = getPrimaryRoute(role)
   if (role === 'owner') {
-    action.innerHTML = '7 calls waiting on you <span aria-hidden="true">&rarr;</span>'
+    action.innerHTML = 'Open Foundation <span aria-hidden="true">&rarr;</span>'
     return
   }
   if (role === 'sales') {
@@ -160,9 +308,7 @@ function updateAccessSummary(user, allowedCount) {
   var summary = launcherQuery('#launcher-hubs-summary')
   var accessLabel = getAccessTag(user)
   var role = normalizeRole(user && user.role)
-  var count = Number.isFinite(allowedCount) ? allowedCount : getAllowedHubs(role).filter(function(hub) {
-    return hub !== 'foundation'
-  }).length
+  var stationLabel = role === 'owner' ? 'all stations available' : 'assigned stations only'
 
   if (tag) {
     tag.textContent = accessLabel
@@ -170,7 +316,7 @@ function updateAccessSummary(user, allowedCount) {
   }
 
   if (summary) {
-    summary.textContent = 'showing ' + count + ' of 8 \u00b7 viewing as ' + getFirstName(user) + ' \u00b7 ' + getRoleLabel(user).replace(' \u00b7 ', ' / ')
+    summary.textContent = stationLabel + ' \u00b7 viewing as ' + getFirstName(user) + ' \u00b7 ' + getRoleLabel(user).replace(' \u00b7 ', ' / ')
   }
 }
 
@@ -236,7 +382,7 @@ function handleRouteCardClick(event) {
 
 function gradeFromScore(score) {
   var value = Number(score)
-  if (!Number.isFinite(value)) return 'B+'
+  if (!Number.isFinite(value)) return 'Needs'
   if (value >= 90) return 'A'
   if (value >= 80) return 'A-'
   if (value >= 73) return 'B+'
@@ -245,51 +391,271 @@ function gradeFromScore(score) {
   return 'Watch'
 }
 
-function setFoundationStat(selector, main, unit) {
+function setFoundationStat(selector, main, unit, route, sourceIds) {
   var el = launcherQuery(selector)
   if (!el) return
-  el.innerHTML = String(main) + '<span>' + String(unit) + '</span>'
+  clearElement(el)
+  el.appendChild(document.createTextNode(String(main)))
+  var span = document.createElement('span')
+  span.textContent = String(unit)
+  el.appendChild(span)
+  setLauncherSourceMeta(selector, route, sourceIds)
 }
 
-function populateSourceStatus(data) {
-  if (!data || typeof data !== 'object') return
+function populateFoundationStats(sourceTruth, lifecycle, maturityGrid) {
+  var sourceSummary = sourceTruth && sourceTruth.sourceLayerStatus
+    ? sourceTruth.sourceLayerStatus.summary || {}
+    : {}
+  var trustSummary = sourceTruth && sourceTruth.sourceTrustScoring
+    ? sourceTruth.sourceTrustScoring.summary || {}
+    : {}
+  var lifecycleSummary = lifecycle && lifecycle.summary ? lifecycle.summary : {}
+  var maturitySummary = maturityGrid && maturityGrid.summary ? maturityGrid.summary : {}
 
-  var sources = Array.isArray(data.sources) ? data.sources : []
-  var systems = Array.isArray(data.groupedSystems) ? data.groupedSystems : []
-  var systemStatus = Array.isArray(data.systemStatus) ? data.systemStatus : []
-  var liveStatusCount = systemStatus.filter(function(item) {
-    return item && (item.status === 'connected' || item.status === 'live')
-  }).length
-  var pendingCount = systemStatus.filter(function(item) {
-    return item && item.status === 'pending'
-  }).length
-  var score = data.sourceTrustScoring && data.sourceTrustScoring.summary
-    ? data.sourceTrustScoring.summary.averageScore
-    : null
+  var sourceCount = sourceSummary.sourceCount || trustSummary.sourceCount || 0
+  var systemCount = lifecycleSummary.groupedSystemCount || sourceSummary.groupedSystemCount || 0
+  var score = trustSummary.averageScore
+  var completeSources = maturitySummary.completeSources
+  var gapSources = maturitySummary.gapSources
+  var laneCount = lifecycleSummary.laneCount
 
-  if (sources.length) setFoundationStat('#launcher-source-count', sources.length, 'items')
-  if (systems.length) setFoundationStat('#launcher-system-count', systems.length, 'live')
-  setFoundationStat('#launcher-trust-grade', gradeFromScore(score), 'grade')
-  if (liveStatusCount) setFoundationStat('#launcher-cascade-age', liveStatusCount + '/' + systemStatus.length, 'live')
+  if (sourceCount) setFoundationStat('#launcher-source-count', sourceCount, 'sources', LAUNCHER_SOURCE_OF_TRUTH_ROUTE, 'sourceLayerStatus.summary.sourceCount')
+  if (systemCount) setFoundationStat('#launcher-system-count', systemCount, 'systems', LAUNCHER_SOURCE_LIFECYCLE_ROUTE, 'summary.groupedSystemCount')
+  setFoundationStat('#launcher-trust-grade', gradeFromScore(score), 'grade', LAUNCHER_SOURCE_OF_TRUTH_ROUTE, 'sourceTrustScoring.summary.averageScore')
+  if (Number.isFinite(Number(completeSources))) {
+    setFoundationStat('#launcher-cascade-age', completeSources, 'complete', LAUNCHER_SOURCE_MATURITY_ROUTE, 'summary.completeSources')
+  }
 
   var statusSummary = launcherQuery('#launcher-hubs-summary')
-  if (statusSummary && launcherSession && normalizeRole(launcherSession.user && launcherSession.user.role) === 'owner') {
-    statusSummary.textContent = 'showing 8 of 8 \u00b7 ' + liveStatusCount + ' live layers \u00b7 ' + pendingCount + ' pending'
+  if (
+    statusSummary &&
+    launcherSession &&
+    normalizeRole(launcherSession.user && launcherSession.user.role) === 'owner' &&
+    sourceCount &&
+    Number.isFinite(Number(laneCount)) &&
+    Number.isFinite(Number(gapSources))
+  ) {
+    statusSummary.textContent = sourceCount + ' sources \u00b7 ' + laneCount + ' lifecycle lanes \u00b7 ' + gapSources + ' maturity gaps'
+    statusSummary.dataset.sourceRoute = [LAUNCHER_SOURCE_OF_TRUTH_ROUTE, LAUNCHER_SOURCE_LIFECYCLE_ROUTE, LAUNCHER_SOURCE_MATURITY_ROUTE].join(',')
+    statusSummary.dataset.sourceId = 'sourceLayerStatus.summary.sourceCount,summary.laneCount,summary.gapSources'
   }
 }
 
-function fetchSourceStatusIfAllowed(user) {
+function fetchFoundationStatsIfAllowed(user) {
   if (normalizeRole(user && user.role) !== 'owner') return
 
-  fetch('/api/source-of-truth', { headers: getAdminHeaders(), cache: 'no-store' })
-    .then(function(res) {
-      if (!res.ok) throw new Error('Source status fetch failed.')
-      return res.json()
+  Promise.all([
+    fetchLauncherJson(LAUNCHER_SOURCE_OF_TRUTH_ROUTE),
+    fetchLauncherJson(LAUNCHER_SOURCE_LIFECYCLE_ROUTE),
+    fetchLauncherJson(LAUNCHER_SOURCE_MATURITY_ROUTE),
+  ])
+    .then(function(results) {
+      populateFoundationStats(results[0], results[1], results[2])
     })
-    .then(populateSourceStatus)
     .catch(function() {
-      setFoundationStat('#launcher-cascade-age', 'Live', 'now')
+      setFoundationStat('#launcher-cascade-age', 'Needs', 'source')
     })
+}
+
+function populateStrategySnapshots(bhagDoc, engineDoc) {
+  var teamCurrent = findSourceRow(engineDoc, 'Current Requirement', 'Current Active Agents')
+  var teamTarget = findSourceRow(engineDoc, 'Current Requirement', 'Required Agents This Year')
+  var teamPace = findSourceRow(engineDoc, 'Current Requirement', 'Gap This Year')
+  var requiredRecruitingPace = findSourceRow(engineDoc, 'Current Requirement', 'Required Recruiting Pace')
+  var currentRecruitingPace = findSourceRow(engineDoc, 'Current Requirement', 'Current Recruiting Pace')
+
+  var communityCurrent = findSourceRow(bhagDoc, 'Community Goal: 10,000 Agents', 'Actual')
+  var communityTarget = findSourceRow(bhagDoc, 'Community Goal: 10,000 Agents', '2026')
+  var communityPace = findSourceRow(bhagDoc, 'Community Goal: 10,000 Agents', 'Pace')
+
+  var growCurrent = findSourceRow(engineDoc, 'Current Requirement', 'Current Avg Production / Agent')
+  var growTarget = findSourceRow(engineDoc, 'Current Requirement', 'Production Target / Agent')
+  var growPace = findSourceRow(engineDoc, 'Current Requirement', 'Production Gap')
+
+  var liveAttrition = findSourceRow(engineDoc, 'Current Requirement', 'Live Attrition Pressure')
+  var planningAttrition = findSourceRow(engineDoc, 'Current Requirement', 'Planning Attrition Assumption')
+  var avgAttrition = findSourceRow(engineDoc, 'Current Requirement', 'Avg Attrition / Month')
+
+  if (teamCurrent && teamTarget) {
+    setSourcedNumberWithTarget(
+      '#launcher-attract-team-number',
+      cleanAgentCount(teamCurrent.value),
+      cleanAgentCount(teamTarget.value),
+      LAUNCHER_ENGINE_DOC_ROUTE,
+      sourceIdsFromRows([teamCurrent, teamTarget])
+    )
+  }
+  setPace('#launcher-attract-team-pace', teamPace, LAUNCHER_ENGINE_DOC_ROUTE)
+
+  if (communityCurrent && communityTarget) {
+    setSourcedNumberWithTarget(
+      '#launcher-attract-community-number',
+      cleanAgentCount(communityCurrent.value),
+      cleanAgentCount(communityTarget.value),
+      LAUNCHER_BHAG_DOC_ROUTE,
+      sourceIdsFromRows([communityCurrent, communityTarget])
+    )
+  }
+  setPace('#launcher-attract-community-pace', communityPace, LAUNCHER_BHAG_DOC_ROUTE)
+
+  if (requiredRecruitingPace) {
+    setSourcedText(
+      '#launcher-attract-foot',
+      'Required pace: ' + normalizePerMonth(requiredRecruitingPace.value) + ' net adds.',
+      LAUNCHER_ENGINE_DOC_ROUTE,
+      requiredRecruitingPace.sourceId
+    )
+  }
+
+  if (growCurrent && growTarget) {
+    setSourcedNumberWithTarget(
+      '#launcher-grow-number',
+      cleanPerMonth(growCurrent.value),
+      cleanPerMonth(growTarget.value),
+      LAUNCHER_ENGINE_DOC_ROUTE,
+      sourceIdsFromRows([growCurrent, growTarget])
+    )
+  }
+  setPace('#launcher-grow-pace', growPace, LAUNCHER_ENGINE_DOC_ROUTE)
+  setSourcedText(
+    '#launcher-grow-foot',
+    'Live Agent Engine production vs BHAG target.',
+    LAUNCHER_ENGINE_DOC_ROUTE,
+    sourceIdsFromRows([growCurrent, growTarget])
+  )
+
+  if (liveAttrition) {
+    setSourcedNumberWithTarget('#launcher-retain-number', liveAttrition.value, '', LAUNCHER_ENGINE_DOC_ROUTE, liveAttrition.sourceId)
+  }
+  if (planningAttrition) {
+    var liveValue = parsePercent(liveAttrition && liveAttrition.value)
+    var planningValue = parsePercent(planningAttrition.value)
+    setSourcedText('#launcher-retain-pace', 'Planning assumption ' + planningAttrition.value, LAUNCHER_ENGINE_DOC_ROUTE, planningAttrition.sourceId)
+    var retainPace = launcherQuery('#launcher-retain-pace')
+    if (retainPace && Number.isFinite(liveValue) && Number.isFinite(planningValue)) {
+      retainPace.classList.remove('launcher-kpi-ahead', 'launcher-kpi-behind')
+      retainPace.classList.add(liveValue <= planningValue ? 'launcher-kpi-ahead' : 'launcher-kpi-behind')
+    }
+  }
+  if (avgAttrition) {
+    setSourcedText('#launcher-retain-foot', 'Avg attrition: ' + normalizePerMonth(avgAttrition.value) + '.', LAUNCHER_ENGINE_DOC_ROUTE, avgAttrition.sourceId)
+  }
+
+  if (requiredRecruitingPace && currentRecruitingPace) {
+    setHubWin(
+      '#launcher-recruiting-win',
+      [
+        { strong: normalizePerMonth(requiredRecruitingPace.value) },
+        ' required \u00b7 ',
+        { strong: normalizePerMonth(currentRecruitingPace.value) },
+        ' current',
+      ],
+      LAUNCHER_ENGINE_DOC_ROUTE,
+      sourceIdsFromRows([requiredRecruitingPace, currentRecruitingPace])
+    )
+  }
+
+  if (liveAttrition && avgAttrition) {
+    setHubWin(
+      '#launcher-retention-win',
+      [
+        { strong: liveAttrition.value },
+        ' attrition \u00b7 ',
+        { strong: normalizePerMonth(avgAttrition.value) },
+        ' avg',
+      ],
+      LAUNCHER_ENGINE_DOC_ROUTE,
+      sourceIdsFromRows([liveAttrition, avgAttrition])
+    )
+  }
+}
+
+function fetchStrategySnapshotsIfAllowed(user) {
+  if (normalizeRole(user && user.role) !== 'owner') return
+  Promise.all([
+    fetchLauncherJson(LAUNCHER_BHAG_DOC_ROUTE),
+    fetchLauncherJson(LAUNCHER_ENGINE_DOC_ROUTE),
+  ])
+    .then(function(results) {
+      populateStrategySnapshots(results[0], results[1])
+    })
+    .catch(function() {})
+}
+
+function fetchDevCardIfAllowed(user) {
+  if (normalizeRole(user && user.role) !== 'owner') return
+  fetchLauncherJson(LAUNCHER_CURRENT_SPRINT_ROUTE)
+    .then(function(data) {
+      var summary = data && data.currentSprint ? data.currentSprint.summary || {} : {}
+      if (!Number.isFinite(Number(summary.itemCount)) || !Number.isFinite(Number(summary.doneThisSprintCount))) return
+      setHubWin(
+        '#launcher-dev-win',
+        [
+          { strong: formatCount(summary.itemCount) },
+          ' cards \u00b7 ',
+          { strong: formatCount(summary.doneThisSprintCount) },
+          ' done',
+        ],
+        LAUNCHER_CURRENT_SPRINT_ROUTE,
+        'currentSprint.summary'
+      )
+    })
+    .catch(function() {})
+}
+
+function fetchSalesCardIfAllowed(user) {
+  var role = normalizeRole(user && user.role)
+  if (['owner', 'sales', 'ops'].indexOf(role) === -1) return
+  fetchLauncherJson(LAUNCHER_SALES_ROUTE)
+    .then(function(data) {
+      var listingInventory = data && (data.listingInventory || (data.hub && data.hub.listingInventory))
+      var summary = listingInventory && listingInventory.summary ? listingInventory.summary : {}
+      var activeCases = firstFiniteValue([summary.activePipelineCases, summary.currentActiveGlsCases])
+      var soldCases = summary.allTimeSoldCases
+      if (!Number.isFinite(Number(activeCases)) || !Number.isFinite(Number(soldCases))) return
+      setHubWin(
+        '#launcher-sales-win',
+        [
+          { strong: formatCount(activeCases) },
+          ' active cases \u00b7 ',
+          { strong: formatCount(soldCases) },
+          ' sold',
+        ],
+        LAUNCHER_SALES_ROUTE,
+        data && data.meta ? data.meta.sourceId : 'SRC-CLICKUP-001'
+      )
+    })
+    .catch(function() {})
+}
+
+function fetchOpsCardIfAllowed(user) {
+  var role = normalizeRole(user && user.role)
+  if (['owner', 'ops'].indexOf(role) === -1) return
+  fetchLauncherJson(LAUNCHER_OPS_ROUTE)
+    .then(function(data) {
+      var jobs = data && data.foundationJobs ? data.foundationJobs : {}
+      if (!Number.isFinite(Number(jobs.enabledJobs)) || !Number.isFinite(Number(jobs.dueJobs))) return
+      setHubWin(
+        '#launcher-ops-win',
+        [
+          { strong: formatCount(jobs.enabledJobs) },
+          ' jobs \u00b7 ',
+          { strong: formatCount(jobs.dueJobs) },
+          ' due',
+        ],
+        LAUNCHER_OPS_ROUTE,
+        'foundationJobs'
+      )
+    })
+    .catch(function() {})
+}
+
+function fetchLauncherTruth(user) {
+  fetchFoundationStatsIfAllowed(user)
+  fetchStrategySnapshotsIfAllowed(user)
+  fetchDevCardIfAllowed(user)
+  fetchSalesCardIfAllowed(user)
+  fetchOpsCardIfAllowed(user)
 }
 
 function bootLauncherSession() {
@@ -307,7 +673,7 @@ function bootLauncherSession() {
       }
       updateUserChrome(user)
       applyHubAccess(user)
-      fetchSourceStatusIfAllowed(user)
+      fetchLauncherTruth(user)
     })
     .catch(function() {
       applyHubAccess(null)
@@ -317,6 +683,7 @@ function bootLauncherSession() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  setRotatingMotivation()
   tickLauncherTime()
   window.setInterval(tickLauncherTime, 60000)
   document.addEventListener('click', handleRouteCardClick)

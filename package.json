@@ -391,6 +391,7 @@
     "process:foundation-write-routes-split-check": "node --env-file-if-exists=.env scripts/process-foundation-write-routes-split-check.mjs",
     "process:agent-feedback-routes-split-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-routes-split-check.mjs",
     "process:hub-work-check": "node --env-file-if-exists=.env scripts/process-hub-work-check.mjs",
+    "process:hub-launcher-source-backed-values-check": "node --env-file-if-exists=.env scripts/process-hub-launcher-source-backed-values-check.mjs",
     "process:foundation-ready-safe-hub-lane-check": "node --env-file-if-exists=.env scripts/process-foundation-ready-safe-hub-lane-check.mjs",
     "process:foundation-hub-backlog-contract-check": "node --env-file-if-exists=.env scripts/process-foundation-hub-backlog-contract-check.mjs",
     "process:foundation-identity-check": "node --env-file-if-exists=.env scripts/process-foundation-identity-check.mjs",
