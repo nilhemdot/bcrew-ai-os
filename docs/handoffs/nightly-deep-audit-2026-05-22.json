@@ -1,0 +1,1023 @@
+{
+  "generatedAt": "2026-05-22T07:00:16.798Z",
+  "reportPath": "docs/handoffs/nightly-deep-audit-2026-05-22.md",
+  "jsonPath": "docs/handoffs/nightly-deep-audit-2026-05-22.json",
+  "cardId": "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
+  "closeoutKey": "nightly-deep-audit-upgrade-v1",
+  "summary": {
+    "findingCount": 0,
+    "p0": 0,
+    "p1": 0,
+    "p2": 0,
+    "p3": 0,
+    "proposedCardCount": 0,
+    "endpointsMeasured": 5,
+    "staticReportOnly": true,
+    "rawFindingCount": 7,
+    "reconciledClosedFindingCount": 7
+  },
+  "rawSummary": {
+    "findingCount": 7,
+    "p0": 0,
+    "p1": 5,
+    "p2": 2,
+    "p3": 0,
+    "proposedCardCount": 6,
+    "endpointsMeasured": 5,
+    "staticReportOnly": true
+  },
+  "endpointMetrics": [
+    {
+      "endpoint": "/api/foundation-hub",
+      "ok": true,
+      "status": 200,
+      "durationMs": 124.32970799999998,
+      "payloadBytes": 547446,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/source-of-truth",
+      "ok": true,
+      "status": 200,
+      "durationMs": 34.92624999999998,
+      "payloadBytes": 199965,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/source-lifecycle",
+      "ok": true,
+      "status": 200,
+      "durationMs": 417.72858300000007,
+      "payloadBytes": 634466,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/build-log",
+      "ok": true,
+      "status": 200,
+      "durationMs": 131.98170800000003,
+      "payloadBytes": 252380,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/gstack-build-intel",
+      "ok": true,
+      "status": 200,
+      "durationMs": 38.58670900000004,
+      "payloadBytes": 33222,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    }
+  ],
+  "findings": [],
+  "rawFindings": [
+    {
+      "id": "active-vs-historical-verifier-mixing",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Verifier mixes active sprint assertions with historical closeout proof",
+      "whyItMatters": "A current-sprint advancement assertion can pass from a historical closeout unless active and historical helpers are separate.",
+      "refs": [
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3085,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3109,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3115,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4165,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4370,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4451,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4515,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4524,
+          "detail": "activeSprintAtOrPast"
+        }
+      ],
+      "detector": "active versus historical helper detector",
+      "proposedCard": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+      "proposedOwner": "Foundation Verifier",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-hub-route-monolith",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P1",
+      "type": "refactor_candidate",
+      "title": "Foundation Hub route builds many domains in one handler",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "server.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-foundation-ui-current-summary",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Foundation UI embeds current-state summary truth",
+      "whyItMatters": "Static UI copy can report stale health, source, or KPI counts after APIs change.",
+      "refs": [
+        {
+          "path": "scripts/process-extract-current-check.mjs",
+          "line": 363,
+          "detail": ""
+        }
+      ],
+      "detector": "currentSummary/static-live-copy detector",
+      "proposedCard": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+      "proposedOwner": "Foundation UI",
+      "falsePositiveNote": "Static maturity explainers are acceptable; live checkpoint wording is not.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-source-count-baseline",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Source contract count is encoded as an exact baseline",
+      "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 920,
+          "detail": ""
+        }
+      ],
+      "detector": "source-count literal detector",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "proposedOwner": "Source Lifecycle",
+      "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-source-count-baseline",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Source contract count is encoded as an exact baseline",
+      "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+      "refs": [
+        {
+          "path": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+          "line": 187,
+          "detail": ""
+        }
+      ],
+      "detector": "source-count literal detector",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "proposedOwner": "Source Lifecycle",
+      "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "focused-check-active-sprint-id-assumption",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Focused checks assert exact dated active sprint IDs",
+      "whyItMatters": "One-time closeout checks are unsafe as nightly checks after rollover if they hard-fail on the current active sprint.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 107,
+          "detail": "const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 149,
+          "detail": "const FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID = 'foundation-source-once-over-2026-05-12"
+        },
+        {
+          "path": "lib/foundation-current-sprint-store.js",
+          "line": 5,
+          "detail": "const FOUNDATION_DB_STORE_SPLIT_SPRINT_ID = 'foundation-db-store-split-2026-05-14"
+        },
+        {
+          "path": "lib/code-quality-nightly-audit.js",
+          "line": 38,
+          "detail": "const CODE_QUALITY_NIGHTLY_AUDIT_SPRINT_ID = 'foundation-code-quality-nightly-audit-2026-05-13"
+        },
+        {
+          "path": "lib/code-quality-nightly-audit.js",
+          "line": 968,
+          "detail": "const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12"
+        },
+        {
+          "path": "lib/code-quality-nightly-audit.js",
+          "line": 974,
+          "detail": "const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12"
+        },
+        {
+          "path": "lib/code-quality-nightly-audit.js",
+          "line": 981,
+          "detail": "const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12"
+        },
+        {
+          "path": "lib/foundation-intelligence-audit-verifier.js",
+          "line": 184,
+          "detail": "const VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_SPRINT_ID = 'verifier-intelligence-audit-split-module-2026-05-15"
+        }
+      ],
+      "detector": "dated active-sprint assertion detector",
+      "proposedCard": "SPRINT-CHECK-HISTORICAL-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Active live-truth literals still fail as P0; dated card/sprint metadata is a review finding unless a focused proof hard-fails after rollover.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-dom-rebuild-risk",
+      "cardId": "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+      "severity": "P2",
+      "type": "performance_risk",
+      "title": "Foundation frontend has heavy DOM rebuild signals",
+      "whyItMatters": "Backlog, source, current-state, and runtime filters can churn large DOM trees on each interaction as card/source counts grow.",
+      "refs": [
+        {
+          "path": "public/foundation.html",
+          "line": 104,
+          "detail": ""
+        },
+        {
+          "path": "public/foundation.html",
+          "line": 1,
+          "detail": "Foundation frontend scripts call document.createElement 1769 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2261 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 76 times, above the 50 aggregate review budget."
+        }
+      ],
+      "detector": "DOM budget snapshot status=review createElement=1769 appendChild=2261 innerHTML=76",
+      "proposedCard": "FOUNDATION-FRONTEND-DOM-BUDGET-001",
+      "proposedOwner": "Foundation Frontend",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    }
+  ],
+  "deterministicFindingReconciliation": {
+    "status": "clean",
+    "summary": {
+      "rawFindingCount": 7,
+      "activeFindingCount": 0,
+      "reconciledClosedFindingCount": 7,
+      "activeP0": 0,
+      "activeP1": 0,
+      "activeP2": 0,
+      "activeP3": 0
+    },
+    "activeFindings": [],
+    "reconciledFindings": [
+      {
+        "id": "active-vs-historical-verifier-mixing",
+        "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+        "severity": "P1",
+        "type": "drift_risk",
+        "title": "Verifier mixes active sprint assertions with historical closeout proof",
+        "whyItMatters": "A current-sprint advancement assertion can pass from a historical closeout unless active and historical helpers are separate.",
+        "refs": [
+          {
+            "path": "scripts/foundation-verify.mjs",
+            "line": 3085,
+            "detail": "historicalCardHasVerifiedCloseout"
+          },
+          {
+            "path": "scripts/foundation-verify.mjs",
+            "line": 3109,
+            "detail": "activeSprintAtOrPast"
+          },
+          {
+            "path": "scripts/foundation-verify.mjs",
+            "line": 3115,
+            "detail": "historicalCardHasVerifiedCloseout"
+          },
+          {
+            "path": "scripts/foundation-verify.mjs",
+            "line": 4165,
+            "detail": "historicalCardHasVerifiedCloseout"
+          },
+          {
+            "path": "scripts/foundation-verify.mjs",
+            "line": 4370,
+            "detail": "activeSprintAtOrPast"
+          },
+          {
+            "path": "scripts/foundation-verify.mjs",
+            "line": 4451,
+            "detail": "activeSprintAtOrPast"
+          },
+          {
+            "path": "scripts/foundation-verify.mjs",
+            "line": 4515,
+            "detail": "historicalCardHasVerifiedCloseout"
+          },
+          {
+            "path": "scripts/foundation-verify.mjs",
+            "line": 4524,
+            "detail": "activeSprintAtOrPast"
+          }
+        ],
+        "detector": "active versus historical helper detector",
+        "proposedCard": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+        "proposedOwner": "Foundation Verifier",
+        "falsePositiveNote": "",
+        "autoFix": false,
+        "autoBacklogMutation": false,
+        "reconciliationStatus": "reconciled_closed_route",
+        "reconciliationReason": "covered by active-vs-historical-verifier-split-v1",
+        "route": {
+          "findingId": "active-vs-historical-verifier-mixing",
+          "targetCardId": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+          "targetCloseoutKey": "active-vs-historical-verifier-split-v1",
+          "coveredByCardId": null,
+          "coveredByCloseoutKey": null,
+          "owner": "Foundation Verifier"
+        },
+        "closeout": {
+          "key": "active-vs-historical-verifier-split-v1",
+          "status": "accepted",
+          "acceptanceState": "Verified"
+        }
+      },
+      {
+        "id": "foundation-hub-route-monolith",
+        "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+        "severity": "P1",
+        "type": "refactor_candidate",
+        "title": "Foundation Hub route builds many domains in one handler",
+        "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+        "refs": [
+          {
+            "path": "server.js",
+            "line": 0,
+            "detail": ""
+          }
+        ],
+        "detector": "largest file/function ownership detector",
+        "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+        "proposedOwner": "Foundation Engineering",
+        "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+        "autoFix": false,
+        "autoBacklogMutation": false,
+        "reconciliationStatus": "reconciled_closed_route",
+        "reconciliationReason": "covered by foundation-route-budget-cleanup-v1",
+        "route": {
+          "findingId": "foundation-hub-route-monolith",
+          "targetCardId": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+          "targetCloseoutKey": "foundation-route-budget-cleanup-v1",
+          "coveredByCardId": null,
+          "coveredByCloseoutKey": null,
+          "owner": "Foundation Runtime"
+        },
+        "closeout": {
+          "key": "foundation-route-budget-cleanup-v1",
+          "status": "accepted",
+          "acceptanceState": "Verified"
+        }
+      },
+      {
+        "id": "hardcoded-foundation-ui-current-summary",
+        "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+        "severity": "P1",
+        "type": "drift_risk",
+        "title": "Foundation UI embeds current-state summary truth",
+        "whyItMatters": "Static UI copy can report stale health, source, or KPI counts after APIs change.",
+        "refs": [
+          {
+            "path": "scripts/process-extract-current-check.mjs",
+            "line": 363,
+            "detail": ""
+          }
+        ],
+        "detector": "currentSummary/static-live-copy detector",
+        "proposedCard": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+        "proposedOwner": "Foundation UI",
+        "falsePositiveNote": "Static maturity explainers are acceptable; live checkpoint wording is not.",
+        "autoFix": false,
+        "autoBacklogMutation": false,
+        "reconciliationStatus": "reconciled_closed_route",
+        "reconciliationReason": "covered by foundation-ui-live-summary-sources-v1",
+        "route": {
+          "findingId": "hardcoded-foundation-ui-current-summary",
+          "targetCardId": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+          "targetCloseoutKey": "foundation-ui-live-summary-sources-v1",
+          "coveredByCardId": null,
+          "coveredByCloseoutKey": null,
+          "owner": "Foundation UI"
+        },
+        "closeout": {
+          "key": "foundation-ui-live-summary-sources-v1",
+          "status": "accepted",
+          "acceptanceState": "Verified"
+        }
+      },
+      {
+        "id": "hardcoded-source-count-baseline",
+        "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+        "severity": "P1",
+        "type": "drift_risk",
+        "title": "Source contract count is encoded as an exact baseline",
+        "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+        "refs": [
+          {
+            "path": "lib/foundation-current-sprint.js",
+            "line": 920,
+            "detail": ""
+          }
+        ],
+        "detector": "source-count literal detector",
+        "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+        "proposedOwner": "Source Lifecycle",
+        "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+        "autoFix": false,
+        "autoBacklogMutation": false,
+        "reconciliationStatus": "reconciled_closed_route",
+        "reconciliationReason": "covered by source-lifecycle-dynamic-counts-v1",
+        "route": {
+          "findingId": "hardcoded-source-count-baseline",
+          "targetCardId": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+          "targetCloseoutKey": "source-lifecycle-dynamic-counts-v1",
+          "coveredByCardId": null,
+          "coveredByCloseoutKey": null,
+          "owner": "Source Lifecycle"
+        },
+        "closeout": {
+          "key": "source-lifecycle-dynamic-counts-v1",
+          "status": "accepted",
+          "acceptanceState": "Verified"
+        }
+      },
+      {
+        "id": "hardcoded-source-count-baseline",
+        "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+        "severity": "P1",
+        "type": "drift_risk",
+        "title": "Source contract count is encoded as an exact baseline",
+        "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+        "refs": [
+          {
+            "path": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+            "line": 187,
+            "detail": ""
+          }
+        ],
+        "detector": "source-count literal detector",
+        "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+        "proposedOwner": "Source Lifecycle",
+        "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+        "autoFix": false,
+        "autoBacklogMutation": false,
+        "reconciliationStatus": "reconciled_closed_route",
+        "reconciliationReason": "covered by source-lifecycle-dynamic-counts-v1",
+        "route": {
+          "findingId": "hardcoded-source-count-baseline",
+          "targetCardId": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+          "targetCloseoutKey": "source-lifecycle-dynamic-counts-v1",
+          "coveredByCardId": null,
+          "coveredByCloseoutKey": null,
+          "owner": "Source Lifecycle"
+        },
+        "closeout": {
+          "key": "source-lifecycle-dynamic-counts-v1",
+          "status": "accepted",
+          "acceptanceState": "Verified"
+        }
+      },
+      {
+        "id": "focused-check-active-sprint-id-assumption",
+        "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+        "severity": "P2",
+        "type": "drift_risk",
+        "title": "Focused checks assert exact dated active sprint IDs",
+        "whyItMatters": "One-time closeout checks are unsafe as nightly checks after rollover if they hard-fail on the current active sprint.",
+        "refs": [
+          {
+            "path": "lib/foundation-current-sprint.js",
+            "line": 107,
+            "detail": "const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12"
+          },
+          {
+            "path": "lib/foundation-current-sprint.js",
+            "line": 149,
+            "detail": "const FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID = 'foundation-source-once-over-2026-05-12"
+          },
+          {
+            "path": "lib/foundation-current-sprint-store.js",
+            "line": 5,
+            "detail": "const FOUNDATION_DB_STORE_SPLIT_SPRINT_ID = 'foundation-db-store-split-2026-05-14"
+          },
+          {
+            "path": "lib/code-quality-nightly-audit.js",
+            "line": 38,
+            "detail": "const CODE_QUALITY_NIGHTLY_AUDIT_SPRINT_ID = 'foundation-code-quality-nightly-audit-2026-05-13"
+          },
+          {
+            "path": "lib/code-quality-nightly-audit.js",
+            "line": 968,
+            "detail": "const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12"
+          },
+          {
+            "path": "lib/code-quality-nightly-audit.js",
+            "line": 974,
+            "detail": "const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12"
+          },
+          {
+            "path": "lib/code-quality-nightly-audit.js",
+            "line": 981,
+            "detail": "const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12"
+          },
+          {
+            "path": "lib/foundation-intelligence-audit-verifier.js",
+            "line": 184,
+            "detail": "const VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_SPRINT_ID = 'verifier-intelligence-audit-split-module-2026-05-15"
+          }
+        ],
+        "detector": "dated active-sprint assertion detector",
+        "proposedCard": "SPRINT-CHECK-HISTORICAL-MODE-001",
+        "proposedOwner": "Foundation Process",
+        "falsePositiveNote": "Active live-truth literals still fail as P0; dated card/sprint metadata is a review finding unless a focused proof hard-fails after rollover.",
+        "autoFix": false,
+        "autoBacklogMutation": false,
+        "reconciliationStatus": "reconciled_closed_route",
+        "reconciliationReason": "covered by focused-sprint-id-historical-aware-v1",
+        "route": {
+          "findingId": "focused-check-active-sprint-id-assumption",
+          "targetCardId": "FOCUSED-SPRINT-ID-HISTORICAL-AWARE-001",
+          "targetCloseoutKey": "focused-sprint-id-historical-aware-v1",
+          "coveredByCardId": "SPRINT-CHECK-HISTORICAL-MODE-001",
+          "coveredByCloseoutKey": "sprint-check-historical-mode-v1",
+          "owner": "Foundation Process"
+        },
+        "closeout": {
+          "key": "focused-sprint-id-historical-aware-v1",
+          "status": "shipped",
+          "acceptanceState": "Verified"
+        }
+      },
+      {
+        "id": "foundation-dom-rebuild-risk",
+        "cardId": "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+        "severity": "P2",
+        "type": "performance_risk",
+        "title": "Foundation frontend has heavy DOM rebuild signals",
+        "whyItMatters": "Backlog, source, current-state, and runtime filters can churn large DOM trees on each interaction as card/source counts grow.",
+        "refs": [
+          {
+            "path": "public/foundation.html",
+            "line": 104,
+            "detail": ""
+          },
+          {
+            "path": "public/foundation.html",
+            "line": 1,
+            "detail": "Foundation frontend scripts call document.createElement 1769 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2261 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 76 times, above the 50 aggregate review budget."
+          }
+        ],
+        "detector": "DOM budget snapshot status=review createElement=1769 appendChild=2261 innerHTML=76",
+        "proposedCard": "FOUNDATION-FRONTEND-DOM-BUDGET-001",
+        "proposedOwner": "Foundation Frontend",
+        "falsePositiveNote": "",
+        "autoFix": false,
+        "autoBacklogMutation": false,
+        "reconciliationStatus": "reconciled_closed_route",
+        "reconciliationReason": "covered by foundation-css-surface-decouple-v1",
+        "route": {
+          "findingId": "foundation-dom-rebuild-risk",
+          "targetCardId": "FOUNDATION-CSS-SURFACE-DECOUPLE-001",
+          "targetCloseoutKey": "foundation-css-surface-decouple-v1",
+          "coveredByCardId": "FOUNDATION-FRONTEND-DOM-BUDGET-001",
+          "coveredByCloseoutKey": "foundation-frontend-dom-budget-v1",
+          "owner": "Foundation Frontend"
+        },
+        "closeout": {
+          "key": "foundation-css-surface-decouple-v1",
+          "status": "shipped",
+          "acceptanceState": "Verified"
+        }
+      }
+    ]
+  },
+  "reviewTargets": [
+    {
+      "file": "scripts/foundation-verify.mjs",
+      "severity": "P0",
+      "reasons": [
+        "over_3k_warn",
+        "verifier_trust_surface"
+      ],
+      "lines": 4998,
+      "bytes": 277372,
+      "processCheck": null
+    },
+    {
+      "file": "lib/foundation-build-closeout-process-gate-records.js",
+      "severity": "P1",
+      "reasons": [
+        "over_3k_warn"
+      ],
+      "lines": 3133,
+      "bytes": 224729,
+      "processCheck": null
+    },
+    {
+      "file": "public/foundation.js",
+      "severity": "P1",
+      "reasons": [
+        "frontend_route_cache_surface"
+      ],
+      "lines": 2987,
+      "bytes": 113810,
+      "processCheck": null
+    },
+    {
+      "file": "lib/foundation-db.js",
+      "severity": "P1",
+      "reasons": [
+        "live_truth_write_boundary"
+      ],
+      "lines": 2290,
+      "bytes": 92361,
+      "processCheck": null
+    },
+    {
+      "file": "server.js",
+      "severity": "P1",
+      "reasons": [
+        "hot_route_surface"
+      ],
+      "lines": 2046,
+      "bytes": 66970,
+      "processCheck": null
+    },
+    {
+      "file": "public/hub-launcher.css",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 1146,
+      "bytes": 22896,
+      "processCheck": null
+    },
+    {
+      "file": "lib/connector-uptime-monitor.js",
+      "severity": "P1",
+      "reasons": [
+        "source_health_surface"
+      ],
+      "lines": 1063,
+      "bytes": 42053,
+      "processCheck": null
+    },
+    {
+      "file": "scripts/process-extract-current-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 551,
+      "bytes": 27615,
+      "processCheck": {
+        "classification": "guarded_live_mutation",
+        "protected": true,
+        "reason": "script routes live mutation through explicit process write posture",
+        "liveMutators": [
+          "currentSprintOverlay",
+          "rawPlanCriticSql"
+        ]
+      }
+    },
+    {
+      "file": "public/home.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 325,
+      "bytes": 10431,
+      "processCheck": null
+    },
+    {
+      "file": "public/index.html",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 306,
+      "bytes": 13568,
+      "processCheck": null
+    },
+    {
+      "file": "scripts/process-foundation-frontend-asset-budget-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "process_check_surface"
+      ],
+      "lines": 297,
+      "bytes": 11761,
+      "processCheck": {
+        "classification": "read_only",
+        "protected": true,
+        "reason": "no live mutation patterns detected",
+        "liveMutators": []
+      }
+    },
+    {
+      "file": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface",
+        "source_health_surface"
+      ],
+      "lines": 272,
+      "bytes": 10909,
+      "processCheck": {
+        "classification": "read_only",
+        "protected": true,
+        "reason": "no live mutation patterns detected",
+        "liveMutators": []
+      }
+    },
+    {
+      "file": "lib/foundation-jobs.js",
+      "severity": "P3",
+      "reasons": [],
+      "lines": 1436,
+      "bytes": 62010,
+      "processCheck": null
+    },
+    {
+      "file": "lib/code-quality-nightly-audit.js",
+      "severity": "P3",
+      "reasons": [],
+      "lines": 1230,
+      "bytes": 55569,
+      "processCheck": null
+    }
+  ],
+  "diff": {
+    "previousReportPath": "docs/handoffs/nightly-deep-audit-2026-05-21.json",
+    "newFindingIds": [],
+    "resolvedFindingIds": [],
+    "stillOpenFindingIds": [],
+    "trend": {
+      "currentFindingCount": 0,
+      "previousFindingCount": 0,
+      "delta": 0
+    }
+  },
+  "llmReview": {
+    "status": "executed",
+    "mode": "bounded_senior_review_executed",
+    "executedThisRun": true,
+    "providerReviewRequested": true,
+    "route": {
+      "runnable": true,
+      "selectedRoute": "foundation-deep-audit-openclaw-chatgpt",
+      "provider": "openclaw",
+      "model": "openai-codex/gpt-5.4",
+      "blockReason": null,
+      "routeReadiness": [
+        {
+          "routeKey": "foundation-deep-audit-openclaw-chatgpt",
+          "credentialKey": "openclaw-chatgpt-pro",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "allowed",
+          "runnable": true,
+          "blockReason": null
+        },
+        {
+          "routeKey": "foundation-deep-audit-claude-code",
+          "credentialKey": "claude-code-local-max",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "experimental",
+          "runnable": false,
+          "blockReason": "Claude Code CLI execution is blocked; set LLM_CLAUDE_CODE_ALLOW_EXECUTION=true only after explicit route approval"
+        },
+        {
+          "routeKey": "foundation-deep-audit-openai-api",
+          "credentialKey": "openai-api-default",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "api_fallback",
+          "runnable": true,
+          "blockReason": null
+        }
+      ]
+    },
+    "callId": "llm-call-20260522070017-3b6c2412",
+    "summary": "Static review of the supplied high-risk packets did not surface fresh concrete findings from the provided excerpts. The guarded mutation in `scripts/process-extract-current-check.mjs` is explicitly marked `processCheck.protected=true` with no visible unguarded bypass path, and the remaining excerpts do not show a reproducible new bug, false-green path, write-boundary leak, privacy breach, or endpoint/payload regression beyond already reconciled closeouts.",
+    "reviewedFiles": [
+      "scripts/foundation-verify.mjs",
+      "lib/foundation-build-closeout-process-gate-records.js",
+      "public/foundation.js",
+      "lib/foundation-db.js",
+      "server.js",
+      "public/hub-launcher.css",
+      "lib/connector-uptime-monitor.js",
+      "scripts/process-extract-current-check.mjs"
+    ],
+    "findingCount": 0,
+    "findings": [],
+    "rawFindingCount": 0,
+    "rawFindings": [],
+    "reconciledFindings": [],
+    "findingReconciliation": {
+      "status": "clean",
+      "summary": {
+        "rawFindingCount": 0,
+        "activeFindingCount": 0,
+        "reconciledClosedFindingCount": 0
+      },
+      "activeFindings": [],
+      "reconciledFindings": []
+    },
+    "actionRoutes": [],
+    "packets": [
+      {
+        "file": "scripts/foundation-verify.mjs",
+        "severity": "P0",
+        "reasons": [
+          "over_3k_warn",
+          "verifier_trust_surface"
+        ],
+        "lines": 4998,
+        "bytes": 277372
+      },
+      {
+        "file": "lib/foundation-build-closeout-process-gate-records.js",
+        "severity": "P1",
+        "reasons": [
+          "over_3k_warn"
+        ],
+        "lines": 3133,
+        "bytes": 224729
+      },
+      {
+        "file": "public/foundation.js",
+        "severity": "P1",
+        "reasons": [
+          "frontend_route_cache_surface"
+        ],
+        "lines": 2987,
+        "bytes": 113810
+      },
+      {
+        "file": "lib/foundation-db.js",
+        "severity": "P1",
+        "reasons": [
+          "live_truth_write_boundary"
+        ],
+        "lines": 2290,
+        "bytes": 92361
+      },
+      {
+        "file": "server.js",
+        "severity": "P1",
+        "reasons": [
+          "hot_route_surface"
+        ],
+        "lines": 2046,
+        "bytes": 66970
+      },
+      {
+        "file": "public/hub-launcher.css",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline"
+        ],
+        "lines": 1146,
+        "bytes": 22896
+      },
+      {
+        "file": "lib/connector-uptime-monitor.js",
+        "severity": "P1",
+        "reasons": [
+          "source_health_surface"
+        ],
+        "lines": 1063,
+        "bytes": 42053
+      },
+      {
+        "file": "scripts/process-extract-current-check.mjs",
+        "severity": "P1",
+        "reasons": [
+          "process_check_surface"
+        ],
+        "lines": 551,
+        "bytes": 27615
+      }
+    ],
+    "note": "Deep senior review executed through the approved router with report-only/no-autofix posture."
+  },
+  "deepSeniorReviewRollup": {
+    "status": "healthy",
+    "executed": true,
+    "detail": "deep senior review executed with 0 active finding(s) and 0 reconciled closed finding(s)"
+  },
+  "knownFailureDogfood": {
+    "ok": true,
+    "slowEndpoint": {
+      "status": "risk",
+      "severity": "P1",
+      "reason": "Latency 70244ms exceeds 2000ms budget."
+    },
+    "selfRepairCount": 1,
+    "writeCapableCheckCount": 1,
+    "hardcodedTruthCount": 2,
+    "monolith": {
+      "file": "lib/foundation-db.js",
+      "reasons": [
+        "actively_dangerous_10k_plus_file",
+        "live_truth_write_boundary"
+      ],
+      "severity": "P0"
+    }
+  },
+  "docArtifactBloat": {
+    "status": "healthy",
+    "summary": {
+      "artifactCount": 1356,
+      "handoffFileCount": 207,
+      "handoffLineTotal": 16920,
+      "recentHandoffFileCount": 206,
+      "nightlyArtifactCount": 15,
+      "riskCount": 0,
+      "reviewCount": 0
+    },
+    "topFindings": []
+  }
+}
