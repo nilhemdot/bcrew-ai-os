@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-23T17:35:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/gemini-workspace-eyes-route-proof-001-plan.md",
+  "approvedPlanSha256": "38345c42245c06a40951c17b1d9c065374ccf1b54054d8430490e0443d26c685",
+  "approvedRepoHead": "2dbde86c5cde0fa8cf32512c0734f8d06f467411",
+  "approvalSource": "Steve direct May 23 direction: prove the logged-in Gemini Workspace subscription browser eyes route, use subscription first if it works, keep Gemini API fallback, and run a guarded small pilot before Mark scale-up.",
+  "approvalDigest": "9ff769c1e8e6b165f33b899ef1d95156895bd210dc5527d54146918c9d5d525b"
+}

@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
 Last updated: 2026-05-23
-Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the daily public creator watch is reconciled to 30 public YouTube creators; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, and `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` are closed; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` is next; `MARK-KASHEF-LAST-50-BASELINE-001` is parked behind it; Eyes Quality Loop proved Gemini/API video understanding, the overnight guard blocks unsafe scale-up, and the subscription adapter proved Claude subscription can reason over bounded evidence but does not replace video eyes or prove the Gemini account route; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the daily public creator watch is reconciled to 30 public YouTube creators; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001`, and `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` are closed; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `MARK-KASHEF-LAST-50-BASELINE-001` is next; Gemini Workspace browser eyes are usable as Level 1 experimental with Gemini API fallback; Mark baseline must start with a guarded 3-video subscription-eyes pilot before any last-50 scale-up; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -25,7 +25,7 @@ The Foundation is real, the gate-check serialization blocker is closed, Brain Fl
 
 Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`.
 
-May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe is proven. It needs an Overview/YOU page and an Incoming Data Intelligence view; Foundation Sprint and Backlog remain the workflow owners. Current YouTube watch rows are metadata, not full watched/analyzed videos. Steve corrected the sprint so Mark last-50 and other creator latest-20 do not scale until `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, the subscription adapter proof, and `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` establish the extraction mode. Research is closed, the Eyes Quality Loop proved Gemini video-understanding EYES V0 adds value on 3 exact approved public videos, the overnight guard blocks unsafe scale-up, and the subscription adapter proves Claude subscription is useful for bounded evidence reasoning after evidence capture. The unresolved active question is whether a logged-in Gemini Workspace/App browser route can serve as extractor eyes without the Gemini API key. Use only the isolated AI Chrome profile and do not mutate credentials or browser profiles.
+May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe is proven. It needs an Overview/YOU page and an Incoming Data Intelligence view; Foundation Sprint and Backlog remain the workflow owners. Current YouTube watch rows are metadata, not full watched/analyzed videos. Steve corrected the sprint so Mark last-50 and other creator latest-20 do not scale until `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, the subscription adapter proof, and `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` establish the extraction mode. Research is closed, the Eyes Quality Loop proved Gemini video-understanding EYES V0 adds value on 3 exact approved public videos, the overnight guard blocks unsafe scale-up, the subscription adapter proves Claude subscription is useful for bounded evidence reasoning after evidence capture, and Gemini Workspace browser eyes now prove Steve's Gemini subscription route can act as Level 1 experimental eyes without the API key on one exact approved public video. The next Mark card starts with a guarded 3-video subscription-eyes pilot before any last-50 scale-up.
 
 May 23 creator-watch reconcile: the daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This is still source discovery, not watched/analyzed video.
 
@@ -43,8 +43,9 @@ Closed setup:
 - `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` shipped bounded Eyes proof under `god-mode-extractor-eyes-quality-loop-v1`; it compared current transcript/description/page evidence against Gemini video understanding on 3 exact public videos, improved 3/3, recorded +43 average quality delta, persisted 9 timestamped visual evidence items, 6 build candidates, proposal-only atoms/hits, and Dev Team Hub read-path truth.
 - `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` shipped the fail-closed overnight guard under `extractor-overnight-run-guard-v1`; it enforces source approval, public/no-auth scope, quotas, route budget, artifact namespace, retry caps, stale/duplicate-run blocks, forbidden private/auth/external actions, and morning review before scale-up. It stores guard policy/report truth without adding a new source-crawl target.
 - `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` shipped the bounded subscription mini-brain adapter under `subscription-brain-extractor-adapter-v1`; it proves the already-authenticated local Claude Code subscription route can reason over exact approved extractor evidence with Brain Fleet ledger proof and unchanged credential fingerprints. It does not replace Gemini/API video eyes or prove logged-in Gemini browser/subscription extraction.
+- `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` shipped the logged-in Gemini Workspace browser eyes proof under `gemini-workspace-eyes-route-proof-v1`; it proves the Gemini web app can return structured visual evidence and build candidates for one exact approved public video without the Gemini API key. It is Level 1 experimental with Gemini API fallback and requires a 3-video pilot before Mark last-50.
 
-Active next card: `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001`.
+Active next card: `MARK-KASHEF-LAST-50-BASELINE-001`.
 
 Sprint order:
 
@@ -57,8 +58,8 @@ Sprint order:
 5. `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` - done under `god-mode-extractor-eyes-quality-loop-v1`
 6. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - done under `extractor-overnight-run-guard-v1`
 7. `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` - done under `subscription-brain-extractor-adapter-v1`
-8. `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` - active next card
-9. `MARK-KASHEF-LAST-50-BASELINE-001` - parked behind Gemini Workspace eyes proof
+8. `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` - done under `gemini-workspace-eyes-route-proof-v1`
+9. `MARK-KASHEF-LAST-50-BASELINE-001` - active next card; start with a guarded 3-video subscription-eyes pilot before last-50 scale-up
 10. `YOUTUBE-LATEST-20-INTEL-RUN-001`
 11. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001`
 12. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
