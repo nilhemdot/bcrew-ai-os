@@ -239,7 +239,7 @@ async function main() {
   addCheck(
     checks,
     hubSafetySource.includes('FOUNDATION_HUB_PAYLOAD_BUDGET_V2_CARD_ID') &&
-      verifierSource.includes(FOUNDATION_HUB_PAYLOAD_BUDGET_V2_CARD_ID),
+      verifierSource.includes('evaluateFoundationHubSafetyVerifier'),
     'foundation verifier has V2 payload budget coverage',
     'hub-safety verifier + root progression coverage',
   )

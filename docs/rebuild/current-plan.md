@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-23
-Version: v6.161 - God Mode eyes before scale-up
-Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`; God Mode extractor research and Eyes Quality Loop now run before any Mark last-50 or broader creator scale-up; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Version: v6.162 - Link resources closed; God Mode research active
+Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the daily public creator watch is reconciled to 30 public YouTube creators; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` is closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`; God Mode extractor research and Eyes Quality Loop now run before any Mark last-50 or broader creator scale-up; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 
 Use this doc for one question:
 
@@ -22,7 +22,9 @@ The plan is:
 
 `SRC-CREATOR-WATCHLIST-001 + SRC-YOUTUBE-INTEL-001 -> daily public creator watch -> link/resource approval routing -> God Mode extractor research -> Eyes Quality Loop on 3-5 approved videos -> guarded scale-up -> Mark last 50 / other creators last 20 -> transcript/description/visual/resource evidence -> observations -> atoms/candidates/scout reports -> Dev Team Hub -> Intelligence Director -> approval-gated backlog promotion`
 
-May 23 checkpoint: Dev Hub V0 is proof that Foundation Build Intel can reach a hub, not permission to rebuild the whole Dev pipeline UI. The next Dev Hub polish should stay to two views, Overview/YOU and Incoming Data Intelligence, while Foundation Sprint/Backlog remain the workflow owners. Current YouTube watch rows are public metadata, not watched/analyzed video. Steve corrected the sprint: do not extract Mark last-50 or other creator latest-20 with weak transcript-only mode. First finish link/resource routing, then run `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` to prove whether EYES adds real build-intel value on 3-5 approved public videos. See [YouTube To Dev Hub Intel Proof Checkpoint](../handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md).
+May 23 checkpoint: Dev Hub V0 is proof that Foundation Build Intel can reach a hub, not permission to rebuild the whole Dev pipeline UI. The next Dev Hub polish should stay to two views, Overview/YOU and Incoming Data Intelligence, while Foundation Sprint/Backlog remain the workflow owners. Current YouTube watch rows are public metadata, not watched/analyzed video. Steve corrected the sprint: do not extract Mark last-50 or other creator latest-20 with weak transcript-only mode. Link/resource routing is now closed and approval-bound, so next run `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` to prove whether EYES adds real build-intel value on 3-5 approved public videos. See [YouTube To Dev Hub Intel Proof Checkpoint](../handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md).
+
+May 23 creator-watch reconcile: Steve supplied confirmed public YouTube refs for Chris Bradley / MRR Official, Brad Bonanno / AI & Automation, Stacked Podcast, and Jack / Itssssss_Jack. The daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This remains metadata-only discovery; it is not video watching, vision analysis, or permission to scale transcript-only extraction.
 
 Closed setup:
 
@@ -33,15 +35,16 @@ Closed setup:
 5. `YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001` - the Current Sprint workspace is clean for this new sprint; old shipped cards now stay in Backlog done and Recent Work, not `Done This Sprint`.
 6. `YOUTUBE-CREATOR-DAILY-WATCH-001` - scheduled public no-auth creator watch is live under `youtube-creator-daily-watch-v1`; it checks canonical known public YouTube creator refs daily, applies Mark last-50 and other-creator last-20 baseline rules, dedupes video metadata into `source_crawl_items`, preserves first-seen/last-seen/source provenance, and exposes the proposal-only report `research-pool:youtube-creator-daily-watch`.
 7. `DEV-TEAM-HUB-V0-001` - read-only Dev Team Hub V0 is closed under `dev-team-hub-v0-v1`; it proves Foundation Build Intel can feed a real hub with recommended build candidates, approval queues, current sprint state, and source proof without creating a Dev data silo.
+8. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - link/resource approval routing is closed under `youtube-build-intel-link-resource-v1`; it deduped 52 YouTube scout links into 39 safe references and 13 approval-required links without following, downloading, purchasing, opting in, mutating credentials, creating backlog cards, or writing externally.
 
 Active sprint order:
 
-`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001` and `DEV-TEAM-HUB-V0-001`. The old pre-sprint shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
+`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001`, `DEV-TEAM-HUB-V0-001`, and `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`. The old pre-sprint shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
 
 1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - done under `youtube-creator-daily-watch-v1`.
 2. `DEV-TEAM-HUB-V0-001` - done under `dev-team-hub-v0-v1`.
-3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - active next card. Classify and approval-route YouTube description/resource/download/purchase links.
-4. `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` - research best-in-class extractor design from approved public/source-backed build-intel sources before building the EYES loop.
+3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - done under `youtube-build-intel-link-resource-v1`.
+4. `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` - active next card. Research best-in-class extractor design from approved public/source-backed build-intel sources before building the EYES loop.
 5. `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` - compare current transcript/description extraction against EYES-enhanced extraction on 3-5 approved public videos.
 6. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - add quotas, stop conditions, artifact/provenance controls, stale-run prevention, and morning review before broader runs.
 7. `MARK-KASHEF-LAST-50-BASELINE-001` - process Mark's approved public last-50 baseline only after the Eyes Quality Loop and guard are proven.

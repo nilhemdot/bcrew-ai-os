@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-23T09:30:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-build-intel-link-resource-002-plan.md",
+  "approvedPlanSha256": "6b65b14e78b0c4f06ab66953fc7fbd5143e161aa56dd7540c09815b0c3005918",
+  "approvedRepoHead": "376400249b7bb756d1d31dcc77e84fe4c83287af",
+  "approvalSource": "Steve directed the active YouTube To Dev Team Intelligence V1 sprint to continue with link/resource approval routing before God Mode extractor research or broad extraction.",
+  "approvalDigest": "04ec831c38575109767b5e7d4d0de92d7d0a0e0e4a0f864431343410e8f140af"
+}

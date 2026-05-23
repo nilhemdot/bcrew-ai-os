@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
 Last updated: 2026-05-23
-Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` is next; God Mode extractor research and Eyes Quality Loop now run before any Mark last-50 or broader creator scale-up; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the daily public creator watch is reconciled to 30 public YouTube creators; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` is closed; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` is next; God Mode extractor research and Eyes Quality Loop now run before any Mark last-50 or broader creator scale-up; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -27,6 +27,8 @@ Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-T
 
 May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe is proven. It needs an Overview/YOU page and an Incoming Data Intelligence view; Foundation Sprint and Backlog remain the workflow owners. Current YouTube watch rows are metadata, not full watched/analyzed videos. Steve corrected the sprint so Mark last-50 and other creator latest-20 do not scale until `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` prove the extraction mode adds value.
 
+May 23 creator-watch reconcile: the daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This is still source discovery, not watched/analyzed video.
+
 Closed setup:
 
 - `WEB-GODMODE-LIVE-OPERATOR-002` proved one exact public Mark video could be opened and captured.
@@ -36,17 +38,18 @@ Closed setup:
 - `YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001` cleaned the Current Sprint workspace for this new sprint; old shipped cards now stay in Backlog done and Recent Work, not `Done This Sprint`.
 - `YOUTUBE-CREATOR-DAILY-WATCH-001` shipped the scheduled public no-auth creator watch under `youtube-creator-daily-watch-v1`; known public creator videos are deduped into `source_crawl_items` and exposed through report `research-pool:youtube-creator-daily-watch`.
 - `DEV-TEAM-HUB-V0-001` shipped the read-only Dev Team Hub under `dev-team-hub-v0-v1`; `/dev` consumes Foundation Build Intel truth and shows recommended build candidates, split approval queues, current sprint state, latest intel signal, and source proof.
+- `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` shipped link/resource approval routing under `youtube-build-intel-link-resource-v1`; it deduped 52 YouTube scout links into 39 safe references and 13 approval-required links without following, downloading, purchasing, opting in, mutating credentials, creating backlog cards, or writing externally.
 
-Active next card: `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`.
+Active next card: `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`.
 
 Sprint order:
 
-`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001` and `DEV-TEAM-HUB-V0-001`. The old shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
+`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001`, `DEV-TEAM-HUB-V0-001`, and `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`. The old shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
 
 1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - done under `youtube-creator-daily-watch-v1`
 2. `DEV-TEAM-HUB-V0-001` - done under `dev-team-hub-v0-v1`
-3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - active next card
-4. `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`
+3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - done under `youtube-build-intel-link-resource-v1`
+4. `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` - active next card
 5. `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`
 6. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`
 7. `MARK-KASHEF-LAST-50-BASELINE-001`

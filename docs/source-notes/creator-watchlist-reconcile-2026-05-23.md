@@ -6,7 +6,7 @@ Status: public YouTube channel URLs reconciled for the current Build Intel watch
 
 ## What Changed
 
-The daily public YouTube metadata watch now has 26 verified Build Intel creators instead of 8.
+The daily public YouTube metadata watch now has 30 verified Build Intel public YouTube creators instead of 8.
 
 This is still metadata-only discovery:
 
@@ -18,6 +18,14 @@ This is still metadata-only discovery:
 - no automatic backlog card creation
 
 Deep understanding belongs to `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, not the daily watch.
+
+Latest applied run after the 30-creator reconcile:
+
+- Crawl run: `crawl-youtube-creator-daily-watch-20260523133645020-fd2832b8`
+- Creators checked: 30
+- Lookup gaps: 0
+- Deduped public video metadata rows saved: 538
+- Proposal-only atoms/hits written: 538 / 538
 
 ## Build Intel Channels Now Watchable
 
@@ -42,8 +50,12 @@ Deep understanding belongs to `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, not th
 | Ray Amjad | `https://www.youtube.com/@ramjad` |
 | Alex Finn | `https://www.youtube.com/@AlexFinn` |
 | Jono Catliff | `https://www.youtube.com/@jonocatliff` |
+| Chris Bradley / MRR Official | `https://www.youtube.com/@chrisbradleymrrofficial` |
 | Ambitious AI | `https://www.youtube.com/@ambitious1z` |
+| Brad Bonanno / AI & Automation | `https://www.youtube.com/@bradbonanno` |
 | Creator Magic | `https://www.youtube.com/@creatormagicai` |
+| Stacked Podcast | `https://www.youtube.com/@stackedpod` |
+| Jack / Itssssss_Jack | `https://www.youtube.com/@Itssssss_Jack` |
 | Zane Cole | `https://www.youtube.com/@ZaneCole` |
 | JP Middleton | `https://www.youtube.com/@OfficialJPMiddleton` |
 | Next Gen AI | `https://www.youtube.com/@NextGenAIHQ` |
@@ -52,13 +64,9 @@ Deep understanding belongs to `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, not th
 
 ## Still Needs Reconcile
 
-These names remain in the watchlist but are not in daily YouTube watch yet because the official channel was not clear enough:
+No Steve-supplied Build Intel YouTube channel names remain parked from the May 23 reconcile.
 
-- Chris Bradley
-- Brad / AI & Automation
-- Stacked Podcast
-
-Do not attach a guessed channel. Use operator confirmation or source-backed proof.
+`OpenHuman / tinyhumansai` remains a Build Intel source lead without a public YouTube channel ref and is not part of the daily YouTube channel watch.
 
 ## Marketing Sources Captured But Parked
 
