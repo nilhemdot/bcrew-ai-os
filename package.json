@@ -230,6 +230,7 @@
     "process:dev-team-hub-v0-check": "node --env-file-if-exists=.env scripts/process-dev-team-hub-v0-check.mjs",
     "process:youtube-build-intel-link-resource-check": "node --env-file-if-exists=.env scripts/process-youtube-build-intel-link-resource-check.mjs",
     "process:god-mode-extractor-research-swarm-check": "node --env-file-if-exists=.env scripts/process-god-mode-extractor-research-swarm-check.mjs",
+    "process:god-mode-extractor-eyes-quality-loop-check": "node --env-file-if-exists=.env scripts/process-god-mode-extractor-eyes-quality-loop-check.mjs",
     "process:youtube-dev-team-intelligence-sprint-plan-check": "node --env-file-if-exists=.env scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs",
     "process:youtube-creator-daily-watch-sprint-update-check": "node --env-file-if-exists=.env scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs",
     "process:youtube-current-sprint-workspace-cleanup-check": "node --env-file-if-exists=.env scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs",

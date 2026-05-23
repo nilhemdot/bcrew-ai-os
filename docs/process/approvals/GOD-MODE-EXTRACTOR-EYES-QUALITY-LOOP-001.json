@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-23T10:30:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/god-mode-extractor-eyes-quality-loop-001-plan.md",
+  "approvedPlanSha256": "4cf3af94c32e6cdeda9601ce8e7fa5088f333e21308e67b1dad4c27054426d86",
+  "approvedRepoHead": "b0bd16fd16c502ceb28b969e8c35a858bd103066",
+  "approvalSource": "Steve direct May 23 correction: prove Eyes V0 on 3-5 exact public videos before Mark last-50 or broader creator scale-up.",
+  "approvalDigest": "dd551c09283a39212c6c51098cdb453204abbf8e2221db7bd1f0b8ec7c9e33ba"
+}

@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-23
-Version: v6.163 - God Mode research closed; Eyes loop active
-Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the daily public creator watch is reconciled to 30 public YouTube creators; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` and `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` are closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`; Eyes Quality Loop now runs before any Mark last-50 or broader creator scale-up; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Version: v6.164 - Eyes loop closed; overnight guard active
+Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the daily public creator watch is reconciled to 30 public YouTube creators; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` are closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`; Eyes Quality Loop proved value before any Mark last-50 or broader creator scale-up; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 
 Use this doc for one question:
 
@@ -22,7 +22,7 @@ The plan is:
 
 `SRC-CREATOR-WATCHLIST-001 + SRC-YOUTUBE-INTEL-001 -> daily public creator watch -> link/resource approval routing -> God Mode extractor research -> Eyes Quality Loop on 3-5 approved videos -> guarded scale-up -> Mark last 50 / other creators last 20 -> transcript/description/visual/resource evidence -> observations -> atoms/candidates/scout reports -> Dev Team Hub -> Intelligence Director -> approval-gated backlog promotion`
 
-May 23 checkpoint: Dev Hub V0 is proof that Foundation Build Intel can reach a hub, not permission to rebuild the whole Dev pipeline UI. The next Dev Hub polish should stay to two views, Overview/YOU and Incoming Data Intelligence, while Foundation Sprint/Backlog remain the workflow owners. Current YouTube watch rows are public metadata, not watched/analyzed video. Steve corrected the sprint: do not extract Mark last-50 or other creator latest-20 with weak transcript-only mode. Link/resource routing is now closed and approval-bound. God Mode research is now closed and recommends Gemini video-understanding Eyes V0 plus transcript/description/resource evidence on 3-5 exact approved public videos; next run `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` to prove whether EYES adds real build-intel value. See [YouTube To Dev Hub Intel Proof Checkpoint](../handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md) and [God Mode Extractor Research Swarm](../source-notes/god-mode-extractor-research-swarm-2026-05-23.md).
+May 23 checkpoint: Dev Hub V0 is proof that Foundation Build Intel can reach a hub, not permission to rebuild the whole Dev pipeline UI. The next Dev Hub polish should stay to two views, Overview/YOU and Incoming Data Intelligence, while Foundation Sprint/Backlog remain the workflow owners. Current YouTube watch rows are public metadata, not watched/analyzed video. Steve corrected the sprint: do not extract Mark last-50 or other creator latest-20 with weak transcript-only mode. Link/resource routing and God Mode research are now closed. `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` proved Gemini video-understanding EYES V0 adds value on 3 exact approved public videos: 3/3 improved, +43 average quality delta, 9 timestamped visual evidence items, and 6 proposal-only build candidates. Continue `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` before any scale-up. See [YouTube To Dev Hub Intel Proof Checkpoint](../handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md), [God Mode Extractor Research Swarm](../source-notes/god-mode-extractor-research-swarm-2026-05-23.md), and [God Mode Extractor Eyes Quality Loop](../source-notes/god-mode-extractor-eyes-quality-loop-2026-05-23.md).
 
 May 23 creator-watch reconcile: Steve supplied confirmed public YouTube refs for Chris Bradley / MRR Official, Brad Bonanno / AI & Automation, Stacked Podcast, and Jack / Itssssss_Jack. The daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This remains metadata-only discovery; it is not video watching, vision analysis, or permission to scale transcript-only extraction.
 
@@ -37,17 +37,18 @@ Closed setup:
 7. `DEV-TEAM-HUB-V0-001` - read-only Dev Team Hub V0 is closed under `dev-team-hub-v0-v1`; it proves Foundation Build Intel can feed a real hub with recommended build candidates, approval queues, current sprint state, and source proof without creating a Dev data silo.
 8. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - link/resource approval routing is closed under `youtube-build-intel-link-resource-v1`; it deduped 52 YouTube scout links into 39 safe references and 13 approval-required links without following, downloading, purchasing, opting in, mutating credentials, creating backlog cards, or writing externally.
 9. `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` - source-backed extractor research is closed under `god-mode-extractor-research-swarm-v1`; it reviewed 9 sources, ranked 4 architecture options, rejected transcript-only scale-up and bulk screenshot default, persisted report `research:god-mode-extractor-research-swarm-001`, and recommends Gemini video-understanding Eyes V0 for the next quality loop.
+10. `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` - bounded Eyes quality loop is closed under `god-mode-extractor-eyes-quality-loop-v1`; it compared current transcript/description/page evidence against Gemini video-understanding on 3 exact public videos, improved 3/3, recorded +43 average quality delta, persisted 9 timestamped visual evidence items, 6 build candidates, proposal-only atoms/hits, and Dev Team Hub read-path truth.
 
 Active sprint order:
 
-`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001`, `DEV-TEAM-HUB-V0-001`, `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, and `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`. The old pre-sprint shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
+`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001`, `DEV-TEAM-HUB-V0-001`, `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`. The old pre-sprint shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
 
 1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - done under `youtube-creator-daily-watch-v1`.
 2. `DEV-TEAM-HUB-V0-001` - done under `dev-team-hub-v0-v1`.
 3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - done under `youtube-build-intel-link-resource-v1`.
 4. `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` - done under `god-mode-extractor-research-swarm-v1`.
-5. `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` - active next card. Compare current transcript/description extraction against Gemini video-understanding EYES-enhanced extraction on 3-5 approved public videos.
-6. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - add quotas, stop conditions, artifact/provenance controls, stale-run prevention, and morning review before broader runs.
+5. `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` - done under `god-mode-extractor-eyes-quality-loop-v1`.
+6. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - active next card. Add quotas, stop conditions, artifact/provenance controls, stale-run prevention, and morning review before broader runs.
 7. `MARK-KASHEF-LAST-50-BASELINE-001` - process Mark's approved public last-50 baseline only after the Eyes Quality Loop and guard are proven.
 8. `YOUTUBE-LATEST-20-INTEL-RUN-001` - process approved public last-20 videos for other creators only after the extraction mode is proven.
 9. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - generate the Director report/view with evidence, scores, suggested card, blockers, duplicate/stale checks, and next action.
