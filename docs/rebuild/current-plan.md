@@ -50,6 +50,8 @@ Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-00
 
 Approval-gated continuation and parked Strategy boundary remain documented for `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001`, `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`, and `STRATEGY-003`.
 
+Agent Feedback health boundary remains active but out of this sprint: `AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` is not accepted, and `AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001` is done after proving the real browser submission path. No production auto-send may start from it. Production auto-send remains stopped until a separate production enablement card is approved and proven.
+
 Do not run Skool, MyICOR, Loom, Gumroad, Calendly, purchases, opt-ins, comments/member, private/auth-required extraction, Strategy, People, Drive permission mutation, external writes, emails, public posts, or provider/account workarounds from this sprint.
 
 Closed recovery and Brain Fleet readiness cards:

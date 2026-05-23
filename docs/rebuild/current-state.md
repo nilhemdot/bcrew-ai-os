@@ -55,6 +55,8 @@ Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-00
 
 Approval-gated continuation and parked Strategy boundary remain documented for `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001`, `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`, and `STRATEGY-003`.
 
+Agent Feedback health boundary: `AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` is not accepted. `AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001` is done and proved Steve’s real browser submission. Production auto-send remains stopped until the separate production enablement card is approved and proven.
+
 Current sprint call:
 
 - `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is done. A concurrent proof bundle produced a Postgres deadlock while the same System Health check passed sequentially. The shipped fix is a shared local serialization guard for DB-heavy Foundation proof checks, documented sequential behavior, owner-token child reentry for delegated verifier health checks, and dogfood proving concurrent proof attempts do not create misleading raw health failures while real DB/schema/verifier failures still fail closed.
