@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-22
-Status: Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` is next; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Last updated: 2026-05-23
+Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` is next; full EYES/HANDS/BRAIN extractor implementation, Skool/MyICOR/private/auth work, Strategy, and People remain parked
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -24,6 +24,8 @@ Rule: if a package depends on open live inputs, open runtime activation, or open
 The Foundation is real, the gate-check serialization blocker is closed, Brain Fleet foundation v1 is closed as contract-only work, Harlan auth escalation v1 is closed as dry-run contract work, Brain Fleet quota ledger v1 is closed as ledger-only proof, Brain Fleet model capability registry v1 is closed as read-only route truth, direct Codex subscription route v1 is closed as bounded local-tooling proof, Gemini video route v1 is closed as bounded API proof, Claude Code review route v1 is closed as bounded experimental local proof, OpenClaw adapter boundary v1 is closed as route/doctrine proof, extractor Brain Fleet proof v1 is closed as deterministic governed proof, YouTube Build Intel runtime proof v1 is closed for the first approved public item, and WEB GODMODE live operator v1 is closed for the exact Mark Kashef public video.
 
 Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`.
+
+May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe is proven. It needs an Overview/YOU page and an Incoming Data Intelligence view; Foundation Sprint and Backlog remain the workflow owners. Current YouTube watch rows are metadata, not full watched/analyzed videos. The full extractor target is EYES/HANDS/BRAIN and is parked as implementation work outside the current link-resource slice.
 
 Closed setup:
 
@@ -51,7 +53,7 @@ Sprint order:
 8. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
 9. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
 
-Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, and `AGENT-BRAIN-FOUNDATION-SEPARATION-001`.
+Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, `AGENT-BRAIN-FOUNDATION-SEPARATION-001`, `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002`, `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`, `DEV-TEAM-HUB-TWO-VIEW-INTEL-PROOF-001`, and `MARK-CLAUDE-CLAW-CODE-PACKAGE-REVIEW-001`.
 
 Approval-gated continuation and parked Strategy boundary remain documented for `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001`, `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`, and `STRATEGY-003`.
 

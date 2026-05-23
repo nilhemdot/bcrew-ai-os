@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-22
-Version: v6.159 - Dev Team Hub V0 proof
-Status: Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Last updated: 2026-05-23
+Version: v6.160 - YouTube to Dev Hub intel proof checkpoint
+Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`; full EYES/HANDS/BRAIN extractor implementation, Skool/MyICOR/private/auth work, Strategy, and People remain parked
 
 Use this doc for one question:
 
@@ -21,6 +21,8 @@ Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-T
 The plan is:
 
 `SRC-CREATOR-WATCHLIST-001 + SRC-YOUTUBE-INTEL-001 -> daily public creator watch -> Mark last 50 / other creators last 20 -> transcript/description/screenshots/resource links -> observations -> atoms/candidates/scout reports -> Dev Team Hub -> Intelligence Director -> approval-gated backlog promotion`
+
+May 23 checkpoint: Dev Hub V0 is proof that Foundation Build Intel can reach a hub, not permission to rebuild the whole Dev pipeline UI. The next Dev Hub polish should stay to two views, Overview/YOU and Incoming Data Intelligence, while Foundation Sprint/Backlog remain the workflow owners. Current YouTube watch rows are public metadata, not watched/analyzed video. The richer extractor requirement - EYES for screen/video understanding, HANDS for governed browser/app action, and BRAIN for model interpretation/routing - is parked to `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002` and follow-up backlog, not smuggled into this link-resource card. See [YouTube To Dev Hub Intel Proof Checkpoint](../handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md).
 
 Closed setup:
 
@@ -46,7 +48,7 @@ Active sprint order:
 8. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - approve source-backed build opportunities into backlog cards or existing-card attachments.
 9. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION` - close the full Build Intel extraction loop only after the slices above are proven.
 
-Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, and `AGENT-BRAIN-FOUNDATION-SEPARATION-001`.
+Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, `AGENT-BRAIN-FOUNDATION-SEPARATION-001`, `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002`, `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`, `DEV-TEAM-HUB-TWO-VIEW-INTEL-PROOF-001`, and `MARK-CLAUDE-CLAW-CODE-PACKAGE-REVIEW-001`.
 
 Approval-gated continuation and parked Strategy boundary remain documented for `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001`, `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`, and `STRATEGY-003`.
 
