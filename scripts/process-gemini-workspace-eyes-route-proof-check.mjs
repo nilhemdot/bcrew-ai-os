@@ -545,7 +545,14 @@ async function main() {
     addCheck(checks, sprint.activeBlockerCardId === expectedActiveCardId, 'Current Sprint active blocker is reconciled', sprint.activeBlockerCardId || 'missing')
     addCheck(checks, activeItem?.planRef === PLAN_PATH, 'Gemini sprint item points at the Gemini Workspace plan', activeItem?.planRef || 'missing')
     addCheck(checks, !closedPosture || activeItem?.stage === 'done_this_sprint', 'Current Sprint marks Gemini Workspace proof done after close', activeItem?.stage || 'not closing')
-    addCheck(checks, !closedPosture || nextItem?.stage === 'scoping', 'Current Sprint advances Mark baseline after close', nextItem?.stage || 'not closing')
+    addCheck(
+      checks,
+      !closedPosture ||
+        nextItem?.stage === 'scoping' ||
+        (nextItem?.stage === 'building_now' && nextItem?.metadata?.pilotPassed === true),
+      'Current Sprint advances Mark baseline after close',
+      nextItem?.stage || 'not closing',
+    )
     addCheck(checks, activeItem?.metadata?.isolatedProfileOnly === true && activeItem?.metadata?.normalSteveProfileAllowed === false, 'active sprint metadata enforces isolated profile boundary', JSON.stringify(activeItem?.metadata || {}))
     addCheck(checks, list(activeItem?.notNextBoundaries).some(item => String(item).includes('MEETING-VAULT-ACL-001') && String(item).includes('Drive permissions')), 'active sprint item includes Meeting Vault and Drive guard', list(activeItem?.notNextBoundaries).join(' | '))
     addCheck(checks, activeBacklog && (closedPosture ? activeBacklog.lane === 'done' : activeBacklog.lane === 'scoped') && activeBacklog.priority === 'P0', 'backlog card exists with expected lane/P0', activeBacklog ? `${activeBacklog.id}:${activeBacklog.lane}/${activeBacklog.priority}` : 'missing')
