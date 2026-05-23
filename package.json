@@ -227,6 +227,7 @@
     "process:youtube-scout-latest-video-vision-check": "node --env-file-if-exists=.env scripts/process-youtube-scout-latest-video-vision-check.mjs",
     "youtube:creator-daily-watch": "node --env-file-if-exists=.env scripts/run-youtube-creator-daily-watch.mjs",
     "process:youtube-creator-daily-watch-check": "node --env-file-if-exists=.env scripts/process-youtube-creator-daily-watch-check.mjs",
+    "process:dev-team-hub-v0-check": "node --env-file-if-exists=.env scripts/process-dev-team-hub-v0-check.mjs",
     "process:youtube-dev-team-intelligence-sprint-plan-check": "node --env-file-if-exists=.env scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs",
     "process:youtube-creator-daily-watch-sprint-update-check": "node --env-file-if-exists=.env scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs",
     "process:youtube-current-sprint-workspace-cleanup-check": "node --env-file-if-exists=.env scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs",
