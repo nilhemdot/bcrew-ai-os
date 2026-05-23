@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-21
-Version: v6.158 - YouTube creator daily watch foundation
-Status: Public YouTube creator daily watch is closed; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `DEV-TEAM-HUB-V0-001`; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Last updated: 2026-05-22
+Version: v6.159 - Dev Team Hub V0 proof
+Status: Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the active sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`; next active card is `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 
 Use this doc for one question:
 
@@ -30,14 +30,15 @@ Closed setup:
 4. `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001` - daily public creator watch was inserted as the active next card; Mark last 50 and other approved creators last 20 are now explicit sprint depth rules.
 5. `YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001` - the Current Sprint workspace is clean for this new sprint; old shipped cards now stay in Backlog done and Recent Work, not `Done This Sprint`.
 6. `YOUTUBE-CREATOR-DAILY-WATCH-001` - scheduled public no-auth creator watch is live under `youtube-creator-daily-watch-v1`; it checks canonical known public YouTube creator refs daily, applies Mark last-50 and other-creator last-20 baseline rules, dedupes video metadata into `source_crawl_items`, preserves first-seen/last-seen/source provenance, and exposes the proposal-only report `research-pool:youtube-creator-daily-watch`.
+7. `DEV-TEAM-HUB-V0-001` - read-only Dev Team Hub V0 is closed under `dev-team-hub-v0-v1`; it proves Foundation Build Intel can feed a real hub with recommended build candidates, approval queues, current sprint state, and source proof without creating a Dev data silo.
 
 Active sprint order:
 
-`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001`. The old pre-sprint shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
+`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001` and `DEV-TEAM-HUB-V0-001`. The old pre-sprint shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
 
 1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - done under `youtube-creator-daily-watch-v1`.
-2. `DEV-TEAM-HUB-V0-001` - active next card. Build the read-only Dev Team Hub over Foundation report/atom/review-route and creator-watch truth.
-3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - classify and approval-route YouTube description/resource/download/purchase links.
+2. `DEV-TEAM-HUB-V0-001` - done under `dev-team-hub-v0-v1`.
+3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - active next card. Classify and approval-route YouTube description/resource/download/purchase links.
 4. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - add quotas, stop conditions, artifact/provenance controls, stale-run prevention, and morning review before broader runs.
 5. `MARK-KASHEF-LAST-50-BASELINE-001` - process Mark's approved public last-50 baseline after the watch and guard are proven.
 6. `YOUTUBE-LATEST-20-INTEL-RUN-001` - process approved public last-20 videos for other creators deeper than title metadata.

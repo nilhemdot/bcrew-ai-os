@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-21
-Status: Public YouTube creator daily watch is closed; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `DEV-TEAM-HUB-V0-001` is next; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Last updated: 2026-05-22
+Status: Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` is next; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -33,16 +33,17 @@ Closed setup:
 - `YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001` corrected the sprint so daily public creator watch is required; Mark starts with last 50 and other approved public creators start with last 20.
 - `YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001` cleaned the Current Sprint workspace for this new sprint; old shipped cards now stay in Backlog done and Recent Work, not `Done This Sprint`.
 - `YOUTUBE-CREATOR-DAILY-WATCH-001` shipped the scheduled public no-auth creator watch under `youtube-creator-daily-watch-v1`; known public creator videos are deduped into `source_crawl_items` and exposed through report `research-pool:youtube-creator-daily-watch`.
+- `DEV-TEAM-HUB-V0-001` shipped the read-only Dev Team Hub under `dev-team-hub-v0-v1`; `/dev` consumes Foundation Build Intel truth and shows recommended build candidates, split approval queues, current sprint state, latest intel signal, and source proof.
 
-Active next card: `DEV-TEAM-HUB-V0-001`.
+Active next card: `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`.
 
 Sprint order:
 
-`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001`. The old shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
+`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001` and `DEV-TEAM-HUB-V0-001`. The old shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
 
 1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - done under `youtube-creator-daily-watch-v1`
-2. `DEV-TEAM-HUB-V0-001` - active next card
-3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`
+2. `DEV-TEAM-HUB-V0-001` - done under `dev-team-hub-v0-v1`
+3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - active next card
 4. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`
 5. `MARK-KASHEF-LAST-50-BASELINE-001`
 6. `YOUTUBE-LATEST-20-INTEL-RUN-001`
