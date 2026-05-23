@@ -11,7 +11,7 @@
   var VIEW_COPY = {
     overview: {
       title: 'Overview',
-      subtitle: 'Current active work, approval needs, Build Intel, and recent proof from Foundation truth.',
+      subtitle: 'Recommended build candidates, approval decisions, latest intel, sprint state, and proof from Foundation truth.',
     },
     sprint: {
       title: 'Current Sprint',
@@ -305,6 +305,67 @@
     ])
   }
 
+  function isYoutubeWatchUrl(value) {
+    var url = text(value)
+    return /^https:\/\/(www\.)?youtube\.com\/watch\?/i.test(url) || /^https:\/\/youtu\.be\//i.test(url)
+  }
+
+  function approvalBuckets(data) {
+    var links = list(((data.hub || {}).scout || {}).approvalRequiredLinks)
+    return links.reduce(function(buckets, item) {
+      var url = item.url || item.sourceUrl
+      var classification = text(item.classification)
+      if (isYoutubeWatchUrl(url) && !classification) buckets.sources.push(item)
+      else buckets.external.push(item)
+      return buckets
+    }, { sources: [], external: [] })
+  }
+
+  function sourceVideoLabel(url) {
+    if (!url) return 'Needs source'
+    try {
+      var parsed = new URL(url)
+      return parsed.searchParams.get('v') || hostFromUrl(url) || url
+    } catch (error) {
+      return url
+    }
+  }
+
+  function humanizeToken(value) {
+    var cleaned = text(value).replace(/^approval_required_/, '').replace(/_/g, ' ')
+    return cleaned.replace(/\b\w/g, function(character) {
+      return character.toUpperCase()
+    }) || 'Needs source'
+  }
+
+  function renderSourceProofStrip(data) {
+    var counts = getCounts(data)
+    var sourceIds = list((data.hub || {}).sourceIds).join(', ')
+    var reportIds = list((data.hub || {}).reportArtifactIds).join(', ')
+    return h('section', { className: 'dev-proof-strip', aria: { label: 'Source proof' } }, [
+      h('div', { className: 'dev-proof-item' }, [
+        h('span', { text: 'Build candidates' }),
+        h('strong', { text: formatNumber(counts.rankedOpportunities) }),
+        h('small', { text: 'scout/proof' }),
+      ]),
+      h('div', { className: 'dev-proof-item' }, [
+        h('span', { text: 'Atoms' }),
+        h('strong', { text: formatNumber(counts.atoms) }),
+        h('small', { text: 'intelligence_atoms' }),
+      ]),
+      h('div', { className: 'dev-proof-item' }, [
+        h('span', { text: 'Evidence hits' }),
+        h('strong', { text: formatNumber(counts.evidenceHits) }),
+        h('small', { text: 'intelligence_atom_hits' }),
+      ]),
+      h('div', { className: 'dev-proof-item wide' }, [
+        h('span', { text: 'Source IDs' }),
+        h('strong', { text: sourceIds || 'Needs source' }),
+        h('small', { text: reportIds || 'Needs source' }),
+      ]),
+    ])
+  }
+
   function renderActiveFocus(data) {
     var card = getActiveCard(data)
     return h('article', { className: 'dev-focus-card' }, [
@@ -330,36 +391,85 @@
     ])
   }
 
-  function renderApprovalsPreview(data) {
-    var counts = getCounts(data)
-    var links = list(((data.hub || {}).scout || {}).approvalRequiredLinks)
-    var rows = links.slice(0, 3).map(function(linkItem) {
-      var url = linkItem.url || linkItem.sourceUrl
-      var title = linkItem.classification || hostFromUrl(url) || 'Approval required'
-      return row(title, linkItem.reason || linkItem.recommendation, [tag('needs Steve approval', 'needs')], [
-        meta('source', linkItem.sourceId),
-        meta('route', linkItem.sourceRoute),
-      ])
-    })
-    if (!rows.length) rows.push(emptyState('Needs source: no approval queue returned.'))
-    rows.push(h('div', { className: 'dev-actions' }, [actionButton('Review approvals', 'approvals')]))
-    return panel('Needs Steve Approval', 'Approval Queue', formatNumber(counts.approvalRequiredLinks) + ' items', h('div', { className: 'dev-list tight' }, rows), 'Links are displayed for review only. The page does not follow them or write approvals.')
+  function approvalRow(linkItem, external) {
+    var url = linkItem.url || linkItem.sourceUrl
+    var title = external
+      ? humanizeToken(linkItem.classification || hostFromUrl(url) || 'External permission')
+      : 'Source video: ' + sourceVideoLabel(url)
+    return row(title, linkItem.reason || linkItem.recommendation || 'Needs Steve approval before follow-up.', [
+      tag(external ? 'permission needed' : 'approve extraction', 'needs'),
+    ], [
+      meta('source', linkItem.sourceId),
+      meta('route', linkItem.sourceRoute),
+    ], [
+      urlText(url),
+    ])
   }
 
-  function renderTopOpportunities(data, limit) {
+  function approvalPreviewRow(linkItem, external) {
+    var url = linkItem.url || linkItem.sourceUrl
+    var title = external
+      ? humanizeToken(linkItem.classification || hostFromUrl(url) || 'External permission')
+      : 'Source video: ' + sourceVideoLabel(url)
+    return row(title, linkItem.reason || linkItem.recommendation || 'Needs Steve approval before follow-up.', [
+      tag(external ? 'permission needed' : 'approve extraction', 'needs'),
+    ], [
+      meta(external ? 'host' : 'video', external ? hostFromUrl(url) : sourceVideoLabel(url)),
+      meta('source', linkItem.sourceId),
+    ])
+  }
+
+  function renderApprovalsPreview(data) {
+    var buckets = approvalBuckets(data)
+    var sourceRows = buckets.sources.slice(0, 3).map(function(item) {
+      return approvalPreviewRow(item, false)
+    })
+    var externalRows = buckets.external.slice(0, 3).map(function(item) {
+      return approvalPreviewRow(item, true)
+    })
+    if (!sourceRows.length) sourceRows.push(emptyState('No source videos currently need approval.'))
+    if (!externalRows.length) externalRows.push(emptyState('No external/private links currently need permission.'))
+    return panel('Needs Steve Approval', 'Approval Queue', formatNumber(buckets.sources.length + buckets.external.length) + ' items', h('div', { className: 'dev-approval-split' }, [
+      h('div', null, [
+        h('h3', { className: 'dev-subhead', text: 'Videos/source items for deeper extraction' }),
+        h('div', { className: 'dev-list tight' }, sourceRows),
+      ]),
+      h('div', null, [
+        h('h3', { className: 'dev-subhead', text: 'External/private/download/auth links' }),
+        h('div', { className: 'dev-list tight' }, externalRows),
+      ]),
+      h('div', { className: 'dev-actions' }, [actionButton('Review full approval queue', 'approvals')]),
+    ]), 'The page displays decisions only. It does not follow links, approve routes, or write backlog.')
+  }
+
+  function renderRecommendedBuildCandidates(data, limit) {
     var opportunities = list(((data.hub || {}).scout || {}).rankedOpportunities).slice(0, limit || 3)
-    var rows = opportunities.map(function(item, index) {
-      return row(opportunityTitle(item, index), item.observation || item.devTeamOpportunity, [
-        tag(item.confidence || 'proposal-only'),
-      ], [
-        meta('theme', item.theme),
-        meta('source', item.sourceId),
-      ], [
-        actionButton('View route', 'opportunities'),
+    var cards = opportunities.map(function(item, index) {
+      return h('article', { className: 'dev-candidate' }, [
+        h('div', { className: 'dev-row-head' }, [
+          h('span', { className: 'dev-candidate-rank', text: '#' + (item.rank || index + 1) }),
+          tag(item.confidence || 'proposal-only'),
+        ]),
+        h('h3', { className: 'dev-candidate-title', text: valueOrNeed(item.title) }),
+        h('div', { className: 'dev-field' }, [
+          h('span', { className: 'dev-field-label', text: 'Why it matters' }),
+          h('p', { className: 'dev-row-text', text: valueOrNeed(item.observation || item.devTeamOpportunity) }),
+        ]),
+        h('div', { className: 'dev-field' }, [
+          h('span', { className: 'dev-field-label', text: 'Recommended next step' }),
+          h('p', { className: 'dev-row-text', text: valueOrNeed(item.recommendedNextStep) }),
+        ]),
+        h('div', { className: 'dev-meta' }, [
+          meta('theme', item.theme),
+          meta('source', item.sourceId),
+        ]),
+        h('div', { className: 'dev-actions' }, [
+          urlText(item.sourceUrl),
+          actionButton('View route', 'opportunities'),
+        ]),
       ])
     })
-    if (!rows.length) rows.push(emptyState('Needs source: no scout opportunities returned.'))
-    return panel('Top Build Opportunities', 'Scout Proposals', 'from scout/proof', h('div', { className: 'dev-list' }, rows), 'These are 7 scout/proof opportunities, not claims about all tracked videos. Promotion stays proposal-only until approved.')
+    return panel('Recommended Build Candidates', 'Recommended Build Candidates', 'from scout/proof', cards.length ? h('div', { className: 'dev-candidate-grid' }, cards) : emptyState('Needs source: no build candidates returned.'), 'These are source-backed candidates, not approved backlog cards. Steve still chooses what moves forward.')
   }
 
   function renderSprintQueuePreview(data) {
@@ -374,21 +484,58 @@
     return panel('Current Sprint Queue', 'Build Order', ROUTES.sprint, h('div', { className: 'dev-list tight' }, rows))
   }
 
-  function renderBuildIntelPreview(data) {
+  function renderLatestIntelSignal(data) {
     var mark = (data.hub || {}).markYoutube || {}
-    var counts = getCounts(data)
+    var pool = list(((data.hub || {}).dailyWatch || {}).researchPool)
+    var newItems = pool.filter(function(item) {
+      return /new/i.test(text(item.deltaState || item.status || item.reviewState))
+    })
     var rows = [
-      row(mark.displayName || 'Mark / YouTube', mark.latestVideoTitle || 'Needs source', [
+      row('Daily watch health', mark.targetStatus === 'succeeded' ? 'Daily creator watch is healthy and feeding the Build Intel pool.' : 'Daily creator watch needs review.', [
         tag(mark.targetStatus || mark.lookupStatus),
       ], [
-        meta('tracked videos', formatNumber(counts.researchPool)),
         meta('last run', formatDateTime(mark.targetLastRunAt)),
-        meta('source', mark.sourceId),
+        meta('next run', formatDateTime(mark.targetNextRunAt)),
+        meta('new items since last run', formatNumber(newItems.length)),
+      ]),
+      row('Latest Mark video', mark.latestVideoTitle || 'Needs source', [
+        tag(mark.lookupStatus || 'source'),
       ], [
+        meta('source', mark.sourceId),
+        meta('youtube source', mark.youtubeSourceId),
+      ], [
+        urlText(mark.latestVideoUrl),
         actionButton('Open intel', 'intel'),
       ]),
     ]
-    return panel('Latest Build Intel', 'Creator Watch', '132 = tracked videos', h('div', { className: 'dev-list tight' }, rows), 'Tracked videos are source rows from the daily creator watch, not a claim that every video has been reviewed.')
+    return panel('Latest Intel Signal', 'Daily Watch', 'source-backed', h('div', { className: 'dev-list tight' }, rows), 'Tracked-video totals stay in Intel detail. Overview shows only the current signal.')
+  }
+
+  function renderCurrentSprintOverview(data) {
+    var active = getActiveCard(data)
+    var items = sprintItems(data)
+    var activeIndex = items.findIndex(function(item) {
+      return item.cardId === active.cardId
+    })
+    var nextItem = activeIndex >= 0 ? items.slice(activeIndex + 1).find(function(item) {
+      return !/done/i.test(text(item.stage || item.stageLabel))
+    }) : null
+    var blockerText = active.cardId ? 'Yes: current active card is still the sprint blocker.' : 'No active blocker returned.'
+    return panel('Current Sprint', 'Sprint State', ROUTES.sprint, h('div', { className: 'dev-list tight' }, [
+      row('Active card', active.cardId, [tag(active.stage || 'active')], [
+        meta('title', active.title || active.definitionOfDone),
+        meta('blocker', blockerText),
+      ]),
+      row('Next card', nextItem ? nextItem.cardId : 'Needs source', nextItem ? itemTitle(nextItem) : 'No next card returned.', [
+        tag(nextItem ? nextItem.stage || nextItem.stageLabel : 'Needs source'),
+      ], [
+        meta('source', ROUTES.sprint),
+      ]),
+      h('div', { className: 'dev-actions' }, [
+        actionButton('Open sprint', 'sprint'),
+        actionButton('See build queue', 'backlog'),
+      ]),
+    ]))
   }
 
   function renderRecentPreview(data) {
@@ -409,25 +556,20 @@
 
   function renderOverview(data) {
     return [
-      h('section', { className: 'dev-overview-top' }, [
-        h('div', { className: 'dev-overview-lead' }, [
-          renderActiveFocus(data),
-          renderMetricGrid(data),
-        ]),
+      renderRecommendedBuildCandidates(data, 3),
+      h('section', { className: 'dev-grid-two' }, [
         renderApprovalsPreview(data),
+        renderLatestIntelSignal(data),
       ]),
       h('section', { className: 'dev-grid-three' }, [
-        renderTopOpportunities(data, 3),
-        renderSprintQueuePreview(data),
-        renderBuildIntelPreview(data),
-      ]),
-      h('section', { className: 'dev-grid-two' }, [
+        renderCurrentSprintOverview(data),
         renderRecentPreview(data),
         panel('Read Boundary', 'Proposal Only', 'no writes', h('div', { className: 'dev-list tight' }, [
           row('No extraction runs', 'This UI consumes existing Foundation APIs only.', [tag('read only', 'good')], [meta('routes', Object.keys(ROUTES).map(function(key) { return ROUTES[key] }))]),
           row('No automatic backlog cards', 'Opportunities and links stay review items until Steve approves exact source work.', [tag('approval gated', 'needs')]),
         ])),
       ]),
+      renderSourceProofStrip(data),
     ]
   }
 
@@ -625,25 +767,22 @@
       ])
     })
     return [
-      panel('Ranked Opportunities', 'Scout Proposals', '7 from scout/proof', opportunityRows.length ? h('div', { className: 'dev-list' }, opportunityRows) : emptyState('Needs source: no ranked opportunities were returned.'), 'These are proposal-only scout outputs. They are not automatically backlog cards.'),
+      panel('Recommended Build Candidates', 'Recommended Build Candidates', '7 from scout/proof', opportunityRows.length ? h('div', { className: 'dev-list' }, opportunityRows) : emptyState('Needs source: no build candidates were returned.'), 'These are proposal-only scout outputs. They are not automatically backlog cards.'),
       panel('Review Routes', 'Promotion Gate', 'approval required', routeRows.length ? h('div', { className: 'dev-list' }, routeRows) : emptyState('Needs source: no review routes were returned.')),
     ]
   }
 
   function renderApprovals(data) {
-    var links = list(((data.hub || {}).scout || {}).approvalRequiredLinks)
-    var rows = links.map(function(linkItem) {
-      var url = linkItem.url || linkItem.sourceUrl
-      var title = linkItem.classification || hostFromUrl(url) || 'Approval required'
-      return row(title, linkItem.reason || linkItem.recommendation || 'Needs Steve approval before follow-up.', [tag('requires approval', 'needs')], [
-        meta('source', linkItem.sourceId),
-        meta('route', linkItem.sourceRoute),
-      ], [
-        urlText(url),
-      ])
+    var buckets = approvalBuckets(data)
+    var sourceRows = buckets.sources.map(function(linkItem) {
+      return approvalRow(linkItem, false)
+    })
+    var externalRows = buckets.external.map(function(linkItem) {
+      return approvalRow(linkItem, true)
     })
     return [
-      panel('Needs Approval', 'Approval Queue', 'not followed', rows.length ? h('div', { className: 'dev-list' }, rows) : emptyState('Needs source: approval-required links were not returned.'), 'The UI displays the queue only. It does not follow links, approve routes, or write backlog.'),
+      panel('Needs Approval', 'Videos / Source Items', formatNumber(buckets.sources.length) + ' items', sourceRows.length ? h('div', { className: 'dev-list' }, sourceRows) : emptyState('No source videos currently need approval.'), 'Approve one exact source item before deeper extraction or promotion.'),
+      panel('Needs Permission', 'External / Private / Download / Auth Links', formatNumber(buckets.external.length) + ' items', externalRows.length ? h('div', { className: 'dev-list' }, externalRows) : emptyState('No external/private links currently need permission.'), 'These are not followed by the UI and are not approval to access private, paid, auth, booking, download, or community surfaces.'),
     ]
   }
 
