@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
 Last updated: 2026-05-23
-Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the daily public creator watch is reconciled to 30 public YouTube creators; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` are closed; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` is next; Eyes Quality Loop proved value before any Mark last-50 or broader creator scale-up; Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; the daily public creator watch is reconciled to 30 public YouTube creators; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, and `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` are closed; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` is next; Eyes Quality Loop proved value and the overnight guard blocks scale-up until the subscription mini-brain adapter is tested; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -25,7 +25,7 @@ The Foundation is real, the gate-check serialization blocker is closed, Brain Fl
 
 Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`.
 
-May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe is proven. It needs an Overview/YOU page and an Incoming Data Intelligence view; Foundation Sprint and Backlog remain the workflow owners. Current YouTube watch rows are metadata, not full watched/analyzed videos. Steve corrected the sprint so Mark last-50 and other creator latest-20 do not scale until `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` prove the extraction mode adds value. Research is closed, and the Eyes Quality Loop proved Gemini video-understanding EYES V0 adds value on 3 exact approved public videos: 3/3 improved, +43 average quality delta, 9 timestamped visual evidence items, and 6 proposal-only build candidates.
+May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe is proven. It needs an Overview/YOU page and an Incoming Data Intelligence view; Foundation Sprint and Backlog remain the workflow owners. Current YouTube watch rows are metadata, not full watched/analyzed videos. Steve corrected the sprint so Mark last-50 and other creator latest-20 do not scale until `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, and the subscription adapter proof establish the extraction mode. Research is closed, the Eyes Quality Loop proved Gemini video-understanding EYES V0 adds value on 3 exact approved public videos, and the overnight guard now blocks broad extraction until `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001`.
 
 May 23 creator-watch reconcile: the daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This is still source discovery, not watched/analyzed video.
 
@@ -41,28 +41,30 @@ Closed setup:
 - `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` shipped link/resource approval routing under `youtube-build-intel-link-resource-v1`; it deduped 52 YouTube scout links into 39 safe references and 13 approval-required links without following, downloading, purchasing, opting in, mutating credentials, creating backlog cards, or writing externally.
 - `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` shipped source-backed extractor research under `god-mode-extractor-research-swarm-v1`; it reviewed 9 sources, ranked 4 architecture options, rejected transcript-only scale-up and bulk screenshot default, persisted report `research:god-mode-extractor-research-swarm-001`, and recommends Gemini video-understanding Eyes V0 for the next quality loop.
 - `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` shipped bounded Eyes proof under `god-mode-extractor-eyes-quality-loop-v1`; it compared current transcript/description/page evidence against Gemini video understanding on 3 exact public videos, improved 3/3, recorded +43 average quality delta, persisted 9 timestamped visual evidence items, 6 build candidates, proposal-only atoms/hits, and Dev Team Hub read-path truth.
+- `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` shipped the fail-closed overnight guard under `extractor-overnight-run-guard-v1`; it enforces source approval, public/no-auth scope, quotas, route budget, artifact namespace, retry caps, stale/duplicate-run blocks, forbidden private/auth/external actions, and morning review before scale-up. It stores guard policy/report truth without adding a new source-crawl target.
 
-Active next card: `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`.
+Active next card: `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001`.
 
 Sprint order:
 
-`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001`, `DEV-TEAM-HUB-V0-001`, `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`. The old shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
+`Done This Sprint` now contains `YOUTUBE-CREATOR-DAILY-WATCH-001`, `DEV-TEAM-HUB-V0-001`, `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`, `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`, and `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`. The old shipped cards remain historical truth in Backlog done and Recent Work, but they do not carry forward into this sprint overlay.
 
 1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - done under `youtube-creator-daily-watch-v1`
 2. `DEV-TEAM-HUB-V0-001` - done under `dev-team-hub-v0-v1`
 3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - done under `youtube-build-intel-link-resource-v1`
 4. `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` - done under `god-mode-extractor-research-swarm-v1`
 5. `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` - done under `god-mode-extractor-eyes-quality-loop-v1`
-6. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - active next card
-7. `MARK-KASHEF-LAST-50-BASELINE-001`
-8. `YOUTUBE-LATEST-20-INTEL-RUN-001`
-9. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001`
-10. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
-11. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
+6. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - done under `extractor-overnight-run-guard-v1`
+7. `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` - active next card
+8. `MARK-KASHEF-LAST-50-BASELINE-001`
+9. `YOUTUBE-LATEST-20-INTEL-RUN-001`
+10. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001`
+11. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
+12. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
 
 Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, `AGENT-BRAIN-FOUNDATION-SEPARATION-001`, `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002`, `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`, `DEV-TEAM-HUB-TWO-VIEW-INTEL-PROOF-001`, `MARK-CLAUDE-CLAW-CODE-PACKAGE-REVIEW-001`, and `BUILD-INTEL-SOURCE-VALUE-LEADERBOARD-001-001`.
 
-Approval-gated continuation and parked Strategy boundary remain documented for `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001`, `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`, and `STRATEGY-003`.
+Approval-gated continuation and parked Strategy boundary remain documented for `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001`, `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001`, `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`, and `STRATEGY-003`.
 
 Agent Feedback health boundary: `AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` is not accepted. `AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001` is done and proved Steve’s real browser submission. Production auto-send remains stopped until the separate production enablement card is approved and proven.
 
