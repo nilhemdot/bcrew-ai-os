@@ -562,13 +562,27 @@ async function main() {
     const closeout = getFoundationBuildCloseouts().find(record => record.key === CLOSEOUT_KEY) || null
     const closeoutExists = await repoFileExists(CLOSEOUT_PATH)
     const closeCardExpected = args.closeCard
+    const currentActiveBlocker = activeSprint.sprint?.activeBlockerCardId || ''
+    const activeBlockerItem = list(activeSprint.items).find(item => item.cardId === currentActiveBlocker) || null
+    const activeItemOrder = Number(activeItem?.order || 0)
+    const activeBlockerOrder = Number(activeBlockerItem?.order || 0)
+    const closedHistoricalProof = !args.apply &&
+      !args.closeCard &&
+      card?.lane === 'done' &&
+      activeItem?.stage === 'done_this_sprint'
+    const sprintAdvancedPastClosedCard = closedHistoricalProof &&
+      currentActiveBlocker &&
+      currentActiveBlocker !== CARD_ID &&
+      activeBlockerOrder > activeItemOrder
+    const expectedActiveBlocker = closeCardExpected ? NEXT_CARD_ID : CARD_ID
+    const activeBlockerReconciled = currentActiveBlocker === expectedActiveBlocker || sprintAdvancedPastClosedCard
 
     addCheck(checks, approval.ok && approval.mode === 'v2' && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || APPROVAL_PATH)
     addCheck(checks, planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic passes for daily watch', buildPlanCriticResultSummary(planReview))
     addCheck(checks, planCriticRuns.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE) || args.apply || args.closeCard, 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.cardId}:${run.status}/${run.score}`).join(', ') || 'missing')
     addCheck(checks, card && (closeCardExpected ? card.lane === 'done' : ['scoped', 'executing', 'done'].includes(card.lane)), 'live backlog card exists with expected lane', card ? `${card.id}:${card.lane}/${card.priority}` : 'missing')
     addCheck(checks, nextCard && ['scoped', 'executing', 'done', 'research'].includes(nextCard.lane), 'next card remains live', nextCard ? `${nextCard.id}:${nextCard.lane}` : 'missing')
-    addCheck(checks, activeSprint.sprint?.activeBlockerCardId === (closeCardExpected ? NEXT_CARD_ID : CARD_ID), 'Current Sprint active blocker is reconciled', activeSprint.sprint?.activeBlockerCardId || 'missing')
+    addCheck(checks, activeBlockerReconciled, 'Current Sprint active blocker is reconciled', sprintAdvancedPastClosedCard ? `${currentActiveBlocker} (advanced past closed daily watch)` : (currentActiveBlocker || 'missing'))
     addCheck(checks, !closeCardExpected || activeItem?.stage === 'done_this_sprint', 'Current Sprint marks daily watch done after close', activeItem?.stage || 'missing')
     addCheck(checks, !closeCardExpected || nextItem?.stage === 'scoping', 'Current Sprint advances to next scoped card after close', nextItem?.stage || 'missing')
     addCheck(checks, snapshot.ok === true, 'daily watch persisted snapshot is healthy', snapshot.failures.map(failure => failure.check).join(', ') || 'healthy')
@@ -586,7 +600,7 @@ async function main() {
     addCheck(checks, coverageSource.includes(CARD_ID), 'verifier coverage includes daily watch card ID', 'coverage card ID present')
     addCheck(checks, sourceContractsSource.includes('Public Metadata Watch V1') && sourceContractsSource.includes('Proposal-Only V1; Source Boundary Locked'), 'source contract records proposal-only public YouTube watch truth', 'SRC-YOUTUBE-INTEL-001')
     addCheck(checks, sourceContractValidationSource.includes("'SRC-YOUTUBE-INTEL-001'") && sourceContractValidationSource.includes("extractionPosture: 'proposal_only'"), 'source validation permits proposal-only public YouTube metadata lane', 'SRC-YOUTUBE-INTEL-001 proposal_only')
-    addCheck(checks, sourceLifecycleSource.includes('SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT = 15') && sourceLifecycleSource.includes("'youtube-creator-daily-watch'") && sourceLifecycleSource.includes('publicNoAuthOnly'), 'source lifecycle approved target baseline includes daily watch caps', '15 targets')
+    addCheck(checks, sourceLifecycleSource.includes('SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT = Object.keys(SOURCE_LIFECYCLE_APPROVED_TARGET_BASELINE).length') && sourceLifecycleSource.includes("'youtube-creator-daily-watch'") && sourceLifecycleSource.includes('publicNoAuthOnly'), 'source lifecycle approved target baseline includes daily watch caps', 'dynamic target baseline')
     addCheck(checks, sourceLifecycleCompletionSource.includes('daily watch review pool') && sourceLifecycleCompletionSource.includes('richer YouTube extraction/scout'), 'source lifecycle completion keeps richer YouTube extraction gated', 'proposal-only watch, richer extraction gated')
     addCheck(checks, hubReadRoutesSource.includes('compactFoundationExtractionControlForHub') && hubReadRoutesSource.includes('extractionControl: compactFoundationExtractionControlForHub'), 'full diagnostics compacts extraction-control payload after adding research pool rows', 'compact extractionControl')
     addCheck(checks, currentPlanSource.includes(CARD_ID) && currentPlanSource.includes('last 50') && currentPlanSource.includes('last 20'), 'current plan keeps daily-watch depth rules visible', 'docs/rebuild/current-plan.md')

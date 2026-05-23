@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
 Last updated: 2026-05-23
-Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` is next; full EYES/HANDS/BRAIN extractor implementation, Skool/MyICOR/private/auth work, Strategy, and People remain parked
+Status: Morning health is green after hot-doc cleanup; Dev Team Hub V0 is closed as a read-only Foundation intelligence consumer; `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21` is the active sprint; `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` is next; God Mode extractor research and Eyes Quality Loop now run before any Mark last-50 or broader creator scale-up; Skool/MyICOR/private/auth work, Strategy, and People remain parked
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -25,7 +25,7 @@ The Foundation is real, the gate-check serialization blocker is closed, Brain Fl
 
 Current Sprint API owns the active blocker. The live sprint is `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`.
 
-May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe is proven. It needs an Overview/YOU page and an Incoming Data Intelligence view; Foundation Sprint and Backlog remain the workflow owners. Current YouTube watch rows are metadata, not full watched/analyzed videos. The full extractor target is EYES/HANDS/BRAIN and is parked as implementation work outside the current link-resource slice.
+May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe is proven. It needs an Overview/YOU page and an Incoming Data Intelligence view; Foundation Sprint and Backlog remain the workflow owners. Current YouTube watch rows are metadata, not full watched/analyzed videos. Steve corrected the sprint so Mark last-50 and other creator latest-20 do not scale until `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` prove the extraction mode adds value.
 
 Closed setup:
 
@@ -46,14 +46,16 @@ Sprint order:
 1. `YOUTUBE-CREATOR-DAILY-WATCH-001` - done under `youtube-creator-daily-watch-v1`
 2. `DEV-TEAM-HUB-V0-001` - done under `dev-team-hub-v0-v1`
 3. `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` - active next card
-4. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`
-5. `MARK-KASHEF-LAST-50-BASELINE-001`
-6. `YOUTUBE-LATEST-20-INTEL-RUN-001`
-7. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001`
-8. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
-9. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
+4. `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001`
+5. `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001`
+6. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`
+7. `MARK-KASHEF-LAST-50-BASELINE-001`
+8. `YOUTUBE-LATEST-20-INTEL-RUN-001`
+9. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001`
+10. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
+11. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
 
-Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, `AGENT-BRAIN-FOUNDATION-SEPARATION-001`, `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002`, `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`, `DEV-TEAM-HUB-TWO-VIEW-INTEL-PROOF-001`, and `MARK-CLAUDE-CLAW-CODE-PACKAGE-REVIEW-001`.
+Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, `AGENT-BRAIN-FOUNDATION-SEPARATION-001`, `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002`, `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`, `DEV-TEAM-HUB-TWO-VIEW-INTEL-PROOF-001`, `MARK-CLAUDE-CLAW-CODE-PACKAGE-REVIEW-001`, and `BUILD-INTEL-SOURCE-VALUE-LEADERBOARD-001-001`.
 
 Approval-gated continuation and parked Strategy boundary remain documented for `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001`, `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`, and `STRATEGY-003`.
 

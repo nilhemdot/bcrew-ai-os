@@ -361,13 +361,18 @@ async function main() {
       run.status === 'pass' &&
       Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE
   )
+  const currentSprintCardIds = (sprint.items || []).map(item => item.cardId).filter(Boolean)
+  const currentSprintPlanCriticRuns = await getPlanCriticRunsByCardIds([
+    EXTRACTION_RUNTIME_READINESS_CARD_ID,
+    ...currentSprintCardIds,
+  ])
   const readiness = buildExtractionRuntimeReadinessSnapshot({ extractionControlSnapshot: liveControlSnapshot })
   const dogfood = buildExtractionRuntimeReadinessDogfoodProof()
   const currentSprintStatus = buildFoundationCurrentSprintStatus({
     sprint: sprint.sprint,
     items: sprint.items,
     closeouts: getFoundationBuildCloseouts(),
-    planCriticRuns,
+    planCriticRuns: currentSprintPlanCriticRuns,
   })
 
   addCheck(checks, approval.ok, 'approval validates at 9.8+', approval.failures?.map(check => check.check).join(', ') || EXTRACTION_RUNTIME_READINESS_APPROVAL_PATH)
@@ -375,7 +380,7 @@ async function main() {
   addCheck(checks, durablePlanCriticPass, 'durable Plan Critic pass row exists', 'pass/10')
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live extraction readiness card exists', card ? `${card.id}:${card.lane}` : 'missing')
   addCheck(checks, sprint.sprint?.sprintId === EXTRACTION_RUNTIME_READINESS_SPRINT_ID || card?.lane === 'done', 'Current Sprint is extraction readiness or card is historically done', sprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains extraction readiness item', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  addCheck(checks, card?.lane === 'done' || (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)), 'Current Sprint contains extraction readiness item', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'historically done')
   addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint overlay metadata is healthy', currentSprintStatus.findings?.map(finding => finding.message || finding.detail || finding.check).join(', ') || currentSprintStatus.status)
   addCheck(checks, readiness.ok, 'runtime readiness snapshot is healthy', readiness.failures.map(finding => finding.check).join(', ') || `${readiness.summary.targetCount} targets`)
   addCheck(checks, dogfood.ok, 'dogfood rejects unsafe extraction readiness', dogfood.dogfoodInvariant)

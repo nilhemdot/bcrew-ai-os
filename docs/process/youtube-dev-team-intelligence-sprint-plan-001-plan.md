@@ -52,6 +52,8 @@ Sprint order after this card:
 6. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
 7. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
 
+May 23 sprint correction: Steve later blocked weak transcript-only scale-up. Live Current Sprint now inserts `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` and `GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001` after `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002` and before `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, Mark last-50, or broader latest-20 extraction. Current live order is owned by `docs/rebuild/current-plan.md` and the Current Sprint API.
+
 Gate decision tree: this is a full ship gate because it mutates live backlog rows, Current Sprint truth, closeout registry, verifier coverage, and operator-facing plan/state docs. Static docs alone are not enough.
 
 Behavior proof: the focused proof exercises the real process path, not marker text. It calls the actual guarded Current Sprint API/function path `upsertFoundationCurrentSprintOverlay()`, writes real live backlog rows, records a real Plan Critic row, then performs a DB round-trip readback through `getActiveFoundationCurrentSprint()` and `getBacklogItemsByIds()`. It rejects weak proof: no substring-only proof, string match verifier theatre, or static markdown marker can replace the live DB/API round trip. The dogfood shape is the before/after failure: before apply the proof must show missing cards/order, and after apply it must show exact sprint order plus parked-card boundaries.
