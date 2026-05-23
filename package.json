@@ -233,6 +233,7 @@
     "process:god-mode-extractor-eyes-quality-loop-check": "node --env-file-if-exists=.env scripts/process-god-mode-extractor-eyes-quality-loop-check.mjs",
     "process:extractor-overnight-run-guard-check": "node --env-file-if-exists=.env scripts/process-extractor-overnight-run-guard-check.mjs",
     "process:subscription-brain-extractor-adapter-check": "node --env-file-if-exists=.env scripts/process-subscription-brain-extractor-adapter-check.mjs",
+    "process:gemini-workspace-eyes-route-proof-check": "node --env-file-if-exists=.env scripts/process-gemini-workspace-eyes-route-proof-check.mjs",
     "process:youtube-dev-team-intelligence-sprint-plan-check": "node --env-file-if-exists=.env scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs",
     "process:youtube-creator-daily-watch-sprint-update-check": "node --env-file-if-exists=.env scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs",
     "process:youtube-current-sprint-workspace-cleanup-check": "node --env-file-if-exists=.env scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs",
