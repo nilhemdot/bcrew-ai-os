@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dev Team Hub · BCrew AI OS</title>
-    <link rel="stylesheet" href="/dev.css?v=20260522a" />
+    <link rel="stylesheet" href="/dev.css?v=20260522b" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -20,7 +20,7 @@
           </span>
         </a>
         <div class="dev-topbar-right">
-          <span class="dev-live"><span></span>Read only</span>
+          <span class="dev-live" id="dev-sync-status"><span></span>Read only</span>
           <a class="dev-toplink" href="/">All hubs</a>
         </div>
       </header>
@@ -30,122 +30,46 @@
           <a class="dev-back" href="/">← All hubs</a>
           <div class="dev-side-head">
             <span>Hub</span>
-            <strong>Dev · Build</strong>
+            <strong>Dev / Build</strong>
           </div>
-          <nav class="dev-nav" aria-label="Dev Team Hub sections">
-            <a href="#source-status">Sources</a>
-            <a href="#research-pool">Research Pool</a>
-            <a href="#scout-report">Scout Report</a>
-            <a href="#ranked-opportunities">Opportunities</a>
-            <a href="#atoms-evidence">Atoms + Evidence</a>
-            <a href="#approval-links">Approval Links</a>
+          <nav class="dev-nav" aria-label="Dev Team Hub views">
+            <button class="dev-nav-item is-active" type="button" data-view="overview">Overview</button>
+            <button class="dev-nav-item" type="button" data-view="sprint">Sprint</button>
+            <button class="dev-nav-item" type="button" data-view="backlog">Backlog</button>
+            <button class="dev-nav-item" type="button" data-view="intel">Intel</button>
+            <button class="dev-nav-item" type="button" data-view="opportunities">Opportunities</button>
+            <button class="dev-nav-item" type="button" data-view="approvals">Approvals</button>
+            <button class="dev-nav-item" type="button" data-view="recent">Recent</button>
           </nav>
         </aside>
 
         <main class="dev-main">
-          <section class="dev-hero">
+          <section class="dev-page-head">
             <div>
-              <p class="dev-eyebrow">DEV-TEAM-HUB-V0-001</p>
-              <h1>Dev Team Hub</h1>
-              <p class="dev-subtitle">A read-only review surface over Foundation Build Intel truth.</p>
+              <p class="dev-eyebrow">DEV TEAM HUB</p>
+              <h1 id="dev-view-title">Overview</h1>
+              <p class="dev-subtitle" id="dev-view-subtitle">Current active work, approval needs, Build Intel, and recent proof from Foundation truth.</p>
             </div>
-            <img class="dev-mascot" src="/assets/mascot-6-900.webp" alt="" width="180" height="180" decoding="async" />
+            <div class="dev-head-actions" aria-label="Dev Hub status">
+              <span class="dev-source-pill">read only</span>
+              <span class="dev-source-pill">proposal gated</span>
+            </div>
           </section>
 
           <div id="dev-status" class="dev-status" role="status">Loading Foundation truth.</div>
+          <section class="dev-view-root" id="dev-view-root" aria-live="polite"></section>
 
-          <section class="dev-kpis" id="dev-kpis" aria-label="Dev Team Hub counts"></section>
-
-          <section class="dev-grid dev-grid-two">
-            <article class="dev-panel" id="source-status">
-              <div class="dev-panel-head">
-                <div>
-                  <p class="dev-eyebrow">Source Status</p>
-                  <h2>Mark / YouTube</h2>
-                </div>
-              </div>
-              <div id="dev-source-status"></div>
-            </article>
-
-            <article class="dev-panel">
-              <div class="dev-panel-head">
-                <div>
-                  <p class="dev-eyebrow">Active Card</p>
-                  <h2>Current Sprint</h2>
-                </div>
-              </div>
-              <div id="dev-active-card"></div>
-            </article>
-          </section>
-
-          <section class="dev-panel" id="research-pool">
-            <div class="dev-panel-head">
-              <div>
-                <p class="dev-eyebrow">Daily Creator Watch</p>
-                <h2>Research Pool</h2>
-              </div>
-              <span class="dev-source-pill">source_crawl_items</span>
-            </div>
-            <div id="dev-research-pool"></div>
-          </section>
-
-          <section class="dev-panel" id="scout-report">
-            <div class="dev-panel-head">
-              <div>
-                <p class="dev-eyebrow">Scout Report</p>
-                <h2>Public YouTube Scout</h2>
-              </div>
-              <span class="dev-source-pill">intelligence_report_artifacts</span>
-            </div>
-            <div id="dev-scout-report"></div>
-          </section>
-
-          <section class="dev-panel" id="ranked-opportunities">
-            <div class="dev-panel-head">
-              <div>
-                <p class="dev-eyebrow">Review Routes</p>
-                <h2>Ranked Opportunities</h2>
-              </div>
-              <span class="dev-source-pill">proposal only</span>
-            </div>
-            <div id="dev-opportunities"></div>
-          </section>
-
-          <section class="dev-grid dev-grid-two" id="atoms-evidence">
-            <article class="dev-panel">
-              <div class="dev-panel-head">
-                <div>
-                  <p class="dev-eyebrow">Atoms / Candidates</p>
-                  <h2>Atom Pool</h2>
-                </div>
-              </div>
-              <div id="dev-atoms"></div>
-            </article>
-
-            <article class="dev-panel">
-              <div class="dev-panel-head">
-                <div>
-                  <p class="dev-eyebrow">Evidence Hits</p>
-                  <h2>Proof Lines</h2>
-                </div>
-              </div>
-              <div id="dev-evidence"></div>
-            </article>
-          </section>
-
-          <section class="dev-panel" id="approval-links">
-            <div class="dev-panel-head">
-              <div>
-                <p class="dev-eyebrow">Approval Required</p>
-                <h2>Links To Review</h2>
-              </div>
-              <span class="dev-source-pill">not followed</span>
-            </div>
-            <div id="dev-approval-links"></div>
-          </section>
+          <div class="dev-proof-landmarks" hidden>
+            <span id="source-status"></span>
+            <span id="research-pool"></span>
+            <span id="scout-report"></span>
+            <span id="ranked-opportunities"></span>
+            <span id="atoms-evidence"></span>
+            <span id="approval-links"></span>
+          </div>
         </main>
       </div>
     </div>
-    <script src="/dev.js?v=20260522a"></script>
+    <script src="/dev.js?v=20260522b"></script>
   </body>
 </html>

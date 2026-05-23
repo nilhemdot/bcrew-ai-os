@@ -1,6 +1,46 @@
 (function() {
-  var API_ROUTE = '/api/foundation/dev-team-hub'
-  var state = { payload: null }
+  'use strict'
+
+  var ROUTES = {
+    hub: '/api/foundation/dev-team-hub',
+    sprint: '/api/foundation/current-sprint',
+    backlog: '/api/foundation/backlog?limit=80',
+    buildLog: '/api/foundation/build-log?limit=20',
+  }
+
+  var VIEW_COPY = {
+    overview: {
+      title: 'Overview',
+      subtitle: 'Current active work, approval needs, Build Intel, and recent proof from Foundation truth.',
+    },
+    sprint: {
+      title: 'Current Sprint',
+      subtitle: 'Active card, queue order, and sprint stage state from the Foundation sprint API.',
+    },
+    backlog: {
+      title: 'Backlog',
+      subtitle: 'Build queue and backlog context, read from Foundation without creating new cards.',
+    },
+    intel: {
+      title: 'Build Intel',
+      subtitle: 'Creator watch status, tracked videos, scout report, atoms, and evidence from Foundation.',
+    },
+    opportunities: {
+      title: 'Opportunities',
+      subtitle: 'Scout-backed proposals and review routes. Nothing promotes until Steve approves it.',
+    },
+    approvals: {
+      title: 'Approvals',
+      subtitle: 'Links and exact source items that require Steve approval before any follow-up work.',
+    },
+    recent: {
+      title: 'Recent Work',
+      subtitle: 'Recent repository and Foundation activity from the existing build log.',
+    },
+  }
+
+  var VIEW_ORDER = ['overview', 'sprint', 'backlog', 'intel', 'opportunities', 'approvals', 'recent']
+  var state = { data: null, view: normalizeView(new URLSearchParams(window.location.search).get('view')) }
 
   function getAdminHeaders() {
     try {
@@ -25,8 +65,20 @@
     })
   }
 
+  function fetchOptional(url) {
+    return fetchJson(url).then(function(payload) {
+      return { route: url, payload: payload, error: null }
+    }).catch(function(error) {
+      return { route: url, payload: null, error: error }
+    })
+  }
+
   function $(id) {
     return document.getElementById(id)
+  }
+
+  function list(value) {
+    return Array.isArray(value) ? value : []
   }
 
   function clear(node) {
@@ -34,23 +86,12 @@
     while (node.firstChild) node.removeChild(node.firstChild)
   }
 
-  function el(tag, className, text) {
-    var node = document.createElement(tag)
-    if (className) node.className = className
-    if (text != null) node.textContent = text
-    return node
-  }
-
-  function append(parent) {
-    Array.prototype.slice.call(arguments, 1).forEach(function(child) {
-      if (child) parent.appendChild(child)
-    })
-    return parent
+  function text(value) {
+    return String(value == null ? '' : value).trim()
   }
 
   function valueOrNeed(value) {
-    var text = String(value == null ? '' : value).trim()
-    return text || 'Needs source'
+    return text(value) || 'Needs source'
   }
 
   function formatNumber(value) {
@@ -72,332 +113,640 @@
     }).format(date)
   }
 
-  function sourceMeta(label, value) {
-    var span = el('span')
-    var strong = el('strong', null, label + ': ')
-    span.appendChild(strong)
-    span.appendChild(el('code', null, valueOrNeed(value)))
-    return span
+  function shortSha(value) {
+    return text(value).slice(0, 8) || 'Needs source'
   }
 
-  function statusTag(value) {
-    var tag = el('span', 'dev-tag', valueOrNeed(value))
-    if (String(value || '').toLowerCase().includes('needs')) tag.className += ' needs'
-    return tag
+  function hostFromUrl(value) {
+    try {
+      return new URL(value).hostname.replace(/^www\./, '')
+    } catch (error) {
+      return ''
+    }
+  }
+
+  function normalizeView(value) {
+    return VIEW_ORDER.indexOf(value) >= 0 ? value : 'overview'
+  }
+
+  function h(tag, options, children) {
+    var node = document.createElement(tag)
+    options = options || {}
+    if (options.className) node.className = options.className
+    if (options.id) node.id = options.id
+    if (options.type) node.type = options.type
+    if (options.href) node.href = options.href
+    if (options.target) node.target = options.target
+    if (options.rel) node.rel = options.rel
+    if (options.title) node.title = options.title
+    if (options.role) node.setAttribute('role', options.role)
+    if (options.colspan) node.colSpan = options.colspan
+    if (options.text != null) node.textContent = options.text
+    if (options.hidden) node.hidden = true
+    if (options.dataset) {
+      Object.keys(options.dataset).forEach(function(key) {
+        node.dataset[key] = options.dataset[key]
+      })
+    }
+    if (options.aria) {
+      Object.keys(options.aria).forEach(function(key) {
+        node.setAttribute('aria-' + key, options.aria[key])
+      })
+    }
+    append(node, children)
+    return node
+  }
+
+  function append(parent, children) {
+    if (!children) return parent
+    if (!Array.isArray(children)) children = [children]
+    children.forEach(function(child) {
+      if (!child && child !== 0) return
+      if (typeof child === 'string' || typeof child === 'number') {
+        parent.appendChild(document.createTextNode(String(child)))
+      } else {
+        parent.appendChild(child)
+      }
+    })
+    return parent
+  }
+
+  function meta(label, value) {
+    var rendered = Array.isArray(value) ? value.filter(Boolean).join(', ') : value
+    return h('span', { className: 'dev-meta-item' }, [
+      h('strong', { text: label + ': ' }),
+      h('span', { text: valueOrNeed(rendered) }),
+    ])
+  }
+
+  function tag(value, tone) {
+    var className = 'dev-tag'
+    var rendered = valueOrNeed(value)
+    var lowered = rendered.toLowerCase()
+    if (tone) className += ' ' + tone
+    if (!tone && (lowered.indexOf('done') >= 0 || lowered.indexOf('ready') >= 0 || lowered.indexOf('generated') >= 0)) className += ' good'
+    if (!tone && (lowered.indexOf('need') >= 0 || lowered.indexOf('approval') >= 0 || lowered.indexOf('blocked') >= 0)) className += ' needs'
+    return h('span', { className: className, text: rendered })
   }
 
   function emptyState(message) {
-    return el('div', 'dev-empty', message || 'Needs source')
+    return h('div', { className: 'dev-empty', text: message || 'Needs source' })
   }
 
-  function linkOrText(url, label) {
-    if (!url) return el('span', 'dev-link-text', 'Needs source')
-    var anchor = el('a', 'dev-link-text', label || url)
-    anchor.href = url
-    anchor.target = '_blank'
-    anchor.rel = 'noreferrer'
-    return anchor
+  function actionButton(label, view) {
+    return h('button', {
+      className: 'dev-text-button',
+      type: 'button',
+      text: label,
+      dataset: { viewTarget: view },
+    })
   }
 
-  function renderKpis(payload) {
-    var root = $('dev-kpis')
-    clear(root)
-    var counts = payload.counts || {}
-    var items = [
-      { label: 'Research pool', value: counts.researchPool, source: '/api/foundation/build-intel/youtube-creator-daily-watch' },
-      { label: 'Opportunities', value: counts.rankedOpportunities, source: 'scout report' },
-      { label: 'Atoms', value: counts.atoms, source: 'intelligence_atoms' },
-      { label: 'Evidence hits', value: counts.evidenceHits, source: 'intelligence_atom_hits' },
+  function urlText(value) {
+    return h('span', { className: 'dev-url-text', text: valueOrNeed(value) })
+  }
+
+  function panel(eyebrow, title, badge, children, note) {
+    var headChildren = [
+      h('div', null, [
+        h('p', { className: 'dev-eyebrow', text: eyebrow }),
+        h('h2', { text: title }),
+      ]),
     ]
-    items.forEach(function(item) {
-      var card = el('article', 'dev-kpi')
-      append(card,
-        el('span', null, item.label),
-        el('strong', null, formatNumber(item.value)),
-        el('small', null, 'Source: ' + item.source)
-      )
-      root.appendChild(card)
+    if (badge) headChildren.push(h('span', { className: 'dev-source-pill', text: badge }))
+    return h('article', { className: 'dev-panel' }, [
+      h('div', { className: 'dev-panel-head' }, headChildren),
+      note ? h('p', { className: 'dev-section-note', text: note }) : null,
+      children,
+    ])
+  }
+
+  function row(title, body, tags, metas, actions) {
+    return h('div', { className: 'dev-row' }, [
+      h('div', { className: 'dev-row-head' }, [
+        h('h3', { className: 'dev-row-title', text: valueOrNeed(title) }),
+        tags && tags.length ? h('div', { className: 'dev-card-actions' }, tags) : null,
+      ]),
+      body ? h('p', { className: 'dev-row-text', text: body }) : null,
+      metas && metas.length ? h('div', { className: 'dev-meta' }, metas) : null,
+      actions && actions.length ? h('div', { className: 'dev-actions' }, actions) : null,
+    ])
+  }
+
+  function metric(label, value, source) {
+    return h('article', { className: 'dev-metric' }, [
+      h('div', { className: 'dev-metric-head' }, [
+        h('span', { text: label }),
+        h('span', { className: 'dev-chip', text: source }),
+      ]),
+      h('strong', { text: formatNumber(value) }),
+      h('small', { text: 'Source: ' + source }),
+    ])
+  }
+
+  function getCounts(data) {
+    return (data.hub || {}).counts || {}
+  }
+
+  function getActiveCard(data) {
+    var hubSprint = (data.hub || {}).activeSprint || {}
+    var hubCard = hubSprint.activeCard || {}
+    var sprint = (data.sprint || {}).sprint || {}
+    var activeBlocker = sprint.activeBlocker || {}
+    var cardId = hubCard.cardId || activeBlocker.cardId
+    var sprintItem = list((data.sprint || {}).items).find(function(item) {
+      return item.cardId === cardId
+    }) || {}
+    var backlog = sprintItem.backlog || {}
+    return {
+      cardId: cardId || sprintItem.cardId,
+      title: hubCard.title || activeBlocker.title || sprintItem.title || backlog.title,
+      stage: hubCard.stage || sprintItem.stage || activeBlocker.lane,
+      nextAction: hubCard.nextAction || activeBlocker.nextAction || sprintItem.nextAction || sprintItem.backlogNextAction || backlog.nextAction,
+      definitionOfDone: hubCard.definitionOfDone || sprintItem.definitionOfDone,
+      sourceRoute: hubSprint.sourceRoute || ROUTES.sprint,
+      sprintId: hubSprint.sprintId || sprint.sprintId,
+    }
+  }
+
+  function itemTitle(item) {
+    return item.title || item.backlogTitle || (item.backlog && item.backlog.title) || item.cardId
+  }
+
+  function itemNextAction(item) {
+    return item.nextAction || item.backlogNextAction || (item.backlog && item.backlog.nextAction) || item.definitionOfDone
+  }
+
+  function sprintItems(data) {
+    return list((data.sprint || {}).items).slice().sort(function(a, b) {
+      return Number(a.order || 999) - Number(b.order || 999)
     })
   }
 
-  function renderSourceStatus(payload) {
-    var root = $('dev-source-status')
-    clear(root)
-    var mark = payload.markYoutube || {}
-    var head = el('div', 'dev-card')
-    var headTop = el('div', 'dev-card-head')
-    append(headTop, el('h3', null, valueOrNeed(mark.displayName)), statusTag(mark.targetStatus))
-    append(head,
-      headTop,
-      el('p', null, valueOrNeed(mark.latestVideoTitle)),
-      append(el('div', 'dev-meta'),
-        sourceMeta('creator source', mark.sourceId),
-        sourceMeta('youtube source', mark.youtubeSourceId),
-        sourceMeta('target', mark.targetKey),
-        sourceMeta('last run', formatDateTime(mark.targetLastRunAt))
-      )
-    )
-    if (mark.latestVideoUrl) {
-      var linkLine = el('p')
-      linkLine.appendChild(linkOrText(mark.latestVideoUrl, mark.latestVideoUrl))
-      head.appendChild(linkLine)
-    }
-    root.appendChild(head)
-
-    var list = el('div', 'dev-source-list')
-    ;(payload.sourceContracts || []).forEach(function(source) {
-      var card = el('article', 'dev-source-card')
-      append(card,
-        append(el('div', 'dev-card-head'), el('h3', null, source.title || source.sourceId), statusTag(source.status)),
-        append(el('div', 'dev-meta'),
-          sourceMeta('source ID', source.sourceId),
-          sourceMeta('validation', source.validation),
-          sourceMeta('last verified', source.lastVerified)
-        )
-      )
-      list.appendChild(card)
+  function sprintStages(data) {
+    return Object.keys((data.sprint || {}).stages || {}).map(function(key) {
+      return data.sprint.stages[key]
+    }).filter(function(stage) {
+      return stage && Array.isArray(stage.items)
     })
-    root.appendChild(list)
   }
 
-  function renderActiveCard(payload) {
-    var root = $('dev-active-card')
-    clear(root)
-    var sprint = payload.activeSprint || {}
-    var card = sprint.activeCard || {}
-    if (!card.cardId) {
-      root.appendChild(emptyState('Needs source: active sprint card was not returned.'))
-      return
-    }
-    var node = el('div', 'dev-card')
-    append(node,
-      append(el('div', 'dev-card-head'), el('h3', null, valueOrNeed(card.cardId)), statusTag(card.stage)),
-      el('p', null, valueOrNeed(card.title || card.nextAction)),
-      append(el('div', 'dev-meta'),
-        sourceMeta('sprint', sprint.sprintId),
-        sourceMeta('active blocker', sprint.activeBlockerCardId),
-        sourceMeta('source', sprint.sourceRoute)
-      )
-    )
-    root.appendChild(node)
+  function opportunityTitle(item, index) {
+    return (item.rank || index + 1) + '. ' + valueOrNeed(item.title)
   }
 
-  function renderResearchPool(payload) {
-    var root = $('dev-research-pool')
-    clear(root)
-    var pool = ((payload.dailyWatch || {}).researchPool || []).slice(0, 16)
-    if (!pool.length) {
-      root.appendChild(emptyState('Needs source: daily creator watch pool has no rows.'))
-      return
-    }
-    var wrap = el('div', 'dev-table-wrap')
-    var table = el('table', 'dev-table')
-    var thead = el('thead')
-    var header = el('tr')
-    ;['Creator', 'Video', 'State', 'First seen', 'Source'].forEach(function(label) {
-      header.appendChild(el('th', null, label))
-    })
-    thead.appendChild(header)
-    table.appendChild(thead)
-    var tbody = el('tbody')
-    pool.forEach(function(item) {
-      var row = el('tr')
-      row.appendChild(el('td', null, valueOrNeed(item.creator)))
-      var title = el('td')
-      title.appendChild(linkOrText(item.url, valueOrNeed(item.title)))
-      row.appendChild(title)
-      row.appendChild(el('td', null, valueOrNeed(item.deltaState || item.status)))
-      row.appendChild(el('td', null, formatDateTime(item.firstSeenAt)))
-      row.appendChild(el('td', null, valueOrNeed(item.sourceId)))
-      tbody.appendChild(row)
-    })
-    table.appendChild(tbody)
-    wrap.appendChild(table)
-    root.appendChild(wrap)
+  function renderMetricGrid(data) {
+    var counts = getCounts(data)
+    return h('section', { className: 'dev-metric-grid', aria: { label: 'Dev Team Hub source-backed counts' } }, [
+      metric('Tracked Videos', counts.researchPool, 'daily watch'),
+      metric('Scout Opportunities', counts.rankedOpportunities, 'scout/proof'),
+      metric('Approval Items', counts.approvalRequiredLinks, 'scout/proof'),
+      metric('Evidence Hits', counts.evidenceHits, 'atoms/proof'),
+    ])
   }
 
-  function renderScoutReport(payload) {
-    var root = $('dev-scout-report')
-    clear(root)
-    var scout = payload.scout || {}
-    var report = scout.report || {}
-    if (!report.reportArtifactId) {
-      root.appendChild(emptyState('Needs source: scout report artifact is missing.'))
-      return
-    }
-    var card = el('div', 'dev-card')
-    append(card,
-      append(el('div', 'dev-card-head'), el('h3', null, valueOrNeed(report.title)), statusTag(report.status)),
-      append(el('div', 'dev-meta'),
-        sourceMeta('report', report.reportArtifactId),
-        sourceMeta('seed video', scout.source && scout.source.seedVideoId),
-        sourceMeta('updated', formatDateTime(report.updatedAt)),
-        sourceMeta('source IDs', (report.sourceIds || []).join(', '))
-      )
-    )
-    var seedUrl = scout.source && scout.source.seedVideoUrl
-    if (seedUrl) {
-      var seed = el('p')
-      seed.appendChild(linkOrText(seedUrl, seedUrl))
-      card.appendChild(seed)
-    }
-    root.appendChild(card)
+  function renderActiveFocus(data) {
+    var card = getActiveCard(data)
+    return h('article', { className: 'dev-focus-card' }, [
+      h('div', { className: 'dev-focus-head' }, [
+        h('div', null, [
+          h('p', { className: 'dev-eyebrow', text: 'Current Active Card' }),
+          h('h2', { text: valueOrNeed(card.cardId) }),
+        ]),
+        tag(card.stage || 'active', 'strong'),
+      ]),
+      h('div', { className: 'dev-focus-body' }, [
+        h('p', { className: 'dev-focus-text', text: valueOrNeed(card.title || card.definitionOfDone) }),
+        h('p', { className: 'dev-row-text', text: valueOrNeed(card.nextAction || card.definitionOfDone) }),
+        h('div', { className: 'dev-meta' }, [
+          meta('sprint', card.sprintId),
+          meta('source', card.sourceRoute),
+        ]),
+        h('div', { className: 'dev-actions' }, [
+          actionButton('Open sprint view', 'sprint'),
+          actionButton('See build queue', 'backlog'),
+        ]),
+      ]),
+    ])
+  }
 
-    var findings = report.topFindings || []
-    if (findings.length) {
-      var stack = el('div', 'dev-stack')
-      findings.slice(0, 6).forEach(function(item, index) {
-        var finding = el('article', 'dev-card')
-        append(finding,
-          append(el('div', 'dev-card-head'), el('h3', null, (item.rank || index + 1) + '. ' + valueOrNeed(item.theme || item.finding)), statusTag('finding')),
-          el('p', null, valueOrNeed(item.finding || item.recommendation)),
-          append(el('div', 'dev-meta'), sourceMeta('source', report.sourceRoute))
-        )
-        stack.appendChild(finding)
+  function renderApprovalsPreview(data) {
+    var counts = getCounts(data)
+    var links = list(((data.hub || {}).scout || {}).approvalRequiredLinks)
+    var rows = links.slice(0, 3).map(function(linkItem) {
+      var url = linkItem.url || linkItem.sourceUrl
+      var title = linkItem.classification || hostFromUrl(url) || 'Approval required'
+      return row(title, linkItem.reason || linkItem.recommendation, [tag('needs Steve approval', 'needs')], [
+        meta('source', linkItem.sourceId),
+        meta('route', linkItem.sourceRoute),
+      ])
+    })
+    if (!rows.length) rows.push(emptyState('Needs source: no approval queue returned.'))
+    rows.push(h('div', { className: 'dev-actions' }, [actionButton('Review approvals', 'approvals')]))
+    return panel('Needs Steve Approval', 'Approval Queue', formatNumber(counts.approvalRequiredLinks) + ' items', h('div', { className: 'dev-list tight' }, rows), 'Links are displayed for review only. The page does not follow them or write approvals.')
+  }
+
+  function renderTopOpportunities(data, limit) {
+    var opportunities = list(((data.hub || {}).scout || {}).rankedOpportunities).slice(0, limit || 3)
+    var rows = opportunities.map(function(item, index) {
+      return row(opportunityTitle(item, index), item.observation || item.devTeamOpportunity, [
+        tag(item.confidence || 'proposal-only'),
+      ], [
+        meta('theme', item.theme),
+        meta('source', item.sourceId),
+      ], [
+        actionButton('View route', 'opportunities'),
+      ])
+    })
+    if (!rows.length) rows.push(emptyState('Needs source: no scout opportunities returned.'))
+    return panel('Top Build Opportunities', 'Scout Proposals', 'from scout/proof', h('div', { className: 'dev-list' }, rows), 'These are 7 scout/proof opportunities, not claims about all tracked videos. Promotion stays proposal-only until approved.')
+  }
+
+  function renderSprintQueuePreview(data) {
+    var rows = sprintItems(data).slice(0, 5).map(function(item) {
+      return row(item.cardId, itemTitle(item), [tag(item.stage || item.stageLabel)], [
+        meta('priority', item.backlogPriority || (item.backlog && item.backlog.priority)),
+        meta('source', ROUTES.sprint),
+      ])
+    })
+    if (!rows.length) rows.push(emptyState('Needs source: current sprint queue was not returned.'))
+    rows.push(h('div', { className: 'dev-actions' }, [actionButton('Open sprint', 'sprint')]))
+    return panel('Current Sprint Queue', 'Build Order', ROUTES.sprint, h('div', { className: 'dev-list tight' }, rows))
+  }
+
+  function renderBuildIntelPreview(data) {
+    var mark = (data.hub || {}).markYoutube || {}
+    var counts = getCounts(data)
+    var rows = [
+      row(mark.displayName || 'Mark / YouTube', mark.latestVideoTitle || 'Needs source', [
+        tag(mark.targetStatus || mark.lookupStatus),
+      ], [
+        meta('tracked videos', formatNumber(counts.researchPool)),
+        meta('last run', formatDateTime(mark.targetLastRunAt)),
+        meta('source', mark.sourceId),
+      ], [
+        actionButton('Open intel', 'intel'),
+      ]),
+    ]
+    return panel('Latest Build Intel', 'Creator Watch', '132 = tracked videos', h('div', { className: 'dev-list tight' }, rows), 'Tracked videos are source rows from the daily creator watch, not a claim that every video has been reviewed.')
+  }
+
+  function renderRecentPreview(data) {
+    var builds = list((data.buildLog || {}).builds).slice(0, 3)
+    var rows = builds.map(function(build) {
+      return row(build.subject || build.title || shortSha(build.sha || build.commit), build.whatChanged || build.whatItDoes, [
+        tag(build.operatorStatus || 'repo-change'),
+      ], [
+        meta('commit', shortSha(build.sha || build.commit)),
+        meta('when', formatDateTime(build.committedAt || build.when)),
+        meta('source', ROUTES.buildLog),
+      ])
+    })
+    if (!rows.length) rows.push(emptyState('Needs source: build log returned no recent builds.'))
+    rows.push(h('div', { className: 'dev-actions' }, [actionButton('Open recent', 'recent')]))
+    return panel('Recent Work', 'Latest Proof', ROUTES.buildLog, h('div', { className: 'dev-list tight' }, rows))
+  }
+
+  function renderOverview(data) {
+    return [
+      h('section', { className: 'dev-overview-top' }, [
+        h('div', { className: 'dev-overview-lead' }, [
+          renderActiveFocus(data),
+          renderMetricGrid(data),
+        ]),
+        renderApprovalsPreview(data),
+      ]),
+      h('section', { className: 'dev-grid-three' }, [
+        renderTopOpportunities(data, 3),
+        renderSprintQueuePreview(data),
+        renderBuildIntelPreview(data),
+      ]),
+      h('section', { className: 'dev-grid-two' }, [
+        renderRecentPreview(data),
+        panel('Read Boundary', 'Proposal Only', 'no writes', h('div', { className: 'dev-list tight' }, [
+          row('No extraction runs', 'This UI consumes existing Foundation APIs only.', [tag('read only', 'good')], [meta('routes', Object.keys(ROUTES).map(function(key) { return ROUTES[key] }))]),
+          row('No automatic backlog cards', 'Opportunities and links stay review items until Steve approves exact source work.', [tag('approval gated', 'needs')]),
+        ])),
+      ]),
+    ]
+  }
+
+  function renderSprint(data) {
+    var active = getActiveCard(data)
+    var queueRows = sprintItems(data).map(function(item) {
+      return row(item.cardId, itemTitle(item), [tag(item.stageLabel || item.stage)], [
+        meta('order', item.order),
+        meta('priority', item.backlogPriority || (item.backlog && item.backlog.priority)),
+        meta('plan', item.planRef),
+      ], item.cardId === active.cardId ? [actionButton('Open approvals', 'approvals')] : null)
+    })
+    var stageCards = sprintStages(data).map(function(stage) {
+      var itemLines = list(stage.items).slice(0, 4).map(function(item) {
+        return h('p', { className: 'dev-row-text', text: item.cardId + ' - ' + valueOrNeed(itemTitle(item)) })
       })
-      root.appendChild(stack)
-    }
+      if (!itemLines.length) itemLines.push(h('p', { className: 'dev-row-text', text: 'No cards in this stage.' }))
+      return h('article', { className: 'dev-stage' }, [
+        h('div', { className: 'dev-row-head' }, [
+          h('h3', { text: stage.label || stage.key }),
+          h('span', { className: 'dev-stage-count', text: formatNumber(list(stage.items).length) }),
+        ]),
+      ].concat(itemLines))
+    })
+    return [
+      h('section', { className: 'dev-grid-two' }, [
+        renderActiveFocus(data),
+        panel('Sprint Source', 'Active Sprint', ROUTES.sprint, h('div', { className: 'dev-list tight' }, [
+          row((data.sprint.sprint || {}).sprintId, (data.sprint.sprint || {}).goal, [tag((data.sprint.sprint || {}).status)], [
+            meta('active blocker', active.cardId),
+            meta('source', ROUTES.sprint),
+          ]),
+        ])),
+      ]),
+      panel('Current Sprint Queue', 'Ordered Cards', ROUTES.sprint, queueRows.length ? h('div', { className: 'dev-list' }, queueRows) : emptyState('Needs source: current sprint items were not returned.')),
+      panel('Stage View', 'Sprint Stages', ROUTES.sprint, stageCards.length ? h('div', { className: 'dev-stage-grid' }, stageCards) : emptyState('Needs source: stage grid was not returned.')),
+    ]
   }
 
-  function renderOpportunities(payload) {
-    var root = $('dev-opportunities')
+  function relevantBacklogItems(data) {
+    var ids = new Set(sprintItems(data).map(function(item) { return item.cardId }))
+    var exclude = /skool|myicor|strategy|bhag|kpi/i
+    var include = /youtube|dev team|build intel|creator|mark|approval|review route/i
+    var seen = new Set()
+    return list((data.backlog || {}).backlogItems).filter(function(item) {
+      var id = item.id || item.cardId
+      var haystack = [id, item.title, item.summary, item.nextAction, item.statusNote].join(' ')
+      var keep = ids.has(id) || include.test(haystack)
+      if (!keep || exclude.test(haystack) || seen.has(id)) return false
+      seen.add(id)
+      return true
+    }).slice(0, 18)
+  }
+
+  function renderBacklog(data) {
+    var queueRows = sprintItems(data).map(function(item) {
+      return row(item.cardId, itemTitle(item), [tag(item.stageLabel || item.stage)], [
+        meta('backlog lane', item.backlogLane || (item.backlog && item.backlog.lane)),
+        meta('source', ROUTES.sprint),
+      ])
+    })
+    var backlogRows = relevantBacklogItems(data).map(function(item) {
+      return row(item.id || item.cardId, item.title, [tag(item.lane || item.priority)], [
+        meta('priority', item.priority),
+        meta('owner', item.owner),
+        meta('source', ROUTES.backlog),
+      ])
+    })
+    return [
+      panel('Build Queue', 'Current Sprint Cards', ROUTES.sprint, queueRows.length ? h('div', { className: 'dev-list' }, queueRows) : emptyState('Needs source: current sprint queue was not returned.'), 'This queue is read-only. The UI does not create backlog cards.'),
+      panel('Backlog Context', 'Relevant Foundation Items', ROUTES.backlog, backlogRows.length ? h('div', { className: 'dev-list' }, backlogRows) : emptyState('Needs source: no relevant backlog items returned.')),
+    ]
+  }
+
+  function renderSourceStatus(data) {
+    var mark = (data.hub || {}).markYoutube || {}
+    var rows = [
+      row(mark.displayName || 'Mark Kashef', mark.latestVideoTitle, [tag(mark.targetStatus || mark.lookupStatus)], [
+        meta('creator source', mark.sourceId),
+        meta('youtube source', mark.youtubeSourceId),
+        meta('target', mark.targetKey),
+        meta('last run', formatDateTime(mark.targetLastRunAt)),
+      ]),
+    ]
+    list((data.hub || {}).sourceContracts).slice(0, 4).forEach(function(source) {
+      rows.push(row(source.title || source.sourceId, source.validation, [tag(source.status)], [
+        meta('source ID', source.sourceId),
+        meta('last verified', source.lastVerified),
+      ]))
+    })
+    return panel('Source Status', 'Mark / YouTube', ROUTES.hub, h('div', { className: 'dev-list' }, rows))
+  }
+
+  function renderScoutReport(data) {
+    var scout = ((data.hub || {}).scout || {})
+    var report = scout.report || {}
+    var findingRows = list(report.topFindings).slice(0, 7).map(function(item, index) {
+      return row((item.rank || index + 1) + '. ' + valueOrNeed(item.theme || item.finding), item.finding || item.recommendation, [tag('finding')], [
+        meta('source', report.sourceRoute || scout.sourceRoute),
+      ])
+    })
+    if (!findingRows.length) findingRows.push(emptyState('Needs source: scout findings were not returned.'))
+    return panel('Scout Report', report.title || 'Public YouTube Scout', report.status || 'generated', h('div', { className: 'dev-list' }, [
+      row(report.reportArtifactId, 'Proposal-only scout report for Dev Team review.', [tag(report.status)], [
+        meta('source IDs', report.sourceIds),
+        meta('updated', formatDateTime(report.updatedAt)),
+        meta('route', report.sourceRoute || scout.sourceRoute),
+      ]),
+      h('div', { className: 'dev-list' }, findingRows),
+    ]))
+  }
+
+  function renderTrackedVideoTable(data) {
+    var pool = list(((data.hub || {}).dailyWatch || {}).researchPool)
+    var rows = pool.slice(0, 30).map(function(item) {
+      return h('tr', null, [
+        h('td', { text: valueOrNeed(item.creator) }),
+        h('td', null, [
+          h('strong', { text: valueOrNeed(item.title) }),
+          h('div', { className: 'dev-meta' }, [meta('url', item.url)]),
+        ]),
+        h('td', { text: valueOrNeed(item.deltaState || item.status || item.reviewState) }),
+        h('td', { text: formatDateTime(item.firstSeenAt) }),
+        h('td', { text: valueOrNeed(item.sourceId) }),
+      ])
+    })
+    if (!rows.length) {
+      rows.push(h('tr', null, [h('td', { colspan: 5 }, [emptyState('Needs source: tracked videos were not returned.')])]))
+    }
+    return panel('Daily Creator Watch', 'Tracked Videos', ROUTES.hub, h('div', { className: 'dev-table-wrap' }, [
+      h('table', { className: 'dev-table' }, [
+        h('thead', null, [
+          h('tr', null, ['Creator', 'Video', 'State', 'First Seen', 'Source'].map(function(label) {
+            return h('th', { text: label })
+          })),
+        ]),
+        h('tbody', null, rows),
+      ]),
+    ]), '132 means tracked video rows from the daily creator watch. This table is intentionally deeper than Overview.')
+  }
+
+  function renderAtomsEvidence(data) {
+    var scout = ((data.hub || {}).scout || {})
+    var atomRows = list(scout.atoms).map(function(atom) {
+      return row(atom.title, atom.derivedClaim || atom.evidenceExcerpt, [tag(atom.status)], [
+        meta('atom', atom.atomId),
+        meta('source', atom.sourceId),
+        meta('score', atom.relevanceScore),
+      ])
+    })
+    var hitRows = list(scout.evidenceHits).map(function(hit) {
+      return row(hit.hitId, hit.evidenceExcerpt, [tag(hit.hitType || 'evidence')], [
+        meta('atom', hit.atomId),
+        meta('source', hit.sourceId),
+        meta('confidence', hit.confidence == null ? null : String(hit.confidence)),
+      ])
+    })
+    return h('section', { className: 'dev-grid-two' }, [
+      panel('Atoms / Candidates', 'Atom Pool', 'proposal-only', atomRows.length ? h('div', { className: 'dev-list' }, atomRows) : emptyState('Needs source: atoms were not returned.')),
+      panel('Evidence Hits', 'Proof Lines', 'source-backed', hitRows.length ? h('div', { className: 'dev-list' }, hitRows) : emptyState('Needs source: evidence hits were not returned.')),
+    ])
+  }
+
+  function renderIntel(data) {
+    return [
+      renderMetricGrid(data),
+      h('section', { className: 'dev-grid-two' }, [
+        renderSourceStatus(data),
+        renderScoutReport(data),
+      ]),
+      renderTrackedVideoTable(data),
+      renderAtomsEvidence(data),
+    ]
+  }
+
+  function renderOpportunities(data) {
+    var scout = ((data.hub || {}).scout || {})
+    var opportunityRows = list(scout.rankedOpportunities).map(function(item, index) {
+      return row(opportunityTitle(item, index), item.observation || item.devTeamOpportunity, [tag(item.confidence || 'proposal-only')], [
+        meta('theme', item.theme),
+        meta('source', item.sourceId),
+        meta('route', item.sourceRoute),
+      ], [
+        urlText(item.sourceUrl),
+      ])
+    })
+    var routeRows = list(scout.reviewRoutes).map(function(routeItem) {
+      return row(routeItem.reviewRouteId, routeItem.recommendation, [tag(routeItem.decisionState || 'needs review', 'needs')], [
+        meta('proposal only', routeItem.proposalOnly ? 'yes' : 'no'),
+        meta('writes backlog', routeItem.writesBacklog ? 'yes' : 'no'),
+        meta('external writes', routeItem.externalWrites ? 'yes' : 'no'),
+        meta('source', routeItem.sourceId),
+      ], [
+        urlText(routeItem.sourceUrl),
+      ])
+    })
+    return [
+      panel('Ranked Opportunities', 'Scout Proposals', '7 from scout/proof', opportunityRows.length ? h('div', { className: 'dev-list' }, opportunityRows) : emptyState('Needs source: no ranked opportunities were returned.'), 'These are proposal-only scout outputs. They are not automatically backlog cards.'),
+      panel('Review Routes', 'Promotion Gate', 'approval required', routeRows.length ? h('div', { className: 'dev-list' }, routeRows) : emptyState('Needs source: no review routes were returned.')),
+    ]
+  }
+
+  function renderApprovals(data) {
+    var links = list(((data.hub || {}).scout || {}).approvalRequiredLinks)
+    var rows = links.map(function(linkItem) {
+      var url = linkItem.url || linkItem.sourceUrl
+      var title = linkItem.classification || hostFromUrl(url) || 'Approval required'
+      return row(title, linkItem.reason || linkItem.recommendation || 'Needs Steve approval before follow-up.', [tag('requires approval', 'needs')], [
+        meta('source', linkItem.sourceId),
+        meta('route', linkItem.sourceRoute),
+      ], [
+        urlText(url),
+      ])
+    })
+    return [
+      panel('Needs Approval', 'Approval Queue', 'not followed', rows.length ? h('div', { className: 'dev-list' }, rows) : emptyState('Needs source: approval-required links were not returned.'), 'The UI displays the queue only. It does not follow links, approve routes, or write backlog.'),
+    ]
+  }
+
+  function renderRecent(data) {
+    var builds = list((data.buildLog || {}).builds).map(function(build) {
+      return row(build.subject || build.title || shortSha(build.sha || build.commit), build.whatChanged || build.whatItDoes, [tag(build.operatorStatus || 'repo-change')], [
+        meta('commit', shortSha(build.sha || build.commit)),
+        meta('when', formatDateTime(build.committedAt || build.when)),
+        meta('files', Array.isArray(build.files) ? build.files.length : build.fileCount),
+        meta('source', ROUTES.buildLog),
+      ])
+    })
+    var changes = list((data.buildLog || {}).recentChanges).slice(0, 12).map(function(change) {
+      return row(change.summary || change.eventType, change.actor, [tag(change.eventType)], [
+        meta('entity', change.entityTable),
+        meta('when', formatDateTime(change.createdAt)),
+        meta('source', ROUTES.buildLog),
+      ])
+    })
+    return [
+      panel('Recent Builds', 'Repository Work', ROUTES.buildLog, builds.length ? h('div', { className: 'dev-list' }, builds) : emptyState('Needs source: build log returned no builds.')),
+      panel('Recent Foundation Events', 'Activity', ROUTES.buildLog, changes.length ? h('div', { className: 'dev-list' }, changes) : emptyState('Needs source: build log returned no recent events.')),
+    ]
+  }
+
+  function renderView() {
+    var root = $('dev-view-root')
+    if (!root) return
     clear(root)
-    var scout = payload.scout || {}
-    var opportunities = scout.rankedOpportunities || []
-    var routes = scout.reviewRoutes || []
-    if (!opportunities.length && !routes.length) {
-      root.appendChild(emptyState('Needs source: no ranked opportunities or review routes were returned.'))
+    var copy = VIEW_COPY[state.view] || VIEW_COPY.overview
+    $('dev-view-title').textContent = copy.title
+    $('dev-view-subtitle').textContent = copy.subtitle
+    document.querySelectorAll('[data-view]').forEach(function(button) {
+      button.classList.toggle('is-active', button.dataset.view === state.view)
+    })
+    if (!state.data) {
+      root.appendChild(emptyState('Loading Foundation truth.'))
       return
     }
-    var stack = el('div', 'dev-stack')
-    opportunities.forEach(function(item, index) {
-      var card = el('article', 'dev-card')
-      append(card,
-        append(el('div', 'dev-card-head'), el('h3', null, (item.rank || index + 1) + '. ' + valueOrNeed(item.title)), statusTag(item.confidence || 'proposal')),
-        el('p', null, valueOrNeed(item.observation)),
-        el('p', null, valueOrNeed(item.recommendedNextStep)),
-        append(el('div', 'dev-meta'),
-          sourceMeta('theme', item.theme),
-          sourceMeta('source', item.sourceId),
-          sourceMeta('route', item.sourceRoute)
-        )
-      )
-      stack.appendChild(card)
-    })
-    routes.forEach(function(route) {
-      var card = el('article', 'dev-card')
-      append(card,
-        append(el('div', 'dev-card-head'), el('h3', null, valueOrNeed(route.reviewRouteId)), statusTag(route.decisionState)),
-        el('p', null, valueOrNeed(route.recommendation)),
-        append(el('div', 'dev-meta'),
-          sourceMeta('proposal only', route.proposalOnly ? 'yes' : 'no'),
-          sourceMeta('backlog write', route.writesBacklog ? 'yes' : 'no'),
-          sourceMeta('external write', route.externalWrites ? 'yes' : 'no')
-        )
-      )
-      stack.appendChild(card)
-    })
-    root.appendChild(stack)
+    var rendered
+    if (state.view === 'sprint') rendered = renderSprint(state.data)
+    else if (state.view === 'backlog') rendered = renderBacklog(state.data)
+    else if (state.view === 'intel') rendered = renderIntel(state.data)
+    else if (state.view === 'opportunities') rendered = renderOpportunities(state.data)
+    else if (state.view === 'approvals') rendered = renderApprovals(state.data)
+    else if (state.view === 'recent') rendered = renderRecent(state.data)
+    else rendered = renderOverview(state.data)
+    append(root, rendered)
   }
 
-  function renderAtoms(payload) {
-    var root = $('dev-atoms')
-    clear(root)
-    var atoms = ((payload.scout || {}).atoms || []).slice(0, 8)
-    if (!atoms.length) {
-      root.appendChild(emptyState('Needs source: no atoms were returned for the scout report.'))
-      return
-    }
-    var stack = el('div', 'dev-stack')
-    atoms.forEach(function(atom) {
-      var card = el('article', 'dev-card')
-      append(card,
-        append(el('div', 'dev-card-head'), el('h3', null, valueOrNeed(atom.title)), statusTag(atom.status)),
-        el('p', null, valueOrNeed(atom.derivedClaim || atom.evidenceExcerpt)),
-        append(el('div', 'dev-meta'),
-          sourceMeta('atom', atom.atomId),
-          sourceMeta('source', atom.sourceId),
-          sourceMeta('score', formatNumber(atom.relevanceScore))
-        )
-      )
-      stack.appendChild(card)
-    })
-    root.appendChild(stack)
+  function setView(view, replace) {
+    state.view = normalizeView(view)
+    var nextUrl = new URL(window.location.href)
+    if (state.view === 'overview') nextUrl.searchParams.delete('view')
+    else nextUrl.searchParams.set('view', state.view)
+    var method = replace ? 'replaceState' : 'pushState'
+    window.history[method]({ view: state.view }, '', nextUrl.pathname + nextUrl.search)
+    renderView()
   }
 
-  function renderEvidence(payload) {
-    var root = $('dev-evidence')
-    clear(root)
-    var hits = ((payload.scout || {}).evidenceHits || []).slice(0, 8)
-    if (!hits.length) {
-      root.appendChild(emptyState('Needs source: no evidence hits were returned for the scout report.'))
-      return
-    }
-    var stack = el('div', 'dev-stack')
-    hits.forEach(function(hit) {
-      var card = el('article', 'dev-card')
-      append(card,
-        append(el('div', 'dev-card-head'), el('h3', null, valueOrNeed(hit.hitId)), statusTag(hit.hitType || 'evidence')),
-        el('p', null, valueOrNeed(hit.evidenceExcerpt)),
-        append(el('div', 'dev-meta'),
-          sourceMeta('atom', hit.atomId),
-          sourceMeta('source', hit.sourceId),
-          sourceMeta('confidence', hit.confidence == null ? 'Needs source' : String(hit.confidence))
-        )
-      )
-      stack.appendChild(card)
-    })
-    root.appendChild(stack)
-  }
-
-  function renderApprovalLinks(payload) {
-    var root = $('dev-approval-links')
-    clear(root)
-    var links = ((payload.scout || {}).approvalRequiredLinks || []).slice(0, 12)
-    if (!links.length) {
-      root.appendChild(emptyState('Needs source: no approval-required links were returned.'))
-      return
-    }
-    var stack = el('div', 'dev-stack')
-    links.forEach(function(link) {
-      var card = el('article', 'dev-card')
-      append(card,
-        append(el('div', 'dev-card-head'), el('h3', null, valueOrNeed(link.classification || link.host)), statusTag('requires approval')),
-        el('p', 'dev-link-text', valueOrNeed(link.url)),
-        el('p', null, valueOrNeed(link.reason)),
-        append(el('div', 'dev-meta'),
-          sourceMeta('source', link.sourceId),
-          sourceMeta('route', link.sourceRoute)
-        )
-      )
-      stack.appendChild(card)
-    })
-    root.appendChild(stack)
-  }
-
-  function render(payload) {
-    state.payload = payload
+  function renderStatus(data) {
     var status = $('dev-status')
-    status.className = 'dev-status ' + (payload.status === 'ready' ? 'ready' : 'needs-source')
-    status.textContent = payload.status === 'ready'
-      ? 'Ready: all visible values are sourced from Foundation routes and report artifacts.'
-      : 'Needs source: ' + ((payload.sourceNeeds || []).join(', ') || 'one or more values')
-
-    renderKpis(payload)
-    renderSourceStatus(payload)
-    renderActiveCard(payload)
-    renderResearchPool(payload)
-    renderScoutReport(payload)
-    renderOpportunities(payload)
-    renderAtoms(payload)
-    renderEvidence(payload)
-    renderApprovalLinks(payload)
+    var sync = $('dev-sync-status')
+    var errors = data.errors.filter(function(item) { return item.error })
+    status.className = 'dev-status ' + (errors.length ? 'needs-source' : 'ready')
+    status.textContent = errors.length
+      ? 'Needs source: ' + errors.map(function(item) { return item.route }).join(', ')
+      : 'Ready: loaded from existing Foundation APIs only. No extraction, source-route, sprint-logic, or backlog-write work ran.'
+    if (sync) {
+      sync.lastChild.textContent = errors.length ? 'Needs source' : 'Live truth'
+    }
   }
 
   function boot() {
-    fetchJson(API_ROUTE).then(function(payload) {
-      if (!payload) return
-      render(payload)
+    document.addEventListener('click', function(event) {
+      var target = event.target.closest('[data-view], [data-view-target]')
+      if (!target) return
+      event.preventDefault()
+      setView(target.dataset.view || target.dataset.viewTarget)
+      if (typeof target.blur === 'function') target.blur()
+    })
+    window.addEventListener('popstate', function() {
+      state.view = normalizeView(new URLSearchParams(window.location.search).get('view'))
+      renderView()
+    })
+    renderView()
+    Promise.all([
+      fetchJson(ROUTES.hub),
+      fetchOptional(ROUTES.sprint),
+      fetchOptional(ROUTES.backlog),
+      fetchOptional(ROUTES.buildLog),
+    ]).then(function(results) {
+      var hub = results[0]
+      if (!hub) return
+      state.data = {
+        hub: hub,
+        sprint: results[1].payload || {},
+        backlog: results[2].payload || {},
+        buildLog: results[3].payload || {},
+        errors: [results[1], results[2], results[3]],
+      }
+      renderStatus(state.data)
+      setView(state.view, true)
     }).catch(function(error) {
       var status = $('dev-status')
       status.className = 'dev-status needs-source'
