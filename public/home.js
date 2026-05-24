@@ -380,6 +380,53 @@ function handleRouteCardClick(event) {
   nudgeCard(card)
 }
 
+function setAccountMenuOpen(open) {
+  var button = launcherQuery('#launcher-user-button')
+  var menu = launcherQuery('#launcher-account-menu')
+  if (!button || !menu) return
+  button.setAttribute('aria-expanded', open ? 'true' : 'false')
+  menu.hidden = !open
+}
+
+function toggleAccountMenu() {
+  var button = launcherQuery('#launcher-user-button')
+  if (!button) return
+  setAccountMenuOpen(button.getAttribute('aria-expanded') !== 'true')
+}
+
+function handleAccountMenuDocumentClick(event) {
+  var wrap = launcherQuery('#launcher-user')
+  if (!wrap || wrap.contains(event.target)) return
+  setAccountMenuOpen(false)
+}
+
+function handleAccountMenuKeydown(event) {
+  if (event.key === 'Escape') setAccountMenuOpen(false)
+}
+
+function logoutLauncherUser() {
+  var button = launcherQuery('#launcher-logout')
+  if (button) {
+    button.disabled = true
+    button.textContent = 'Logging out...'
+  }
+
+  fetch('/api/auth/logout', {
+    method: 'POST',
+    headers: getAdminHeaders(),
+    cache: 'no-store',
+  })
+    .then(function() {
+      window.location.assign('/login?next=/')
+    })
+    .catch(function() {
+      if (button) {
+        button.disabled = false
+        button.textContent = 'Log out'
+      }
+    })
+}
+
 function gradeFromScore(score) {
   var value = Number(score)
   if (!Number.isFinite(value)) return 'Needs'
@@ -687,5 +734,11 @@ document.addEventListener('DOMContentLoaded', function() {
   tickLauncherTime()
   window.setInterval(tickLauncherTime, 60000)
   document.addEventListener('click', handleRouteCardClick)
+  document.addEventListener('click', handleAccountMenuDocumentClick)
+  document.addEventListener('keydown', handleAccountMenuKeydown)
+  var userButton = launcherQuery('#launcher-user-button')
+  var logoutButton = launcherQuery('#launcher-logout')
+  if (userButton) userButton.addEventListener('click', toggleAccountMenu)
+  if (logoutButton) logoutButton.addEventListener('click', logoutLauncherUser)
   bootLauncherSession()
 })

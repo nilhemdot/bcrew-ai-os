@@ -26,6 +26,15 @@ import {
   YOUTUBE_SCOUT_REPORT_ARTIFACT_ID,
 } from '../lib/youtube-scout-latest-video-vision.js'
 import {
+  YOUTUBE_BUILD_INTEL_LINK_RESOURCE_REPORT_ARTIFACT_ID,
+} from '../lib/youtube-build-intel-link-resource.js'
+import {
+  GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID,
+} from '../lib/god-mode-extractor-eyes-quality-loop.js'
+import {
+  DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID,
+} from '../lib/dev-team-intelligence-director.js'
+import {
   DEV_TEAM_HUB_V0_API_ROUTE,
   DEV_TEAM_HUB_V0_CARD_ID,
   DEV_TEAM_HUB_V0_PAGE_ROUTE,
@@ -67,6 +76,7 @@ function includesAll(source = '', markers = []) {
 
 function sourceDoesNotWriteOrExtract(source = '') {
   const text = String(source || '')
+    .replace(/fetch\('\/api\/auth\/logout'[\s\S]*?\}\)/g, 'fetch-auth-logout-allowed')
   const forbidden = [
     'runYoutubeScout' + 'Latest20Discovery',
     'runYoutubeScout' + 'SeedVideoCapture',
@@ -85,14 +95,29 @@ function sourceDoesNotWriteOrExtract(source = '') {
 }
 
 function pageHasRequiredSections(html = '') {
-  return [
-    'id="source-status"',
-    'id="research-pool"',
-    'id="scout-report"',
-    'id="ranked-opportunities"',
-    'id="atoms-evidence"',
-    'id="approval-links"',
+	  return [
+	    'id="extractor-grid"',
+	    'id="evidence-grid"',
+	    'id="source-grid"',
+	    'id="target-panel"',
+	    'id="director-panel"',
   ].every(marker => html.includes(marker))
+}
+
+function pageUsesSharedLauncherTopbar(html = '', css = '') {
+  return includesAll(html, [
+    '/hub-launcher.css',
+    'class="launcher-topbar"',
+    'class="launcher-brand"',
+    'class="launcher-clock"',
+    'class="launcher-live"',
+    'class="launcher-user"',
+    'id="launcher-account-menu"',
+  ])
+    && !html.includes('class="topbar"')
+    && !html.includes('class="tb-')
+    && !css.includes('.topbar {')
+    && !css.includes('.tb-')
 }
 
 function buildVisibleNumbers(payload = {}) {
@@ -104,6 +129,8 @@ function buildVisibleNumbers(payload = {}) {
     { label: 'Evidence hits', value: counts.evidenceHits, route: 'intelligence_atom_hits.report_artifact_id', sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'Approval-required links', value: counts.approvalRequiredLinks, route: 'intelligence_report_artifacts.action_required_items', sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'Review routes', value: counts.reviewRoutes, route: 'intelligence_report_artifacts.structured_output_json.reviewRoutes', sourceId: 'SRC-YOUTUBE-INTEL-001' },
+    { label: 'God Mode Eyes candidates', value: counts.eyesBuildCandidates, route: `getIntelligenceReportBundle(${GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
+    { label: 'Director picks', value: payload.director?.recommendedBuildNow?.length || 0, route: `getIntelligenceReportBundle(${DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
   ]
 }
 
@@ -114,12 +141,18 @@ async function loadLiveSnapshot() {
     extractionControl,
     items,
     scoutBundle,
+    linkResourceBundle,
+    eyesBundle,
+    directorBundle,
   ] = await Promise.all([
     getFoundationSnapshot(),
     getActiveFoundationCurrentSprint(),
     getExtractionControlSnapshot({ limit: 200 }),
     listSourceCrawlItems({ targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY, limit: 200, order: 'desc' }),
     getIntelligenceReportBundle(YOUTUBE_SCOUT_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
+    getIntelligenceReportBundle(YOUTUBE_BUILD_INTEL_LINK_RESOURCE_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
+    getIntelligenceReportBundle(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
+    getIntelligenceReportBundle(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
   ])
   const target = list(extractionControl.targets)
     .find(item => item.targetKey === YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY) || null
@@ -134,10 +167,14 @@ async function loadLiveSnapshot() {
     latestJobRun,
   })
   return buildDevTeamHubV0Snapshot({
+    foundationSnapshot,
     sourceContracts: getSourceContracts(),
     creatorWatchlist: buildCreatorWatchlistSnapshot(),
     dailyWatch,
     scoutBundle,
+    linkResourceBundle,
+    eyesBundle,
+    directorBundle,
     actionRouter: foundationSnapshot.intelligenceActionRouter || {},
     currentSprint: activeFoundationSprint,
     extractionControl,
@@ -185,16 +222,23 @@ async function main() {
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
   addCheck(checks, includesAll(serverSource, ['getIntelligenceReportBundle', 'registerFoundationBuildIntelRoutes(app']), 'server passes Foundation report bundle dependency', 'server.js')
   addCheck(checks, includesAll(appRoutesSource, ["app.get('/dev'", 'dev.html']), 'app routes serve owner-only Dev page', DEV_TEAM_HUB_V0_PAGE_ROUTE)
-  addCheck(checks, htmlSource.includes('/dev.css') && htmlSource.includes('/dev.js') && pageHasRequiredSections(htmlSource), 'Dev page has required read sections', 'source, pool, scout, opportunities, atoms, evidence, approval links')
+  addCheck(checks, htmlSource.includes('/dev.css') && htmlSource.includes('/dev.js') && pageHasRequiredSections(htmlSource), 'Dev page has required Data Pool sections', 'extractors, source systems, selected detail, Director lens')
+  addCheck(checks, pageUsesSharedLauncherTopbar(htmlSource, cssSource), 'Dev page uses the shared launcher topbar structure/CSS', 'launcher-topbar classes + /hub-launcher.css')
+  addCheck(checks, !htmlSource.includes('id="active-card"') && !htmlSource.includes('id="source-proof"') && !htmlSource.includes('id="director-status"'), 'Dev page does not show redundant status-only middle cards', 'active card/source proof/director mini cards removed')
   addCheck(checks, jsSource.includes(DEV_TEAM_HUB_V0_API_ROUTE) && jsSource.includes('Needs source') && jsSource.includes("cache: 'no-store'"), 'frontend consumes API and renders missing-source state', DEV_TEAM_HUB_V0_API_ROUTE)
-  addCheck(checks, cssSource.includes("font-family: 'Stratum1'") && cssSource.includes('--dev-blue'), 'page-scoped CSS uses BCrew type and color tokens', 'public/dev.css')
+  addCheck(checks, jsSource.includes('YouTube Creators') && jsSource.includes('Skool / Paid Courses') && jsSource.includes('GitHub / Repos') && jsSource.includes('Gmail / Missive / Slack') && jsSource.includes('Meetings / Transcripts') && jsSource.includes("label: 'Visual evidence'") && jsSource.includes("label: 'Links to review'") && !jsSource.includes("name: 'Video Artifacts'") && !jsSource.includes("name: 'Dev Director'") && !jsSource.includes("name: 'God Mode Eyes'"), 'source cards are actual source inputs and evidence is separate output', 'sources: YouTube/Skool/GitHub/internal/meetings; evidence cards carry output counts')
+  addCheck(checks, cssSource.includes("font-family: 'Stratum1'") && cssSource.includes('--blue: #0084C9'), 'page-scoped CSS uses BCrew type and color tokens', 'public/dev.css')
   addCheck(checks, sourceDoesNotWriteOrExtract(readOnlyBundle), 'Dev Hub code has no extraction runner, external write, approval apply, or backlog writer path', 'read-only bundle scan')
   addCheck(checks, sourceDoesNotWriteOrExtract(scriptSource), 'focused proof stays read-only', SCRIPT_PATH)
   addCheck(checks, dogfood.ok === true, 'dogfood proves source-backed counts and missing-source fallback', JSON.stringify(dogfood.cases))
   addCheck(checks, payload?.cardId === DEV_TEAM_HUB_V0_CARD_ID && payload?.readOnly === true, 'live snapshot identifies read-only active card', payload?.cardId || 'missing')
   addCheck(checks, DEV_TEAM_HUB_V0_SOURCE_IDS.every(sourceId => list(payload?.sourceIds).includes(sourceId)), 'live snapshot includes required source IDs', list(payload?.sourceIds).join(', ') || 'missing')
   addCheck(checks, payload?.dailyWatch?.sourceRoute === '/api/foundation/build-intel/youtube-creator-daily-watch', 'daily watch source route is preserved', payload?.dailyWatch?.sourceRoute || 'missing')
+  addCheck(checks, payload?.markYoutube?.latestVideoId === 'tjjX43FoAUg' && Number(payload?.markYoutube?.markResearchPoolCount) >= 50, 'Mark latest video/count are mapped from Foundation daily watch', `${payload?.markYoutube?.latestVideoId || 'missing'} / ${payload?.markYoutube?.markResearchPoolCount ?? 'missing'}`)
   addCheck(checks, payload?.scout?.sourceRoute?.includes('getIntelligenceReportBundle'), 'scout source route is report-bundle backed', payload?.scout?.sourceRoute || 'missing')
+  addCheck(checks, payload?.eyesQualityLoop?.sourceRoute?.includes(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID) && list(payload?.eyesQualityLoop?.buildCandidates).length >= 1, 'God Mode Eyes candidates are exposed to Dev Hub', `${list(payload?.eyesQualityLoop?.buildCandidates).length} candidates`)
+  addCheck(checks, payload?.director?.sourceRoute?.includes(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID) && list(payload?.director?.recommendedBuildNow).length >= 1, 'Dev Intelligence Director recommendations are exposed to Dev Hub', `${list(payload?.director?.recommendedBuildNow).length} recommendations`)
+  addCheck(checks, list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'meetings-transcripts') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'email-missive-comms') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'slack-comms'), 'active extraction lanes expose internal Foundation signals', list(payload?.activeExtractionLanes).map(lane => lane.laneId).join(', ') || 'missing')
   addCheck(checks, Array.isArray(payload?.sourceRoutes) && payload.sourceRoutes.length >= 5, 'visible value source map is present', `${payload?.sourceRoutes?.length || 0} routes`)
 
   const failed = checks.filter(check => !check.ok)
@@ -209,6 +253,12 @@ async function main() {
       status: payload.status,
       sourceNeeds: payload.sourceNeeds || [],
       counts: payload.counts,
+      markYoutube: payload.markYoutube,
+      director: {
+        status: payload.director?.status,
+        recommendedBuildNow: list(payload.director?.recommendedBuildNow).length,
+      },
+      activeExtractionLanes: list(payload.activeExtractionLanes).map(lane => ({ laneId: lane.laneId, status: lane.status, latestRunAt: lane.latestRunAt })),
       reportArtifactIds: payload.reportArtifactIds,
       sourceIds: payload.sourceIds,
     } : null,

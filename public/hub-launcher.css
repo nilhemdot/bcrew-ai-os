@@ -1,26 +1,26 @@
 @font-face {
-  font-family: 'LauncherStratum1';
+  font-family: 'Stratum1';
   src: url('/fonts/Stratum1-Regular.otf') format('opentype');
   font-weight: 400;
   font-display: block;
 }
 
 @font-face {
-  font-family: 'LauncherStratum1';
+  font-family: 'Stratum1';
   src: url('/fonts/Stratum1-Medium.otf') format('opentype');
   font-weight: 500;
   font-display: block;
 }
 
 @font-face {
-  font-family: 'LauncherStratum1';
+  font-family: 'Stratum1';
   src: url('/fonts/Stratum1-Bold.otf') format('opentype');
   font-weight: 700;
   font-display: block;
 }
 
 @font-face {
-  font-family: 'LauncherStratum1';
+  font-family: 'Stratum1';
   src: url('/fonts/Stratum1-Black.otf') format('opentype');
   font-weight: 900;
   font-display: block;
@@ -36,7 +36,7 @@
   --launcher-grey-1: #f5f7fa;
   --launcher-line: rgba(10, 15, 26, 0.08);
   --launcher-blue-soft: rgba(0, 132, 201, 0.08);
-  --launcher-display: 'LauncherStratum1', 'Arial Black', sans-serif;
+  --launcher-display: 'Stratum1', 'Arial Black', sans-serif;
   --launcher-body: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --launcher-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
@@ -128,7 +128,7 @@ body.launcher-page {
   justify-content: flex-end;
   gap: 16px;
   flex: 0 0 auto;
-  min-width: 520px;
+  min-width: 0;
 }
 
 .launcher-clock {
@@ -184,6 +184,11 @@ body.launcher-page {
   100% { box-shadow: 0 0 0 0 rgba(0, 132, 201, 0); }
 }
 
+.launcher-user-menu-wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
 .launcher-user {
   display: inline-flex;
   align-items: center;
@@ -194,8 +199,18 @@ body.launcher-page {
   padding: 6px 16px 6px 6px;
   border: 1px solid var(--launcher-line);
   border-radius: 100px;
+  background: var(--launcher-white);
   color: var(--launcher-ink);
+  cursor: pointer;
+  font: inherit;
   text-decoration: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.launcher-user:hover,
+.launcher-user[aria-expanded="true"] {
+  border-color: rgba(0, 132, 201, 0.28);
+  box-shadow: 0 8px 24px rgba(10, 15, 26, 0.08);
 }
 
 .launcher-avatar {
@@ -237,7 +252,7 @@ body.launcher-page {
   overflow: hidden;
   color: var(--launcher-blue);
   font-family: var(--launcher-display);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-overflow: ellipsis;
@@ -248,6 +263,53 @@ body.launcher-page {
 .launcher-user-chevron {
   color: var(--launcher-grey);
   font-size: 11px;
+}
+
+.launcher-account-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  min-width: 170px;
+  padding: 8px;
+  border: 1px solid var(--launcher-line);
+  border-radius: 14px;
+  background: var(--launcher-white);
+  box-shadow:
+    0 12px 30px rgba(10, 15, 26, 0.1),
+    0 2px 8px rgba(10, 15, 26, 0.06);
+}
+
+.launcher-account-menu[hidden] {
+  display: none;
+}
+
+.launcher-account-menu button {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--launcher-ink);
+  cursor: pointer;
+  font-family: var(--launcher-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.launcher-account-menu button:hover,
+.launcher-account-menu button:focus-visible {
+  background: var(--launcher-grey-1);
+  outline: none;
+}
+
+.launcher-account-menu button:disabled {
+  cursor: wait;
+  opacity: 0.62;
 }
 
 .launcher-main {
@@ -350,6 +412,14 @@ body.launcher-page {
 
 .launcher-hero-action:hover {
   transform: translateY(-2px);
+}
+
+.launcher-hero-action:active,
+.launcher-foundation:active,
+.launcher-hub:active,
+.launcher-user:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 132, 201, 0.08);
 }
 
 .launcher-hero-mascot {
@@ -548,8 +618,8 @@ body.launcher-page {
 .launcher-kpi-foot {
   min-height: 42px;
   padding: 11px 22px;
-  border-top: 1px solid var(--launcher-line);
-  background: var(--launcher-grey-1);
+  border-top: 1px dashed var(--launcher-line);
+  background: transparent;
   color: var(--launcher-grey);
   font-family: var(--launcher-mono);
   font-size: 12px;
@@ -720,7 +790,7 @@ body.launcher-page {
   margin: 0;
   color: var(--launcher-ink);
   font-family: var(--launcher-display);
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: 0;
   text-transform: uppercase;

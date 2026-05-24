@@ -1,75 +1,156 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dev Team Hub · BCrew AI OS</title>
-    <link rel="stylesheet" href="/dev.css?v=20260522b" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="dev-page">
-      <header class="dev-topbar">
-        <a class="dev-brand" href="/" aria-label="All hubs">
-          <span class="dev-logo"><img src="/assets/bc-logo.svg" alt="" /></span>
-          <span>
-            <span class="dev-brand-name">BCrew AI OS</span>
-            <span class="dev-brand-mode">Dev Team Hub</span>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dev Data Pool · BCrew AI OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/hub-launcher.css?v=20260524c" />
+  <link rel="stylesheet" href="/dev.css?v=20260524-final-direction-v23" />
+</head>
+<body>
+  <header class="launcher-topbar">
+    <a class="launcher-brand" href="/" aria-label="BCrew AI OS home">
+      <span class="launcher-logo-frame">
+        <img src="/assets/bc-logo.svg" alt="Benson Crew logo" />
+      </span>
+      <span class="launcher-brand-name">
+        BCREW AI OS <span aria-hidden="true">&middot;</span><span>dev · build</span>
+      </span>
+    </a>
+
+    <div class="launcher-topbar-right">
+      <span class="launcher-clock" id="launcher-clock">Loading time <b>&middot; EDT</b></span>
+      <span class="launcher-live"><span class="launcher-live-dot"></span>SYSTEM LIVE</span>
+      <div class="launcher-user-menu-wrap" id="launcher-user" aria-live="polite">
+        <button
+          class="launcher-user"
+          id="launcher-user-button"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
+          <span class="launcher-avatar" id="launcher-avatar">SZ</span>
+          <span class="launcher-user-copy">
+            <span class="launcher-user-name" id="launcher-user-name">STEVE ZAHND</span>
+            <span class="launcher-user-role" id="launcher-user-role">EXEC LEADERSHIP · T1</span>
           </span>
-        </a>
-        <div class="dev-topbar-right">
-          <span class="dev-live" id="dev-sync-status"><span></span>Read only</span>
-          <a class="dev-toplink" href="/">All hubs</a>
+          <span class="launcher-user-chevron" aria-hidden="true">&#9662;</span>
+        </button>
+        <div class="launcher-account-menu" id="launcher-account-menu" role="menu" hidden>
+          <button type="button" id="launcher-logout" role="menuitem">Log out</button>
         </div>
-      </header>
+      </div>
+    </div>
+  </header>
 
-      <div class="dev-shell">
-        <aside class="dev-sidebar">
-          <a class="dev-back" href="/">← All hubs</a>
-          <div class="dev-side-head">
-            <span>Hub</span>
-            <strong>Dev / Build</strong>
-          </div>
-          <nav class="dev-nav" aria-label="Dev Team Hub views">
-            <button class="dev-nav-item is-active" type="button" data-view="overview">Overview</button>
-            <button class="dev-nav-item" type="button" data-view="sprint">Sprint</button>
-            <button class="dev-nav-item" type="button" data-view="backlog">Backlog</button>
-            <button class="dev-nav-item" type="button" data-view="intel">Intel</button>
-            <button class="dev-nav-item" type="button" data-view="opportunities">Opportunities</button>
-            <button class="dev-nav-item" type="button" data-view="approvals">Approvals</button>
-            <button class="dev-nav-item" type="button" data-view="recent">Recent</button>
-          </nav>
-        </aside>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="sb-back" href="/">← ALL HUBS</a>
+      <div class="sb-title">
+        <span>HUB · 07</span>
+        <strong>DEV · BUILD</strong>
+      </div>
 
-        <main class="dev-main">
-          <section class="dev-page-head">
-            <div>
-              <p class="dev-eyebrow">DEV TEAM HUB</p>
-              <h1 id="dev-view-title">Overview</h1>
-              <p class="dev-subtitle" id="dev-view-subtitle">Current active work, approval needs, Build Intel, and recent proof from Foundation truth.</p>
+      <nav class="sb-nav" aria-label="Dev navigation">
+        <button class="sb-link active" type="button" data-view="pool">
+          <span>Data Pool</span>
+        </button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <section class="view active" id="view-pool">
+        <div class="crumb">
+          <a href="/">All Hubs</a>
+          <span class="sep">›</span>
+          <a href="/dev"><b>Dev · Build</b></a>
+          <span class="sep">›</span>
+          <span>Data Pool</span>
+        </div>
+
+        <section class="foundation-card" aria-label="Dev data pool flow">
+          <div class="f-num">07</div>
+          <div class="f-content">
+            <div class="f-top">
+              <div>
+                <div class="f-title-wrap">
+                  <h2 class="f-title">Dev Data Pool.</h2>
+                </div>
+                <p class="f-tag" id="flow-tag">Sources → Foundation Pool → Dev Director → <b>build candidates.</b></p>
+              </div>
+              <a class="f-cta" href="/dev-reference/old-neural-map.html" target="_blank" rel="noreferrer">Launch Map <span class="arrow">→</span></a>
             </div>
-            <div class="dev-head-actions" aria-label="Dev Hub status">
-              <span class="dev-source-pill">read only</span>
-              <span class="dev-source-pill">proposal gated</span>
+          </div>
+        </section>
+
+        <section class="page-band">
+          <section class="section-head director-head">
+            <div>
+              <span>BUILD RECOMMENDATIONS</span>
+              <h2>Director Lens</h2>
+            </div>
+            <div class="director-head-stats" id="director-head-stats" aria-live="polite"></div>
+          </section>
+
+          <section class="director-panel" id="director-panel" aria-label="Dev Intelligence Director recommendations">
+            <article class="loading-card">Loading Director recommendations from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band shaded">
+          <section class="section-head">
+            <div>
+              <span>HOW FOUNDATION READS SOURCES</span>
+              <h2>Extraction Systems</h2>
             </div>
           </section>
 
-          <div id="dev-status" class="dev-status" role="status">Loading Foundation truth.</div>
-          <section class="dev-view-root" id="dev-view-root" aria-live="polite"></section>
+          <section class="extractor-grid" id="extractor-grid" aria-label="Active extractors">
+            <article class="loading-card">Loading extractor status from Foundation...</article>
+          </section>
+        </section>
 
-          <div class="dev-proof-landmarks" hidden>
-            <span id="source-status"></span>
-            <span id="research-pool"></span>
-            <span id="scout-report"></span>
-            <span id="ranked-opportunities"></span>
-            <span id="atoms-evidence"></span>
-            <span id="approval-links"></span>
-          </div>
-        </main>
-      </div>
-    </div>
-    <script src="/dev.js?v=20260522b"></script>
-  </body>
+        <section class="page-band">
+          <section class="section-head">
+            <div>
+              <span>WHAT WE FOUND</span>
+              <h2>Evidence Produced</h2>
+            </div>
+          </section>
+
+          <section class="evidence-grid" id="evidence-grid" aria-label="Evidence produced by extraction">
+            <article class="loading-card">Loading evidence output from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band shaded">
+          <section class="section-head">
+            <div>
+              <span>WHERE YOUR INTELLIGENCE COMES FROM</span>
+              <h2>Source Inputs</h2>
+            </div>
+          </section>
+
+          <section class="source-explorer" aria-label="Source input explorer">
+            <section class="source-grid" id="source-grid" aria-label="Dev source system cards"></section>
+
+            <section class="target-panel" id="target-panel" aria-live="polite">
+              <div class="target-empty">
+                <span>Select a source card</span>
+                <p>Click a source system to see what Foundation can currently read and what still needs approval or routing.</p>
+              </div>
+            </section>
+          </section>
+        </section>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="/dev.js?v=20260524-final-direction-v22"></script>
+</body>
 </html>

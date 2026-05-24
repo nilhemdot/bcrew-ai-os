@@ -3,7 +3,9 @@ import path from 'node:path'
 
 const repoRoot = process.cwd()
 const indexHtml = fs.readFileSync(path.join(repoRoot, 'public/index.html'), 'utf8')
+const loginHtml = fs.readFileSync(path.join(repoRoot, 'public/login.html'), 'utf8')
 const homeJs = fs.readFileSync(path.join(repoRoot, 'public/home.js'), 'utf8')
+const launcherCss = fs.readFileSync(path.join(repoRoot, 'public/hub-launcher.css'), 'utf8')
 
 const checks = []
 
@@ -97,6 +99,10 @@ add(homeJs.includes('fetchSalesCardIfAllowed') && homeJs.includes('SRC-CLICKUP-0
 add(homeJs.includes('fetchOpsCardIfAllowed') && homeJs.includes('foundationJobs'), 'Ops card uses Ops Hub foundationJobs payload', 'fetchOpsCardIfAllowed')
 add(homeJs.includes('fetchDevCardIfAllowed') && homeJs.includes('currentSprint.summary'), 'Dev card uses Current Sprint route', 'fetchDevCardIfAllowed')
 add(homeJs.includes("action.innerHTML = 'Open Foundation"), 'owner CTA removes unsourced call count', 'Open Foundation')
+add(indexHtml.includes('mascot-6-cutout-v2-900.webp') && indexHtml.includes('mascot-6-cutout-v2-1400.webp'), 'launcher uses cleaned mascot cutout assets', 'mascot-6-cutout-v2')
+add(loginHtml.includes('mascot-7-900.webp') && loginHtml.includes('mascot-7-1600.webp') && !loginHtml.includes('mascot-7-cutout'), 'login keeps original transparent mascot asset', 'mascot-7 original')
+add(indexHtml.includes('launcher-logout') && homeJs.includes('/api/auth/logout'), 'launcher user menu exposes logout action', 'launcher-logout')
+add(launcherCss.includes('font-size: 22px;') && launcherCss.includes('font-size: 11px;'), 'launcher type polish uses locked heading/role sizes', '22px h2 / 11px role')
 
 const failed = checks.filter(check => !check.ok)
 const result = {

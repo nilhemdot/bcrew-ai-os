@@ -28,15 +28,15 @@
     <link
       rel="preload"
       as="image"
-      href="/assets/mascot-6-1400.webp"
-      imagesrcset="/assets/mascot-6-900.webp 900w, /assets/mascot-6-1400.webp 1400w"
+      href="/assets/mascot-6-cutout-v2-1400.webp"
+      imagesrcset="/assets/mascot-6-cutout-v2-900.webp 900w, /assets/mascot-6-cutout-v2-1400.webp 1400w"
       imagesizes="(max-width: 700px) 1px, (max-width: 1100px) 38vw, 30vw"
     >
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css?v=20260425b">
-    <link rel="stylesheet" href="/hub-launcher.css?v=20260521a">
+    <link rel="stylesheet" href="/hub-launcher.css?v=20260524c">
   </head>
   <body class="launcher-page">
     <header class="launcher-topbar">
@@ -52,13 +52,24 @@
       <div class="launcher-topbar-right">
         <span class="launcher-clock" id="launcher-clock">Loading time <b>&middot; EDT</b></span>
         <span class="launcher-live"><span class="launcher-live-dot"></span>SYSTEM LIVE</span>
-        <div class="launcher-user" id="launcher-user" aria-live="polite">
-          <span class="launcher-avatar" id="launcher-avatar">--</span>
-          <span class="launcher-user-copy">
-            <span class="launcher-user-name" id="launcher-user-name">LOADING</span>
-            <span class="launcher-user-role" id="launcher-user-role">ACCESS</span>
-          </span>
-          <span class="launcher-user-chevron" aria-hidden="true">&#9662;</span>
+        <div class="launcher-user-menu-wrap" id="launcher-user" aria-live="polite">
+          <button
+            class="launcher-user"
+            id="launcher-user-button"
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span class="launcher-avatar" id="launcher-avatar">--</span>
+            <span class="launcher-user-copy">
+              <span class="launcher-user-name" id="launcher-user-name">LOADING</span>
+              <span class="launcher-user-role" id="launcher-user-role">ACCESS</span>
+            </span>
+            <span class="launcher-user-chevron" aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="launcher-account-menu" id="launcher-account-menu" role="menu" hidden>
+            <button type="button" id="launcher-logout" role="menuitem">Log out</button>
+          </div>
         </div>
       </div>
     </header>
@@ -79,11 +90,11 @@
           <picture>
             <source
               type="image/webp"
-              srcset="/assets/mascot-6-900.webp 900w, /assets/mascot-6-1400.webp 1400w"
+              srcset="/assets/mascot-6-cutout-v2-900.webp 900w, /assets/mascot-6-cutout-v2-1400.webp 1400w"
               sizes="(max-width: 700px) 1px, (max-width: 1100px) 38vw, 30vw"
             >
             <img
-              src="/assets/mascot-6.png"
+              src="/assets/mascot-6-cutout-v2-1400.webp"
               alt=""
               width="3263"
               height="3584"
@@ -300,6 +311,6 @@
       </section>
     </main>
 
-    <script src="/home.js?v=20260521a"></script>
+    <script src="/home.js?v=20260524b"></script>
   </body>
 </html>

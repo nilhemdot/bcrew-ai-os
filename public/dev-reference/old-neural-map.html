@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dev Team Neural Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f7f8fa;font-family:'Inter',sans-serif;display:flex;justify-content:center;padding:12px 0;min-height:100vh}
+
+.board{position:relative;width:1400px;height:1400px}
+
+.title{text-align:center;margin-bottom:10px}
+.title h1{font-family:'Oswald';font-size:22px;font-weight:700;letter-spacing:0.12em;color:#1e293b}
+.title-sub{font-family:'JetBrains Mono';font-size:10px;color:#94a3b8;margin-top:2px}
+
+#svg{position:absolute;top:0;left:0;width:1400px;height:1400px;z-index:1;pointer-events:none}
+
+/* Orchestrator note */
+.orch-note{position:absolute;z-index:3;font-family:'JetBrains Mono';font-size:9px;color:#64748b;line-height:1.5;max-width:600px;text-align:center;transform:translateX(-50%)}
+
+.band{position:absolute;z-index:0;left:0;right:0;height:104px;border-radius:10px;border-left:3px solid var(--bc);background:var(--bg)}
+
+.sl{position:absolute;z-index:3;display:flex;align-items:center;gap:8px}
+.sl-n{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:10px;font-weight:700;color:white;flex-shrink:0}
+.sl-t{font-family:'Oswald';font-size:11px;font-weight:600;letter-spacing:0.12em;white-space:nowrap}
+
+.nd{position:absolute;z-index:2;display:flex;align-items:center;gap:6px;width:135px;height:44px;padding:5px 8px 5px 6px;background:white;border:1.5px solid #e2e8f0;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,0.05);overflow:hidden;transition:box-shadow 0.15s}
+.nd:hover{box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.nd-a{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:10px;font-weight:700;border:2px solid;flex-shrink:0}
+.nd-i{display:flex;flex-direction:column;min-width:0}
+.nd-n{font-size:11px;font-weight:700;color:#1e293b;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nd-r{font-size:8.5px;color:#94a3b8;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%}
+.st.live{background:#22c55e;box-shadow:0 0 4px rgba(34,197,94,0.5)}
+.st.cold{background:#94a3b8}
+
+.fl{position:absolute;z-index:4;font-family:'JetBrains Mono';font-size:8.5px;font-weight:600;letter-spacing:0.05em;padding:1px 7px;border-radius:3px;background:#f7f8fa;white-space:nowrap;transform:translate(-50%,-50%);pointer-events:none}
+
+.ub{position:absolute;z-index:5;display:flex;align-items:center;gap:6px;padding:5px 11px;border:1.5px dashed #d97706;border-radius:8px;background:rgba(217,119,6,0.03)}
+.ub span{font-family:'JetBrains Mono';font-size:9px;font-weight:600;color:#d97706}
+
+/* Lane labels */
+.lane{position:absolute;z-index:5;font-family:'Oswald';font-size:10px;font-weight:600;letter-spacing:0.14em;padding:3px 10px;border-radius:4px;white-space:nowrap;transform:translate(-50%,-50%)}
+.lane-code{background:rgba(148,163,184,0.1);color:#64748b;border:1px solid rgba(148,163,184,0.2)}
+.lane-front{background:rgba(239,68,68,0.06);color:#dc2626;border:1px solid rgba(239,68,68,0.15)}
+.lane-dual{background:rgba(124,58,237,0.06);color:#7c3aed;border:1px solid rgba(124,58,237,0.15)}
+
+.fix{position:absolute;z-index:5;font-family:'JetBrains Mono';font-size:7px;font-weight:700;letter-spacing:0.08em;color:#dc2626;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);padding:1px 6px;border-radius:3px;white-space:nowrap;transform:translate(-50%,-50%)}
+
+.ship{position:absolute;z-index:2;width:135px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1.5px solid #bbf7d0;border-radius:10px;text-align:center}
+.ship-l{font-family:'Oswald';font-size:11px;font-weight:600;letter-spacing:0.1em;color:#16a34a}
+.ship-s{font-size:8.5px;color:#94a3b8;margin-top:1px}
+
+.legend{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:16px;padding:10px 0}
+.lg{display:flex;align-items:center;gap:4px}
+.lg-d{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.lg span{font-size:9px;color:#94a3b8}
+.lg-l{width:16px;height:0;flex-shrink:0}
+.lg-s{width:1px;height:12px;background:#e2e8f0}
+
+/* ═══ TOGGLE ═══ */
+.toggle{position:absolute;top:10px;right:10px;z-index:10;display:flex;border-radius:20px;overflow:hidden;border:1px solid #e2e8f0}
+.t-btn{padding:5px 16px;font-family:'JetBrains Mono';font-size:10px;font-weight:600;letter-spacing:.06em;border:none;cursor:pointer;outline:none;background:white;color:#94a3b8;transition:all .3s}
+.t-btn.active{background:#2563eb;color:white}
+
+/* ═══ DARK MODE ═══ */
+body.dark{background:#060a14!important}
+body.dark::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(34,211,238,.02) 0%,transparent 65%);pointer-events:none}
+body.dark .board{background-image:radial-gradient(rgba(255,255,255,.025) 1px,transparent 1px);background-size:28px 28px}
+body.dark .band{border-left-color:rgba(var(--scr,100,100,100),.35)!important;background:rgba(var(--scr,100,100,100),.06)!important}
+body.dark .sl-n{box-shadow:0 0 10px rgba(var(--scr,100,100,100),.3)}
+body.dark .nd{background:rgba(10,16,30,.75)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-color:rgba(255,255,255,.06)!important;box-shadow:0 1px 8px rgba(0,0,0,.3)!important}
+body.dark .nd-n{color:#e2e8f0!important}
+body.dark .nd-r{color:#64748b!important}
+body.dark .nd-a{box-shadow:0 0 8px currentColor}
+body.dark .st.live{box-shadow:0 0 6px rgba(34,197,94,.6)}
+body.dark .title h1{color:#94a3b8!important}
+body.dark .title-sub{color:#475569!important}
+body.dark .fl{background:rgba(6,10,20,.92)!important;color:rgba(255,255,255,.4)!important}
+body.dark .ub{border-color:rgba(217,119,6,.4)!important;background:rgba(217,119,6,.06)!important}
+body.dark .ub span{color:#fbbf24!important}
+body.dark .lane-code{background:rgba(148,163,184,.06)!important;color:#94a3b8!important;border-color:rgba(148,163,184,.15)!important}
+body.dark .lane-front{background:rgba(239,68,68,.06)!important;color:#ef4444!important;border-color:rgba(239,68,68,.15)!important}
+body.dark .lane-dual{background:rgba(124,58,237,.06)!important;color:#a78bfa!important;border-color:rgba(124,58,237,.15)!important}
+body.dark .ship{background:rgba(22,163,74,.08)!important;border-color:rgba(22,163,74,.25)!important}
+body.dark .ship-l{color:#4ade80!important}
+body.dark .ship-s{color:#64748b!important}
+body.dark .orch-note{color:#475569!important}
+body.dark .lg span{color:#475569!important}
+body.dark .lg-s{background:rgba(255,255,255,.06)!important}
+body.dark .toggle{border-color:rgba(255,255,255,.1)!important}
+body.dark .t-btn{background:rgba(255,255,255,.03)!important;color:#475569!important}
+body.dark .t-btn.active{background:rgba(34,211,238,.12)!important;color:#22d3ee!important}
+@keyframes f28{to{stroke-dashoffset:-28}}
+@keyframes f30{to{stroke-dashoffset:-30}}
+@keyframes f20{to{stroke-dashoffset:-20}}
+@keyframes f22{to{stroke-dashoffset:-22}}
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="title">
+    <h1>DEV TEAM NEURAL MAP</h1>
+    <div class="title-sub" id="map-subtitle"></div>
+  </div>
+  <div class="toggle"><button class="t-btn active" data-m="light" onclick="setMode('light')">Blueprint</button><button class="t-btn" data-m="dark" onclick="setMode('dark')">Neural Flow</button></div>
+
+  <svg id="svg">
+    <defs>
+      <marker id="a" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#94a3b8"/></marker>
+      <marker id="ab" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#6366f1"/></marker>
+      <marker id="ar" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#ef4444"/></marker>
+      <marker id="aw" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#d97706"/></marker>
+      <marker id="ap" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#7c3aed"/></marker>
+      <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+  </svg>
+
+  <!-- Bands (compressed 16px gaps, 54px fork gap) -->
+  <div class="band" style="top:54px;height:136px;--bc:#4f46e5;--bg:rgba(79,70,229,0.05);--scr:79,70,229"></div>
+  <div class="band" style="top:206px;--bc:#2563eb;--bg:rgba(37,99,235,0.05);--scr:37,99,235"></div>
+  <div class="band" style="top:326px;--bc:#1562A0;--bg:rgba(21,98,160,0.05);--scr:21,98,160"></div>
+  <div class="band" style="top:446px;--bc:#0891b2;--bg:rgba(8,145,178,0.05);--scr:8,145,178"></div>
+  <div class="band" style="top:604px;--bc:#0d9488;--bg:rgba(13,148,136,0.05);--scr:13,148,136"></div>
+  <div class="band" style="top:724px;--bc:#d97706;--bg:rgba(217,119,6,0.05);--scr:217,119,6"></div>
+  <div class="band" style="top:844px;--bc:#059669;--bg:rgba(5,150,105,0.05);--scr:5,150,105"></div>
+  <div class="band" style="top:964px;--bc:#ea580c;--bg:rgba(234,88,12,0.05);--scr:234,88,12"></div>
+  <div class="band" style="top:1084px;--bc:#dc2626;--bg:rgba(220,38,38,0.05);--scr:220,38,38"></div>
+  <div class="band" style="top:1204px;--bc:#16a34a;--bg:rgba(22,163,74,0.055);--scr:22,163,74"></div>
+
+  <!-- Stage labels -->
+  <div class="sl" style="left:12px;top:62px"><div class="sl-n" style="background:#4f46e5">1</div><span class="sl-t" style="color:#4f46e5">RESEARCH</span></div>
+  <div class="sl" style="left:12px;top:214px"><div class="sl-n" style="background:#2563eb">2</div><span class="sl-t" style="color:#2563eb">ANALYSIS</span></div>
+  <div class="sl" style="left:12px;top:334px"><div class="sl-n" style="background:#1562A0">3</div><span class="sl-t" style="color:#1562A0">SCOPING</span></div>
+  <div class="sl" style="left:12px;top:454px"><div class="sl-n" style="background:#0891b2">4</div><span class="sl-t" style="color:#0891b2">BACKLOG</span></div>
+  <div class="sl" style="left:12px;top:612px"><div class="sl-n" style="background:#0d9488">5</div><span class="sl-t" style="color:#0d9488">PLAN & DESIGN</span></div>
+  <div class="sl" style="left:12px;top:732px"><div class="sl-n" style="background:#d97706">6</div><span class="sl-t" style="color:#d97706">CRITIQUE</span></div>
+  <div class="sl" style="left:12px;top:852px"><div class="sl-n" style="background:#059669">7</div><span class="sl-t" style="color:#059669">BUILD</span></div>
+  <div class="sl" style="left:12px;top:972px"><div class="sl-n" style="background:#ea580c">8</div><span class="sl-t" style="color:#ea580c">QA</span></div>
+  <div class="sl" style="left:12px;top:1092px"><div class="sl-n" style="background:#dc2626">9</div><span class="sl-t" style="color:#dc2626">REVIEW</span></div>
+  <div class="sl" style="left:12px;top:1212px"><div class="sl-n" style="background:#16a34a">10</div><span class="sl-t" style="color:#16a34a">SHIPPED</span></div>
+
+  <!-- ═══ NODES ═══ -->
+
+  <!-- Research Row 1 (External + Core Scouts) -->
+  <div class="nd" id="es" style="left:140px;top:72px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">ES</div><div class="nd-i"><span class="nd-n">External Scout</span><span class="nd-r">YouTube, GitHub, Reddit</span></div><div class="st live"></div></div>
+  <div class="nd" id="pi" style="left:320px;top:72px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">PI</div><div class="nd-i"><span class="nd-n">Platform Intel</span><span class="nd-r">Anthropic, SDK, MCP</span></div><div class="st live"></div></div>
+  <div class="nd" id="cs" style="left:500px;top:72px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">CS</div><div class="nd-i"><span class="nd-n">Course Scout</span><span class="nd-r">Frameworks, coaching</span></div><div class="st live"></div></div>
+  <div class="nd" id="ck" style="left:680px;top:72px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">CK</div><div class="nd-i"><span class="nd-n">Community & Skills</span><span class="nd-r">MCP servers, plugins</span></div><div class="st live"></div></div>
+  <div class="nd" id="fs" style="left:860px;top:72px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">FS</div><div class="nd-i"><span class="nd-n">Feedback Scout</span><span class="nd-r">Slack, Gmail, Missive</span></div><div class="st live"></div></div>
+  <div class="nd" id="el" style="left:1040px;top:72px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">EL</div><div class="nd-i"><span class="nd-n">Error/Log Scout</span><span class="nd-r">PM2 logs, agent health</span></div><div class="st live"></div></div>
+
+  <!-- Research Row 2 (Internal + System Scouts) -->
+  <div class="nd" id="ei" style="left:190px;top:122px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">EI</div><div class="nd-i"><span class="nd-n">Email Intelligence</span><span class="nd-r">Gmail, Missive signals</span></div><div class="st live"></div></div>
+  <div class="nd" id="ie" style="left:380px;top:122px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">IE</div><div class="nd-i"><span class="nd-n">Internal Email</span><span class="nd-r">Team email signals</span></div><div class="st live"></div></div>
+  <div class="nd" id="isk" style="left:570px;top:122px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">IK</div><div class="nd-i"><span class="nd-n">Internal Slack</span><span class="nd-r">Slack team signals</span></div><div class="st live"></div></div>
+  <div class="nd" id="im" style="left:760px;top:122px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">IM</div><div class="nd-i"><span class="nd-n">Internal Meetings</span><span class="nd-r">Strategy decisions</span></div><div class="st live"></div></div>
+  <div class="nd" id="om" style="left:950px;top:122px"><div class="nd-a" style="border-color:#4f46e5;color:#4f46e5">OM</div><div class="nd-i"><span class="nd-n">Ops Signal Monitor</span><span class="nd-r">System health, failures</span></div><div class="st live"></div></div>
+
+  <!-- Analysis (DD centered) -->
+  <div class="nd" id="dd" style="left:624px;top:234px"><div class="nd-a" style="border-color:#2563eb;color:#2563eb">DD</div><div class="nd-i"><span class="nd-n">Dev Director</span><span class="nd-r">Synthesizes all scouts</span></div><div class="st live"></div></div>
+
+  <!-- Scoping (IS centered) -->
+  <div class="nd" id="is" style="left:624px;top:354px"><div class="nd-a" style="border-color:#1562A0;color:#1562A0">IS</div><div class="nd-i"><span class="nd-n">Implementation Scoper</span><span class="nd-r">Researches & specs items</span></div><div class="st live"></div></div>
+
+  <!-- Backlog (SM centered, BM to the left) -->
+  <div class="nd" id="bm" style="left:200px;top:474px"><div class="nd-a" style="border-color:#0891b2;color:#0891b2">BM</div><div class="nd-i"><span class="nd-n">Backlog Monitor</span><span class="nd-r">Stale items, duplicates</span></div><div class="st live"></div></div>
+  <div class="nd" id="sm" style="left:624px;top:474px"><div class="nd-a" style="border-color:#0891b2;color:#0891b2">SM</div><div class="nd-i"><span class="nd-n">Sprint Master</span><span class="nd-r">Classifies & routes tasks</span></div><div class="st live"></div></div>
+
+  <!-- Plan & Design (two lanes) -->
+  <div class="nd" id="hc1" style="left:350px;top:632px"><div class="nd-a" style="border-color:#0d9488;color:#0d9488">HC</div><div class="nd-i"><span class="nd-n">Head of Code</span><span class="nd-r">Plans code tasks</span></div><div class="st live"></div></div>
+  <div class="nd" id="vd" style="left:900px;top:632px"><div class="nd-a" style="border-color:#0d9488;color:#0d9488">VD</div><div class="nd-i"><span class="nd-n">Visual Designer</span><span class="nd-r">Paper mockups</span></div><div class="st live"></div></div>
+
+  <!-- Critique (two lanes) -->
+  <div class="nd" id="pc" style="left:350px;top:752px"><div class="nd-a" style="border-color:#d97706;color:#d97706">PC</div><div class="nd-i"><span class="nd-n">Plan Critic</span><span class="nd-r">Reviews CODE plans</span></div><div class="st live"></div></div>
+  <div class="nd" id="ux" style="left:900px;top:752px"><div class="nd-a" style="border-color:#d97706;color:#d97706">UX</div><div class="nd-i"><span class="nd-n">UI/UX Specialist</span><span class="nd-r">Reviews DESIGN work</span></div><div class="st live"></div></div>
+
+  <!-- Build (two lanes) -->
+  <div class="nd" id="hc2" style="left:350px;top:872px"><div class="nd-a" style="border-color:#059669;color:#059669">HC</div><div class="nd-i"><span class="nd-n">Head of Code</span><span class="nd-r">Builds code tasks</span></div><div class="st live"></div></div>
+  <div class="nd" id="fd" style="left:900px;top:872px"><div class="nd-a" style="border-color:#059669;color:#059669">FD</div><div class="nd-i"><span class="nd-n">Frontend Dev</span><span class="nd-r">Builds from mockups</span></div><div class="st live"></div></div>
+
+  <!-- QA (two lanes) -->
+  <div class="nd" id="qa" style="left:350px;top:992px"><div class="nd-a" style="border-color:#ea580c;color:#ea580c">QA</div><div class="nd-i"><span class="nd-n">QA Reviewer</span><span class="nd-r">Reviews CODE build</span></div><div class="st live"></div></div>
+  <div class="nd" id="ux2" style="left:900px;top:992px"><div class="nd-a" style="border-color:#ea580c;color:#ea580c">UX</div><div class="nd-i"><span class="nd-n">UI/UX Specialist</span><span class="nd-r">Reviews FRONTEND build</span></div><div class="st live"></div></div>
+
+  <!-- Review (centered) -->
+  <div class="nd" id="rl" style="left:624px;top:1112px"><div class="nd-a" style="border-color:#dc2626;color:#dc2626">RL</div><div class="nd-i"><span class="nd-n">Review Loop</span><span class="nd-r">Steve approval gate</span></div><div class="st live"></div></div>
+
+  <!-- Shipped (centered) -->
+  <div class="ship" id="ship" style="left:624px;top:1232px"><div class="ship-l">PRODUCTION</div><div class="ship-s">Merged &middot; Archived</div></div>
+
+  <!-- Urgent (vertically centered on IS node) -->
+  <div class="ub" id="urgent" style="left:1100px;top:370px"><span>&#9889; URGENT DEV FIXES</span></div>
+
+  <!-- Flow labels -->
+  <div class="fl" id="fl-scout" style="color:#64748b">SCOUT REPORTS</div>
+  <div class="fl" id="fl-brief" style="color:#64748b">DEV BRIEF</div>
+  <div class="fl" id="fl-scope" style="color:#64748b">SCOPED CARDS</div>
+  <div class="fl" id="fl-bm" style="color:#64748b;font-size:8px">HEALTH ISSUES</div>
+  <div class="fl" id="fl-plan" style="color:#64748b">CODE PLAN</div>
+  <div class="fl" id="fl-design" style="color:#64748b">DESIGN REVIEW</div>
+  <div class="fl" id="fl-ok-code" style="color:#64748b">APPROVED</div>
+  <div class="fl" id="fl-ok-front" style="color:#64748b">APPROVED</div>
+  <div class="fl" id="fl-branch" style="color:#64748b">FEATURE BRANCH</div>
+  <div class="fl" id="fl-qa" style="color:#64748b">BOTH LANES MERGE</div>
+  <div class="fl" id="fl-merge" style="color:#64748b">MERGED</div>
+  <div class="fl" id="fl-concern" style="color:#d97706">CONCERNS</div>
+  <div class="fl" id="fl-redesign" style="color:#d97706">REDESIGN</div>
+  <div class="fl" id="fl-fail" style="color:#d97706">QA FAIL</div>
+  <div class="fl" id="fl-review-fd" style="color:#d97706">REVISE</div>
+  <div class="fl" id="fl-fb-build-l" style="color:#d97706;white-space:normal;text-align:center;line-height:1.3;width:42px">FAILED BUILD</div>
+  <div class="fl" id="fl-fb-design-l" style="color:#d97706;white-space:normal;text-align:center;line-height:1.3;width:46px">FAILED DESIGN</div>
+  <div class="fl" id="fl-fb-build-r" style="color:#d97706;white-space:normal;text-align:center;line-height:1.3;width:42px">FAILED BUILD</div>
+  <div class="fl" id="fl-fb-design-r" style="color:#d97706;white-space:normal;text-align:center;line-height:1.3;width:46px">FAILED DESIGN</div>
+  <div class="fl" id="fl-urg" style="color:#d97706;font-size:8px">URGENT ITEMS</div>
+
+  <!-- Lane labels (fl class = white bg, breaks the line cleanly) -->
+  <div class="fl" id="lane-code" style="color:#64748b;font-size:9px;font-weight:700">CODE LANE</div>
+  <div class="fl" id="lane-front" style="color:#64748b;font-size:9px;font-weight:700">FRONTEND LANE</div>
+  <div class="fl" id="lane-dual" style="color:#7c3aed;font-size:9px;font-weight:700;background:#f7f8fa">DUAL TRACK</div>
+
+
+  <!-- Orchestrator note -->
+  <div class="orch-note" id="orch-note">CREWBERT ORCHESTRATOR manages scheduling, task execution, and agent coordination across all stages. Runs every 60s, polls scheduled tasks, enforces timeouts, and routes outputs between agents.</div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="lg"><div class="lg-d" style="background:#22c55e;box-shadow:0 0 3px rgba(34,197,94,0.5)"></div><span>Live</span></div>
+    <div class="lg"><div class="lg-d" style="background:#94a3b8"></div><span>Cold</span></div>
+    <div class="lg-s"></div>
+    <div class="lg"><div class="lg-l" style="border-top:1.5px solid #94a3b8"></div><span>Working</span></div>
+    <div class="lg"><div class="lg-l" style="border-top:2px solid #ef4444"></div><span>Not wired (fix needed)</span></div>
+    <div class="lg"><div class="lg-l" style="border-top:1.5px dashed #d97706"></div><span>Loop back / Revision</span></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Dynamic subtitle: count UNIQUE agents (dedupe nodes that appear in multiple stages)
+  var nodeIds = new Set();
+  document.querySelectorAll('.nd').forEach(function(el) {
+    // Strip trailing digits from IDs (hc1/hc2 -> hc, ux/ux2 -> ux) to dedupe multi-stage agents
+    var id = (el.id || '').replace(/\d+$/, '');
+    if (id) nodeIds.add(id);
+  });
+  var agentCount = nodeIds.size;
+  var stageCount = document.querySelectorAll('.sl').length;
+  var subEl = document.getElementById('map-subtitle');
+  if (subEl) subEl.textContent = agentCount + ' agents \u00B7 ' + stageCount + ' stages \u00B7 pipeline view';
+
+  const svg = document.getElementById('svg');
+  const board = document.querySelector('.board');
+  const bR = board.getBoundingClientRect();
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function p(id) {
+    const el = document.getElementById(id);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    const x = r.left - bR.left, y = r.top - bR.top, w = r.width, h = r.height;
+    return { tc:{x:x+w/2,y:y}, bc:{x:x+w/2,y:y+h}, lc:{x:x,y:y+h/2}, rc:{x:x+w,y:y+h/2}, t:y, b:y+h, l:x, r:x+w, cx:x+w/2, cy:y+h/2 };
+  }
+  function line(x1,y1,x2,y2,o={}){
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+    l.setAttribute('stroke',o.c||'#94a3b8');l.setAttribute('stroke-width',o.w||'1.5');
+    if(o.d)l.setAttribute('stroke-dasharray',o.d);if(o.m)l.setAttribute('marker-end','url(#'+o.m+')');
+    svg.appendChild(l);
+  }
+  function path(d,o={}){
+    const el=document.createElementNS(NS,'path');
+    el.setAttribute('d',d);el.setAttribute('stroke',o.c||'#94a3b8');
+    el.setAttribute('stroke-width',o.w||'1.5');el.setAttribute('fill','none');
+    if(o.d)el.setAttribute('stroke-dasharray',o.d);if(o.m)el.setAttribute('marker-end','url(#'+o.m+')');
+    svg.appendChild(el);
+  }
+  function pos(id,x,y){ const el=document.getElementById(id); if(el){el.style.left=x+'px';el.style.top=y+'px';} }
+
+  const n={};
+  // Shift all positioned elements down 20px for title breathing room
+  document.querySelectorAll('.band,.sl,.nd,.ub,.ship,.orch-note').forEach(el => {
+    if(el.style.top) el.style.top = (parseInt(el.style.top) + 20) + 'px';
+  });
+
+  ['es','pi','cs','ck','fs','el','ei','ie','isk','im','om','dd','is','bm','sm','hc1','vd','pc','ux','hc2','fd','qa','ux2','rl','ship'].forEach(id=>{n[id]=p(id);});
+
+  // ══════════════════════════════════════════
+  // RESEARCH → ANALYSIS (11 scouts, 2 rows)
+  // ══════════════════════════════════════════
+  const busY = Math.max(n.ei.b, n.om.b) + 16;
+  ['es','pi','cs','ck','fs','el','ei','ie','isk','im','om'].forEach(id=>{ line(n[id].bc.x, n[id].bc.y, n[id].bc.x, busY); });
+  const busL = Math.min(n.es.bc.x, n.ei.bc.x);
+  const busR = Math.max(n.el.bc.x, n.om.bc.x);
+  line(busL, busY, busR, busY);
+  line(n.dd.tc.x, busY, n.dd.tc.x, n.dd.tc.y, {m:'a'});
+
+  // ══════════════════════════════════════════
+  // ANALYSIS → SCOPING (straight down, both centered)
+  // ══════════════════════════════════════════
+  line(n.dd.bc.x, n.dd.bc.y, n.is.tc.x, n.is.tc.y, {m:'a'});
+
+  // ══════════════════════════════════════════
+  // SCOPING → BACKLOG (straight down, both centered)
+  // ══════════════════════════════════════════
+  line(n.is.bc.x, n.is.bc.y, n.sm.tc.x, n.sm.tc.y, {m:'a'});
+
+  // BM → SM (backlog health feeds sprint master)
+  line(n.bm.rc.x+4, n.bm.cy, n.sm.lc.x-4, n.sm.cy, {m:'a'});
+
+  // URGENT → IS (routes through Scoper for proper sprint cards)
+  const urgP = p('urgent');
+  line(urgP.l-3, n.is.cy, n.is.rc.x+4, n.is.cy, {c:'#d97706',d:'5,3',m:'aw'});
+
+  // ══════════════════════════════════════════
+  // THE Y-FORK: SM splits into two lanes
+  // Uses the full white gap between Backlog and Plan
+  // ══════════════════════════════════════════
+  const forkY = (n.sm.b + n.hc1.t) / 2 - 10;  // upper-third of gap
+
+  // Stem: SM bottom → fork point
+  line(n.sm.bc.x, n.sm.bc.y, n.sm.bc.x, forkY, {w:'2'});
+
+  // Fork dot at the split point
+  const dot = document.createElementNS(NS,'circle');
+  dot.setAttribute('cx',n.sm.bc.x);dot.setAttribute('cy',forkY);dot.setAttribute('r','4');
+  dot.setAttribute('fill','#0891b2');svg.appendChild(dot);
+
+  // CODE LANE (left branch) -- GRAY = working
+  path(`M${n.sm.bc.x},${forkY} L${n.hc1.tc.x},${forkY} L${n.hc1.tc.x},${n.hc1.tc.y}`, {w:'2',m:'a'});
+
+  // FRONTEND LANE (right branch) -- WIRED
+  path(`M${n.sm.bc.x},${forkY} L${n.vd.tc.x},${forkY} L${n.vd.tc.x},${n.vd.tc.y}`, {w:'2',m:'a'});
+
+  // DUAL TRACK -- continues the same stem past the fork, then splits to both corners
+  const dualY = forkY + 42;
+  // WIRED -- full-stack splits to both lanes
+  line(n.sm.bc.x, forkY, n.sm.bc.x, dualY, {c:'#7c3aed',w:'1.5',d:'6,4'});
+  path(`M${n.sm.bc.x},${dualY} L${n.hc1.r},${dualY} L${n.hc1.r},${n.hc1.t}`,
+    {c:'#7c3aed',w:'1.5',d:'6,4',m:'ap'});
+  path(`M${n.sm.bc.x},${dualY} L${n.vd.l},${dualY} L${n.vd.l},${n.vd.t}`,
+    {c:'#7c3aed',w:'1.5',d:'6,4',m:'ap'});
+
+  // ══════════════════════════════════════════
+  // CODE LANE (left column) -- working
+  // ══════════════════════════════════════════
+  line(n.hc1.bc.x, n.hc1.bc.y, n.pc.tc.x, n.pc.tc.y, {m:'a'});
+  line(n.pc.bc.x, n.pc.bc.y, n.hc2.tc.x, n.hc2.tc.y, {m:'a'});
+
+  // ══════════════════════════════════════════
+  // FRONTEND LANE (right column) -- WIRED
+  // ══════════════════════════════════════════
+  line(n.vd.bc.x, n.vd.bc.y, n.ux.tc.x, n.ux.tc.y, {m:'a'});
+  line(n.ux.bc.x, n.ux.bc.y, n.fd.tc.x, n.fd.tc.y, {m:'a'});
+
+  // UX → VD loop-back (REDESIGN -- WIRED)
+  const rx1 = n.ux.r + 30;
+  path(`M${n.ux.rc.x},${n.ux.cy} L${rx1},${n.ux.cy} L${rx1},${n.vd.cy} L${n.vd.rc.x},${n.vd.cy}`,
+    {c:'#d97706',d:'5,3',m:'aw'});
+
+  // ══════════════════════════════════════════
+  // QA STAGE: Two reviewers, one per lane
+  // ══════════════════════════════════════════
+  // Code lane: HC2 → QA (straight down)
+  line(n.hc2.bc.x, n.hc2.bc.y, n.qa.tc.x, n.qa.tc.y, {m:'a'});
+  // Frontend lane: FD → UX2 (WIRED)
+  line(n.fd.bc.x, n.fd.bc.y, n.ux2.tc.x, n.ux2.tc.y, {m:'a'});
+
+  // ══════════════════════════════════════════
+  // BOTH LANES → REVIEW (merge at RL)
+  // ══════════════════════════════════════════
+  const mergeY = Math.max(n.qa.b, n.ux2.b) + 16;
+  // QA → merge → RL
+  line(n.qa.bc.x, n.qa.bc.y, n.qa.bc.x, mergeY);
+  // UX2 → merge → RL (WIRED)
+  line(n.ux2.bc.x, n.ux2.bc.y, n.ux2.bc.x, mergeY);
+  // Horizontal merge
+  line(n.qa.bc.x, mergeY, n.ux2.bc.x, mergeY);
+  // Merge → RL
+  line(n.rl.tc.x, mergeY, n.rl.tc.x, n.rl.tc.y, {m:'a'});
+
+  // ══════════════════════════════════════════
+  // LOOPS (evenly spaced, inner to outer)
+  // ══════════════════════════════════════════
+
+  // --- LEFT SIDE (code lane) ---
+  // 1. PC → HC1 concerns (innermost)
+  const lx1 = n.pc.l - 30;
+  path(`M${n.pc.lc.x},${n.pc.cy} L${lx1},${n.pc.cy} L${lx1},${n.hc1.cy} L${n.hc1.lc.x},${n.hc1.cy}`, {c:'#d97706',d:'5,3',m:'aw'});
+  // 2. QA fail → HC2
+  const lx2 = n.hc2.l - 55;
+  path(`M${n.qa.lc.x},${n.qa.cy} L${lx2},${n.qa.cy} L${lx2},${n.hc2.cy} L${n.hc2.lc.x},${n.hc2.cy}`, {c:'#d97706',d:'5,3',m:'aw'});
+  // 3. RL → HC2 FAILED BUILD (50% more gap from QA fail)
+  const lx3 = n.hc2.l - 115;
+  path(`M${n.rl.lc.x},${n.rl.cy} L${lx3},${n.rl.cy} L${lx3},${n.hc2.cy} L${n.hc2.lc.x},${n.hc2.cy}`, {c:'#d97706',d:'5,3',m:'aw'});
+  // 4. RL → HC1 FAILED DESIGN -- PARTIALLY WIRED (routing works, feedback delivery broken)
+  const lx4 = n.hc1.l - 185;
+  path(`M${n.rl.lc.x-4},${n.rl.cy+8} L${lx4},${n.rl.cy+8} L${lx4},${n.hc1.cy} L${n.hc1.lc.x},${n.hc1.cy}`, {c:'#d97706',d:'5,3',m:'aw'});
+
+  // --- RIGHT SIDE (frontend lane) ---
+  // 1. UX → VD redesign (WIRED -- drawn above)
+  // 2. UX2 fail → FD revise (WIRED)
+  const rx2 = n.fd.r + 55;
+  path(`M${n.ux2.rc.x},${n.ux2.cy} L${rx2},${n.ux2.cy} L${rx2},${n.fd.cy} L${n.fd.rc.x},${n.fd.cy}`, {c:'#d97706',d:'5,3',m:'aw'});
+  // 3. RL → FD FAILED BUILD (WIRED)
+  const rx3 = n.fd.r + 115;
+  path(`M${n.rl.rc.x},${n.rl.cy} L${rx3},${n.rl.cy} L${rx3},${n.fd.cy} L${n.fd.rc.x},${n.fd.cy}`, {c:'#d97706',d:'5,3',m:'aw'});
+  // 4. RL → VD FAILED DESIGN -- FIXED (full Paper MCP pipeline)
+  const rx4 = n.vd.r + 185;
+  path(`M${n.rl.rc.x+4},${n.rl.cy+8} L${rx4},${n.rl.cy+8} L${rx4},${n.vd.cy} L${n.vd.rc.x},${n.vd.cy}`, {c:'#d97706',d:'5,3',m:'aw'});
+
+  // ══════════════════════════════════════════
+  // REVIEW → SHIPPED
+  // ══════════════════════════════════════════
+  line(n.rl.bc.x, n.rl.bc.y, n.ship.tc.x, n.ship.tc.y, {m:'a'});
+
+  // ══════════════════════════════════════════
+  // LABELS
+  // ══════════════════════════════════════════
+  const g1 = (n.om.b + n.dd.t) / 2; // Use row 2 bottom (om) not row 1 (es)
+  const g2 = (n.dd.b + n.is.t) / 2;
+  const g2b = (n.is.b + n.sm.t) / 2;
+  const g4 = (n.hc1.b + n.pc.t) / 2;
+  const g4v = (n.vd.b + n.ux.t) / 2;
+  const g5 = (n.pc.b + n.hc2.t) / 2;
+  const g5v = (n.ux.b + n.fd.t) / 2;
+  const g6 = (n.qa.b + n.rl.t) / 2;
+  const g7 = (n.rl.b + n.ship.t) / 2;
+
+  // Research → Analysis
+  pos('fl-scout', n.dd.tc.x, g1);
+  // Analysis → Scoping
+  pos('fl-brief', n.dd.bc.x, g2);
+  // Scoping → Backlog
+  pos('fl-scope', n.is.bc.x, g2b);
+
+  // Code lane labels (on the lines, centered in gaps)
+  pos('fl-plan', n.hc1.bc.x, g4);
+  pos('fl-ok-code', n.pc.bc.x, g5);
+
+  // Frontend lane labels (on the lines, centered in gaps)
+  pos('fl-design', n.vd.bc.x, g4v);
+  pos('fl-ok-front', n.ux.bc.x, g5v);
+
+  // QA and below
+  pos('fl-qa', n.rl.tc.x, mergeY);
+  pos('fl-branch', n.rl.tc.x, (mergeY + n.rl.t) / 2);
+  pos('fl-merge', n.rl.bc.x, g7);
+
+  // Loop labels
+  pos('fl-concern', lx1, (n.pc.cy+n.hc1.cy)/2);
+  pos('fl-redesign', rx1, (n.ux.cy+n.vd.cy)/2);
+  pos('fl-fail', lx2, (n.qa.cy+n.hc2.cy)/2);
+  pos('fl-review-fd', rx2, (n.ux2.cy+n.fd.cy)/2);
+  pos('fl-fb-build-l', lx3, (n.rl.cy+n.hc2.cy)/2);
+  pos('fl-fb-design-l', lx4, (n.rl.cy+n.hc1.cy)/2);
+  pos('fl-fb-build-r', rx3, (n.rl.cy+n.fd.cy)/2);
+  pos('fl-fb-design-r', rx4, (n.rl.cy+n.vd.cy)/2);
+
+  // Urgent (on the horizontal line between urgent box and SM)
+  pos('fl-urg', (urgP.l + n.is.r) / 2, n.is.cy);
+
+  // Lane labels on the fork branches (on the horizontal lines)
+  pos('lane-code', (n.sm.bc.x + n.hc1.tc.x) / 2, forkY);
+  pos('lane-front', (n.sm.bc.x + n.vd.tc.x) / 2, forkY);
+  pos('lane-dual', n.sm.bc.x, dualY);
+
+  // BM label
+  pos('fl-bm', (n.bm.r + n.sm.l) / 2, n.bm.cy);
+
+  // Orchestrator note (centered, above legend)
+  pos('orch-note', 700, n.ship.b + 30);
+
+  // ══════════════════════════════════════════
+  // DARK MODE TOGGLE (added on top of v11)
+  // ══════════════════════════════════════════
+  function drawDark() {
+    function bz(x1,y1,x2,y2){const my=(y1+y2)/2;return`M${x1},${y1} C${x1},${my},${x2},${my},${x2},${y2}`;}
+    function loopBz(sx,sy,ex,ey,cx){return`M${sx},${sy} C${cx},${sy},${cx},${ey},${ex},${ey}`;}
+    let pidx=0;
+    function addFlow(d,color,w,da,sp,anim){
+      const b=document.createElementNS(NS,'path');b.setAttribute('d',d);b.setAttribute('stroke',color);
+      b.setAttribute('stroke-width','1');b.setAttribute('stroke-opacity','0.1');b.setAttribute('fill','none');svg.appendChild(b);
+      const f=document.createElementNS(NS,'path');f.setAttribute('d',d);f.setAttribute('stroke',color);
+      f.setAttribute('stroke-width',w);f.setAttribute('stroke-opacity','0.55');f.setAttribute('fill','none');
+      f.setAttribute('stroke-linecap','round');f.style.strokeDasharray=da;f.style.animation=`${anim} ${sp}s linear infinite`;
+      const pid='fp-'+(pidx++);f.id=pid;svg.appendChild(f);return pid;
+    }
+    function addDot(pathId,color,dur,delay){
+      const c=document.createElementNS(NS,'circle');c.setAttribute('r','3');c.setAttribute('fill',color);
+      c.setAttribute('opacity','0.8');c.setAttribute('filter','url(#glow)');
+      const am=document.createElementNS(NS,'animateMotion');am.setAttribute('dur',dur+'s');
+      am.setAttribute('begin',delay+'s');am.setAttribute('repeatCount','indefinite');
+      const mp=document.createElementNS(NS,'mpath');mp.setAttribute('href','#'+pathId);
+      am.appendChild(mp);c.appendChild(am);svg.appendChild(c);
+    }
+    // Scouts → DD (all 11)
+    ['es','pi','cs','ck','fs','el','ei','ie','isk','im','om'].forEach((id,i)=>{
+      const pid=addFlow(bz(n[id].bc.x,n[id].bc.y,n.dd.tc.x,n.dd.tc.y),'#22d3ee','2','8 20',2+i*0.12,'f28');
+      addDot(pid,'#22d3ee',3,i*0.35);
+    });
+    // DD → IS
+    const p0=addFlow(bz(n.dd.bc.x,n.dd.bc.y,n.is.tc.x,n.is.tc.y),'#22d3ee','2','8 20',2,'f28');
+    addDot(p0,'#22d3ee',2.5,0);
+    // IS → SM
+    const p1=addFlow(bz(n.is.bc.x,n.is.bc.y,n.sm.tc.x,n.sm.tc.y),'#22d3ee','2','8 20',2,'f28');
+    addDot(p1,'#22d3ee',2.5,0.3);
+    // BM → SM
+    const bmx=(n.bm.rc.x+n.sm.lc.x)/2;
+    addFlow(`M${n.bm.rc.x+4},${n.bm.cy} C${bmx},${n.bm.cy-6},${bmx},${n.sm.cy-6},${n.sm.lc.x-4},${n.sm.cy}`,'#22d3ee','1.5','8 20',2,'f28');
+    // Urgent → IS (AMBER)
+    addFlow(`M${urgP.l-3},${n.is.cy} L${n.is.rc.x+4},${n.is.cy}`,'#d97706','1.5','4 8',1.5,'f28');
+    // SM fork
+    const p2=addFlow(bz(n.sm.bc.x,n.sm.bc.y,n.hc1.tc.x,n.hc1.tc.y),'#22d3ee','2','8 20',2.5,'f28');
+    addDot(p2,'#22d3ee',3,0);
+    addFlow(bz(n.sm.bc.x,n.sm.bc.y,n.vd.tc.x,n.vd.tc.y),'#22d3ee','2','8 20',2.5,'f28');
+    // Dual track
+    const dtY=(n.sm.b+n.hc1.t)/2+32;
+    addFlow(`M${n.sm.bc.x},${n.sm.bc.y} L${n.sm.bc.x},${dtY}`,'#a78bfa','1.5','6 4',2,'f28');
+    addFlow(`M${n.sm.bc.x},${dtY} Q${n.hc1.r},${dtY},${n.hc1.r},${n.hc1.t}`,'#a78bfa','1.5','6 4',2.5,'f28');
+    addFlow(`M${n.sm.bc.x},${dtY} Q${n.vd.l},${dtY},${n.vd.l},${n.vd.t}`,'#a78bfa','1.5','6 4',2.5,'f28');
+    // Left lane
+    [['hc1','pc'],['pc','hc2'],['hc2','qa']].forEach(([a,b])=>{
+      const pid=addFlow(bz(n[a].bc.x,n[a].bc.y,n[b].tc.x,n[b].tc.y),'#22d3ee','1.5','8 20',2,'f28');
+      addDot(pid,'#22d3ee',2.5,Math.random()*2);
+    });
+    // Right lane (WIRED - cyan)
+    [['vd','ux'],['ux','fd'],['fd','ux2']].forEach(([a,b])=>{
+      const pid=addFlow(bz(n[a].bc.x,n[a].bc.y,n[b].tc.x,n[b].tc.y),'#22d3ee','1.5','8 20',2,'f28');
+      addDot(pid,'#22d3ee',2.5,Math.random()*2);
+    });
+    // Merge (both lanes WIRED)
+    const pm1=addFlow(bz(n.qa.bc.x,n.qa.bc.y,n.rl.tc.x,n.rl.tc.y),'#22d3ee','2','8 20',2.5,'f28');
+    addDot(pm1,'#22d3ee',3,0);
+    addFlow(bz(n.ux2.bc.x,n.ux2.bc.y,n.rl.tc.x,n.rl.tc.y),'#22d3ee','2','8 20',2.5,'f28');
+    // RL → Ship
+    addFlow(bz(n.rl.bc.x,n.rl.bc.y,n.ship.tc.x,n.ship.tc.y),'#22d3ee','1.5','8 20',2,'f28');
+    // Rounded L-shape: horizontal → round corner → vertical → round corner → horizontal
+    // Same routing as Blueprint (no crossing) but with smooth corners
+    function loopL(sx,sy,ex,ey,lx,r){
+      r=r||12;
+      if(lx<sx){ // left side
+        return`M${sx},${sy} L${lx+r},${sy} Q${lx},${sy},${lx},${sy-r} L${lx},${ey+r} Q${lx},${ey},${lx+r},${ey} L${ex},${ey}`;
+      } else { // right side
+        return`M${sx},${sy} L${lx-r},${sy} Q${lx},${sy},${lx},${sy-r} L${lx},${ey+r} Q${lx},${ey},${lx-r},${ey} L${ex},${ey}`;
+      }
+    }
+    // Left loops (AMBER) - same offsets as Blueprint: 30, 55, 115, 185
+    const dlx1=n.pc.l-30, dlx2=n.hc2.l-55, dlx3=n.hc2.l-115, dlx4=n.hc1.l-185;
+    addFlow(loopL(n.pc.lc.x,n.pc.cy,n.hc1.lc.x,n.hc1.cy,dlx1),'#d97706','1.5','6 14',2.5,'f20');
+    addFlow(loopL(n.qa.lc.x,n.qa.cy,n.hc2.lc.x,n.hc2.cy,dlx2),'#d97706','1.5','6 14',2.5,'f20');
+    addFlow(loopL(n.rl.lc.x,n.rl.cy,n.hc2.lc.x,n.hc2.cy,dlx3),'#d97706','1.5','6 14',3,'f20');
+    addFlow(loopL(n.rl.lc.x-4,n.rl.cy+8,n.hc1.lc.x,n.hc1.cy,dlx4),'#d97706','1.5','6 14',3.5,'f20');
+    // Right loops - WIRED (amber) except FAILED DESIGN (red)
+    const drx1=n.ux.r+30, drx2=n.fd.r+55, drx3=n.fd.r+115, drx4=n.vd.r+185;
+    addFlow(loopL(n.ux.rc.x,n.ux.cy,n.vd.rc.x,n.vd.cy,drx1),'#d97706','1.5','6 14',2.5,'f20');
+    addFlow(loopL(n.ux2.rc.x,n.ux2.cy,n.fd.rc.x,n.fd.cy,drx2),'#d97706','1.5','6 14',2.5,'f20');
+    addFlow(loopL(n.rl.rc.x,n.rl.cy,n.fd.rc.x,n.fd.cy,drx3),'#d97706','1.5','6 14',3,'f20');
+    addFlow(loopL(n.rl.rc.x+4,n.rl.cy+8,n.vd.rc.x,n.vd.cy,drx4),'#d97706','1.5','6 14',3.5,'f20');
+    // Labels sit on the vertical segment of each L (same x as Blueprint)
+    pos('fl-concern',dlx1,(n.pc.cy+n.hc1.cy)/2);
+    pos('fl-fail',dlx2,(n.qa.cy+n.hc2.cy)/2);
+    pos('fl-fb-build-l',dlx3,(n.rl.cy+n.hc2.cy)/2);
+    pos('fl-fb-design-l',dlx4,(n.rl.cy+n.hc1.cy)/2);
+    pos('fl-redesign',drx1,(n.ux.cy+n.vd.cy)/2);
+    pos('fl-review-fd',drx2,(n.ux2.cy+n.fd.cy)/2);
+    pos('fl-fb-build-r',drx3,(n.rl.cy+n.fd.cy)/2);
+    pos('fl-fb-design-r',drx4,(n.rl.cy+n.vd.cy)/2);
+  }
+
+  let currentMode = 'light';
+  window.setMode = function(m) {
+    if (m === currentMode) return;
+    currentMode = m;
+    // Clear SVG
+    while(svg.childNodes.length > 1) svg.removeChild(svg.lastChild);
+    if (m === 'dark') {
+      document.body.classList.add('dark');
+      drawDark();
+    } else {
+      document.body.classList.remove('dark');
+      // Redraw v12 light mode (11 scouts, 2 rows)
+      ['es','pi','cs','ck','fs','el','ei','ie','isk','im','om'].forEach(id=>{ line(n[id].bc.x, n[id].bc.y, n[id].bc.x, busY); });
+      line(busL, busY, busR, busY);
+      line(n.dd.tc.x, busY, n.dd.tc.x, n.dd.tc.y, {m:'a'});
+      line(n.dd.bc.x, n.dd.bc.y, n.is.tc.x, n.is.tc.y, {m:'a'});
+      line(n.is.bc.x, n.is.bc.y, n.sm.tc.x, n.sm.tc.y, {m:'a'});
+      line(n.bm.rc.x+4, n.bm.cy, n.sm.lc.x-4, n.sm.cy, {m:'a'});
+      line(urgP.l-3, n.is.cy, n.is.rc.x+4, n.is.cy, {c:'#d97706',d:'5,3',m:'aw'});
+      line(n.sm.bc.x, n.sm.bc.y, n.sm.bc.x, forkY, {w:'2'});
+      const d2=document.createElementNS(NS,'circle');d2.setAttribute('cx',n.sm.bc.x);d2.setAttribute('cy',forkY);d2.setAttribute('r','4');d2.setAttribute('fill','#0891b2');svg.appendChild(d2);
+      path(`M${n.sm.bc.x},${forkY} L${n.hc1.tc.x},${forkY} L${n.hc1.tc.x},${n.hc1.tc.y}`, {w:'2',m:'a'});
+      path(`M${n.sm.bc.x},${forkY} L${n.vd.tc.x},${forkY} L${n.vd.tc.x},${n.vd.tc.y}`, {w:'2',m:'a'});
+      line(n.sm.bc.x, forkY, n.sm.bc.x, dualY, {c:'#7c3aed',w:'1.5',d:'6,4'});
+      path(`M${n.sm.bc.x},${dualY} L${n.hc1.r},${dualY} L${n.hc1.r},${n.hc1.t}`,{c:'#7c3aed',w:'1.5',d:'6,4',m:'ap'});
+      path(`M${n.sm.bc.x},${dualY} L${n.vd.l},${dualY} L${n.vd.l},${n.vd.t}`,{c:'#7c3aed',w:'1.5',d:'6,4',m:'ap'});
+      line(n.hc1.bc.x, n.hc1.bc.y, n.pc.tc.x, n.pc.tc.y, {m:'a'});
+      line(n.pc.bc.x, n.pc.bc.y, n.hc2.tc.x, n.hc2.tc.y, {m:'a'});
+      line(n.vd.bc.x, n.vd.bc.y, n.ux.tc.x, n.ux.tc.y, {m:'a'});
+      line(n.ux.bc.x, n.ux.bc.y, n.fd.tc.x, n.fd.tc.y, {m:'a'});
+      path(`M${n.ux.rc.x},${n.ux.cy} L${rx1},${n.ux.cy} L${rx1},${n.vd.cy} L${n.vd.rc.x},${n.vd.cy}`,{c:'#d97706',d:'5,3',m:'aw'});
+      line(n.hc2.bc.x, n.hc2.bc.y, n.qa.tc.x, n.qa.tc.y, {m:'a'});
+      line(n.fd.bc.x, n.fd.bc.y, n.ux2.tc.x, n.ux2.tc.y, {m:'a'});
+      line(n.qa.bc.x, n.qa.bc.y, n.qa.bc.x, mergeY);
+      line(n.ux2.bc.x, n.ux2.bc.y, n.ux2.bc.x, mergeY);
+      line(n.qa.bc.x, mergeY, n.ux2.bc.x, mergeY);
+      line(n.rl.tc.x, mergeY, n.rl.tc.x, n.rl.tc.y, {m:'a'});
+      path(`M${n.pc.lc.x},${n.pc.cy} L${lx1},${n.pc.cy} L${lx1},${n.hc1.cy} L${n.hc1.lc.x},${n.hc1.cy}`,{c:'#d97706',d:'5,3',m:'aw'});
+      path(`M${n.qa.lc.x},${n.qa.cy} L${lx2},${n.qa.cy} L${lx2},${n.hc2.cy} L${n.hc2.lc.x},${n.hc2.cy}`,{c:'#d97706',d:'5,3',m:'aw'});
+      path(`M${n.rl.lc.x},${n.rl.cy} L${lx3},${n.rl.cy} L${lx3},${n.hc2.cy} L${n.hc2.lc.x},${n.hc2.cy}`,{c:'#d97706',d:'5,3',m:'aw'});
+      path(`M${n.rl.lc.x-4},${n.rl.cy+8} L${lx4},${n.rl.cy+8} L${lx4},${n.hc1.cy} L${n.hc1.lc.x},${n.hc1.cy}`,{c:'#d97706',d:'5,3',m:'aw'});
+      path(`M${n.ux2.rc.x},${n.ux2.cy} L${rx2},${n.ux2.cy} L${rx2},${n.fd.cy} L${n.fd.rc.x},${n.fd.cy}`,{c:'#d97706',d:'5,3',m:'aw'});
+      path(`M${n.rl.rc.x},${n.rl.cy} L${rx3},${n.rl.cy} L${rx3},${n.fd.cy} L${n.fd.rc.x},${n.fd.cy}`,{c:'#d97706',d:'5,3',m:'aw'});
+      path(`M${n.rl.rc.x+4},${n.rl.cy+8} L${rx4},${n.rl.cy+8} L${rx4},${n.vd.cy} L${n.vd.rc.x},${n.vd.cy}`,{c:'#d97706',d:'5,3',m:'aw'});
+      line(n.rl.bc.x, n.rl.bc.y, n.ship.tc.x, n.ship.tc.y, {m:'a'});
+      // Re-position labels
+      pos('fl-scout', n.dd.tc.x, g1);pos('fl-brief', n.dd.bc.x, g2);pos('fl-scope', n.is.bc.x, g2b);
+      pos('fl-plan', n.hc1.bc.x, g4);pos('fl-ok-code', n.pc.bc.x, g5);
+      pos('fl-design', n.vd.bc.x, g4v);pos('fl-ok-front', n.ux.bc.x, g5v);
+      pos('fl-qa', n.rl.tc.x, mergeY);pos('fl-branch', n.rl.tc.x, (mergeY+n.rl.t)/2);
+      pos('fl-merge', n.rl.bc.x, g7);
+      pos('fl-concern', lx1, (n.pc.cy+n.hc1.cy)/2);pos('fl-redesign', rx1, (n.ux.cy+n.vd.cy)/2);
+      pos('fl-fail', lx2, (n.qa.cy+n.hc2.cy)/2);pos('fl-review-fd', rx2, (n.ux2.cy+n.fd.cy)/2);
+      pos('fl-fb-build-l', lx3, (n.rl.cy+n.hc2.cy)/2);pos('fl-fb-design-l', lx4, (n.rl.cy+n.hc1.cy)/2);
+      pos('fl-fb-build-r', rx3, (n.rl.cy+n.fd.cy)/2);pos('fl-fb-design-r', rx4, (n.rl.cy+n.vd.cy)/2);
+      pos('fl-urg', (urgP.l+n.is.r)/2, n.is.cy);pos('fl-bm', (n.bm.r+n.sm.l)/2, n.bm.cy);
+      pos('lane-code', (n.sm.bc.x+n.hc1.tc.x)/2, forkY);pos('lane-front', (n.sm.bc.x+n.vd.tc.x)/2, forkY);
+      pos('lane-dual', n.sm.bc.x, dualY);pos('orch-note', 700, n.ship.b+30);
+    }
+    document.querySelectorAll('.t-btn').forEach(b=>b.classList.toggle('active',b.dataset.m===m));
+  };
+});
+</script>
+
+</body>
+</html>
