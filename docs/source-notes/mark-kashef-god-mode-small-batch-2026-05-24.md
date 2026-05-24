@@ -1,6 +1,6 @@
 # Mark Kashef God Mode API Full-Watch Small Batch
 
-Generated: 2026-05-24T23:36:59.623Z
+Generated: 2026-05-24T23:40:40.901Z
 Card: `MARK-KASHEF-LAST-50-BASELINE-001`
 Report artifact: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
 Status: `ready_for_director_resynthesis`
@@ -12,48 +12,48 @@ The system watched 3 public Mark Kashef videos through the Gemini API video/audi
 
 ## Videos
 
-- Don't Use Claude's 1M Context Until You See This (ODA1eBo3P4w)
-  - URL: https://www.youtube.com/watch?v=ODA1eBo3P4w
-  - Visual evidence: 3; build candidates: 2; tokens: 71759
-- This Is the Most Underrated Feature of Claude Code (04zBiBqzKQA)
-  - URL: https://www.youtube.com/watch?v=04zBiBqzKQA
-  - Visual evidence: 3; build candidates: 2; tokens: 64002
-- Anthropic Just Dropped Skills for Office Apps (dMXuKdIGzVo)
-  - URL: https://www.youtube.com/watch?v=dMXuKdIGzVo
-  - Visual evidence: 3; build candidates: 2; tokens: 51466
+- Google's New CLI Just Made Claude Code Unstoppable (1Z1aECGwJh0)
+  - URL: https://www.youtube.com/watch?v=1Z1aECGwJh0
+  - Visual evidence: 3; build candidates: 2; tokens: 78691
+- You've Never Used Claude Code Skills Like This (EeX7ovArylU)
+  - URL: https://www.youtube.com/watch?v=EeX7ovArylU
+  - Visual evidence: 3; build candidates: 2; tokens: 71336
+- Plan Like a Pro in Claude Code (3qUg57KGSVY)
+  - URL: https://www.youtube.com/watch?v=3qUg57KGSVY
+  - Visual evidence: 3; build candidates: 2; tokens: 94542
 
 ## Top Build Candidates
 
-- Dynamic Context Budgeter & Toggle
-  - Source video: Don't Use Claude's 1M Context Until You See This
-  - Why: Prevents runaway token costs by allowing users to cap context windows (e.g., 200k vs 1M) based on task complexity.
-  - Next: Add a context-limit configuration parameter to AIOS agent initialization and CLI commands.
-  - Evidence: 06:42
-- Manual Compaction & Session Reset Trigger
-  - Source video: Don't Use Claude's 1M Context Until You See This
-  - Why: Avoids automated compaction loops that dilute critical instructions by giving users manual control over when to summarize and reset.
-  - Next: Implement a `/compact` or `/reset` command in AIOS to clean up agent memory on demand.
-  - Evidence: 09:57, 10:09
-- AIOS Context Linter & CLAUDE.md Generator
-  - Source video: This Is the Most Underrated Feature of Claude Code
-  - Why: Ensures LLM-based developers always have optimized, structured instructions matching the repository's style.
-  - Next: Implement an automated background agent that reads codebase patterns and updates the local CLAUDE.md.
-  - Evidence: 04:34
-- Self-Healing Configuration Agent for CLI Tools
-  - Source video: This Is the Most Underrated Feature of Claude Code
-  - Why: Automatically resolves syntax errors or schema mismatches in tool configurations like settings.json or hooks.
-  - Next: Create a diagnostic loop that catches CLI tool startup errors and feeds them to a specialized sub-agent.
-  - Evidence: 09:28
-- Local Python-based Office Skill Runner
-  - Source video: Anthropic Just Dropped Skills for Office Apps
-  - Why: Allows AIOS to execute deterministic Python scripts (e.g., openpyxl, python-pptx) directly on local Office files via slash commands.
-  - Next: Build a local execution sandbox that maps slash commands to Python scripts with file-system access.
-  - Evidence: 06:47, 07:12
-- Cross-File Context Sync Engine
-  - Source video: Anthropic Just Dropped Skills for Office Apps
-  - Why: Enables the AI assistant to maintain context across multiple open documents (Excel, PowerPoint, Word) simultaneously.
-  - Next: Implement a background file watcher that feeds active document states into the LLM context window.
-  - Evidence: 03:59
+- Google Workspace CLI Agent Toolset
+  - Source video: Google's New CLI Just Made Claude Code Unstoppable
+  - Why: Enables direct, low-latency integration of Google Workspace APIs into AIOS tools, bypassing heavy middleware like Zapier.
+  - Next: Implement a tool wrapper around `gws` commands for the AIOS agent.
+  - Evidence: 02:07, 04:25
+- Automated Google Cloud OAuth Provisioner
+  - Source video: Google's New CLI Just Made Claude Code Unstoppable
+  - Why: Simplifies the complex developer setup of Google Cloud APIs for end-users via guided browser automation.
+  - Next: Create a browser automation script to configure OAuth consent and download credentials.
+  - Evidence: 05:30, 08:08
+- Multi-Model Consensus (Council) Skill for AIOS CLI
+  - Source video: You've Never Used Claude Code Skills Like This
+  - Why: Allows the AIOS terminal agent to dynamically spin up sub-agents using specialized models via OpenRouter to audit its own work before final execution.
+  - Next: Build a CLI skill parser that reads a config mapping task categories to OpenRouter model IDs and executes parallel API calls.
+  - Evidence: 02:10, 07:25
+- Context-Aware LLM Router & Synthesizer
+  - Source video: You've Never Used Claude Code Skills Like This
+  - Why: Enables AIOS to package local codebase context, send it to specialized models, and synthesize conflicting feedback into a single actionable plan.
+  - Next: Implement context packaging rules (specific files, tried approaches, desired output format) and synthesis prompts for the primary executor model.
+  - Evidence: 03:20, 04:32, 05:10
+- ASCII Layout Planner Agent
+  - Source video: Plan Like a Pro in Claude Code
+  - Why: Enforces a visual planning step in AI OS code generation tasks, reducing code iterations and token usage by aligning on UI structure first.
+  - Next: Create a system prompt template that instructs the LLM to output an ASCII wireframe and wait for user confirmation before generating code.
+  - Evidence: 02:42, 06:13
+- ASCII ER Diagram Schema Validator
+  - Source video: Plan Like a Pro in Claude Code
+  - Why: Allows non-technical users to review and modify database schemas visually in plain text before the AI OS generates SQL migrations.
+  - Next: Develop a tool that parses ASCII ER diagrams into structured JSON schemas to feed into SQL generation pipelines.
+  - Evidence: 13:15
 
 ## Boundaries
 
@@ -67,9 +67,9 @@ The system watched 3 public Mark Kashef videos through the Gemini API video/audi
 ## Checks
 
 - PASS batch size is guarded at 3-5 videos - 3
-- PASS all videos come from the Mark Kashef Foundation pool - ODA1eBo3P4w:mark-kashef, 04zBiBqzKQA:mark-kashef, dMXuKdIGzVo:mark-kashef
-- PASS one-video seed is not reprocessed in the small batch - ODA1eBo3P4w, 04zBiBqzKQA, dMXuKdIGzVo
-- PASS public YouTube page evidence captured for every video - ODA1eBo3P4w:true, 04zBiBqzKQA:true, dMXuKdIGzVo:true
+- PASS all videos come from the Mark Kashef Foundation pool - 1Z1aECGwJh0:mark-kashef, EeX7ovArylU:mark-kashef, 3qUg57KGSVY:mark-kashef
+- PASS one-video seed is not reprocessed in the small batch - 1Z1aECGwJh0, EeX7ovArylU, 3qUg57KGSVY
+- PASS public YouTube page evidence captured for every video - 1Z1aECGwJh0:true, EeX7ovArylU:true, 3qUg57KGSVY:true
 - PASS Gemini API full-watch result exists for every video - gemini-3.5-flash:true, gemini-3.5-flash:true, gemini-3.5-flash:true
 - PASS every video has timestamped visual evidence - gemini-3.5-flash:3, gemini-3.5-flash:3, gemini-3.5-flash:3
 - PASS every video has build candidates - gemini-3.5-flash:2, gemini-3.5-flash:2, gemini-3.5-flash:2
