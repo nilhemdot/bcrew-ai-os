@@ -58,6 +58,8 @@ New focused code:
 
 - `lib/god-mode-youtube-end-to-end-extractor.js`
 - `scripts/process-mark-kashef-last-50-baseline-check.mjs`
+- `lib/mark-kashef-god-mode-small-batch.js`
+- `scripts/process-mark-kashef-god-mode-small-batch-check.mjs`
 
 Behavior proof:
 
@@ -65,6 +67,7 @@ Behavior proof:
 - The focused script calls the actual Gemini API video-understanding path twice, once per model.
 - The focused script persists and reads back the report, atoms, and hits when `--apply` is used.
 - The dogfood proof rejects subscription-scout output as full-watch proof and rejects transcript-only scale-up.
+- The small-batch proof selects the next 3-5 unwatched Mark videos from the Foundation daily watch pool, uses only `gemini-3.5-flash` by default, persists one stable API full-watch batch report, and keeps all candidates proposal-only.
 - Marker checks, stale reports, substring proof, and "we found data" without video/audio/visual evidence are not accepted.
 
 Gate decision tree uses static, focused, and full based on blast radius. Static gates are syntax-only (`node --check`). The focused gate is `process:mark-kashef-last-50-baseline-check` and proves the real source package, model calls, persistence, and readback. Full gates are `foundation:verify` and the Foundation health checks after persistence because the blast radius includes live provider calls, Foundation intelligence writes, and Current Sprint truth. `process:foundation-ship` is only for final closeout work, not for this one-video active-card slice.
@@ -90,6 +93,7 @@ Repair path: if either Gemini model fails, if the page evidence fails, or if per
 - `node --check scripts/process-mark-kashef-last-50-baseline-check.mjs`
 - `npm run process:mark-kashef-last-50-baseline-check -- --json`
 - `npm run process:mark-kashef-last-50-baseline-check -- --apply --live-gemini-api --json`
+- `npm run process:mark-kashef-god-mode-small-batch-check -- --apply --live-gemini-api --batch-size=3 --model=gemini-3.5-flash --json`
 - `npm run process:current-sprint-active-card-gate-check -- --json`
 - `npm run backlog:hygiene -- --json`
 - `npm run process:foundation-plan-reconcile-check -- --json`
