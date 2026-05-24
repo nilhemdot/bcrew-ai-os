@@ -110,21 +110,37 @@ The Dev Hub now sees the stable small-batch lane as 15 API-watched videos and 30
 
 The Dev Hub now sees the stable small-batch lane as 18 API-watched videos and 36 proposal-only API full-watch build candidates. The next guarded batch starts at Mark ranks 26-28.
 
+## Batch Output - Seventh Stable Small Batch
+
+- Videos watched: 3
+- Model: `gemini-3.5-flash`
+- Batch run ID: `20260524234514`
+- Video IDs:
+  - `HPo5M-6QJDo` - I Tried Claude Code Remote Control So You Don't Have To
+  - `9Svv-n11Ysk` - I Replaced OpenClaw With Claude Code in One Day
+  - `dlb_XgFVrHQ` - 7 Things You Can Build with Claude Code Agent Teams
+- Timestamped visual evidence: 9
+- Proposal-only build candidates: 6
+- Approval-required links: 15
+- Total tokens: 292,669
+
+The Dev Hub now sees the stable small-batch lane as 21 API-watched videos and 42 proposal-only API full-watch build candidates. The next guarded extraction batch would start at Mark ranks 29-31, but extraction scale-up is paused until the Intelligence Spine upgrade is scoped and started.
+
 ## Director Output
 
-Top 5 after the sixth batch:
+Top 5 after the seventh batch:
 
 1. Video-to-SOP Agentic Pipeline - API full-watch
 2. Context-Forking Orchestrator Skill - API full-watch
 3. Shared-Directory State Passing - API full-watch
 4. Lifecycle Event Hooks for Context Injection - API full-watch
-5. 4-Layer Agentic OS Directory Template - API full-watch
+5. Interactive Human-in-the-Loop Approval Gateways - API full-watch
 
 The Director now keeps scout summaries visible but does not let weaker scout/subscription output dominate proven API full-watch evidence.
 
 ## Synthesis / Router Status
 
-Synthesis is good enough for this sprint stage, but not "final product" yet.
+Synthesis is structurally guarded, but it is not the "A-plus brain layer" yet. This is now the next build priority before more extraction scale-up.
 
 What is proven:
 
@@ -134,6 +150,12 @@ What is proven:
 - It leaves zero unclustered routeable items on the active surface.
 - Action Router keeps every decision-grade route tied to verified synthesis and approval-required status.
 
+What is not upgraded yet:
+
+- Human-readable synthesis quality is still too internal/hash-heavy.
+- The Router is safe, but it is not yet a best-in-class triage, owner, next-action, and escalation system for meetings, Slack, email, YouTube, and other Foundation signals.
+- The Dev Intelligence Director ranks proposals, but it does not yet perform the deeper merge, scoping, conflict handling, and "do we have enough to build this?" review Steve wants.
+
 Current proof snapshot:
 
 - Synthesis proof: 131 saved facts, 8 new proof items, 73 active clustered items, 0 active unclustered unprotected items.
@@ -142,7 +164,7 @@ Current proof snapshot:
 ## Broad Verify Status
 
 - Focused extraction, Director, Dev Hub, sprint gate, synthesis, and action-router checks pass.
-- Dashboard and Foundation worker were restarted and served the post-sixth-batch HEAD after commit.
+- Dashboard and Foundation worker need a restart after the seventh-batch commit.
 - `foundation:verify` is still red on pre-existing Foundation trust/progression blockers. The first root failure is a dirty active doc reference to missing backlog card `DEV-DATA-POOL-LIVE-WIRING-001` in `docs/rebuild/current-state.md`; the long FAIL list then includes source lifecycle and historical sprint/progression split checks. This was not introduced by the Mark batch commit.
 
 ## Proof
@@ -160,8 +182,8 @@ Current proof snapshot:
 
 ## Next
 
-- Review the Director recommendations with Steve.
-- Do not auto-promote backlog cards.
-- Safe next extraction move: run the next guarded 3-video Mark API full-watch batch for ranks 26-28.
-- Safe next build move: scope one Director candidate into a real implementation card.
-- Do not run full last-50 extraction in one blast until Steve accepts the small-batch quality and the Director output shape.
+- Pause additional Mark extraction scale-up.
+- Scope and start the Intelligence Spine upgrade: Synthesis Engine, Action Router, and Dev Intelligence Director.
+- Make the upgrade source-agnostic across meeting notes/transcripts, Slack/comms, email, YouTube, courses, and future source packets.
+- Keep all output proposal-only and approval-gated until Steve approves promotion.
+- Do not auto-promote backlog cards from extracted intel.
