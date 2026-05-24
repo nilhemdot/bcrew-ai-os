@@ -1,6 +1,6 @@
 # Dev Team Intelligence Director - AIOS Mission V0
 
-Generated: 2026-05-24T23:34:15.533Z
+Generated: 2026-05-24T23:39:22.846Z
 Report artifact: `director:dev-team-intelligence-director-001:aios-mission-v0`
 Status: `ready_for_steve_review`
 
@@ -71,17 +71,17 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - 7. Path-Scoped Context Router - score 70 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
 - 8. Automated Skill Consolidation Engine - score 68 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
 - 9. Isolated Skill Execution Engine - score 68 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 10. Cross-Device Session Teleportation Engine - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 11. Mark Kashef: Review adjacent developer workflow signals - score 67 (scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20)
-- 12. Silver Platter Data Bridge - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 13. Transient Query Bypass (/btw) - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 14. AI-Driven Problem Ideation and Solution Enumeration - score 66 (proof:god-mode-extractor-eyes-quality-loop-001)
-- 15. Use Browserbase/Browse/Hermes-style skills as the HANDS layer, but only under source-packet approvals. - score 65 (research:god-mode-extractor-research-swarm-001)
+- 10. AIOS Context Linter & CLAUDE.md Generator - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 11. Cross-Device Session Teleportation Engine - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 12. Mark Kashef: Review adjacent developer workflow signals - score 67 (scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20)
+- 13. Silver Platter Data Bridge - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 14. Transient Query Bypass (/btw) - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 15. AI-Driven Problem Ideation and Solution Enumeration - score 66 (proof:god-mode-extractor-eyes-quality-loop-001)
 
 ## Source Coverage
 
 - `proof:mark-kashef-last-50-baseline-001:god-mode-end-to-end:5xrjO38WUYY` - Mark Kashef God Mode YouTube End-to-End Extraction; atoms 2; hits 2; approvals 7
-- `batch:mark-kashef-last-50:api-full-watch-small-batch-v1` - Mark Kashef God Mode API Full-Watch Small Batch; atoms 24; hits 24; approvals 18
+- `batch:mark-kashef-last-50:api-full-watch-small-batch-v1` - Mark Kashef God Mode API Full-Watch Small Batch; atoms 30; hits 30; approvals 18
 - `batch:mark-kashef-last-50:20260523221531` - Mark Kashef last-50 baseline batch 20260523221531; atoms 21; hits 21; approvals 1
 - `proof:god-mode-extractor-eyes-quality-loop-001` - God Mode Extractor Eyes Quality Loop; atoms 6; hits 6; approvals 24
 - `scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20` - Mark Kashef public YouTube latest/last-20 scout; atoms 7; hits 7; approvals 13
@@ -99,7 +99,7 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - PASS System Strategy contains AIOS mission and agent/realtor coaching lens - docs/system-strategy.md
 - PASS current sprint plan tells Director to use System Strategy as ranking lens - docs/rebuild/current-plan.md
 - PASS Director has multiple intelligence reports to synthesize - 7 reports
-- PASS Director has enough source-backed build candidates - 80 candidates
+- PASS Director has enough source-backed build candidates - 86 candidates
 - PASS Director top candidates are mission-scored - 1:87, 2:79, 3:79, 4:75, 5:71
 - PASS Director preserves approval-required items - 67 approval items
 - PASS Director surfaces API full-watch candidates ahead of weaker scout/subscription evidence - 1:api_full_watch:Video-to-SOP Agentic Pipeline | 2:api_full_watch:Context-Forking Orchestrator Skill | 3:api_full_watch:Shared-Directory State Passing | 4:api_full_watch:Lifecycle Event Hooks for Context Injection | 5:api_full_watch:4-Layer Agentic OS Directory Template

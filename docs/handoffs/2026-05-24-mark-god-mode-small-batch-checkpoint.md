@@ -78,9 +78,25 @@ The Dev Hub now sees the stable small-batch lane as 9 API-watched videos and 18 
 
 The Dev Hub now sees the stable small-batch lane as 12 API-watched videos and 24 proposal-only API full-watch build candidates. The next guarded batch starts at Mark ranks 20-22.
 
+## Batch Output - Fifth Stable Small Batch
+
+- Videos watched: 3
+- Model: `gemini-3.5-flash`
+- Batch run ID: `20260524233659`
+- Video IDs:
+  - `ODA1eBo3P4w` - Don't Use Claude's 1M Context Until You See This
+  - `04zBiBqzKQA` - This Is the Most Underrated Feature of Claude Code
+  - `dMXuKdIGzVo` - Anthropic Just Dropped Skills for Office Apps
+- Timestamped visual evidence: 9
+- Proposal-only build candidates: 6
+- Approval-required links: 17
+- Total tokens: 187,227
+
+The Dev Hub now sees the stable small-batch lane as 15 API-watched videos and 30 proposal-only API full-watch build candidates. The next guarded batch starts at Mark ranks 23-25.
+
 ## Director Output
 
-Top 5 after the fourth batch:
+Top 5 after the fifth batch:
 
 1. Video-to-SOP Agentic Pipeline - API full-watch
 2. Context-Forking Orchestrator Skill - API full-watch
@@ -110,7 +126,7 @@ Current proof snapshot:
 ## Broad Verify Status
 
 - Focused extraction, Director, Dev Hub, sprint gate, synthesis, and action-router checks pass.
-- Dashboard and Foundation worker were restarted and served the post-fourth-batch HEAD after commit.
+- Dashboard and Foundation worker were restarted and served the post-fifth-batch HEAD after commit.
 - `foundation:verify` is still red on pre-existing Foundation trust/progression blockers. The first root failure is a dirty active doc reference to missing backlog card `DEV-DATA-POOL-LIVE-WIRING-001` in `docs/rebuild/current-state.md`; the long FAIL list then includes source lifecycle and historical sprint/progression split checks. This was not introduced by the Mark batch commit.
 
 ## Proof
@@ -130,6 +146,6 @@ Current proof snapshot:
 
 - Review the Director recommendations with Steve.
 - Do not auto-promote backlog cards.
-- Safe next extraction move: run the next guarded 3-video Mark API full-watch batch for ranks 20-22.
+- Safe next extraction move: run the next guarded 3-video Mark API full-watch batch for ranks 23-25.
 - Safe next build move: scope one Director candidate into a real implementation card.
 - Do not run full last-50 extraction in one blast until Steve accepts the small-batch quality and the Director output shape.
