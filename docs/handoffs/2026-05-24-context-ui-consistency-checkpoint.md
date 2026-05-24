@@ -103,6 +103,9 @@ Root cause:
 Needed UI system work:
 
 - Create a single BCrew UI design contract.
+- Treat Foundation as the source of truth for final approved brand/style decisions.
+- Treat mockups as design evidence and inspiration, not final truth until promoted into the Foundation style guide.
+- Version the style guide so a new approved visual direction becomes a new Foundation-owned version instead of a loose chat/mockup.
 - Promote tokens, typography, shell, top bar, page layout, buttons, cards, nav, mascot/image handling, and density rules into one builder-facing doc.
 - Back it with page-scoped CSS rules and visual proof checks.
 - Make future UI builders prove:
@@ -115,7 +118,7 @@ Needed UI system work:
 Likely future card:
 
 - `BCREW-UI-DESIGN-SYSTEM-CONTRACT-001`
-- Purpose: make UI consistency enforceable instead of relying on Steve re-explaining style in every chat.
+- Purpose: make Foundation the durable source of truth for brand/style decisions and make UI consistency enforceable instead of relying on Steve re-explaining style in every chat.
 
 ## Practical Next Steps
 
@@ -124,4 +127,3 @@ Likely future card:
 3. Add `BCREW-UI-DESIGN-SYSTEM-CONTRACT-001` before further serious hub/page rebuilds.
 4. Do not scale Mark last-50 or all creators until one-video God Mode proof is complete.
 5. Do not treat Cursor as a magic fix. Test it later against the same context capsule/design contract.
-
