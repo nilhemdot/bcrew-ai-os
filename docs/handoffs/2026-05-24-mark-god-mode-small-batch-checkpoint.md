@@ -13,6 +13,7 @@
 - Updated `/api/foundation/dev-team-hub` and `/dev` so the page exposes the new API batch counts.
 - Added cumulative watched-video protection so future Mark batches skip videos already proven through report metadata, atoms, or evidence hits.
 - Increased the Gemini full-watch timeout and made provider timeouts fail with a plain-English error instead of a vague `AbortError`.
+- Hardened Gemini retry handling for transient network/fetch/socket/time-out failures after the first ranks 14-16 attempt failed before persistence.
 - Fixed Director and small-batch hit persistence so evidence hits attach to the actual atom ID returned by Foundation dedupe.
 
 ## Batch Output - First Stable Small Batch
@@ -45,15 +46,31 @@
 
 The Dev Hub now sees the stable small-batch lane as 6 API-watched videos and 12 proposal-only API full-watch build candidates. The selector also sees broader already-watched history, including prior one-video/API proofs, and the next guarded batch starts at Mark ranks 14-16.
 
+## Batch Output - Third Stable Small Batch
+
+- Videos watched: 3
+- Model: `gemini-3.5-flash`
+- Batch run ID: `20260524232255`
+- Video IDs:
+  - `oYIXe6aqh_U` - You've Been Using Claude Code at 10%. Here's the Rest.
+  - `hTWxGSsGDZU` - You've Never Made a Claude Code Skill Like This
+  - `vizgFWixquE` - Anthropic's NEW Claude Architect Guide In 39 Minutes
+- Timestamped visual evidence: 9
+- Proposal-only build candidates: 6
+- Approval-required links: 18
+- Total tokens: 437,093
+
+The Dev Hub now sees the stable small-batch lane as 9 API-watched videos and 18 proposal-only API full-watch build candidates. The next guarded batch starts at Mark ranks 17-19.
+
 ## Director Output
 
-Top 5 after the second batch:
+Top 5 after the third batch:
 
-1. Context-Forking Orchestrator Skill - API full-watch
-2. Shared-Directory State Passing - API full-watch
-3. Lifecycle Event Hooks for Context Injection - API full-watch
-4. 4-Layer Agentic OS Directory Template - API full-watch
-5. Mark Kashef: Package reusable AIOS skills as governed operator tools - scout summary
+1. Video-to-SOP Agentic Pipeline - API full-watch
+2. Context-Forking Orchestrator Skill - API full-watch
+3. Shared-Directory State Passing - API full-watch
+4. Lifecycle Event Hooks for Context Injection - API full-watch
+5. 4-Layer Agentic OS Directory Template - API full-watch
 
 The Director now keeps scout summaries visible but does not let weaker scout/subscription output dominate proven API full-watch evidence.
 
@@ -91,6 +108,6 @@ Current proof snapshot:
 
 - Review the Director recommendations with Steve.
 - Do not auto-promote backlog cards.
-- Safe next extraction move: run the next guarded 3-video Mark API full-watch batch for ranks 14-16.
+- Safe next extraction move: run the next guarded 3-video Mark API full-watch batch for ranks 17-19.
 - Safe next build move: scope one Director candidate into a real implementation card.
 - Do not run full last-50 extraction in one blast until Steve accepts the small-batch quality and the Director output shape.
