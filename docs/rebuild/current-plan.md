@@ -26,6 +26,8 @@ May 23 checkpoint: Dev Hub V0 is proof that Foundation Build Intel can reach a h
 
 May 23 creator-watch reconcile: Steve supplied confirmed public YouTube refs for Chris Bradley / MRR Official, Brad Bonanno / AI & Automation, Stacked Podcast, and Jack / Itssssss_Jack. The daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This remains metadata-only discovery; it is not video watching, vision analysis, or permission to scale transcript-only extraction.
 
+May 24 overnight checkpoint: Steve approved cleaning up the AIOS mission, committing/pushing the checkpoint, then running the public YouTube God Mode extraction lane overnight so morning review can inspect extracted videos, source-backed candidates, and a Dev Team Intelligence Director report. This approval is bounded to the corrected route: Gemini API full video/audio/visual watching from approved public YouTube URLs, transcript/page/resource evidence, no Skool/MyICOR/private/auth/member/course crawling, no external writes, no auto backlog creation, and proposal-only Director recommendations scored against [System Strategy](../system-strategy.md).
+
 Closed setup:
 
 1. `WEB-GODMODE-LIVE-OPERATOR-002` - one exact public Mark video could be opened/captured with transcript, description/resource-link, and screenshot metadata.
@@ -56,7 +58,7 @@ Active sprint order:
 8. `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` - done under `gemini-workspace-eyes-route-proof-v1`.
 9. `MARK-KASHEF-LAST-50-BASELINE-001` - active card. Start with one exact Mark video through Gemini API full-watch route, include transcript/page/resource evidence, compare `gemini-2.5-flash` vs `gemini-3.5-flash` for quality/value, and process all 50 only after Steve approves the next guarded batch.
 10. `YOUTUBE-LATEST-20-INTEL-RUN-001` - process approved public last-20 videos for other creators only after the extraction mode is proven.
-11. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - generate the Director report/view with evidence, scores, suggested card, blockers, duplicate/stale checks, and next action.
+11. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - generate the Director report/view with evidence, scores, suggested card, blockers, duplicate/stale checks, and next action. Director scoring must use [System Strategy](../system-strategy.md) as the ranking lens, so extractor findings are judged by whether they advance Foundation/shared truth, God Mode Extractor capability, context continuity, reliable agents/execution systems, agent/realtor coaching leverage, and approval-gated build opportunities.
 12. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - approve source-backed build opportunities into backlog cards or existing-card attachments.
 13. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION` - close the full Build Intel extraction loop only after the slices above are proven.
 

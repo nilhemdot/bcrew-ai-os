@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-TEAM-INTELLIGENCE-DIRECTOR-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-24T01:00:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-team-intelligence-director-001-plan.md",
+  "approvedPlanSha256": "b24d4c6b096542e6553169dd2c00ca8f58154d76502d1a4ed5743103bd17e3d5",
+  "approvedRepoHead": "0ae98dafd1b624b346c56cd4c01c5a6195006a50",
+  "approvalSource": "Steve direct May 24 overnight direction: build the first Dev Team Intelligence Director with the AIOS mission as the scoring lens, then produce a morning report from extracted intelligence.",
+  "approvalDigest": "699397291e10defd620371a8a1f32d2e2d766ac90934208050a42fdd920193ab"
+}

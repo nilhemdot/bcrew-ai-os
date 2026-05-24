@@ -1,7 +1,7 @@
 # System Strategy
 
 Status: Active
-Last updated: 2026-04-28
+Last updated: 2026-05-24
 
 This page defines how the BCrew AI OS works as an operating system around the business.
 
@@ -11,6 +11,28 @@ System Strategy defines how the system keeps that strategy live, source-backed, 
 
 Current execution order for the rebuild lives in [docs/rebuild/current-plan.md](docs/rebuild/current-plan.md) and is surfaced in Foundation under `System Strategy -> Rebuild Plan`.
 The target operating model for Harlan, Crewbert, assistants, and delegation lives in [docs/rebuild/agent-architecture.md](docs/rebuild/agent-architecture.md).
+
+## AIOS Mission
+
+BCrew AI OS exists to help Benson Crew and the agents it serves grow faster by turning strategy, source truth, training, coaching, decisions, and approved external intelligence into trusted execution.
+
+The vision is a source-backed agentic operating system where Steve, leadership, staff, and eventually agents/realtors get proactive help tied to their goals, data, training, and next best actions.
+
+For Steve and leadership, AIOS keeps context, reads approved sources, finds useful signal, recommends what matters, routes work to the right hub or agent, and proves what changed so leadership can spend more time recruiting, leading, decision-making, and building high-ticket systems.
+
+For agents/realtors, the long-term vision is coaching and mentorship at scale: AIOS uses approved KPI data, onboarding state, Skool/training content, business goals, and leadership guidance to help each person know where they stand, what to improve, what to do next, and when to ask for help.
+
+The north star is one shared Foundation where every hub, source, extractor, agent, coaching loop, and builder plugs into the same truth instead of creating separate systems.
+
+That means useful intelligence is not judged only by whether it is interesting. It is judged by whether it helps the system:
+
+- strengthen Foundation and shared truth
+- improve the God Mode Extractor's eyes, hands, brain, and evidence trail
+- reduce Steve carrying context manually
+- create reliable agents and execution systems for the team
+- support agent/realtor onboarding, coaching, mentorship, and KPI-driven growth
+- turn source-backed learning into build opportunities, operating improvements, or marketing/content leverage
+- preserve approval gates, provenance, and safe boundaries before work becomes action
 
 ## Foundation's Job
 
