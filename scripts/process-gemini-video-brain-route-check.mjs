@@ -365,7 +365,7 @@ function buildBacklogUpdate({ closeCard = false } = {}) {
 
 async function upsertGeminiRuntimeRows(proof, { preflight = false } = {}) {
   const metadata = preflight ? {} : buildGeminiRuntimeMetadata(proof)
-  const selectedEnvName = proof?.geminiStatus?.selectedEnvName || (process.env.GEMINI_API_KEY ? 'GEMINI_API_KEY' : process.env.GOOGLE_API_KEY ? 'GOOGLE_API_KEY' : null)
+  const selectedEnvName = proof?.geminiStatus?.selectedEnvName || (process.env.GEMINI_API_KEY ? 'GEMINI_API_KEY' : null)
   const quotaState = proof?.geminiStatus?.quotaState || {
     status: 'unknown',
     tier: 'unknown',

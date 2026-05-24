@@ -86,7 +86,7 @@ Live backlog and Current Sprint truth reused:
 
 Implementation behavior:
 
-- Use credential `gemini-api-default` with provider `gemini`, auth path `gemini_api_direct`, account label `GEMINI_API_KEY` or `GOOGLE_API_KEY`, and API fallback policy.
+- Use credential `gemini-api-default` with provider `gemini`, auth path `gemini_api_direct`, canonical account label `GEMINI_API_KEY`, and API fallback policy.
 - Use route `foundation-video-gemini-api` with workload `video_vision`, primary model `gemini-2.5-flash`, fallback model evidence `gemini-2.5-flash-lite`, and text/transcript fallback route `foundation-extraction-openai-api`.
 - Use the Gemini REST API with `x-goog-api-key` and `generateContent` for one tiny readiness response in close-card mode.
 - Use model metadata to record `inputTokenLimit`, `outputTokenLimit`, and `supportedGenerationMethods`.

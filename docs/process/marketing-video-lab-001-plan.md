@@ -55,7 +55,7 @@ Current source facts checked on 2026-05-14:
 
 Local environment facts already verified:
 
-- `GOOGLE_AI_API_KEY` is present.
+- Canonical `GEMINI_API_KEY` is present.
 - `FAL_KEY` is present.
 - The live Google model list includes:
   - `models/veo-3.1-generate-preview`
@@ -680,4 +680,3 @@ Keep Magnific only as:
 If this card is approved later, the builder should start with Phase 1 only:
 
 > Build the dry-run Marketing Video Lab core. No live provider calls. No UI unless explicitly approved. Own `lib/marketing-video-*` and `scripts/process-marketing-video-lab-check.mjs`; coordinate before touching `server.js`, `package.json`, DB, nav, or Foundation files. Prove the mascot sold-sign template through synthetic assets, provider payload builders, cost estimation, and mock job lifecycle.
-

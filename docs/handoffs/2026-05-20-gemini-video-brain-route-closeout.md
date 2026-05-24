@@ -50,7 +50,7 @@ npm run process:foundation-ship -- --card=GEMINI-VIDEO-BRAIN-ROUTE-001 --planApp
 
 The close-card proof records:
 
-- Gemini account label from `GEMINI_API_KEY` or `GOOGLE_API_KEY`, without storing the secret.
+- Gemini account label from canonical `GEMINI_API_KEY`, without storing the secret.
 - Selected model, primary/fallback availability, model metadata, and supported `generateContent` method.
 - Video/vision/long-context capability posture from live model metadata plus official Gemini docs.
 - Quota tier/reset as explicit unknown unless the provider response exposes quota headers.

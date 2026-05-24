@@ -391,7 +391,7 @@ async function main() {
     provider: 'gemini',
     authPath: 'gemini_api_direct',
     displayName: 'Gemini API Default',
-    secretRefs: ['GEMINI_API_KEY', 'GOOGLE_API_KEY'],
+    secretRefs: ['GEMINI_API_KEY'],
     workloadLane: 'vision',
     allowedWorkloads: ['video_vision', 'long_context_probe'],
     notes: 'Official Gemini API route for video/vision workloads.',

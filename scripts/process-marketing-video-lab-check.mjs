@@ -101,7 +101,7 @@ async function main() {
     generateAudio: false,
   })
   const availability = detectMarketingVideoProviderAvailability({
-    GOOGLE_AI_API_KEY: 'redacted',
+    GEMINI_API_KEY: 'redacted',
     FAL_KEY: 'redacted',
   })
   const syntheticProof = buildSyntheticMarketingVideoLabProof()
@@ -182,4 +182,3 @@ main().catch(error => {
   console.error(error instanceof Error ? error.stack || error.message : String(error))
   process.exitCode = 1
 })
-

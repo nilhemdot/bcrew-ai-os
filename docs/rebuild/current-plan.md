@@ -1711,7 +1711,7 @@ Current proof:
 - `lib/llm-router.js` seeds policy-aware credential/route config, executes OpenClaw/Codex subscription model calls, logs every call, and keeps direct OpenAI Responses API as a guarded fallback only.
 - `llm-auth-audit` is registered as a manual Foundation job and runs through `npm run foundation:job -- --job=llm-auth-audit`.
 - Latest audit probes, in order: direct OpenAI API, direct Anthropic API, local Claude Code subscription, Claude OAuth token, OpenClaw/ChatGPT gateway, and Gemini API.
-- Latest probe result: OpenAI API available, Gemini API available through `GOOGLE_API_KEY`, Claude Code Max login available, OpenClaw/Codex subscription model run succeeded through `openai-codex/gpt-5.4`, Anthropic API missing, Claude OAuth token missing.
+- Latest probe result: OpenAI API available, Gemini API available through canonical `GEMINI_API_KEY`, Claude Code Max login available, OpenClaw/Codex subscription model run succeeded through `openai-codex/gpt-5.4`, Anthropic API missing, Claude OAuth token missing.
 - 2026-04-26 correction: keep AIOS subscription extraction on `openai-codex/gpt-5.4` until OpenClaw explicitly supports `openai-codex/gpt-5.5`; use 5.5 for coding/interactive work, not scheduled extraction.
 - No raw secrets are stored in Postgres. DB records only labels, auth-path classes, status, policy classification, env/keychain references, probe outcomes, and call telemetry.
 - Shared candidate extraction and shared-comms synthesis are migrated behind the router.
