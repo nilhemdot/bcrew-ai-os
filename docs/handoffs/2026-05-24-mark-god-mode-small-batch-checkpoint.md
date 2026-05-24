@@ -62,9 +62,25 @@ The Dev Hub now sees the stable small-batch lane as 6 API-watched videos and 12 
 
 The Dev Hub now sees the stable small-batch lane as 9 API-watched videos and 18 proposal-only API full-watch build candidates. The next guarded batch starts at Mark ranks 17-19.
 
+## Batch Output - Fourth Stable Small Batch
+
+- Videos watched: 3
+- Model: `gemini-3.5-flash`
+- Batch run ID: `20260524233211`
+- Video IDs:
+  - `RUyqEAXt2YQ` - Did Claude Code Just Make OpenClaw Obsolete?
+  - `iALzJyvgCoM` - 3 Claude Code Features You'll Wish You Knew Sooner
+  - `2kbINqpluM0` - Claude Code Turned Obsidian Into My Dream Second Brain
+- Timestamped visual evidence: 9
+- Proposal-only build candidates: 6
+- Approval-required links: 17
+- Total tokens: 189,066
+
+The Dev Hub now sees the stable small-batch lane as 12 API-watched videos and 24 proposal-only API full-watch build candidates. The next guarded batch starts at Mark ranks 20-22.
+
 ## Director Output
 
-Top 5 after the third batch:
+Top 5 after the fourth batch:
 
 1. Video-to-SOP Agentic Pipeline - API full-watch
 2. Context-Forking Orchestrator Skill - API full-watch
@@ -91,6 +107,12 @@ Current proof snapshot:
 - Synthesis proof: 131 saved facts, 8 new proof items, 73 active clustered items, 0 active unclustered unprotected items.
 - Action Router proof: 84 total routes, 84 verified synthesis routes, 0 unverified decision-grade routes, 83 pending approval routes, 1 applied route with destination record.
 
+## Broad Verify Status
+
+- Focused extraction, Director, Dev Hub, sprint gate, synthesis, and action-router checks pass.
+- Dashboard and Foundation worker were restarted and served the post-fourth-batch HEAD after commit.
+- `foundation:verify` is still red on pre-existing Foundation trust/progression blockers. The first root failure is a dirty active doc reference to missing backlog card `DEV-DATA-POOL-LIVE-WIRING-001` in `docs/rebuild/current-state.md`; the long FAIL list then includes source lifecycle and historical sprint/progression split checks. This was not introduced by the Mark batch commit.
+
 ## Proof
 
 - `npm run process:mark-kashef-god-mode-small-batch-check -- --apply --live-gemini-api --batch-size=3 --model=gemini-3.5-flash --json`
@@ -108,6 +130,6 @@ Current proof snapshot:
 
 - Review the Director recommendations with Steve.
 - Do not auto-promote backlog cards.
-- Safe next extraction move: run the next guarded 3-video Mark API full-watch batch for ranks 17-19.
+- Safe next extraction move: run the next guarded 3-video Mark API full-watch batch for ranks 20-22.
 - Safe next build move: scope one Director candidate into a real implementation card.
 - Do not run full last-50 extraction in one blast until Steve accepts the small-batch quality and the Director output shape.
