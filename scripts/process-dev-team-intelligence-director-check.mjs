@@ -88,8 +88,18 @@ async function persistDirector(snapshot = {}) {
   let report = await upsertIntelligenceReportArtifact(writeSet.reportArtifact, ACTOR)
   const atoms = []
   const hits = []
-  for (const atomInput of writeSet.atomInputs) atoms.push(await upsertIntelligenceAtom(atomInput, ACTOR))
-  for (const hitInput of writeSet.hitInputs) hits.push(await recordIntelligenceAtomHit(hitInput, ACTOR))
+  const actualAtomIdByRequested = new Map()
+  for (const atomInput of writeSet.atomInputs) {
+    const atom = await upsertIntelligenceAtom(atomInput, ACTOR)
+    atoms.push(atom)
+    actualAtomIdByRequested.set(atomInput.atomId || atomInput.atom_id, atom.atomId || atom.atom_id)
+  }
+  for (const hitInput of writeSet.hitInputs) {
+    hits.push(await recordIntelligenceAtomHit({
+      ...hitInput,
+      atomId: actualAtomIdByRequested.get(hitInput.atomId || hitInput.atom_id) || hitInput.atomId || hitInput.atom_id,
+    }, ACTOR))
+  }
   report = await upsertIntelligenceReportArtifact({
     ...writeSet.reportArtifact,
     inputAtomIds: Array.from(new Set([

@@ -25,6 +25,7 @@ import {
 } from '../lib/god-mode-youtube-end-to-end-extractor.js'
 import {
   MARK_KASHEF_GOD_MODE_SMALL_BATCH_DEFAULT_SIZE,
+  MARK_KASHEF_GOD_MODE_SMALL_BATCH_GEMINI_TIMEOUT_MS,
   MARK_KASHEF_GOD_MODE_SMALL_BATCH_MAX_SIZE,
   MARK_KASHEF_GOD_MODE_SMALL_BATCH_MODEL,
   MARK_KASHEF_GOD_MODE_SMALL_BATCH_NOT_NEXT,
@@ -56,6 +57,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     liveGeminiApi: argv.includes('--live-gemini-api') || argv.includes('--live-gemini-api=true'),
     batchSize: Number(readArgValue(argv, '--batch-size=')) || MARK_KASHEF_GOD_MODE_SMALL_BATCH_DEFAULT_SIZE,
     model: readArgValue(argv, '--model=') || MARK_KASHEF_GOD_MODE_SMALL_BATCH_MODEL,
+    geminiTimeoutMs: Number(readArgValue(argv, '--gemini-timeout-ms=')) || MARK_KASHEF_GOD_MODE_SMALL_BATCH_GEMINI_TIMEOUT_MS,
   }
 }
 
@@ -66,6 +68,37 @@ function readArgValue(argv = [], prefix = '') {
 
 function list(value) {
   return Array.isArray(value) ? value : []
+}
+
+function text(value) {
+  return String(value || '').trim()
+}
+
+function youtubeVideoIdFromUrl(value = '') {
+  const input = text(value)
+  if (!input) return ''
+  const patterns = [
+    /[?&]v=([A-Za-z0-9_-]{6,})/,
+    /youtu\.be\/([A-Za-z0-9_-]{6,})/,
+    /youtube\.com\/embed\/([A-Za-z0-9_-]{6,})/,
+  ]
+  for (const pattern of patterns) {
+    const match = input.match(pattern)
+    if (match?.[1]) return match[1]
+  }
+  return ''
+}
+
+function videoIdsFromMetadataRow(row = {}) {
+  const metadata = row.metadata || {}
+  return [
+    metadata.sourceVideoId,
+    metadata.videoId,
+    ...(list(metadata.videoIds)),
+    youtubeVideoIdFromUrl(row.anchor_value || row.anchorValue),
+    youtubeVideoIdFromUrl(metadata.sourceUrl),
+    youtubeVideoIdFromUrl(metadata.url),
+  ].map(text).filter(Boolean)
 }
 
 function addCheck(checks, ok, check, detail = '') {
@@ -110,18 +143,28 @@ async function loadAlreadyApiWatchedVideoIds() {
   try {
     const result = await pool.query(
       `
-        SELECT metadata
+        SELECT metadata, NULL::text AS anchor_value
         FROM intelligence_report_artifacts
         WHERE metadata->>'cardId' = $1
           AND metadata->>'fullWatchRoute' = 'gemini_api_youtube_url_video_understanding'
+        UNION ALL
+        SELECT metadata, anchor_value
+        FROM intelligence_atoms
+        WHERE report_artifact_id = $2
+          OR metadata->>'cardId' = $1
+          OR metadata->>'sourceVideoId' IS NOT NULL
+        UNION ALL
+        SELECT metadata, anchor_value
+        FROM intelligence_atom_hits
+        WHERE report_artifact_id = $2
+          OR metadata->>'cardId' = $1
+          OR metadata->>'sourceVideoId' IS NOT NULL
       `,
-      [MARK_KASHEF_LAST_50_BASELINE_CARD_ID],
+      [MARK_KASHEF_LAST_50_BASELINE_CARD_ID, MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID],
     )
     const ids = new Set()
     for (const row of result.rows) {
-      const metadata = row.metadata || {}
-      if (metadata.sourceVideoId) ids.add(metadata.sourceVideoId)
-      for (const id of list(metadata.videoIds)) ids.add(id)
+      for (const id of videoIdsFromMetadataRow(row)) ids.add(id)
     }
     return Array.from(ids).filter(Boolean)
   } finally {
@@ -150,8 +193,18 @@ async function persistBatch(snapshot = {}) {
   let report = await upsertIntelligenceReportArtifact(writeSet.reportArtifact, ACTOR)
   const atoms = []
   const hits = []
-  for (const atomInput of writeSet.atomInputs) atoms.push(await upsertIntelligenceAtom(atomInput, ACTOR))
-  for (const hitInput of writeSet.hitInputs) hits.push(await recordIntelligenceAtomHit(hitInput, ACTOR))
+  const actualAtomIdByRequested = new Map()
+  for (const atomInput of writeSet.atomInputs) {
+    const atom = await upsertIntelligenceAtom(atomInput, ACTOR)
+    atoms.push(atom)
+    actualAtomIdByRequested.set(atomInput.atomId || atomInput.atom_id, atom.atomId || atom.atom_id)
+  }
+  for (const hitInput of writeSet.hitInputs) {
+    hits.push(await recordIntelligenceAtomHit({
+      ...hitInput,
+      atomId: actualAtomIdByRequested.get(hitInput.atomId || hitInput.atom_id) || hitInput.atomId || hitInput.atom_id,
+    }, ACTOR))
+  }
   report = await upsertIntelligenceReportArtifact({
     ...writeSet.reportArtifact,
     inputAtomIds: atoms.map(atom => atom.atomId || atom.atom_id),
@@ -282,6 +335,7 @@ async function main() {
         model: args.model,
         now,
         actor: ACTOR,
+        geminiTimeoutMs: args.geminiTimeoutMs,
       })
       snapshot = buildMarkGodModeSmallBatchSnapshot({
         generatedAt: now,
@@ -329,6 +383,12 @@ async function main() {
     addCheck(checks, list(snapshot?.topBuildCandidates).length >= 6, 'small batch produced proposal candidates', `${list(snapshot?.topBuildCandidates).length}`)
     addCheck(checks, snapshot?.noAutoBacklogPromotion === true && snapshot?.externalWrites === false, 'small batch has no auto backlog or external writes', `noAuto=${snapshot?.noAutoBacklogPromotion} external=${snapshot?.externalWrites}`)
     addCheck(checks, persistence?.ok === true, 'persisted report, atoms, and hits read back', persistence?.failures?.map(failure => failure.check).join(', ') || 'ok')
+    addCheck(
+      checks,
+      args.apply || list(snapshot?.videoResults).every(result => alreadyWatchedVideoIds.includes(result.video?.videoId)),
+      'already-watched history reads persisted report, atoms, and hits',
+      alreadyWatchedVideoIds.join(', ') || 'none',
+    )
 
     const failed = checks.filter(check => !check.ok)
     const result = {
