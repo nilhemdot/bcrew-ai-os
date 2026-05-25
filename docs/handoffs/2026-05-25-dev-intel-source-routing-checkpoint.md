@@ -60,7 +60,7 @@ Next paid-source move:
 - After paid/auth checks, Nate was the next safe S-tier public source.
 - The normal full-watch lane was tightened to route multi-hour courses out to a future long-course lane.
 - Nate second batch watched 4 standard public videos and produced 8 proposal-only build candidates, 12 visual evidence items, and 44 approval-required links.
-- Nate is now exhausted for the standard public Build Intel lane. Remaining course-style videos should wait for the long-course path.
+- Nate is now exhausted for the standard public Build Intel lane. The selector surfaces 2 remaining course-style videos for the long-course path.
 - Nate remains S for AIOS/dev build and is now S for ops/process value.
 
 ## Recommended Next Order

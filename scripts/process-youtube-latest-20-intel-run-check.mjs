@@ -223,6 +223,15 @@ async function main() {
         titlePositiveTerms: video.buildIntelRelevance.titlePositiveTerms,
         positiveTerms: video.buildIntelRelevance.positiveTerms,
       })),
+      standardFullWatchRiskRoutedOut: snapshot.standardFullWatchRiskRoutedOut.map(video => ({
+        videoId: video.videoId,
+        title: video.title,
+        creatorId: video.creatorId,
+        creator: video.creator,
+        rank: video.rank,
+        url: video.url,
+        reasons: video.standardFullWatchRiskReasons,
+      })),
       nextAction: snapshot.nextAction,
     },
   }
