@@ -47,6 +47,7 @@ import {
   buildDevSourceSliceDirectorInputBundle,
   buildDevSourceSliceRouterSnapshot,
 } from '../lib/dev-source-slice-router.js'
+import { YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID } from '../lib/youtube-latest-20-full-watch-runner.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -253,6 +254,7 @@ async function main() {
     addCheck(checks, devSourceSlice?.ok === true && devSourceSlice.devCandidates.length >= 1, 'Director receives filtered Dev source slice from meetings/comms', `${devSourceSlice?.counts?.devCandidates || 0}`)
     addCheck(checks, devSourceSlice?.parkedOperational?.length >= 1, 'normal ops tasks stay parked out of Dev Director', `${devSourceSlice?.counts?.parkedOperational || 0}`)
     addCheck(checks, snapshot.sourceCoverage.some(source => source.reportArtifactId === DEV_SOURCE_SLICE_ROUTER_REPORT_ARTIFACT_ID), 'Director input includes the Dev source-slice bundle', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
+    addCheck(checks, snapshot.sourceCoverage.some(source => source.reportArtifactId === YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID), 'Director input includes latest-20 full-watch batch', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
     addCheck(checks, !writeRequested || persistedReport?.reportArtifactId === DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, 'persisted Director report reads back', persistedReport?.reportArtifactId || 'missing')
     addCheck(checks, !writeRequested || persistedAtoms.length >= Math.min(5, topCandidates.length), 'persisted Director atoms read back', `${persistedAtoms.length}`)
     addCheck(checks, !writeRequested || persistedHits.length >= Math.min(5, topCandidates.length), 'persisted Director evidence hits read back', `${persistedHits.length}`)

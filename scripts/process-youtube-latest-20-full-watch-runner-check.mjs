@@ -331,7 +331,13 @@ async function main() {
     const failures = checks.filter(check => !check.ok)
     const result = {
       ok: failures.length === 0,
-      status: failures.length ? 'blocked' : (args.apply ? 'healthy' : 'ready_for_apply'),
+      status: failures.length
+        ? 'blocked'
+        : args.apply
+          ? 'healthy'
+          : snapshot
+            ? 'healthy_persisted_batch_ready_for_next_apply'
+            : 'ready_for_apply',
       cardId: YOUTUBE_LATEST_20_FULL_WATCH_RUNNER_CARD_ID,
       reportArtifactId: YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID,
       selectedVideos: selectedVideos.map(video => ({
