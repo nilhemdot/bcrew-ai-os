@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-LATEST-20-FULL-WATCH-RUNNER-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T14:45:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-latest-20-full-watch-runner-001-plan.md",
+  "approvedPlanSha256": "5144af762a06b7632f655a604a06f4c933b28b049d532306642076f26d8f37fb",
+  "approvedRepoHead": "701f0843f13cfdf150fbb9526b985f631804d07a",
+  "approvalSource": "Steve May 25 instruction: connect approved public YouTube sources, process the selected non-Mark videos through full God Mode extraction, and make description/resource links resolver/Scoper work instead of Steve manual homework.",
+  "approvalDigest": "24173c9fc7ccf88ad57c345c77e7e0692e3b292184641e331c6e73c9194b504e"
+}
