@@ -1,0 +1,48 @@
+# SYNTHESIS-ROUTER-FRESHNESS-TRIGGER-001
+
+Status: Scoped
+
+Last updated: 2026-05-25
+
+## Purpose
+
+Make the Foundation intelligence spine honest and automatic after source work runs.
+
+When a source archive or extractor runs after the last synthesis refresh, the system must not quietly look current. It should either trigger a bounded synthesis refresh or show a clear stale/blocked state until the brain layer catches up.
+
+## Current Finding
+
+On 2026-05-25, Gmail and Missive archive syncs succeeded around 4:00 PM ET, but candidate extraction jobs failed and the synthesis spine still showed a 2:43 PM ET run. The Dev Data Pool looked like email had run recently while synthesis had not.
+
+Actual state:
+
+- `gmail-sync-current` and `missive-sync-current` archived fresh source data.
+- `gmail-extract-latest` and `missive-extract-latest` failed because direct OpenAI Responses API fallback is blocked by spend policy.
+- `intelligence-synthesis-spine-refresh` is scheduled daily, not triggered after every extractor/sync completion.
+- The Dev page now exposes this as `Needs repair` / `Needs refresh` instead of silently showing healthy timestamps.
+
+## Required Behavior
+
+1. Every source archive/extractor run records a source-family freshness watermark.
+2. Synthesis compares its latest successful run against upstream source-family watermarks.
+3. If an upstream run is newer than synthesis, UI/API shows stale/needs-refresh.
+4. If candidate extraction failed, synthesis shows blocked-by-extractor instead of pretending fresh source content was synthesized.
+5. The worker should run synthesis through a bounded debounce after successful extractor batches, then run Action Router proposals after synthesis succeeds.
+6. No destination ledger writes happen without human approval.
+
+## Not Next
+
+- Do not enable broad paid-model extraction by bypassing spend policy.
+- Do not mark Gmail/Missive/Slack/meetings as God Mode until their source-family maturity gates pass.
+- Do not use Git markdown reports as runtime state.
+- Do not auto-promote synthesized items into backlog, decisions, or tasks.
+
+## Proof
+
+Focused proof should create or simulate:
+
+- newer upstream source run + older synthesis run => stale state visible
+- failed extractor + newer archive sync => blocked-by-extractor visible
+- successful extractor + synthesis refresh => stale clears
+- synthesis success => Action Router proposal job can follow
+- no backlog, decision, external, or Git report writes from the freshness trigger itself

@@ -19,6 +19,7 @@ import {
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,
+  isProcessReportWriteRequested,
   isProcessCheckWriteRequested,
 } from '../lib/process-write-guard.js'
 import {
@@ -55,6 +56,7 @@ function parseArgs(argv = process.argv.slice(2)) {
   return {
     json: argv.includes('--json') || argv.includes('--json=true'),
     apply: isProcessCheckWriteRequested({ argv, allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] }),
+    writeReport: isProcessReportWriteRequested(argv),
     liveGeminiApi: argv.includes('--live-gemini-api') || argv.includes('--live-gemini-api=true'),
     batchSize: Number(readArgValue(argv, '--batch-size=')) || 9,
     model: readArgValue(argv, '--model=') || YOUTUBE_LATEST_20_FULL_WATCH_MODEL,
@@ -190,7 +192,7 @@ async function loadTranscriptArtifacts() {
   return archive.items || []
 }
 
-async function persistBatch(snapshot = {}) {
+async function persistBatch(snapshot = {}, options = {}) {
   assertProcessCheckWriteAllowed({
     argv: process.argv.slice(2),
     scriptPath: YOUTUBE_LATEST_20_FULL_WATCH_RUNNER_SCRIPT_PATH,
@@ -217,7 +219,9 @@ async function persistBatch(snapshot = {}) {
     ...writeSet.reportArtifact,
     inputAtomIds: atoms.map(atom => atom.atomId || atom.atom_id),
   }, ACTOR)
-  await fs.writeFile(path.join(repoRoot, snapshot.reportPath || youtubeLatest20FullWatchReportPath({ batchRunId: snapshot.batchRunId })), renderYoutubeLatest20FullWatchReport(snapshot), 'utf8')
+  if (options.writeReport) {
+    await fs.writeFile(path.join(repoRoot, snapshot.reportPath || youtubeLatest20FullWatchReportPath({ batchRunId: snapshot.batchRunId })), renderYoutubeLatest20FullWatchReport(snapshot), 'utf8')
+  }
   return { writeSet, report, atoms, hits }
 }
 
@@ -334,7 +338,7 @@ async function main() {
       if (!snapshot.ok) {
         throw new Error(`Latest-20 full-watch batch blocked: ${snapshot.failures.map(failure => failure.check).join(', ')}`)
       }
-      const persistedWrite = await persistBatch(snapshot)
+      const persistedWrite = await persistBatch(snapshot, { writeReport: args.writeReport })
       const persisted = await getIntelligenceReportBundle(reportArtifactId, { atomLimit: 260, hitLimit: 360 })
       persistence = verifyYoutubeLatest20FullWatchPersistedProof({
         snapshot,

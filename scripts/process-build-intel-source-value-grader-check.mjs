@@ -14,6 +14,7 @@ import {
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,
+  isProcessReportWriteRequested,
   isProcessCheckWriteRequested,
 } from '../lib/process-write-guard.js'
 import {
@@ -36,6 +37,7 @@ function parseArgs(argv = process.argv.slice(2)) {
   return {
     json: argv.includes('--json') || argv.includes('--json=true'),
     apply: isProcessCheckWriteRequested({ argv, allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] }),
+    writeReport: isProcessReportWriteRequested(argv),
   }
 }
 
@@ -98,7 +100,7 @@ async function loadDirectorReport() {
   }
 }
 
-async function persistSnapshot(snapshot = {}) {
+async function persistSnapshot(snapshot = {}, options = {}) {
   assertProcessCheckWriteAllowed({
     argv: process.argv.slice(2),
     scriptPath: BUILD_INTEL_SOURCE_VALUE_GRADER_SCRIPT_PATH,
@@ -107,7 +109,9 @@ async function persistSnapshot(snapshot = {}) {
   })
   const writeSet = buildBuildIntelSourceValueGraderWriteSet(snapshot)
   const report = await upsertIntelligenceReportArtifact(writeSet.reportArtifact, ACTOR)
-  await fs.writeFile(path.join(repoRoot, BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_PATH), renderBuildIntelSourceValueGraderReport(snapshot), 'utf8')
+  if (options.writeReport) {
+    await fs.writeFile(path.join(repoRoot, BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_PATH), renderBuildIntelSourceValueGraderReport(snapshot), 'utf8')
+  }
   return { report, writeSet }
 }
 
@@ -139,7 +143,7 @@ async function main() {
   const snapshot = buildBuildIntelSourceValueGraderSnapshot({ reports, directorReport })
 
   if (args.apply) {
-    persistence = await persistSnapshot(snapshot)
+    persistence = await persistSnapshot(snapshot, { writeReport: args.writeReport })
   }
 
   addCheck(checks, packageJson.scripts?.['process:build-intel-source-value-grader-check'] === 'node --env-file-if-exists=.env scripts/process-build-intel-source-value-grader-check.mjs', 'package exposes focused source-value grader proof', packageJson.scripts?.['process:build-intel-source-value-grader-check'] || 'missing')

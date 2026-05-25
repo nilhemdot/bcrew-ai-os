@@ -4,7 +4,7 @@
 
 Build the guarded full-watch runner for the selected non-Mark public YouTube Build Intel batch.
 
-Plain English: the latest-20 manifest picks the next small batch. This card actually processes that batch through the proven God Mode route: video/audio/visual watching, page evidence, description/resource links, safe public link resolution, blocked-link reasons, proposal-only atoms, and a Director-readable report. Each applied batch gets its own report ID and source note so repeated ICOR/general runs do not overwrite prior evidence.
+Plain English: the latest-20 manifest picks the next small batch. This card actually processes that batch through the proven God Mode route: video/audio/visual watching, page evidence, description/resource links, safe public link resolution, blocked-link reasons, proposal-only atoms, and a Director-readable report. Each applied batch gets its own report ID in the Foundation intelligence store so repeated ICOR/general runs do not overwrite prior evidence. Markdown source notes are checkpoint artifacts only and require explicit `--write-report`.
 
 ## Why
 
@@ -25,6 +25,7 @@ The Mark baseline proved the route. The non-Mark runner makes the same path reus
   - unsafe/private/paid/login/download/form links are blocked with exact reason
   - unresolved safe public links block Scoper readiness
 - Persists one unique report artifact per applied batch, proposal-only atoms, and evidence hits.
+- Does not write markdown/source-note files during normal live extraction; repo report files require explicit `--write-report`.
 - Does not create backlog cards, approve work, open sprint work, purchase, download, opt in, submit forms, log in, mutate credentials, or write externally.
 
 ## Definition Of Done
@@ -39,6 +40,7 @@ The Mark baseline proved the route. The non-Mark runner makes the same path reus
 - Default proof is read-only and selects the current batch without calling Gemini.
 - Read-only proof and Director resynthesis can discover prior unique latest-20 full-watch batch reports instead of relying on one overwrite-prone static report ID.
 - Apply path requires both `--apply` and `--live-gemini-api`.
+- Markdown report/source-note output requires `--write-report`; live extraction defaults to DB/artifact persistence only.
 
 ## Not Next
 

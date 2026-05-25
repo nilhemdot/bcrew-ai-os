@@ -26,6 +26,7 @@ import {
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,
+  isProcessReportWriteRequested,
   isProcessCheckWriteRequested,
 } from '../lib/process-write-guard.js'
 import {
@@ -64,6 +65,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     json: argv.includes('--json') || argv.includes('--json=true'),
     apply: isProcessCheckWriteRequested({ argv, allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] }),
     closeCard: isProcessCheckWriteRequested({ argv, allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.closeCard] }),
+    writeReport: isProcessReportWriteRequested(argv),
   }
 }
 
@@ -174,7 +176,7 @@ async function loadInputBundles() {
   return { reportBundles: bundles, devSourceSlice, sharedReportIds, latest20ReportIds }
 }
 
-async function persistDirector(snapshot = {}) {
+async function persistDirector(snapshot = {}, options = {}) {
   assertProcessCheckWriteAllowed({
     argv: process.argv.slice(2),
     scriptPath: DEV_TEAM_INTELLIGENCE_DIRECTOR_SCRIPT_PATH,
@@ -204,7 +206,9 @@ async function persistDirector(snapshot = {}) {
       ...atoms.map(atom => atom.atomId || atom.atom_id),
     ])),
   }, ACTOR)
-  await fs.writeFile(path.join(repoRoot, DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_PATH), renderDevTeamIntelligenceDirectorReport(snapshot), 'utf8')
+  if (options.writeReport) {
+    await fs.writeFile(path.join(repoRoot, DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_PATH), renderDevTeamIntelligenceDirectorReport(snapshot), 'utf8')
+  }
   return { writeSet, report, atoms, hits }
 }
 
@@ -278,7 +282,7 @@ async function main() {
 
     if (writeRequested) {
       if (!snapshot.ok) throw new Error(`Director snapshot blocked: ${snapshot.failures.map(failure => failure.check).join(', ')}`)
-      persistence = await persistDirector(snapshot)
+      persistence = await persistDirector(snapshot, { writeReport: args.writeReport })
       if (args.closeCard) await closeDirectorCard()
     }
 

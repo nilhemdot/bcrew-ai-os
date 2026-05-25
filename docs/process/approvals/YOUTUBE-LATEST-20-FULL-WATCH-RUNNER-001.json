@@ -2,11 +2,11 @@
   "approvalSchemaVersion": 2,
   "cardId": "YOUTUBE-LATEST-20-FULL-WATCH-RUNNER-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-25T16:45:00-04:00",
+  "approvedAt": "2026-05-25T17:24:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/youtube-latest-20-full-watch-runner-001-plan.md",
-  "approvedPlanSha256": "96b0e0bd550931296d2ae84b36856583eeeca3c290c3b53ae975f6fb53365466",
-  "approvedRepoHead": "9821faddeb493489ceedecbf4b4ab2431d1ea583",
-  "approvalSource": "Steve May 25 instruction: run ICOR/Tom and broader approved public YouTube sources through the full God Mode Gemini API route in guarded batches, preserve batch history, and do not overwrite prior evidence or drift into paid/auth/community sources.",
-  "approvalDigest": "365a18e86410370ea3407a9cffce60a231c046f745efb63c585f153201be0d79"
+  "approvedPlanSha256": "f6a587814c76c76cb5db6d261d9c6389fa0f3562f782c12a60a2aeb3a0b050fa",
+  "approvedRepoHead": "82af76b47d605a375c961d71f7e95862573b5e5e",
+  "approvalSource": "Steve May 25 instruction during synthesis/extractor checkpoint: finish the current cleanup, keep the YouTube full-watch runner proposal-only, guard runtime report writes, and get the system clean before the next builder plan.",
+  "approvalDigest": "40d478544d9b8adf8f722c71bc62c8f4f14e65e2920668acc861a2adf33788f7"
 }

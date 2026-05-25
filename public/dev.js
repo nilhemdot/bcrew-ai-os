@@ -133,7 +133,7 @@ function pillClass(value = '') {
 function dotClass(value = '') {
   const normalized = text(value).toLowerCase()
   if (normalized.includes('live') || normalized.includes('active') || normalized.includes('succeeded') || normalized.includes('generated') || normalized.includes('healthy')) return 'live'
-  if (normalized.includes('pending') || normalized.includes('approval') || normalized.includes('needs')) return 'pending'
+  if (normalized.includes('pending') || normalized.includes('approval') || normalized.includes('needs') || normalized.includes('risk') || normalized.includes('failed') || normalized.includes('stale') || normalized.includes('blocked')) return 'pending'
   if (normalized.includes('verified') || normalized.includes('proof') || normalized.includes('source-backed') || normalized.includes('locked')) return 'verified'
   return ''
 }
@@ -574,6 +574,7 @@ function renderSourceLeaderboard(snapshot = {}) {
 }
 
 function extractorSummary(item = {}) {
+  if (item.summary) return text(item.summary)
   const byLane = {
     'youtube-god-mode-pipeline': 'Reads public video/page context, transcripts, audio, and approved visual evidence. Browser hands, comments, and logged-in navigation are next.',
     'meetings-transcripts': 'Reads meeting notes and transcripts into Foundation. Dev-specific routing is pending.',
@@ -725,7 +726,7 @@ function renderExtractors(snapshot = {}) {
       <h3>${escapeHtml(extractorTitle(item))}</h3>
       <p>${escapeHtml(extractorSummary(item))}</p>
       <div class="extractor-meta">
-        <span>Last run</span>
+        <span>${escapeHtml(item.latestRunLabel || 'Last run')}</span>
         <strong>${escapeHtml(shortDate(item.latestRunAt))}</strong>
       </div>
     </article>
