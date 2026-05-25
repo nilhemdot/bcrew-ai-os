@@ -137,7 +137,7 @@ button {
 
 .sidebar {
   background: var(--grey-1);
-  padding: var(--s-4) 0 var(--s-8);
+  padding: var(--s-3) 0 var(--s-8);
   position: sticky;
   top: 0;
   align-self: start;
@@ -149,7 +149,7 @@ button {
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  padding: 0 var(--s-5) var(--s-2);
+  padding: 0 var(--s-5) var(--s-1);
   color: var(--grey-d);
   font-family: var(--mono);
   font-size: var(--t-xs);
@@ -157,14 +157,14 @@ button {
 }
 
 .sb-title {
-  padding: 0 var(--s-5) var(--s-3);
-  margin-bottom: var(--s-2);
+  padding: 0 var(--s-5) var(--s-2);
+  margin-bottom: 0;
   border-bottom: 1px solid var(--grey-line);
 }
 
 .sb-title span {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
   color: var(--grey-d);
   font-family: var(--display);
   font-size: var(--t-xs);
