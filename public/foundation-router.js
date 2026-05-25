@@ -95,8 +95,8 @@ function route() {
   }
 
   if (section === 'source-registry') {
-    section = 'source-overview'
-    window.location.replace('/foundation#source-overview')
+    section = 'data-sources-v2'
+    window.location.replace('/foundation#data-sources-v2')
     return
   }
 
@@ -147,6 +147,8 @@ function route() {
     renderOpenQuestions()
   } else if (section === 'build-log') {
     renderBuildLog()
+  } else if (section === 'data-sources-v2') {
+    renderFoundationDataSourcesV2()
   } else if (section === 'source-lifecycle') {
     renderSourceLifecycle()
   } else if (sourceSectionConfigs[section]) {

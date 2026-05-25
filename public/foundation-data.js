@@ -16,6 +16,7 @@ var cache = {
   buildLog: null,
   changeLog: null,
   dailySummary: {},
+  foundationDataSourcesV2: null,
   sourceLifecycle: null,
   sheetStructureStatus: null,
   fubLeadSources: {},
@@ -252,6 +253,18 @@ function fetchSourceLifecycle() {
   })
 }
 
+function fetchFoundationDataSourcesV2() {
+  if (cache.foundationDataSourcesV2) return Promise.resolve(cache.foundationDataSourcesV2)
+
+  return foundationRead('/api/foundation/data-sources').then(function(res) {
+    if (!res.ok) throw new Error('Foundation data sources API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.foundationDataSourcesV2 = data
+    return data
+  })
+}
+
 function fetchFubLeadSources(contextKey) {
   var key = contextKey || 'owner'
   if (cache.fubLeadSources[key]) return Promise.resolve(cache.fubLeadSources[key])
@@ -359,6 +372,7 @@ function clearFoundationCaches() {
   cache.foundationUsersAdmin = null
   cache.systemInventory = null
   cache.fubLeadSources = {}
+  cache.foundationDataSourcesV2 = null
   cache.sourceLifecycle = null
   cache.ownersLeadSourceGovernance = null
   cache.ownersReviewQueue = null
