@@ -159,7 +159,7 @@ explicitly creating a new approved version.
 - Open Sans is for readable body copy.
 - JetBrains Mono is for IDs, timestamps, counts, source IDs, and technical proof.
 - The font-family name is `Stratum1` everywhere. Do not create page-specific
-  aliases like `LauncherStratum1`. All pages load the same .otf files from
+  aliases like `LauncherStratum1` or `login-stratum-1`. All pages load the same .otf files from
   `/fonts/` and use `font-family: 'Stratum1'`.
 - Do not let Stratum1 fall back silently. A visual proof must show font files
   loaded.
@@ -190,8 +190,8 @@ The hub launcher is the command center front door:
   chip
 - user chip opens an account menu with a plain `Log out` action so Steve can
   demo the login screen without clearing browser state
-- topbar display font is `Stratum1` everywhere. Do not create page-specific
-  aliases such as `LauncherStratum1`.
+- topbar and login display font is `Stratum1` everywhere. Do not create
+  page-specific aliases such as `LauncherStratum1` or `login-stratum-1`.
 - large blue greeting band with mascot
 - mission row
 - hub cards as stations

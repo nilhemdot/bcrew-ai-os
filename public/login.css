@@ -1,14 +1,14 @@
 @font-face {
-  font-family: 'login-stratum-1';
+  font-family: 'Stratum1';
   src: url('/fonts/Stratum1-Bold.otf') format('opentype');
-  font-display: optional;
+  font-display: block;
   font-weight: 700;
 }
 
 @font-face {
-  font-family: 'login-stratum-1';
+  font-family: 'Stratum1';
   src: url('/fonts/Stratum1-Black.otf') format('opentype');
-  font-display: optional;
+  font-display: block;
   font-weight: 900;
 }
 
@@ -25,7 +25,7 @@ html {
   --login-blue: #0084c9;
   --login-white: #ffffff;
   --login-grey-text: #4b5563;
-  --login-display: 'login-stratum-1', 'Arial Black', sans-serif;
+  --login-display: 'Stratum1', 'Arial Black', sans-serif;
   --login-body: 'Open Sans', system-ui, sans-serif;
   --login-blue-glow: rgba(0, 132, 201, 0.3);
   min-height: 100vh;

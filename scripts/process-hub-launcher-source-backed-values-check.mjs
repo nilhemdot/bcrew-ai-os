@@ -6,6 +6,7 @@ const indexHtml = fs.readFileSync(path.join(repoRoot, 'public/index.html'), 'utf
 const loginHtml = fs.readFileSync(path.join(repoRoot, 'public/login.html'), 'utf8')
 const homeJs = fs.readFileSync(path.join(repoRoot, 'public/home.js'), 'utf8')
 const launcherCss = fs.readFileSync(path.join(repoRoot, 'public/hub-launcher.css'), 'utf8')
+const loginCss = fs.readFileSync(path.join(repoRoot, 'public/login.css'), 'utf8')
 
 const checks = []
 
@@ -103,6 +104,8 @@ add(indexHtml.includes('mascot-6-cutout-v2-900.webp') && indexHtml.includes('mas
 add(loginHtml.includes('mascot-7-900.webp') && loginHtml.includes('mascot-7-1600.webp') && !loginHtml.includes('mascot-7-cutout'), 'login keeps original transparent mascot asset', 'mascot-7 original')
 add(indexHtml.includes('launcher-logout') && homeJs.includes('/api/auth/logout'), 'launcher user menu exposes logout action', 'launcher-logout')
 add(!launcherCss.includes('LauncherStratum1') && !indexHtml.includes('LauncherStratum1') && !homeJs.includes('LauncherStratum1'), 'launcher uses canonical Stratum1 font name', 'Stratum1')
+add(!loginCss.includes('login-stratum-1') && loginCss.includes("font-family: 'Stratum1'") && loginCss.includes("--login-display: 'Stratum1'"), 'login uses canonical Stratum1 font name', 'Stratum1')
+add(loginHtml.includes('/login.css?v=20260525a'), 'login CSS cache bust points at style-lock version', '/login.css?v=20260525a')
 add(launcherCss.includes('font-size: 22px;') && launcherCss.includes('font-size: 11px;'), 'launcher type polish uses locked heading/role sizes', '22px h2 / 11px role')
 add(indexHtml.includes('launcher-hub-partial') && launcherCss.includes('.launcher-hub::before') && launcherCss.includes('width: 3px;') && launcherCss.includes('height: 100%;'), 'launcher station cards use locked left accent bar', 'launcher-hub::before left rail')
 add(!indexHtml.includes('launcher-hub-status') && !launcherCss.includes('launcher-hub-status') && !homeJs.includes('launcher-hub-status'), 'launcher station status pills are removed', 'launcher-hub-status absent')
