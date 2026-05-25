@@ -1,6 +1,6 @@
 # Dev Team Intelligence Director - AIOS Mission V0
 
-Generated: 2026-05-24T23:48:24.780Z
+Generated: 2026-05-24T23:57:05.993Z
 Report artifact: `director:dev-team-intelligence-director-001:aios-mission-v0`
 Status: `ready_for_steve_review`
 
@@ -16,8 +16,10 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
 - Source video: `hTWxGSsGDZU`
 - Source trust: api_full_watch (14)
+- Build readiness: Ready for Scoper
 - Why: Allows users to generate structured system instructions and agent skills simply by recording their screen, capturing tacit knowledge.
 - Next step: Implement a local CLI tool that accepts screen recordings, calls Gemini Flash/Pro video API, and outputs structured markdown SOPs.
+- Scoper question: Do we want to scope Video-to-SOP Agentic Pipeline into an implementation card now?
 - Promotion: proposal_only_needs_steve_approval
 - Mission lanes: God Mode Extractor 16/22; Reliable agents / execution systems 20/20; Context continuity 14/14
 
@@ -27,8 +29,10 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
 - Source video: `KsYCtXeAGBg`
 - Source trust: api_full_watch (14)
+- Build readiness: Ready for Scoper
 - Why: Enables complex multi-step workflows to run in isolated context windows, preventing token pollution and improving accuracy.
 - Next step: Create a parser for SKILL.md files that supports 'context: fork' and executes sub-commands in isolated threads.
+- Scoper question: Do we want to scope Context-Forking Orchestrator Skill into an implementation card now?
 - Promotion: proposal_only_needs_steve_approval
 - Mission lanes: God Mode Extractor 11/22; Reliable agents / execution systems 20/20; Context continuity 11/14
 
@@ -38,8 +42,10 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
 - Source video: `KsYCtXeAGBg`
 - Source trust: api_full_watch (14)
+- Build readiness: Ready for Scoper
 - Why: Allows sequential agent skills to pass state reliably by reading and writing to a shared output directory acting as a 'shared brain'.
 - Next step: Design a file-based state-passing protocol for chained agent tools in AIOS.
+- Scoper question: Do we want to scope Shared-Directory State Passing into an implementation card now?
 - Promotion: proposal_only_needs_steve_approval
 - Mission lanes: God Mode Extractor 11/22; Reliable agents / execution systems 20/20; Context continuity 11/14
 
@@ -49,8 +55,10 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
 - Source video: `JcY1LekT954`
 - Source trust: api_full_watch (14)
+- Build readiness: Ready for Scoper
 - Why: Automates context loading, formatting, and safety checks by triggering deterministic scripts at key agent lifecycle events.
 - Next step: Implement an event bus in AIOS supporting hooks like SessionStart, PreToolUse, and PostEdit.
+- Scoper question: Do we want to scope Lifecycle Event Hooks for Context Injection into an implementation card now?
 - Promotion: proposal_only_needs_steve_approval
 - Mission lanes: Reliable agents / execution systems 16/20; Context continuity 14/14; Approval-gated build path 8/8
 
@@ -60,8 +68,10 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
 - Source video: `dlb_XgFVrHQ`
 - Source trust: api_full_watch (14)
+- Build readiness: Ready for Scoper
 - Why: Enables AIOS to pause complex agentic pipelines for user validation, reducing token waste and ensuring alignment on critical design decisions.
 - Next step: Develop a state-machine framework in AIOS that supports interactive CLI/UI prompts to halt, modify, or reject agent plans.
+- Scoper question: Do we want to scope Interactive Human-in-the-Loop Approval Gateways into an implementation card now?
 - Promotion: proposal_only_needs_steve_approval
 - Mission lanes: Reliable agents / execution systems 16/20; Context continuity 11/14; Approval-gated build path 8/8
 
@@ -103,4 +113,5 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - PASS Director top candidates are mission-scored - 1:87, 2:79, 3:79, 4:75, 5:72
 - PASS Director preserves approval-required items - 65 approval items
 - PASS Director surfaces API full-watch candidates ahead of weaker scout/subscription evidence - 1:api_full_watch:Video-to-SOP Agentic Pipeline | 2:api_full_watch:Context-Forking Orchestrator Skill | 3:api_full_watch:Shared-Directory State Passing | 4:api_full_watch:Lifecycle Event Hooks for Context Injection | 5:api_full_watch:Interactive Human-in-the-Loop Approval Gateways
+- PASS Director explains build readiness and missing pieces for top candidates - 1:ready_for_scoper, 2:ready_for_scoper, 3:ready_for_scoper, 4:ready_for_scoper, 5:ready_for_scoper
 

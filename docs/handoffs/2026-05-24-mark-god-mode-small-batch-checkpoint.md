@@ -138,28 +138,26 @@ Top 5 after the seventh batch:
 
 The Director now keeps scout summaries visible but does not let weaker scout/subscription output dominate proven API full-watch evidence.
 
-## Synthesis / Router Status
+## Intelligence Spine Status
 
-Synthesis is structurally guarded, but it is not the "A-plus brain layer" yet. This is now the next build priority before more extraction scale-up.
+After the seventh extraction batch, extraction scale-up paused and the first Intelligence Spine upgrade was built. The spine is now guarded at the three critical layers:
+
+`source evidence -> synthesis -> action router -> hub intelligence Director -> Scoper/backlog proposal`
 
 What is proven:
 
-- It clusters evidence instead of dumping raw rows.
-- It verifies active synthesized items have fact refs, evidence refs, and retrieval chunk refs.
-- It blocks Strategy-grade items from being based on single-evidence proof.
-- It leaves zero unclustered routeable items on the active surface.
-- Action Router keeps every decision-grade route tied to verified synthesis and approval-required status.
-
-What is not upgraded yet:
-
-- Human-readable synthesis quality is still too internal/hash-heavy.
-- The Router is safe, but it is not yet a best-in-class triage, owner, next-action, and escalation system for meetings, Slack, email, YouTube, and other Foundation signals.
-- The Dev Intelligence Director ranks proposals, but it does not yet perform the deeper merge, scoping, conflict handling, and "do we have enough to build this?" review Steve wants.
+- Synthesis still verifies active synthesized items have fact refs, evidence refs, and retrieval chunk refs.
+- Synthesis dogfood now rejects internal/hash-heavy operator copy and emits action readiness, decision question, and evidence strength.
+- Action Router still keeps every decision-grade route tied to verified synthesis and approval-required status.
+- Action Router dogfood now rejects generic route reasons and explains the human review path in plain English.
+- Dev Intelligence Director now adds build readiness, missing pieces, and Scoper questions to top recommendations.
+- Runtime LLM route truth now blocks OpenClaw `gpt-5.4` for extraction, synthesis, and deep-review work and uses the official `gpt-5.5` / extra-high / fast route first for the core Intelligence Spine.
 
 Current proof snapshot:
 
 - Synthesis proof: 131 saved facts, 8 new proof items, 73 active clustered items, 0 active unclustered unprotected items.
 - Action Router proof: 84 total routes, 84 verified synthesis routes, 0 unverified decision-grade routes, 83 pending approval routes, 1 applied route with destination record.
+- Intelligence Spine proof: `npm run intelligence:spine-god-mode-check -- --json` passes with runtime synthesis/deep-review routes on `gpt-5.5`, `fast`, `extra_high_required`, and every OpenClaw Foundation route blocked.
 
 ## Broad Verify Status
 
@@ -173,6 +171,8 @@ Current proof snapshot:
 - `npm run process:mark-kashef-god-mode-small-batch-check -- --json`
 - `npm run process:dev-team-intelligence-director-check -- --apply --json`
 - `npm run process:dev-team-intelligence-director-check -- --json`
+- `npm run intelligence:spine-god-mode-check -- --apply --json`
+- `npm run intelligence:spine-god-mode-check -- --json`
 - `npm run intelligence:synthesis-proof -- --json`
 - `npm run intelligence:action-router-proof -- --json`
 - `npm run process:current-sprint-active-card-gate-check -- --json`
@@ -182,8 +182,8 @@ Current proof snapshot:
 
 ## Next
 
-- Pause additional Mark extraction scale-up.
-- Scope and start the Intelligence Spine upgrade: Synthesis Engine, Action Router, and Dev Intelligence Director.
-- Make the upgrade source-agnostic across meeting notes/transcripts, Slack/comms, email, YouTube, courses, and future source packets.
+- Continue to pause additional Mark extraction scale-up until Steve confirms the upgraded spine output shape.
+- Review the Director's top 5 build-ready candidates and pick one for Scoper.
+- Keep making the spine more source-agnostic across meeting notes/transcripts, Slack/comms, email, YouTube, courses, and future source packets.
 - Keep all output proposal-only and approval-gated until Steve approves promotion.
 - Do not auto-promote backlog cards from extracted intel.
