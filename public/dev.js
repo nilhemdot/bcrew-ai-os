@@ -1,4 +1,5 @@
 const API_ROUTE = '/api/foundation/dev-team-hub'
+const LINK_PACKET_PREVIEW_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-preview'
 
 const plannedSources = [
   {
@@ -71,6 +72,8 @@ const els = {
   panel: document.getElementById('target-panel'),
   extractorGrid: document.getElementById('extractor-grid'),
   evidenceGrid: document.getElementById('evidence-grid'),
+  approvalReview: document.getElementById('approval-review'),
+  sourceLeaderboard: document.getElementById('source-leaderboard'),
   directorPanel: document.getElementById('director-panel'),
   directorHeadStats: document.getElementById('director-head-stats'),
 }
@@ -98,6 +101,13 @@ function compactNumber(value = 0) {
   if (!Number.isFinite(number)) return '0'
   if (number >= 1000) return `${Math.round(number / 100) / 10}K`
   return String(number)
+}
+
+function money(value = 0) {
+  const number = Number(value || 0)
+  if (!Number.isFinite(number)) return '$0.00'
+  if (number >= 1000) return `$${Math.round(number).toLocaleString('en-US')}`
+  return `$${number.toFixed(2)}`
 }
 
 function shortDate(value = '') {
@@ -168,10 +178,125 @@ function uniqueBy(items = [], keyFn = item => item) {
   return output
 }
 
+function creatorNameFromId(value = '') {
+  return text(value)
+    .split('-')
+    .filter(Boolean)
+    .map(part => part ? part[0].toUpperCase() + part.slice(1) : part)
+    .join(' ')
+}
+
+function sourceGrades(snapshot = {}) {
+  return list(snapshot.sourceValueGrader?.sourceGrades)
+}
+
+function sourceCoverageRows(snapshot = {}) {
+  return list(snapshot.sourceCoverage?.rows)
+}
+
+function topDevSources(snapshot = {}) {
+  return list(snapshot.sourceValueGrader?.topDevBuildSources).length
+    ? list(snapshot.sourceValueGrader?.topDevBuildSources)
+    : sourceGrades(snapshot)
+}
+
+function dailyCreators(snapshot = {}) {
+  return list(snapshot.dailyWatch?.creators)
+}
+
+function creatorDisplayName(snapshot = {}, creatorId = '') {
+  const creator = dailyCreators(snapshot).find(item => item.creatorId === creatorId)
+  const grade = sourceGrades(snapshot).find(item => item.creatorId === creatorId)
+  return text(creator?.displayName || grade?.creator || creatorNameFromId(creatorId), 'Unknown creator')
+}
+
+function laneScore(source = {}, laneId = 'aios_dev_build') {
+  return list(source.laneScores).find(lane => lane.laneId === laneId) || null
+}
+
+function gradeTone(grade = '') {
+  const normalized = text(grade).toUpperCase()
+  if (normalized === 'S' || normalized === 'A') return 'live'
+  if (normalized === 'B') return 'verified'
+  if (normalized === 'C' || normalized === 'D') return 'pending'
+  return ''
+}
+
+function familyTone(status = '') {
+  const normalized = text(status).toLowerCase()
+  if (normalized === 'active') return 'live'
+  if (normalized === 'partial') return 'verified'
+  if (normalized === 'blocked') return 'pending'
+  return ''
+}
+
+function familyStatusCopy(status = '') {
+  const normalized = text(status).toLowerCase()
+  if (normalized === 'active') return 'Feeding Dev now'
+  if (normalized === 'partial') return 'Partly connected'
+  if (normalized === 'blocked') return 'Needs approval'
+  if (normalized === 'planned') return 'Planned'
+  return text(status, 'Needs source')
+}
+
+function researchRowsForCreator(snapshot = {}, creatorId = '') {
+  return list(snapshot.dailyWatch?.researchPool).filter(item => item.creatorId === creatorId)
+}
+
+function latestResearchRow(rows = []) {
+  return [...list(rows)]
+    .sort((left, right) => text(right.lastSeenAt || right.firstSeenAt).localeCompare(text(left.lastSeenAt || left.firstSeenAt)))
+    [0] || null
+}
+
+function creatorTargetFromGrade(snapshot = {}, source = {}) {
+  const rows = researchRowsForCreator(snapshot, source.creatorId)
+  const latest = latestResearchRow(rows)
+  const devLane = laneScore(source)
+  const grade = text(source.devBuildGrade || devLane?.grade || source.overallGrade, 'Needs grade')
+  const score = devLane?.score == null ? '' : ` · ${compactNumber(devLane.score)} score`
+  const bestRank = source.bestDirectorRank ? ` · best Director rank ${source.bestDirectorRank}` : ''
+  const watched = compactNumber(source.watchedVideos || rows.length || 0)
+  const ideas = compactNumber(source.buildCandidates || 0)
+  const latestCopy = latest?.title ? ` Latest: ${latest.title}` : ''
+  return [
+    text(source.creator || creatorDisplayName(snapshot, source.creatorId), 'Unknown creator'),
+    `${grade} Dev build${score}`,
+    `${watched} watched/represented videos · ${ideas} ideas${bestRank}.${latestCopy}`,
+    'Live',
+  ]
+}
+
+function creatorTargetFromDaily(snapshot = {}, creator = {}) {
+  const rows = researchRowsForCreator(snapshot, creator.creatorId)
+  const latest = latestResearchRow(rows)
+  const latestRun = latest?.lastSeenAt || snapshot.dailyWatch?.latestJobRun?.completedAt || snapshot.dailyWatch?.latestJobRun?.startedAt
+  return [
+    text(creator.displayName || creatorNameFromId(creator.creatorId), 'Unknown creator'),
+    'Daily watch source',
+    `${compactNumber(rows.length)} videos in pool · last seen ${shortDate(latestRun)}`,
+    rows.length ? 'Live' : 'Needs source',
+  ]
+}
+
+function buildYoutubeCreatorTargets(snapshot = {}) {
+  const graded = topDevSources(snapshot)
+    .filter(source => source.creatorId || source.creator)
+    .slice(0, 10)
+    .map(source => creatorTargetFromGrade(snapshot, source))
+  if (graded.length) return graded
+
+  return dailyCreators(snapshot)
+    .slice(0, 10)
+    .map(creator => creatorTargetFromDaily(snapshot, creator))
+}
+
 function buildLiveSources(snapshot = {}) {
   const daily = snapshot.dailyWatch || {}
-  const mark = snapshot.markYoutube || {}
   const youtubeContract = sourceContract(snapshot, 'SRC-YOUTUBE-INTEL-001')
+  const youtubeTargets = buildYoutubeCreatorTargets(snapshot)
+  const gradedCount = sourceGrades(snapshot).length
+  const creatorCount = Number(daily.summary?.creatorCount || dailyCreators(snapshot).length || 0)
 
   const live = [
     {
@@ -180,11 +305,11 @@ function buildLiveSources(snapshot = {}) {
       label: 'Public creators',
       badge: statusBadge(daily.status),
       status: text(youtubeContract?.status, 'Needs source'),
-      summary: `${compactNumber(daily.summary?.creatorCount)} public creator channels feed Dev. Detailed creator proof is visible as targets are promoted.`,
-      tags: [text(mark.targetStatus, 'Needs source'), 'public', 'daily'],
-      targets: [
-        [text(mark.displayName, 'Mark Kashef'), 'Creator target', `${compactNumber(mark.markResearchPoolCount)} tracked videos · last run ${shortDate(mark.targetLastRunAt)}`, statusBadge(mark.targetStatus)],
-      ],
+      summary: `${compactNumber(creatorCount)} public creator channels feed Foundation. ${compactNumber(gradedCount)} sources are currently graded for Dev value.`,
+      tags: ['public', 'daily', gradedCount ? 'graded' : 'needs grade'],
+      targets: youtubeTargets,
+      targetNoun: 'graded source',
+      statusLine: `Running · ${compactNumber(gradedCount || youtubeTargets.length)} graded sources`,
       sourceRoute: daily.sourceRoute || '/api/foundation/build-intel/youtube-creator-daily-watch',
     },
   ]
@@ -194,6 +319,9 @@ function buildLiveSources(snapshot = {}) {
 
 function buildEvidenceCards(snapshot = {}) {
   const counts = snapshot.counts || {}
+  const gradedSources = sourceGrades(snapshot)
+  const gradedVideos = gradedSources.reduce((sum, source) => sum + Number(source.watchedVideos || 0), 0)
+  const gradedCandidates = gradedSources.reduce((sum, source) => sum + Number(source.buildCandidates || 0), 0)
   return [
     {
       value: counts.researchPool,
@@ -203,25 +331,25 @@ function buildEvidenceCards(snapshot = {}) {
       meta: 'Daily YouTube watch',
     },
     {
-      value: counts.apiFullWatchVideos || counts.eyesBuildCandidates,
-      label: 'API watched',
+      value: gradedVideos || counts.apiFullWatchVideos || counts.eyesBuildCandidates,
+      label: 'Full watches',
       tone: 'verified',
-      summary: `${compactNumber(counts.apiFullWatchVideos || 0)} Mark videos watched through video, audio, and screen review.`,
-      meta: snapshot.markApiFullWatch?.model || 'Gemini API',
+      summary: `${compactNumber(gradedVideos || counts.apiFullWatchVideos || 0)} creator videos represented in full video, audio, and screen review.`,
+      meta: snapshot.markApiFullWatch?.model || 'Gemini video route',
     },
     {
-      value: counts.apiFullWatchBuildCandidates || counts.eyesBuildCandidates,
+      value: gradedCandidates || counts.apiFullWatchBuildCandidates || counts.eyesBuildCandidates,
       label: 'Build candidates',
       tone: 'verified',
-      summary: `${compactNumber(counts.apiFullWatchBuildCandidates || counts.eyesBuildCandidates || 0)} proposal-only build ideas from approved video review.`,
+      summary: `${compactNumber(gradedCandidates || counts.apiFullWatchBuildCandidates || counts.eyesBuildCandidates || 0)} proposal-only build ideas from approved review.`,
       meta: 'Needs Steve before backlog',
     },
     {
-      value: counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks,
+      value: list(snapshot.approvalReviewQueue).length || counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks,
       label: 'Links to review',
-      tone: (counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks) ? 'pending' : 'live',
-      summary: `${compactNumber(counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks || 0)} links Steve needs to OK before the system reads them.`,
-      meta: 'Waiting for approval',
+      tone: (list(snapshot.approvalReviewQueue).length || counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks) ? 'pending' : 'live',
+      summary: `${compactNumber(list(snapshot.approvalReviewQueue).length || counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks || 0)} useful links are held until Steve approves or rejects the source follow-up.`,
+      meta: 'Visible below',
     },
     {
       value: counts.apiFullWatchTimestampedVisualEvidence || counts.eyesTimestampedVisualEvidence,
@@ -231,6 +359,218 @@ function buildEvidenceCards(snapshot = {}) {
       meta: 'Video/audio/visual review',
     },
   ]
+}
+
+function approvalReviewTitle(item = {}) {
+  const host = text(item.host, 'external link')
+  const video = text(item.sourceVideoId)
+  return video ? `${host} · ${video}` : host
+}
+
+function renderApprovalReview(snapshot = {}) {
+  if (!els.approvalReview) return
+  const queue = list(snapshot.approvalReviewQueue)
+  if (!queue.length) {
+    els.approvalReview.innerHTML = `
+      <article class="approval-empty">
+        <span>No link approvals waiting</span>
+        <p>The extractor did not return useful external links that need Steve review right now.</p>
+      </article>
+    `
+    return
+  }
+  els.approvalReview.innerHTML = `
+    <div class="approval-head">
+      <div>
+        <span>Links held for review</span>
+        <p>These are links found in watched videos. The system will not crawl them deeper until the exact source follow-up is approved.</p>
+      </div>
+      <strong>${escapeHtml(compactNumber(queue.length))}</strong>
+    </div>
+    <div class="approval-list">
+      ${queue.map((item, index) => `
+        <article class="approval-row">
+          <div>
+            <span>${escapeHtml(item.type || 'review')}</span>
+            <h3>${escapeHtml(approvalReviewTitle(item))}</h3>
+            <p>${escapeHtml(item.reason || 'Needs approval before the system reads this link.')}</p>
+            ${item.sourcePacketPreview?.plainEnglish ? `<p class="approval-packet-copy">${escapeHtml(item.sourcePacketPreview.plainEnglish)}</p>` : ''}
+            <a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.url)}</a>
+          </div>
+          <aside>
+            <small>${escapeHtml(item.decisionNeeded || 'Approve exact source follow-up or reject.')}</small>
+            <button class="approval-ai-btn" type="button" data-approval-action="toggle" data-approval-index="${escapeHtml(String(index))}">Decide with AI</button>
+          </aside>
+          <div class="approval-ai-panel" data-approval-panel="${escapeHtml(String(index))}" hidden>
+            <label>
+              <span>Tell the AI what this link is for</span>
+              <textarea rows="3" placeholder="Example: free community, follow public/free areas. Or: sales page, review how they sell AI products."></textarea>
+            </label>
+            <div class="approval-ai-actions">
+              <button type="button" data-approval-action="preview" data-approval-index="${escapeHtml(String(index))}">Preview packet</button>
+              <em>Preview only. No crawl, login, purchase, form, worker, or backlog write.</em>
+            </div>
+            <div class="approval-ai-result" data-approval-result="${escapeHtml(String(index))}"></div>
+          </div>
+        </article>
+      `).join('')}
+    </div>
+  `
+  bindApprovalReviewControls(queue)
+}
+
+function packetPreviewParams(item = {}, operatorNote = '') {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries({
+    url: item.url,
+    host: item.host,
+    sourceVideoId: item.sourceVideoId,
+    sourceUrl: item.sourceUrl,
+    reportArtifactId: item.reportArtifactId,
+    reason: item.reason,
+    operatorNote,
+  })) {
+    if (text(value)) params.set(key, text(value))
+  }
+  return params
+}
+
+function renderPacketPreviewResult(result = {}) {
+  const packet = result.packet || {}
+  return `
+    <article class="approval-packet-preview">
+      <span>${escapeHtml(packet.proposedDecision || 'packet preview')}</span>
+      <h4>${escapeHtml(packet.plainEnglish || result.plainEnglish || 'Packet preview ready.')}</h4>
+      <ul>
+        ${list(packet.allowedActions).slice(0, 4).map(action => `<li>${escapeHtml(action)}</li>`).join('')}
+      </ul>
+      <p>${escapeHtml(result.plainEnglish || 'Preview only. Nothing runs until confirmed later.')}</p>
+    </article>
+  `
+}
+
+function bindApprovalReviewControls(queue = []) {
+  if (!els.approvalReview) return
+  els.approvalReview.querySelectorAll('[data-approval-action="toggle"]').forEach(button => {
+    button.addEventListener('click', () => {
+      const index = button.getAttribute('data-approval-index')
+      const panel = els.approvalReview.querySelector(`[data-approval-panel="${CSS.escape(index)}"]`)
+      if (!panel) return
+      panel.hidden = !panel.hidden
+    })
+  })
+  els.approvalReview.querySelectorAll('[data-approval-action="preview"]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const index = Number(button.getAttribute('data-approval-index'))
+      const item = queue[index]
+      const panel = els.approvalReview.querySelector(`[data-approval-panel="${CSS.escape(String(index))}"]`)
+      const result = els.approvalReview.querySelector(`[data-approval-result="${CSS.escape(String(index))}"]`)
+      const operatorNote = panel?.querySelector('textarea')?.value || ''
+      if (!item || !result) return
+      button.disabled = true
+      result.innerHTML = '<p class="approval-ai-loading">Building packet preview...</p>'
+      try {
+        const response = await fetch(`${LINK_PACKET_PREVIEW_ROUTE}?${packetPreviewParams(item, operatorNote).toString()}`, { credentials: 'same-origin' })
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        const payload = await response.json()
+        result.innerHTML = renderPacketPreviewResult(payload)
+      } catch (error) {
+        result.innerHTML = `<p class="approval-ai-error">${escapeHtml(error instanceof Error ? error.message : 'Packet preview failed.')}</p>`
+      } finally {
+        button.disabled = false
+      }
+    })
+  })
+}
+
+function buildSourceFamilyRows(snapshot = {}) {
+  return sourceCoverageRows(snapshot)
+    .filter(row => row.familyId !== 'youtube-public-build-intel')
+    .slice(0, 8)
+}
+
+function renderEconomics(snapshot = {}) {
+  const economics = snapshot.extractionEconomics || {}
+  if (!Number(economics.estimatedSpendUsd || 0)) {
+    return `
+      <div class="leader-economics empty">
+        <span>API cost tracking needs usage data</span>
+        <p>The LLM call ledger did not return Gemini video-review usage yet.</p>
+      </div>
+    `
+  }
+  return `
+    <div class="leader-economics">
+      <article>
+        <strong>${escapeHtml(money(economics.estimatedSpendUsd))}</strong>
+        <span>estimated API spend</span>
+      </article>
+      <article>
+        <strong>${escapeHtml(money(economics.costPerIdeaUsd))}</strong>
+        <span>cost per idea</span>
+      </article>
+      <article>
+        <strong>${escapeHtml(money(economics.costPerVideoUsd))}</strong>
+        <span>cost per video</span>
+      </article>
+      <p>${escapeHtml(compactNumber(economics.callCount))} Gemini video-review calls · ${escapeHtml(compactNumber(economics.videoCount))} videos · ${escapeHtml(compactNumber(economics.ideaCount))} build ideas. Estimate uses stored token usage, not Google invoice totals.</p>
+    </div>
+  `
+}
+
+function renderSourceLeaderboard(snapshot = {}) {
+  if (!els.sourceLeaderboard) return
+  const rankedCreators = topDevSources(snapshot)
+    .filter(source => source.creator || source.creatorId)
+    .slice(0, 8)
+  const familyRows = buildSourceFamilyRows(snapshot)
+
+  els.sourceLeaderboard.innerHTML = `
+    ${renderEconomics(snapshot)}
+    <div class="leader-columns">
+      <section class="leader-block">
+        <div class="leader-block-head">
+          <span>Ranked creators</span>
+          <small>${escapeHtml(compactNumber(rankedCreators.length))} showing</small>
+        </div>
+        <div class="leader-list">
+          ${rankedCreators.map((source, index) => {
+            const devLane = laneScore(source)
+            const grade = text(source.devBuildGrade || devLane?.grade || source.overallGrade, 'Needs grade').toUpperCase()
+            const score = devLane?.score == null ? '' : ` · ${compactNumber(devLane.score)} score`
+            const rankCopy = source.bestDirectorRank ? `Best idea rank #${compactNumber(source.bestDirectorRank)}` : 'No Director rank yet'
+            return `
+              <article class="leader-card ${escapeHtml(gradeTone(grade))}">
+                <div class="leader-grade">${escapeHtml(grade)}</div>
+                <div class="leader-copy">
+                  <span>#${escapeHtml(compactNumber(index + 1))} · Dev build${escapeHtml(score)}</span>
+                  <h3>${escapeHtml(source.creator || creatorDisplayName(snapshot, source.creatorId))}</h3>
+                  <p>${escapeHtml(`${compactNumber(source.buildCandidates)} ideas · ${compactNumber(source.watchedVideos)} watched/represented videos · ${rankCopy}`)}</p>
+                </div>
+              </article>
+            `
+          }).join('') || '<article class="loading-card">No creator grades returned yet.</article>'}
+        </div>
+      </section>
+      <section class="leader-block">
+        <div class="leader-block-head">
+          <span>Source families</span>
+          <small>Connected vs waiting</small>
+        </div>
+        <div class="family-list">
+          ${familyRows.map(row => `
+            <article class="family-row ${escapeHtml(familyTone(row.status))}">
+              <div>
+                <h3>${escapeHtml(row.label)}</h3>
+                <p>${escapeHtml(row.feedsDev ? row.feedPath : row.nextAction || row.blocker || row.notes || 'Not feeding Dev yet.')}</p>
+              </div>
+              <strong>${escapeHtml(familyStatusCopy(row.status))}</strong>
+            </article>
+          `).join('') || '<article class="loading-card">No source-family coverage returned yet.</article>'}
+        </div>
+      </section>
+    </div>
+  `
 }
 
 function extractorSummary(item = {}) {
@@ -278,9 +618,11 @@ function sourceIcon(source = {}) {
 }
 
 function sourceStatusLine(source = {}) {
+  if (source.statusLine) return source.statusLine
   const status = statusLabel(source.badge || source.label)
   const count = list(source.targets).length
-  const targetCopy = count === 1 ? '1 target' : `${compactNumber(count)} targets`
+  const noun = text(source.targetNoun, 'target')
+  const targetCopy = count === 1 ? `1 ${noun}` : `${compactNumber(count)} ${noun}s`
   if (status === 'Live') return `Running · ${targetCopy}`
   if (status === 'Foundation') return `Connected · ${targetCopy}`
   if (status === 'Pending') return 'Needs login rules'
@@ -338,11 +680,38 @@ function shortCandidateBody(candidate = {}) {
   return words.length > 22 ? words.slice(0, 22).join(' ') : sentence.trim()
 }
 
+function creatorIdFromReportId(value = '') {
+  const latest20Match = text(value).match(/batch:youtube-latest-20:api-full-watch-v1:([^:]+):/i)
+  if (latest20Match?.[1]) return latest20Match[1]
+  if (/mark-kashef/i.test(value)) return 'mark-kashef'
+  return ''
+}
+
+function candidateCreatorName(candidate = {}) {
+  const snapshot = state.snapshot || {}
+  const directCreatorId = text(candidate.creatorId || creatorIdFromReportId(candidate.sourceReportArtifactId))
+  if (directCreatorId) return creatorDisplayName(snapshot, directCreatorId)
+
+  const byVideo = sourceGrades(snapshot).find(source =>
+    list(source.topCandidates).some(item => text(item.sourceVideoId) && text(item.sourceVideoId) === text(candidate.sourceVideoId))
+  )
+  if (byVideo?.creator) return byVideo.creator
+
+  const byResearchVideo = list(snapshot.dailyWatch?.researchPool)
+    .find(item => text(item.videoId) && text(item.videoId) === text(candidate.sourceVideoId))
+  if (byResearchVideo?.creator) return byResearchVideo.creator
+
+  const reportTitle = text(candidate.sourceReportTitle)
+  if (/mark kashef/i.test(reportTitle)) return 'Mark Kashef'
+  return ''
+}
+
 function candidateSourceCopy(candidate = {}) {
-  const source = `${candidate.sourceReportArtifactId || ''} ${candidate.title || ''} ${candidate.why || ''}`.toLowerCase()
-  if (source.includes('mark-kashef') || source.includes('mark kashef')) return 'From Mark Kashef videos'
-  if (source.includes('youtube')) return 'From YouTube research'
-  if (source.includes('video')) return 'From video review'
+  const creator = candidateCreatorName(candidate)
+  if (creator) return `From ${creator} video`
+  const reportTitle = text(candidate.sourceReportTitle)
+  if (reportTitle && !/latest-20|batch|god mode api full-watch/i.test(reportTitle)) return `From ${reportTitle}`
+  if (candidate.sourceVideoId) return 'From watched video'
   return 'From approved research'
 }
 
@@ -486,6 +855,8 @@ function renderSnapshot(snapshot = {}) {
   state.selectedSourceId = state.selectedSourceId || state.sources[0]?.id || null
   renderExtractors(snapshot)
   renderEvidence(snapshot)
+  renderApprovalReview(snapshot)
+  renderSourceLeaderboard(snapshot)
   renderSources()
   renderTargets(state.selectedSourceId)
   renderDirector(snapshot)
@@ -495,6 +866,8 @@ function renderError(error) {
   const message = error instanceof Error ? error.message : 'Unknown error'
   const html = `<article class="loading-card error">Dev Data Pool failed to load: ${escapeHtml(message)}</article>`
   els.extractorGrid.innerHTML = html
+  if (els.approvalReview) els.approvalReview.innerHTML = html
+  if (els.sourceLeaderboard) els.sourceLeaderboard.innerHTML = html
   els.grid.innerHTML = html
   els.panel.innerHTML = html
   els.directorPanel.innerHTML = html

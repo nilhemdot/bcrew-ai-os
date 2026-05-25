@@ -61,10 +61,23 @@ Latest applied run after the 30-creator reconcile:
 | Next Gen AI | `https://www.youtube.com/@NextGenAIHQ` |
 | Leveling Up / Eric Siu | `https://www.youtube.com/@levelingupofficial` |
 | Simon Scrapes | `https://www.youtube.com/@simonscrapes` |
+| Austin Marchese | `https://www.youtube.com/@austin.marchese` |
+| Brock Mesarich / AI for Non Techies | `https://www.youtube.com/@BrockMesarich` |
 
 ## Still Needs Reconcile
 
 No Steve-supplied Build Intel YouTube channel names remain parked from the May 23 reconcile.
+
+## 2026-05-24 Added Video Leads
+
+Steve supplied more public YouTube Build Intel leads. The stored refs use resolved case-sensitive YouTube IDs:
+
+- ambITious | AI: `https://www.youtube.com/watch?v=AfC4DN_1kp0` - Claude Code / GoHighLevel replacement claim.
+- Austin Marchese: `https://www.youtube.com/watch?v=0TZNQT3Eusc` - Claude Code project setup/context warning.
+- Brock Mesarich / AI for Non Techies: `https://www.youtube.com/watch?v=zzo33HUOfxI` - Claude for Small Businesses / skills.
+- Dream Labs AI: `https://www.youtube.com/watch?v=hJNp9RwK-Uw` - Karpathy / Software 3.0 business framing.
+
+These are pending God Mode extraction leads, not accepted claims and not automatic backlog cards.
 
 `OpenHuman / tinyhumansai` remains a Build Intel source lead without a public YouTube channel ref and is not part of the daily YouTube channel watch.
 

@@ -51,6 +51,9 @@ import {
   YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID,
   isYoutubeLatest20FullWatchReportId,
 } from '../lib/youtube-latest-20-full-watch-runner.js'
+import {
+  YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID,
+} from '../lib/youtube-long-course-full-watch-lane.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -113,7 +116,13 @@ async function listLatestSharedSourceReportIds({ limit = 8 } = {}) {
   }
 }
 
-async function listLatestYoutubeLatest20FullWatchReportIds({ limit = 12 } = {}) {
+function isYoutubeFullWatchReportId(value = '') {
+  return isYoutubeLatest20FullWatchReportId(value) ||
+    value === YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID ||
+    String(value || '').startsWith(`${YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID}:`)
+}
+
+async function listLatestYoutubeFullWatchReportIds({ limit = 18 } = {}) {
   const pool = createPool()
   try {
     const result = await pool.query(
@@ -123,13 +132,18 @@ async function listLatestYoutubeLatest20FullWatchReportIds({ limit = 12 } = {}) 
         WHERE report_artifact_id = $1
            OR report_artifact_id LIKE $2
            OR metadata->>'proofMode' = 'youtube_latest_20_god_mode_api_full_watch'
+           OR report_artifact_id = $3
+           OR report_artifact_id LIKE $4
+           OR metadata->>'proofMode' = 'youtube_long_course_god_mode_api_full_watch'
         ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
-        LIMIT $3
+        LIMIT $5
       `,
       [
         YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID,
         `${YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID}:%`,
-        Math.min(30, Math.max(1, Number(limit) || 12)),
+        YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID,
+        `${YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID}:%`,
+        Math.min(40, Math.max(1, Number(limit) || 18)),
       ],
     )
     return result.rows.map(row => row.report_artifact_id).filter(Boolean)
@@ -140,7 +154,7 @@ async function listLatestYoutubeLatest20FullWatchReportIds({ limit = 12 } = {}) 
 
 async function loadInputBundles() {
   const bundles = []
-  const latest20ReportIds = await listLatestYoutubeLatest20FullWatchReportIds({ limit: 12 })
+  const latest20ReportIds = await listLatestYoutubeFullWatchReportIds({ limit: 18 })
   const inputIds = Array.from(new Set([
     ...DEV_TEAM_INTELLIGENCE_DIRECTOR_INPUT_REPORT_IDS,
     ...latest20ReportIds,
@@ -287,8 +301,8 @@ async function main() {
     addCheck(checks, devSourceSlice?.ok === true && devSourceSlice.devCandidates.length >= 1, 'Director receives filtered Dev source slice from meetings/comms', `${devSourceSlice?.counts?.devCandidates || 0}`)
     addCheck(checks, devSourceSlice?.parkedOperational?.length >= 1, 'normal ops tasks stay parked out of Dev Director', `${devSourceSlice?.counts?.parkedOperational || 0}`)
     addCheck(checks, snapshot.sourceCoverage.some(source => source.reportArtifactId === DEV_SOURCE_SLICE_ROUTER_REPORT_ARTIFACT_ID), 'Director input includes the Dev source-slice bundle', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
-    addCheck(checks, latest20ReportIds.length >= 1, 'Director discovers persisted latest-20 full-watch batch reports', latest20ReportIds.join(', '))
-    addCheck(checks, snapshot.sourceCoverage.some(source => isYoutubeLatest20FullWatchReportId(source.reportArtifactId)), 'Director input includes latest-20 full-watch batch', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
+    addCheck(checks, latest20ReportIds.length >= 1, 'Director discovers persisted YouTube full-watch batch reports', latest20ReportIds.join(', '))
+    addCheck(checks, snapshot.sourceCoverage.some(source => isYoutubeFullWatchReportId(source.reportArtifactId)), 'Director input includes YouTube full-watch batches', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
     addCheck(checks, !writeRequested || persistedReport?.reportArtifactId === DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, 'persisted Director report reads back', persistedReport?.reportArtifactId || 'missing')
     addCheck(checks, !writeRequested || persistedAtoms.length >= Math.min(5, topCandidates.length), 'persisted Director atoms read back', `${persistedAtoms.length}`)
     addCheck(checks, !writeRequested || persistedHits.length >= Math.min(5, topCandidates.length), 'persisted Director evidence hits read back', `${persistedHits.length}`)

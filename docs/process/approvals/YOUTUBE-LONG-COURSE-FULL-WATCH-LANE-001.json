@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-LONG-COURSE-FULL-WATCH-LANE-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T13:05:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-long-course-full-watch-lane-001-plan.md",
+  "approvedPlanSha256": "f9c141eed9280caa49405d3a28d82308119b949713178231defa379727f41e5c",
+  "approvedRepoHead": "a45be1285e1259e54765a82704d7f15483fc07a6",
+  "approvalSource": "Steve May 25 instruction: do not skip public YouTube full courses; build a separate long-course extraction lane that uses the same God Mode video/audio/visual route but produces course maps, implementation steps, resource needs, and proposal-only build candidates. May 25 update: after live proof hit Gemini's image/frame ceiling, Steve's approved course lane now uses bounded videoMetadata segment clips instead of one oversized provider call.",
+  "approvalDigest": "732d5ce84bb32c9c567d3c40873421a3b55d1a5f5aac6038fb0f56499c9e0b4c"
+}

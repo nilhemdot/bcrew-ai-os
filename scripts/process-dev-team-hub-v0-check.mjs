@@ -12,6 +12,7 @@ import {
   getFoundationSnapshot,
   getIntelligenceReportBundle,
   initFoundationDb,
+  listLlmCalls,
   listSourceCrawlItems,
 } from '../lib/foundation-db.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
@@ -37,6 +38,9 @@ import {
 import {
   DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID,
 } from '../lib/dev-team-intelligence-director.js'
+import {
+  BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
+} from '../lib/build-intel-source-value-grader.js'
 import {
   DEV_TEAM_HUB_V0_API_ROUTE,
   DEV_TEAM_HUB_V0_CARD_ID,
@@ -101,6 +105,8 @@ function pageHasRequiredSections(html = '') {
 	  return [
 	    'id="extractor-grid"',
 	    'id="evidence-grid"',
+	    'id="approval-review"',
+	    'id="source-leaderboard"',
 	    'id="source-grid"',
 	    'id="target-panel"',
 	    'id="director-panel"',
@@ -150,6 +156,8 @@ async function loadLiveSnapshot() {
     eyesBundle,
     markApiFullWatchBundle,
     directorBundle,
+    sourceValueGraderBundle,
+    geminiVideoReviewCalls,
   ] = await Promise.all([
     getFoundationSnapshot(),
     getActiveFoundationCurrentSprint(),
@@ -160,6 +168,8 @@ async function loadLiveSnapshot() {
     getIntelligenceReportBundle(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID, { atomLimit: 300, hitLimit: 300 }),
     getIntelligenceReportBundle(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
+    getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
+    listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 500 }),
   ])
   const target = list(extractionControl.targets)
     .find(item => item.targetKey === YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY) || null
@@ -183,6 +193,8 @@ async function loadLiveSnapshot() {
     eyesBundle,
     markApiFullWatchBundle,
     directorBundle,
+    sourceValueGraderBundle,
+    geminiVideoReviewCalls,
     actionRouter: foundationSnapshot.intelligenceActionRouter || {},
     currentSprint: activeFoundationSprint,
     extractionControl,
@@ -230,11 +242,15 @@ async function main() {
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
   addCheck(checks, includesAll(serverSource, ['getIntelligenceReportBundle', 'registerFoundationBuildIntelRoutes(app']), 'server passes Foundation report bundle dependency', 'server.js')
   addCheck(checks, includesAll(appRoutesSource, ["app.get('/dev'", 'dev.html']), 'app routes serve owner-only Dev page', DEV_TEAM_HUB_V0_PAGE_ROUTE)
-  addCheck(checks, htmlSource.includes('/dev.css') && htmlSource.includes('/dev.js') && pageHasRequiredSections(htmlSource), 'Dev page has required Data Pool sections', 'extractors, source systems, selected detail, Director lens')
+  addCheck(checks, htmlSource.includes('/dev.css') && htmlSource.includes('/dev.js') && pageHasRequiredSections(htmlSource), 'Dev page has required Data Pool sections', 'extractors, evidence, approval review, source leaderboard, source systems, selected detail, Director lens')
   addCheck(checks, pageUsesSharedLauncherTopbar(htmlSource, cssSource), 'Dev page uses the shared launcher topbar structure/CSS', 'launcher-topbar classes + /hub-launcher.css')
   addCheck(checks, !htmlSource.includes('id="active-card"') && !htmlSource.includes('id="source-proof"') && !htmlSource.includes('id="director-status"'), 'Dev page does not show redundant status-only middle cards', 'active card/source proof/director mini cards removed')
   addCheck(checks, jsSource.includes(DEV_TEAM_HUB_V0_API_ROUTE) && jsSource.includes('Needs source') && jsSource.includes("cache: 'no-store'"), 'frontend consumes API and renders missing-source state', DEV_TEAM_HUB_V0_API_ROUTE)
   addCheck(checks, jsSource.includes('YouTube Creators') && jsSource.includes('Skool / Paid Courses') && jsSource.includes('GitHub / Repos') && jsSource.includes('Gmail / Missive / Slack') && jsSource.includes('Meetings / Transcripts') && jsSource.includes("label: 'Visual evidence'") && jsSource.includes("label: 'Links to review'") && !jsSource.includes("name: 'Video Artifacts'") && !jsSource.includes("name: 'Dev Director'") && !jsSource.includes("name: 'God Mode Eyes'"), 'source cards are actual source inputs and evidence is separate output', 'sources: YouTube/Skool/GitHub/internal/meetings; evidence cards carry output counts')
+  addCheck(checks, moduleSource.includes('sourceValueGrader') && routeSource.includes('BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID'), 'Dev Hub API exposes source-value grader data to avoid hardcoded creator cards', BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID)
+  addCheck(checks, moduleSource.includes('buildExtractionEconomics') && moduleSource.includes('GEMINI_STANDARD_PRICING_BY_MODEL') && routeSource.includes('listLlmCalls'), 'Dev Hub API exposes extraction economics from LLM call usage', 'llm_calls + Gemini pricing tokens')
+  addCheck(checks, moduleSource.includes('buildApprovalReviewQueue') && jsSource.includes('renderApprovalReview'), 'Dev Hub exposes actual approval links instead of a blind count', 'approvalReviewQueue + #approval-review')
+  addCheck(checks, moduleSource.includes('buildDevIntelSourceCoverageSnapshot') && jsSource.includes('renderSourceLeaderboard'), 'Dev Hub page exposes source-family leaderboard coverage', 'sourceCoverage + sourceValueGrader')
   addCheck(checks, cssSource.includes("font-family: 'Stratum1'") && cssSource.includes('--blue: #0084C9'), 'page-scoped CSS uses BCrew type and color tokens', 'public/dev.css')
   addCheck(checks, cssSource.includes('top: 0;') && !cssSource.includes('top: var(--topbar-h);'), 'Dev sidebar does not double-offset below shared topbar', 'sidebar top 0')
   addCheck(
@@ -260,6 +276,10 @@ async function main() {
   addCheck(checks, payload?.eyesQualityLoop?.sourceRoute?.includes(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID) && list(payload?.eyesQualityLoop?.buildCandidates).length >= 1, 'God Mode Eyes candidates are exposed to Dev Hub', `${list(payload?.eyesQualityLoop?.buildCandidates).length} candidates`)
   addCheck(checks, payload?.markApiFullWatch?.sourceRoute?.includes(MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID) && list(payload?.markApiFullWatch?.buildCandidates).length >= 1 && Number(payload?.counts?.apiFullWatchVideos || 0) >= 3, 'Mark API full-watch small batch is exposed to Dev Hub', `${payload?.counts?.apiFullWatchVideos || 0} videos / ${payload?.counts?.apiFullWatchBuildCandidates || 0} candidates`)
   addCheck(checks, payload?.director?.sourceRoute?.includes(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID) && list(payload?.director?.recommendedBuildNow).length >= 1, 'Dev Intelligence Director recommendations are exposed to Dev Hub', `${list(payload?.director?.recommendedBuildNow).length} recommendations`)
+  addCheck(checks, list(payload?.sourceValueGrader?.sourceGrades).length >= 3 && list(payload?.dailyWatch?.creators).length >= 3, 'live source cards can be built from multiple graded creators', `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.dailyWatch?.creators).length} watched`)
+  addCheck(checks, Number(payload?.extractionEconomics?.estimatedSpendUsd || 0) > 0 && Number(payload?.extractionEconomics?.costPerIdeaUsd || 0) > 0, 'live extraction economics calculate API spend and cost per idea', `$${Number(payload?.extractionEconomics?.estimatedSpendUsd || 0).toFixed(2)} / $${Number(payload?.extractionEconomics?.costPerIdeaUsd || 0).toFixed(2)} per idea`)
+  addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => item.url && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
+  addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos'), 'source coverage includes planned GitHub and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)
   addCheck(checks, list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'meetings-transcripts') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'email-missive-comms') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'slack-comms'), 'active extraction lanes expose internal Foundation signals', list(payload?.activeExtractionLanes).map(lane => lane.laneId).join(', ') || 'missing')
   addCheck(checks, Array.isArray(payload?.sourceRoutes) && payload.sourceRoutes.length >= 5, 'visible value source map is present', `${payload?.sourceRoutes?.length || 0} routes`)
 
@@ -285,6 +305,17 @@ async function main() {
       director: {
         status: payload.director?.status,
         recommendedBuildNow: list(payload.director?.recommendedBuildNow).length,
+      },
+      sourceValueGrader: {
+        status: payload.sourceValueGrader?.status,
+        sourceGrades: list(payload.sourceValueGrader?.sourceGrades).length,
+        topDevBuildSources: list(payload.sourceValueGrader?.topDevBuildSources).length,
+      },
+      extractionEconomics: payload.extractionEconomics,
+      approvalReviewQueue: list(payload.approvalReviewQueue).slice(0, 5),
+      sourceCoverage: {
+        status: payload.sourceCoverage?.status,
+        counts: payload.sourceCoverage?.counts,
       },
       activeExtractionLanes: list(payload.activeExtractionLanes).map(lane => ({ laneId: lane.laneId, status: lane.status, latestRunAt: lane.latestRunAt })),
       reportArtifactIds: payload.reportArtifactIds,

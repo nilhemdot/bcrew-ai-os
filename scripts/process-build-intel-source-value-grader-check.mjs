@@ -68,6 +68,8 @@ async function loadFullWatchReports({ limit = 40 } = {}) {
         FROM intelligence_report_artifacts
         WHERE metadata->>'fullWatchRoute' = 'gemini_api_youtube_url_video_understanding'
            OR report_artifact_id LIKE 'batch:youtube-latest-20:api-full-watch-v1%'
+           OR report_artifact_id LIKE 'batch:youtube-long-course:api-full-watch-v1%'
+           OR metadata->>'proofMode' = 'youtube_long_course_god_mode_api_full_watch'
         ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
         LIMIT $1
       `,
@@ -167,6 +169,17 @@ async function main() {
       status: snapshot.status,
       sourceCount: snapshot.sourceGrades.length,
       topDevBuildSources: snapshot.topDevBuildSources.slice(0, 8).map(source => ({
+        creatorId: source.creatorId,
+        creator: source.creator,
+        devBuildGrade: source.devBuildGrade,
+        overallGrade: source.overallGrade,
+        primaryUse: source.primaryUse,
+        watchRecommendation: source.watchRecommendation,
+        watchedVideos: source.watchedVideos,
+        buildCandidates: source.buildCandidates,
+        bestDirectorRank: source.bestDirectorRank,
+      })),
+      sourceGrades: snapshot.sourceGrades.map(source => ({
         creatorId: source.creatorId,
         creator: source.creator,
         devBuildGrade: source.devBuildGrade,

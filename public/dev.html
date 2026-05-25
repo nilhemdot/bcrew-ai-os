@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/hub-launcher.css?v=20260525a" />
-  <link rel="stylesheet" href="/dev.css?v=20260524-final-direction-v23" />
+  <link rel="stylesheet" href="/dev.css?v=20260525-source-leaderboard-v1" />
 </head>
 <body>
   <header class="launcher-topbar">
@@ -122,9 +122,26 @@
           <section class="evidence-grid" id="evidence-grid" aria-label="Evidence produced by extraction">
             <article class="loading-card">Loading evidence output from Foundation...</article>
           </section>
+
+          <section class="approval-review" id="approval-review" aria-label="Links needing Steve review">
+            <article class="loading-card">Loading approval links from Foundation...</article>
+          </section>
         </section>
 
         <section class="page-band shaded">
+          <section class="section-head">
+            <div>
+              <span>WHICH SOURCES PAY OFF</span>
+              <h2>Source Leaderboard</h2>
+            </div>
+          </section>
+
+          <section class="source-leaderboard" id="source-leaderboard" aria-label="Source value leaderboard">
+            <article class="loading-card">Loading source value rankings from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band">
           <section class="section-head">
             <div>
               <span>WHERE YOUR INTELLIGENCE COMES FROM</span>
@@ -148,6 +165,6 @@
     </main>
   </div>
 
-  <script src="/dev.js?v=20260524-final-direction-v22"></script>
+  <script src="/dev.js?v=20260525-source-leaderboard-v1"></script>
 </body>
 </html>

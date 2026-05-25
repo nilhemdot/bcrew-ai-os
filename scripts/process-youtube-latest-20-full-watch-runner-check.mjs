@@ -60,6 +60,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     model: readArgValue(argv, '--model=') || YOUTUBE_LATEST_20_FULL_WATCH_MODEL,
     geminiTimeoutMs: Number(readArgValue(argv, '--gemini-timeout-ms=')) || YOUTUBE_LATEST_20_FULL_WATCH_TIMEOUT_MS,
     creatorIds: readArgValues(argv, '--creator-id='),
+    videoIds: readArgValues(argv, '--video-id='),
   }
 }
 
@@ -295,7 +296,8 @@ async function main() {
       poolRows,
       alreadyFullWatchedVideoIds,
       creatorIds: args.creatorIds,
-      maxCreators: args.creatorIds.length ? args.creatorIds.length : undefined,
+      videoIds: args.videoIds,
+      maxCreators: args.creatorIds.length ? args.creatorIds.length : args.videoIds.length ? args.batchSize : undefined,
       maxVideosPerCreator: args.creatorIds.length ? args.batchSize : undefined,
       maxRunVideos: args.batchSize,
     })

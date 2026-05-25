@@ -2,6 +2,10 @@
 
 Internal build note for keeping Foundation pages consistent while the system is still being rebuilt.
 
+For the current BCrew-wide visual contract, use
+`docs/specs/bcrew-ui-design-contract.md`. This file only covers older
+Foundation-specific source-backed card patterns.
+
 ## Page Pattern
 
 1. Keep the strategy explanation in markdown above the source-backed card.

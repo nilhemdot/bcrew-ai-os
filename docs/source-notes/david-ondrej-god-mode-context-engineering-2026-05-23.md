@@ -8,6 +8,8 @@ Source:
 - Channel: `https://www.youtube.com/@davidondrej`
 - Video: `https://www.youtube.com/watch?v=PzVV4X37ihg`
 - Title observed by extractor: `Why This Dev Ships 100x Faster Than 99% of Engineers`
+- Pending video lead: `https://www.youtube.com/watch?v=efRIrLXoOVA`
+- Pending title from web lookup: `Anthropic Just Dropped a Masterclass on Building Agent Harnesses (for Large Codebases)`
 
 Why this matters:
 
@@ -45,3 +47,13 @@ Operating decision:
 - Do add David Ondrej to the Build Intel watchlist.
 - Do evaluate the workflow ideas as build candidates inside the Dev Team sprint.
 - Do treat the `@aleksdeveloper698` GLM/OpenCode claim as a competing workflow to test.
+
+## 2026-05-24 Agent Harness Lead
+
+Steve supplied `https://youtu.be/efrirlxoova?si=pbtitpxospq4rkhg` as an agent-harness video to add to the extraction hit list. The raw link used lowercase characters, but web lookup resolved the case-sensitive YouTube ID to `efRIrLXoOVA`.
+
+Status:
+
+- Add to watchlist/source refs.
+- Do not treat as extracted yet.
+- Queue for God Mode video/audio/visual extraction when the active Mark/God Mode batch allows another harness-focused video.

@@ -1,0 +1,86 @@
+{
+  "summary": "The /dev Data Pool page currently exhibits significant UI/UX inconsistencies, particularly in card design, spacing, and state management. It deviates from established canonical patterns for blue pills and card grids, leading to a fragmented user experience. A foundational redesign of card and header components is required before further development.",
+  "designPhilosophy": {
+    "shouldFeelLike": [
+      "hub-launcher-v9 (primary north star)",
+      "strategy-hub-v1 (top-page blue-pill/hero)",
+      "sales-hub-manager (simple useful blue-pill header, work-queue density)",
+      "strategy-hub-v2 (lower-page structure)",
+      "Foundation-home (card styles)",
+      "Fun and pro: high-confidence command center, strong BCrew real estate energy",
+      "Operational and scannable",
+      "Source-backed where values are shown",
+      "Visually consistent across login, launcher, and hubs"
+    ],
+    "avoid": [
+      "command-center.html (rejected)",
+      "dev-page.html (May 21 attempt - drift evidence)",
+      "Generic SaaS",
+      "Sterile AI dashboard",
+      "Long report page",
+      "50 random card styles",
+      "Overfilled blue pill"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "high",
+      "area": "Blue Pill Header (Foundation Card)",
+      "finding": "The 'Dev Data Pool' header (.foundation-card) is a custom implementation that mixes elements from hub-launcher-v9 (left number) with a non-canonical gradient and layout. It deviates from the 'calm cyan-to-blue band' and simple, focused content presentation of the approved strategy-hub-v1 and sales-hub-manager blue pill standard.",
+      "evidence": "dev-current-full.png, foundation-card CSS gradient, comparison with ref-strategy-hub-v1.png, ref-sales-hub-manager.png. Contract: 'use the calm cyan-to-blue band from strategy-hub.html or sales-hub-manager.html'.",
+      "recommendedFix": "Reimplement the main page header as a canonical blue pill, strictly following the strategy-hub-v1 or sales-hub-manager visual style for the main content area and gradient. Integrate the hub number (07) only if it can be done without compromising the canonical blue pill's simplicity and visual identity."
+    },
+    {
+      "severity": "high",
+      "area": "Card Grid Consistency (Extractor & Source Cards)",
+      "finding": "Cards within the extractor-grid and source-grid have inconsistent heights within the same row (e.g., 'Slack' extractor card is shorter; 'Video Artifacts' source card is longer). This violates the contract's rule for 'repeated items in consistent card grids or rows' and 'cards cannot be different sizes within a row'.",
+      "evidence": "measurements.extractorCards (index 3 height 322px vs others 343px), measurements.sourceCards (index 1, 5 height 290px vs others 249-268px), dev-current-full.png. Contract: 'Repeated cards must use stable grid tracks'.",
+      "recommendedFix": "Implement a robust CSS Grid layout for card grids, using explicit row tracks or `align-items: stretch` combined with fixed/minmax heights for content areas within cards, to ensure all cards in a row maintain consistent height."
+    },
+    {
+      "severity": "high",
+      "area": "Internal Card Content Alignment (Extractor, Source, Detail Cards)",
+      "finding": "Internal content blocks (title, body, meta/chips/status) within extractor-card, source-card, and target-row cards are not vertically aligned across cards in a row. This creates visual misalignment and perceived 'dead air' in shorter content blocks, violating the 'labels, titles, meta/date rows, body copy, and action/chip rows must line up across the whole row' rule.",
+      "evidence": "dev-current-full.png, dev-current-source-systems.png, dev-current-target-panel.png. measurements.extractorCards (body/meta y-positions vary), measurements.sourceCards (body/meta y-positions vary), measurements.targetRows (body y-positions vary).",
+      "recommendedFix": "Redesign the internal layout of all repeated cards (extractor-card, source-card, target-row) using CSS Grid with explicit row tracks for each content type (e.g., `title-track`, `body-track`, `meta-track`). Ensure `align-items: start` for content within these tracks to prevent stretching and maintain top alignment."
+    },
+    {
+      "severity": "medium",
+      "area": "Hover and Active States (Source Cards)",
+      "finding": "Only source-cards have a modern hover effect, while other interactive cards lack this visual feedback. Additionally, the source-card's active state is identical to its hover state, making the first selected card appear 'stuck' rather than clearly active.",
+      "evidence": "source-card:hover, .source-card.active CSS applies identical styles. dev-current-source-systems.png (first card appears active/hovered). Steve's feedback: 'The first source card looks like hover is stuck because active and hover use the same treatment'.",
+      "recommendedFix": "Define and apply a consistent, subtle hover effect to all interactive cards. Differentiate the active state with a distinct visual treatment (e.g., a stronger border, a background tint, or a different shadow) to clearly indicate selection without mimicking hover."
+    },
+    {
+      "severity": "low",
+      "area": "Sidebar Background",
+      "finding": "While the sidebar itself is sticky and full height, the shell's linear-gradient background for the sidebar area (`--grey-1`) does not extend to the bottom of the body if the main content is shorter than the viewport height, creating a visual break.",
+      "evidence": "shell CSS `background: linear-gradient(...)`, dev-current-full.png (bottom of sidebar area is white if content is short). Steve's feedback: 'Menu grey rail should go all the way'.",
+      "recommendedFix": "Ensure the `--grey-1` background for the sidebar area extends consistently to the bottom of the viewport, regardless of main content height. This might require adjusting the `html`/`body` height or `shell` background properties."
+    }
+  ],
+  "canonicalPatternsToLock": {
+    "bluePill": "The main page header must conform to the strategy-hub-v1 / sales-hub-manager visual style for content, gradient, and overall simplicity. Integration of hub numbers (e.g., from hub-launcher-v9) must be done without compromising the canonical blue pill's identity.",
+    "card": "A reusable CSS Grid pattern for all repeated cards (source, extractor, detail) ensuring consistent height within rows, vertical alignment of internal content blocks (title, body, meta/chips/status), and intelligent spacing (no touching, no huge dead air).",
+    "hoverActive": "Standardized visual feedback for interactive elements (hover, focus, active states) across all card types, with distinct treatments for hover vs. active states.",
+    "sourceCards": "Specific internal grid structure for source system cards to ensure vertical alignment of title, body, and meta/status rows, and consistent height within rows.",
+    "extractorCards": "Specific internal grid structure for extractor cards to ensure vertical alignment of title, body, and meta/capabilities rows, and consistent height within rows.",
+    "detailRows": "Specific internal grid structure for detail rows (e.g., target-row) to ensure vertical alignment of content blocks (title, body, pills/meta), and consistent height within rows.",
+    "sidebar": "The existing sticky and full-height behavior is good. Ensure consistent navigation item styling and full background coverage."
+  },
+  "implementationOrder": [
+    "1. Standardize Blue Pill Header: Reimplement the main page header to match the canonical strategy-hub-v1 / sales-hub-manager blue pill.",
+    "2. Define Canonical Card Structure: Create a reusable CSS Grid pattern for all repeated cards (source, extractor, detail) to ensure consistent height within rows and vertical alignment of internal content blocks.",
+    "3. Implement Consistent Hover/Active States: Apply the chosen modern hover/active treatment to all interactive cards and differentiate active from hover.",
+    "4. Review and Refine Spacing: After card structure is locked, review all sections for overall spacing (margin-bottom between sections, gap in grids) to ensure an 'operational and scannable' feel."
+  ],
+  "doNotChangeYet": [
+    "Top bar (.topbar) styling and functionality.",
+    "Breadcrumbs (.crumb) styling and structure.",
+    "Flow statistics strip (.flow-stat-strip) as a simple stat strip below the blue pill.",
+    "Truth blurb (.truth-blurb) information panel style.",
+    "Section head (.section-head) styling.",
+    "Pill/chip styling (e.g., .tb-live, .f-live, .cap-list span, .pill, .source-status, .chip, .director-counts span) for status, filters, and actions.",
+    "Typography choices and usage of Stratum1, Open Sans, and JetBrains Mono."
+  ]
+}

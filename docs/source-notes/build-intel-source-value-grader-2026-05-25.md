@@ -1,8 +1,8 @@
 # Build Intel Source Value Grader
 
-Generated: 2026-05-25T15:03:23.493Z
+Generated: 2026-05-25T20:14:35.722Z
 Status: ready_for_source_review
-Sources graded: 14
+Sources graded: 18
 
 ## Top Dev Build Sources
 
@@ -11,18 +11,42 @@ Sources graded: 14
 - Dev build grade: S
 - Overall best grade: S (AIOS / Dev build)
 - Watch recommendation: watch_heavily
-- Evidence: 42 represented videos, 84 candidates, best Director rank 2
-- Why: ICOR with Tom | AI Productivity has 42 represented videos, 84 build candidates, best Director rank 2, and strongest value in AIOS / Dev build.
+- Evidence: 42 represented videos, 84 candidates, best Director rank none
+- Why: ICOR with Tom | AI Productivity has 42 represented videos, 84 build candidates, no top Director rank yet, and strongest value in AIOS / Dev build.
 
-### 2. Austin Marchese
+### 2. Nick Saraev
 
 - Dev build grade: S
 - Overall best grade: S (AIOS / Dev build)
 - Watch recommendation: watch_heavily
-- Evidence: 10 represented videos, 20 candidates, best Director rank 3
-- Why: Austin Marchese has 10 represented videos, 20 build candidates, best Director rank 3, and strongest value in AIOS / Dev build.
+- Evidence: 13 represented videos, 42 candidates, best Director rank 2
+- Why: Nick Saraev has 13 represented videos, 42 build candidates, best Director rank 2, and strongest value in AIOS / Dev build.
 
-### 3. Mark Kashef
+### 3. Jack / Itssssss_Jack
+
+- Dev build grade: S
+- Overall best grade: S (AIOS / Dev build)
+- Watch recommendation: watch_heavily
+- Evidence: 17 represented videos, 34 candidates, best Director rank 3
+- Why: Jack / Itssssss_Jack has 17 represented videos, 34 build candidates, best Director rank 3, and strongest value in AIOS / Dev build.
+
+### 4. Nate Herk
+
+- Dev build grade: S
+- Overall best grade: S (AIOS / Dev build)
+- Watch recommendation: watch_heavily
+- Evidence: 15 represented videos, 30 candidates, best Director rank none
+- Why: Nate Herk has 15 represented videos, 30 build candidates, no top Director rank yet, and strongest value in AIOS / Dev build.
+
+### 5. Austin Marchese
+
+- Dev build grade: S
+- Overall best grade: S (AIOS / Dev build)
+- Watch recommendation: watch_heavily
+- Evidence: 12 represented videos, 24 candidates, best Director rank 4
+- Why: Austin Marchese has 12 represented videos, 24 build candidates, best Director rank 4, and strongest value in AIOS / Dev build.
+
+### 6. Mark Kashef
 
 - Dev build grade: S
 - Overall best grade: S (AIOS / Dev build)
@@ -30,87 +54,63 @@ Sources graded: 14
 - Evidence: 44 represented videos, 126 candidates, best Director rank 1
 - Why: Mark Kashef has 44 represented videos, 126 build candidates, best Director rank 1, and strongest value in AIOS / Dev build.
 
-### 4. Nate Herk
+### 7. Chase AI
 
 - Dev build grade: S
 - Overall best grade: S (AIOS / Dev build)
 - Watch recommendation: watch_heavily
-- Evidence: 14 represented videos, 28 candidates, best Director rank 7
-- Why: Nate Herk has 14 represented videos, 28 build candidates, best Director rank 7, and strongest value in AIOS / Dev build.
-
-### 5. Aaron Bitwise
-
-- Dev build grade: B
-- Overall best grade: B (AIOS / Dev build)
-- Watch recommendation: watch_selectively
-- Evidence: 5 represented videos, 10 candidates, best Director rank 93
-- Why: Aaron Bitwise has 5 represented videos, 10 build candidates, best Director rank 93, and strongest value in AIOS / Dev build.
-
-### 6. Ambitious AI
-
-- Dev build grade: B
-- Overall best grade: B (AIOS / Dev build)
-- Watch recommendation: watch_selectively
-- Evidence: 3 represented videos, 6 candidates, best Director rank 46
-- Why: Ambitious AI has 3 represented videos, 6 build candidates, best Director rank 46, and strongest value in AIOS / Dev build.
-
-### 7. Dan Martell
-
-- Dev build grade: B
-- Overall best grade: B (AIOS / Dev build)
-- Watch recommendation: watch_selectively
-- Evidence: 2 represented videos, 4 candidates, best Director rank 25
-- Why: Dan Martell has 2 represented videos, 4 build candidates, best Director rank 25, and strongest value in AIOS / Dev build.
+- Evidence: 19 represented videos, 38 candidates, best Director rank 10
+- Why: Chase AI has 19 represented videos, 38 build candidates, best Director rank 10, and strongest value in AIOS / Dev build.
 
 ### 8. Jono Catliff
 
-- Dev build grade: B
-- Overall best grade: B (AIOS / Dev build)
-- Watch recommendation: watch_selectively
-- Evidence: 1 represented video, 2 candidates, best Director rank 15
-- Why: Jono Catliff has 1 represented video, 2 build candidates, best Director rank 15, and strongest value in AIOS / Dev build.
+- Dev build grade: S
+- Overall best grade: S (AIOS / Dev build)
+- Watch recommendation: watch_heavily
+- Evidence: 17 represented videos, 34 candidates, best Director rank 9
+- Why: Jono Catliff has 17 represented videos, 34 build candidates, best Director rank 9, and strongest value in AIOS / Dev build.
 
 ## Lane Leaders
 
 ### AIOS / Dev build
 
 - ICOR with Tom | AI Productivity: S (100) - watch_heavily
+- Nick Saraev: S (100) - watch_heavily
+- Jack / Itssssss_Jack: S (100) - watch_heavily
+- Nate Herk: S (100) - watch_heavily
 - Austin Marchese: S (100) - watch_heavily
-- Mark Kashef: S (97) - watch_heavily
-- Nate Herk: S (92) - watch_heavily
-- Aaron Bitwise: B (65) - watch_selectively
 
 ### Realtor AI training
 
-- ICOR with Tom | AI Productivity: A (81) - watch_heavily
+- ICOR with Tom | AI Productivity: A (78) - watch_heavily
 - Mark Kashef: B (68) - watch_selectively
-- Austin Marchese: B (64) - watch_selectively
-- Nate Herk: B (60) - watch_selectively
-- Aaron Bitwise: C (37) - sample_only
+- Nick Saraev: B (65) - watch_selectively
+- Nate Herk: B (62) - watch_selectively
+- Austin Marchese: B (62) - watch_selectively
 
 ### Marketing / content
 
-- ICOR with Tom | AI Productivity: B (69) - watch_selectively
-- Austin Marchese: B (68) - watch_selectively
+- Kia Ghasem / AI Automations: S (87) - watch_heavily
+- Ambitious AI: A (83) - watch_heavily
 - Mark Kashef: B (68) - watch_selectively
-- Nate Herk: B (60) - watch_selectively
-- Ambitious AI: C (47) - sample_only
+- Chase AI: B (68) - watch_selectively
+- Jono Catliff: B (68) - watch_selectively
 
 ### Ops / process
 
 - ICOR with Tom | AI Productivity: S (100) - watch_heavily
+- Nick Saraev: S (100) - watch_heavily
+- Jack / Itssssss_Jack: S (99) - watch_heavily
+- Nate Herk: S (99) - watch_heavily
 - Mark Kashef: S (99) - watch_heavily
-- Nate Herk: S (95) - watch_heavily
-- Austin Marchese: A (76) - watch_heavily
-- Aaron Bitwise: B (53) - watch_selectively
 
 ### Leadership / strategy
 
-- ICOR with Tom | AI Productivity: S (100) - watch_heavily
-- Mark Kashef: B (60) - watch_selectively
-- Nate Herk: B (60) - watch_selectively
-- Austin Marchese: B (56) - watch_selectively
-- Aaron Bitwise: C (45) - sample_only
+- ICOR with Tom | AI Productivity: S (97) - watch_heavily
+- Jack / Itssssss_Jack: B (68) - watch_selectively
+- Nick Saraev: B (65) - watch_selectively
+- Nate Herk: B (62) - watch_selectively
+- Mansel Scheffel: B (62) - watch_selectively
 
 ## Boundaries
 

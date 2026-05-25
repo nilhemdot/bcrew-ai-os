@@ -33,6 +33,19 @@ const MONTH_NAMES = [
   'December',
 ]
 
+function formatLocalSyncTimestamp(date = new Date()) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Toronto',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZoneName: 'short',
+  }).format(date)
+}
+
 function normalizeText(value) {
   return value == null ? '' : String(value).trim()
 }
@@ -214,7 +227,7 @@ function buildRecord(task) {
   const dealStatus = normalizeText(fields.get('❗ Deal Status') || fields.get('Deal Status'))
   if (hasReleasedTag(task)) return null
   if (dealStatus !== 'Conditional') return null
-  const closingDate = normalizeDateValue(firstValue(fields.get('Closing Date'), fields.get('Expected Closing')))
+  const closingDate = normalizeDateValue(firstValue(fields.get('Expected Closing'), fields.get('Closing Date')))
   const conditionalDeadline = normalizeDateValue(fields.get('Conditional Deadline'))
   const conditionalSide = conditionalSideFromTags(task)
   const record = {
@@ -286,7 +299,7 @@ function buildSheetValues(records, existingReviewActions) {
   const bounds = currentMonthBounds()
   const summaryRows = [
     ['Conditional Pipeline Forecast - ClickUp Generated'],
-    ['Last sync', new Date().toISOString()],
+    ['Last sync', formatLocalSyncTimestamp()],
     ['Source', `ClickUp Deal Data Entry list ${CLICKUP_DEAL_DATA_ENTRY_LIST_ID}`],
     [],
     ['Metric', 'Value'],

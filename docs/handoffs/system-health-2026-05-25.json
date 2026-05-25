@@ -1,0 +1,681 @@
+{
+  "generatedAt": "2026-05-25T09:15:14.621Z",
+  "status": "risk",
+  "plainEnglish": "Foundation has red workflow/system-health findings that block green. Do not treat classified rows as fixed.",
+  "summary": {
+    "status": "risk",
+    "rawStatus": "risk",
+    "classificationStatus": "risk",
+    "preGreenLockStatus": "risk",
+    "greenLockStatus": "risk",
+    "greenLockBlocksGreen": true,
+    "greenLockApprovedExceptionCount": 0,
+    "currentSprintHealthTruthLockStatus": "healthy",
+    "riskCount": 2,
+    "watchCount": 1,
+    "rawRiskCount": 2,
+    "rawWatchCount": 3,
+    "visibleRiskCount": 2,
+    "visibleWatchCount": 3,
+    "hiddenRiskCount": 0,
+    "hiddenWatchCount": 0,
+    "classifiedRiskCount": 0,
+    "classifiedWatchCount": 3,
+    "blockingClassifiedRiskCount": 0,
+    "blockingClassifiedWatchCount": 1,
+    "classifiedFindingCount": 3,
+    "unclassifiedRiskCount": 2,
+    "unclassifiedWatchCount": 0,
+    "blockingClassifiedFindingIds": [
+      "runtime_jobs_failed"
+    ],
+    "unclassifiedFindingIds": [
+      "scheduled_job_foundation-lessons-learned-loop",
+      "scheduled_job_foundation-verify"
+    ],
+    "scheduledJobRiskCount": 2,
+    "scheduledJobWatchCount": 0,
+    "connectorDownCount": 0,
+    "connectorDegradedCount": 0,
+    "connectorBlockedCount": 0,
+    "endpointRiskCount": 0,
+    "endpointReviewCount": 0,
+    "docArtifactRiskCount": 0,
+    "docArtifactReviewCount": 2,
+    "fileSizeRiskCount": 0,
+    "fileSizeWatchCount": 0,
+    "fileSizeManagedWatchCount": 4,
+    "fileSizeBlockingWatchCount": 0,
+    "fileSizeUnmanagedWatchCount": 0,
+    "fileSizeStaleWatchCount": 0,
+    "buildLaneFailureRedCount": 0,
+    "buildLaneFailureYellowCount": 0,
+    "buildLaneFailureEventCount7d": 0,
+    "currentSprintFindingCount": 0,
+    "sourceCount": 43
+  },
+  "greenLock": {
+    "status": "risk",
+    "rawStatus": "risk",
+    "blocksGreen": true,
+    "rawRiskCount": 2,
+    "rawWatchCount": 2,
+    "visibleNonGreenCount": 5,
+    "hiddenRiskCount": 0,
+    "hiddenWatchCount": 0,
+    "hiddenNonGreenCount": 0,
+    "approvedExceptionCount": 0,
+    "missingExceptionFindingIds": [
+      "scheduled_job_foundation-lessons-learned-loop",
+      "scheduled_job_foundation-verify",
+      "runtime_jobs_failed",
+      "doc_artifact_handoff_directory_line_budget",
+      "doc_artifact_handoff_monthly_file_budget"
+    ],
+    "exceptionChecks": [
+      {
+        "findingId": "scheduled_job_foundation-lessons-learned-loop",
+        "repairCardId": null,
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "scheduled_job_foundation-verify",
+        "repairCardId": null,
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "runtime_jobs_failed",
+        "repairCardId": "EXTRACT-CURRENT-001",
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "doc_artifact_handoff_directory_line_budget",
+        "repairCardId": "FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001",
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "doc_artifact_handoff_monthly_file_budget",
+        "repairCardId": "FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001",
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      }
+    ],
+    "plainEnglish": "Foundation has raw red/yellow rows without explicit Steve-approved sprint exceptions. Do not report green."
+  },
+  "currentSprintHealthTruthLock": {
+    "ok": true,
+    "status": "healthy",
+    "mode": "no-embedded-health-summary",
+    "plainEnglish": "Current Sprint has no embedded health summary that can go stale."
+  },
+  "scheduledJobs": {
+    "status": "risk",
+    "summary": {
+      "jobCount": 41,
+      "riskCount": 2,
+      "watchCount": 0,
+      "healthyCount": 27,
+      "manualCount": 12,
+      "dueCount": 0
+    },
+    "topFindings": [
+      {
+        "id": "scheduled_job_foundation-lessons-learned-loop",
+        "severity": "P0",
+        "status": "risk",
+        "title": "Foundation Lessons Learned Loop is risk",
+        "detail": "Foundation Lessons Learned Loop latest run is failed.",
+        "nextAction": "Exited with code 1",
+        "jobKey": "foundation-lessons-learned-loop"
+      },
+      {
+        "id": "scheduled_job_foundation-verify",
+        "severity": "P0",
+        "status": "risk",
+        "title": "Foundation Verifier is risk",
+        "detail": "Foundation Verifier latest run is failed.",
+        "nextAction": "FAIL RUNTIME-SUPERVISOR-001 exposes dashboard/worker service supervision without claiming auto-restart -> lane=done dogfood=pass serviceStatus=risk services=2\nFAIL VERIFIER-RUNTIME-RELIABILITY-SPLIT-001 extracts runtime reliability verifier checks into a focused module -> lane=done dogfood=pass reliabilityChecks=25/26 lines=15623->4998\nFAIL VERIFIER-RUNTIME-RELIABILITY-ORCHESTRATION-SPLIT-001 moves runtime reliability orchestration into the focused module -> lane=done dogfood=pass reliabilityChecks=25/26 lines=6388->4998",
+        "jobKey": "foundation-verify"
+      }
+    ],
+    "rows": [
+      {
+        "key": "foundation-lessons-learned-loop",
+        "title": "Foundation Lessons Learned Loop",
+        "priority": "P0",
+        "status": "risk",
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-05-24T09:45:21.464Z",
+        "latestSuccessAt": null,
+        "plainEnglish": "Foundation Lessons Learned Loop latest run is failed.",
+        "nextAction": "Exited with code 1"
+      },
+      {
+        "key": "foundation-verify",
+        "title": "Foundation Verifier",
+        "priority": "P0",
+        "status": "risk",
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-05-25T09:03:12.818Z",
+        "latestSuccessAt": null,
+        "plainEnglish": "Foundation Verifier latest run is failed.",
+        "nextAction": "FAIL RUNTIME-SUPERVISOR-001 exposes dashboard/worker service supervision without claiming auto-restart -> lane=done dogfood=pass serviceStatus=risk services=2\nFAIL VERIFIER-RUNTIME-RELIABILITY-SPLIT-001 extracts runtime reliability verifier checks into a focused module -> lane=done dogfood=pass reliabilityChecks=25/26 lines=15623->4998\nFAIL VERIFIER-RUNTIME-RELIABILITY-ORCHESTRATION-SPLIT-001 moves runtime reliability orchestration into the focused module -> lane=done dogfood=pass reliabilityChecks=25/26 lines=6388->4998"
+      },
+      {
+        "key": "connector-uptime-monitor",
+        "title": "Connector Uptime Monitor",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-25T08:51:27.854Z",
+        "latestSuccessAt": "2026-05-25T08:51:27.854Z",
+        "plainEnglish": "Connector Uptime Monitor has a fresh successful run and is not due.",
+        "nextAction": "Review degraded/down connector rows; do not auto-fix credentials or source data from this job."
+      },
+      {
+        "key": "drive-content-extract-bite",
+        "title": "Drive Content Extraction Bite",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-24T18:08:05.887Z",
+        "latestSuccessAt": "2026-05-24T18:08:05.887Z",
+        "plainEnglish": "Drive Content Extraction Bite has a fresh successful run and is not due.",
+        "nextAction": "Run as a small daily quota mission. Add Slides, Office, images, and video through explicit follow-on extractors with skip reasons."
+      },
+      {
+        "key": "email-attachment-extract-bite",
+        "title": "Email Attachment Extraction Bite",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-24T18:24:39.355Z",
+        "latestSuccessAt": "2026-05-24T18:24:39.355Z",
+        "plainEnglish": "Email Attachment Extraction Bite has a fresh successful run and is not due.",
+        "nextAction": "Run as a small daily quota mission. Add Missive attachment proof and Office/OCR/media attachment extractors as explicit follow-on lanes."
+      },
+      {
+        "key": "gmail-sync-current",
+        "title": "Gmail Current Sync",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-25T07:48:32.071Z",
+        "latestSuccessAt": "2026-05-25T07:48:32.071Z",
+        "plainEnglish": "Gmail Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Watch first scheduled runs; keep historical Gmail backfill manual until current-day stays clean."
+      },
+      {
+        "key": "intelligence-action-router-proposals",
+        "title": "Intelligence Action Router Proposals",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-24T15:05:53.971Z",
+        "latestSuccessAt": "2026-05-24T15:05:53.971Z",
+        "plainEnglish": "Intelligence Action Router Proposals has a fresh successful run and is not due.",
+        "nextAction": "Review pending routes before applying destination writes. No route lands in an operating ledger without explicit human approval."
+      },
+      {
+        "key": "intelligence-synthesis-spine-refresh",
+        "title": "Intelligence Spine Synthesis Refresh",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-24T18:43:00.318Z",
+        "latestSuccessAt": "2026-05-24T18:43:00.318Z",
+        "plainEnglish": "Intelligence Spine Synthesis Refresh has a fresh successful run and is not due.",
+        "nextAction": "Use as the v1 scheduled refresh lane; proofs remain manual and backlog-mutating acceptance checks stay out of the worker schedule."
+      },
+      {
+        "key": "meeting-notes-sync-current",
+        "title": "Meeting Notes Current Sync",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-24T14:08:13.658Z",
+        "latestSuccessAt": "2026-05-24T14:08:13.658Z",
+        "plainEnglish": "Meeting Notes Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Run daily for new meeting notes/transcripts; use the retry job only for item-level partial failures."
+      },
+      {
+        "key": "missive-sync-current",
+        "title": "Missive Current Sync",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-25T07:49:37.323Z",
+        "latestSuccessAt": "2026-05-25T07:49:37.323Z",
+        "plainEnglish": "Missive Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Watch first scheduled runs; keep Gmail/manual backfill off until this lane stays clean."
+      },
+      {
+        "key": "nightly-deep-audit",
+        "title": "Nightly Hybrid Deep Audit",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-25T07:01:55.323Z",
+        "latestSuccessAt": "2026-05-25T07:01:55.323Z",
+        "plainEnglish": "Nightly Hybrid Deep Audit has a fresh successful run and is not due.",
+        "nextAction": "Review the diff-only morning report; P0/P1 senior findings must route to proposed repair cards or the report must say the deep review degraded/not run."
+      },
+      {
+        "key": "shared-comms-coverage",
+        "title": "Shared Comms Coverage",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-25T06:08:55.322Z",
+        "latestSuccessAt": "2026-05-25T06:08:55.322Z",
+        "plainEnglish": "Shared Comms Coverage has a fresh successful run and is not due.",
+        "nextAction": "Run before deciding whether to backfill more or build synthesis."
+      },
+      {
+        "key": "system-health-nightly-audit",
+        "title": "System Health Nightly Audit",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-25T09:15:14.606Z",
+        "latestSuccessAt": "2026-05-25T09:15:14.606Z",
+        "plainEnglish": "System Health Nightly Audit has a fresh successful run and is not due.",
+        "nextAction": "Review red/yellow system-health rows before treating Foundation as green."
+      },
+      {
+        "key": "video-content-extract-bite",
+        "title": "Video Content Extraction Bite",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-24T21:16:12.361Z",
+        "latestSuccessAt": "2026-05-24T21:16:12.361Z",
+        "plainEnglish": "Video Content Extraction Bite has a fresh successful run and is not due.",
+        "nextAction": "Run a small daily quota. Add Drive video, Loom, Skool, Zoom, and Gemini/GPT visual review extractors one at a time behind the same queue."
+      },
+      {
+        "key": "youtube-creator-daily-watch",
+        "title": "Public YouTube Creator Daily Watch",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-24T10:33:30.645Z",
+        "latestSuccessAt": "2026-05-24T10:33:30.645Z",
+        "plainEnglish": "Public YouTube Creator Daily Watch has a fresh successful run and is not due.",
+        "nextAction": "Review new source items in Dev Team Hub / Build Intel before approving extraction or backlog promotion."
+      },
+      {
+        "key": "admin-deal-backlog-review",
+        "title": "Admin Deal Backlog Inspection",
+        "priority": "P1",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-25T03:47:56.994Z",
+        "latestSuccessAt": "2026-05-25T03:47:56.994Z",
+        "plainEnglish": "Admin Deal Backlog Inspection has a fresh successful run and is not due.",
+        "nextAction": "Keep source-field corrections human-owned until Ops approves an apply/fix lane."
+      },
+      {
+        "key": "admin-deal-review-readonly",
+        "title": "Admin Deal Review Inspection",
+        "priority": "P1",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-25T02:09:29.131Z",
+        "latestSuccessAt": "2026-05-25T02:09:29.131Z",
+        "plainEnglish": "Admin Deal Review Inspection has a fresh successful run and is not due.",
+        "nextAction": "Keep source-field corrections human-owned until Ops approves an apply/fix lane."
+      },
+      {
+        "key": "agent-feedback-auto-send-readiness",
+        "title": "Agent Feedback Production Auto-Send",
+        "priority": "P1",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-24T12:31:34.071Z",
+        "latestSuccessAt": "2026-05-24T12:31:34.071Z",
+        "plainEnglish": "Agent Feedback Production Auto-Send has a fresh successful run and is not due.",
+        "nextAction": "Monitor the daily run and repair any Gmail-success/ClickUp-Requested writeback failures without resending."
+      },
+      {
+        "key": "agent-feedback-reminder-readiness",
+        "title": "Agent Feedback Live Reminders",
+        "priority": "P1",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-24T12:32:46.511Z",
+        "latestSuccessAt": "2026-05-24T12:32:46.511Z",
+        "plainEnglish": "Agent Feedback Live Reminders has a fresh successful run and is not due.",
+        "nextAction": "Monitor daily reminder runs and repair any reminder ledger repair states without resending duplicate slots."
+      },
+      {
+        "key": "agent-roster-review",
+        "title": "Agent Onboarding / Roster Inspection",
+        "priority": "P1",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-25T02:10:31.442Z",
+        "latestSuccessAt": "2026-05-25T02:10:31.442Z",
+        "plainEnglish": "Agent Onboarding / Roster Inspection has a fresh successful run and is not due.",
+        "nextAction": "Steve, Carson, and Clare will hide/delete field clutter manually; AIOS should only validate the roster source and surface real missing accountability items."
+      }
+    ]
+  },
+  "operatingReliability": null,
+  "endpointBudgets": {
+    "summary": {
+      "routeCount": 5,
+      "measuredCount": 5,
+      "healthyCount": 5,
+      "reviewCount": 0,
+      "riskCount": 0,
+      "missingCount": 0,
+      "maxDurationMs": 425.626083,
+      "maxPayloadBytes": 620125
+    },
+    "topFindings": []
+  },
+  "docArtifactBloat": {
+    "status": "watch",
+    "summary": {
+      "artifactCount": 1409,
+      "handoffFileCount": 235,
+      "handoffLineTotal": 26171,
+      "recentHandoffFileCount": 234,
+      "nightlyArtifactCount": 24,
+      "riskCount": 0,
+      "reviewCount": 2
+    },
+    "topFindings": [
+      {
+        "id": "doc_artifact_handoff_directory_line_budget",
+        "severity": "P1",
+        "status": "watch",
+        "title": "docs/handoffs is growing past the hot-doc budget",
+        "detail": "docs/handoffs contains 26171 line(s); budget is 20000/35000 warn/risk.",
+        "nextAction": "Archive cold detail or replace repeated large reports with monthly summaries.",
+        "path": "docs/handoffs",
+        "className": "handoff_directory",
+        "budgetKey": "totalLines",
+        "value": 26171,
+        "budget": {
+          "warn": 20000,
+          "risk": 35000
+        },
+        "autoFix": false,
+        "autoBacklogMutation": false
+      },
+      {
+        "id": "doc_artifact_handoff_monthly_file_budget",
+        "severity": "P1",
+        "status": "watch",
+        "title": "docs/handoffs is accumulating too many hot files",
+        "detail": "docs/handoffs has 234 file(s) modified in the last 31 days; budget is 220/320.",
+        "nextAction": "Roll old handoffs into a monthly closeout summary and keep only current working handoffs hot.",
+        "path": "docs/handoffs",
+        "className": "handoff_directory",
+        "budgetKey": "recentFileCount",
+        "value": 234,
+        "budget": {
+          "warn": 220,
+          "risk": 320
+        },
+        "autoFix": false,
+        "autoBacklogMutation": false
+      }
+    ]
+  },
+  "fileSizeStandard": {
+    "status": "healthy",
+    "summary": {
+      "fileCount": 4,
+      "riskCount": 0,
+      "watchCount": 0,
+      "managedWatchCount": 4,
+      "unmanagedWatchCount": 0,
+      "blockingWatchCount": 0,
+      "staleWatchCount": 0,
+      "overPreferredCount": 4,
+      "dangerCount": 0,
+      "splitNowRequiredCount": 0,
+      "explicitBudgetRequiredCount": 0
+    },
+    "topFindings": [],
+    "managedFindings": [
+      {
+        "id": "file_size_managed_scripts_foundation_verify_mjs",
+        "severity": "P2",
+        "status": "managed_watch",
+        "title": "scripts/foundation-verify.mjs has a managed file-size watch disposition",
+        "detail": "scripts/foundation-verify.mjs has 4998 lines; Blocks at or above 5000 lines, or whenever a card adds verifier-domain behavior directly instead of delegating to a module.",
+        "nextAction": "Keep extracting verifier domains into lib/foundation-verifier-* modules; add only import/wiring to scripts/foundation-verify.mjs.",
+        "owner": "Foundation Verifier",
+        "threshold": "Blocks at or above 5000 lines, or whenever a card adds verifier-domain behavior directly instead of delegating to a module.",
+        "nextTrigger": "Split another verifier domain before the root reaches 5000 lines, before the review date expires, or before adding new check logic directly to the root script.",
+        "filePath": "scripts/foundation-verify.mjs",
+        "lineCount": 4998,
+        "blocksCurrentSprint": false
+      },
+      {
+        "id": "file_size_managed_server_js",
+        "severity": "P2",
+        "status": "managed_watch",
+        "title": "server.js has a managed file-size watch disposition",
+        "detail": "server.js has 2048 lines; Blocks once the file reaches 3000 lines or accepts new route/domain behavior outside a route module.",
+        "nextAction": "Keep server.js as thin route mounting/runtime wiring; implement route behavior in lib/*-routes.js modules.",
+        "owner": "Foundation Runtime",
+        "threshold": "Blocks once the file reaches 3000 lines or accepts new route/domain behavior outside a route module.",
+        "nextTrigger": "Extract route/domain behavior before crossing 3000 lines or before adding a new app surface directly to server.js.",
+        "filePath": "server.js",
+        "lineCount": 2048,
+        "blocksCurrentSprint": false
+      },
+      {
+        "id": "file_size_managed_lib_foundation_db_js",
+        "severity": "P2",
+        "status": "managed_watch",
+        "title": "lib/foundation-db.js has a managed file-size watch disposition",
+        "detail": "lib/foundation-db.js has 2291 lines; Blocks once the file reaches 3000 lines or receives new table/domain ownership without a store module split.",
+        "nextAction": "Keep lib/foundation-db.js as connection/orchestration exports; route new domains into focused store modules.",
+        "owner": "Foundation Data",
+        "threshold": "Blocks once the file reaches 3000 lines or receives new table/domain ownership without a store module split.",
+        "nextTrigger": "Extract a store/domain module before crossing 3000 lines or before adding a new DB responsibility.",
+        "filePath": "lib/foundation-db.js",
+        "lineCount": 2291,
+        "blocksCurrentSprint": false
+      },
+      {
+        "id": "file_size_managed_public_foundation_js",
+        "severity": "P2",
+        "status": "managed_watch",
+        "title": "public/foundation.js has a managed file-size watch disposition",
+        "detail": "public/foundation.js has 2987 lines; Blocks once the file reaches 3000 lines or accepts new renderer/domain behavior without extracting a renderer module.",
+        "nextAction": "Keep public/foundation.js as shell wiring; move new UI behavior into public/foundation-*-renderers.js modules.",
+        "owner": "Foundation Frontend",
+        "threshold": "Blocks once the file reaches 3000 lines or accepts new renderer/domain behavior without extracting a renderer module.",
+        "nextTrigger": "Extract another renderer slice before crossing 3000 lines or before adding feature-specific rendering behavior.",
+        "filePath": "public/foundation.js",
+        "lineCount": 2987,
+        "blocksCurrentSprint": false
+      }
+    ]
+  },
+  "buildLaneFailureTelemetry": {
+    "status": "healthy",
+    "summary": {
+      "eventCount7d": 0,
+      "rawEventCount7d": 744,
+      "fingerprintCount": 0,
+      "rawFingerprintCount": 194,
+      "redFingerprintCount": 0,
+      "yellowFingerprintCount": 0,
+      "oneOffFingerprintCount": 0,
+      "resolvedEventCount7d": 744,
+      "resolvedFingerprintCount": 194,
+      "latestResolutionProofAt": "2026-05-24T05:11:32.421Z",
+      "warningThreshold24h": 3,
+      "riskThreshold24h": 5
+    },
+    "topFindings": []
+  },
+  "currentSprint": {
+    "findings": [],
+    "summary": {
+      "overlayOnly": true,
+      "stageCount": 5,
+      "itemCount": 13,
+      "buildingNowCount": 1,
+      "returnedCount": 0,
+      "doneThisSprintCount": 8,
+      "stageCounts": {
+        "scoping": 4,
+        "sprint_ready": 0,
+        "building_now": 1,
+        "returned": 0,
+        "done_this_sprint": 8
+      },
+      "currentStatus": "building",
+      "nextCardId": "MARK-KASHEF-LAST-50-BASELINE-001",
+      "activeBlockerCardId": "MARK-KASHEF-LAST-50-BASELINE-001",
+      "readyCheckRequiredFields": 10,
+      "findingsCount": 0,
+      "truthSource": {
+        "sprintRecord": "live-db",
+        "goal": "live-db",
+        "executiveSummary": "live-db-metadata",
+        "exitCriteria": "live-db-metadata",
+        "nextCard": "live-stage-order",
+        "currentBlocker": "live-sprint-record",
+        "nextAction": "live-sprint-item-or-backlog"
+      }
+    }
+  },
+  "sourceHealth": {
+    "totalSources": 43,
+    "sourcesWithScheduledJobs": 0,
+    "sourcesWithoutScheduledJobs": 0,
+    "missingScheduledSourceIds": []
+  },
+  "findings": [
+    {
+      "id": "scheduled_job_foundation-lessons-learned-loop",
+      "severity": "P0",
+      "status": "risk",
+      "title": "Foundation Lessons Learned Loop is risk",
+      "detail": "Foundation Lessons Learned Loop latest run is failed.",
+      "nextAction": "Exited with code 1",
+      "jobKey": "foundation-lessons-learned-loop",
+      "rollupLevel": "risk"
+    },
+    {
+      "id": "scheduled_job_foundation-verify",
+      "severity": "P0",
+      "status": "risk",
+      "title": "Foundation Verifier is risk",
+      "detail": "Foundation Verifier latest run is failed.",
+      "nextAction": "FAIL RUNTIME-SUPERVISOR-001 exposes dashboard/worker service supervision without claiming auto-restart -> lane=done dogfood=pass serviceStatus=risk services=2\nFAIL VERIFIER-RUNTIME-RELIABILITY-SPLIT-001 extracts runtime reliability verifier checks into a focused module -> lane=done dogfood=pass reliabilityChecks=25/26 lines=15623->4998\nFAIL VERIFIER-RUNTIME-RELIABILITY-ORCHESTRATION-SPLIT-001 moves runtime reliability orchestration into the focused module -> lane=done dogfood=pass reliabilityChecks=25/26 lines=6388->4998",
+      "jobKey": "foundation-verify",
+      "rollupLevel": "risk"
+    },
+    {
+      "id": "runtime_jobs_failed",
+      "severity": "P1",
+      "status": "review",
+      "title": "Foundation jobs have recent failures",
+      "detail": "foundation-verify, foundation-lessons-learned-loop",
+      "nextAction": "Review latest run error before treating the system as green.",
+      "source": "foundation_operating_reliability",
+      "autoFix": false,
+      "autoBacklogMutation": false,
+      "rollupLevel": "watch",
+      "classification": {
+        "status": "classified",
+        "type": "job_ledger_routed",
+        "owner": "Foundation Process",
+        "reason": "The remaining recent job failures are approval-bound extraction/backfill rows; connector uptime has a later successful safe run and repeated build-lane reds are clear.",
+        "threshold": "Becomes sprint-blocking when an unclassified repeated job failure appears, or when an approved safe rerun fails again without a live repair card.",
+        "nextAction": "Keep the failed-run ledger visible while EXTRACT-CURRENT-001 and EXTRACT-BACKFILL-001 own the governed repair proof.",
+        "repairCardId": "EXTRACT-CURRENT-001",
+        "relatedRepairCardIds": [
+          "EXTRACT-CURRENT-001",
+          "EXTRACT-BACKFILL-001"
+        ],
+        "blocksCurrentSprint": true
+      }
+    },
+    {
+      "id": "doc_artifact_handoff_directory_line_budget",
+      "severity": "P1",
+      "status": "watch",
+      "title": "docs/handoffs is growing past the hot-doc budget",
+      "detail": "docs/handoffs contains 26171 line(s); budget is 20000/35000 warn/risk.",
+      "nextAction": "Archive cold detail or replace repeated large reports with monthly summaries.",
+      "path": "docs/handoffs",
+      "className": "handoff_directory",
+      "budgetKey": "totalLines",
+      "value": 26171,
+      "budget": {
+        "warn": 20000,
+        "risk": 35000
+      },
+      "autoFix": false,
+      "autoBacklogMutation": false,
+      "rollupLevel": "watch",
+      "classification": {
+        "status": "classified",
+        "type": "routed_to_next_card",
+        "owner": "Foundation Process",
+        "reason": "Hot handoff bloat is a scoped cleanup card already in the sprint order; the row is visible and routed instead of treated as surprise red health.",
+        "threshold": "Blocks source/extraction activation if the hot-doc row stays over budget after FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001.",
+        "nextAction": "Run FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001 to roll up or archive cold handoffs without deleting useful history.",
+        "repairCardId": "FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001",
+        "relatedRepairCardIds": [],
+        "blocksCurrentSprint": false
+      }
+    },
+    {
+      "id": "doc_artifact_handoff_monthly_file_budget",
+      "severity": "P1",
+      "status": "watch",
+      "title": "docs/handoffs is accumulating too many hot files",
+      "detail": "docs/handoffs has 234 file(s) modified in the last 31 days; budget is 220/320.",
+      "nextAction": "Roll old handoffs into a monthly closeout summary and keep only current working handoffs hot.",
+      "path": "docs/handoffs",
+      "className": "handoff_directory",
+      "budgetKey": "recentFileCount",
+      "value": 234,
+      "budget": {
+        "warn": 220,
+        "risk": 320
+      },
+      "autoFix": false,
+      "autoBacklogMutation": false,
+      "rollupLevel": "watch",
+      "classification": {
+        "status": "classified",
+        "type": "routed_to_next_card",
+        "owner": "Foundation Process",
+        "reason": "Hot handoff bloat is a scoped cleanup card already in the sprint order; the row is visible and routed instead of treated as surprise red health.",
+        "threshold": "Blocks source/extraction activation if the hot-doc row stays over budget after FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001.",
+        "nextAction": "Run FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001 to roll up or archive cold handoffs without deleting useful history.",
+        "repairCardId": "FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001",
+        "relatedRepairCardIds": [],
+        "blocksCurrentSprint": false
+      }
+    }
+  ]
+}

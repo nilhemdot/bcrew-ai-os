@@ -306,7 +306,10 @@ async function updateRouteStatus(credentials, actor) {
     let status = 'probe_required'
     let riskClass = route.riskClass
 
-    if (!credential || credential.status === 'missing') {
+    if (route.policyClassification === 'blocked' || route.status === 'blocked') {
+      status = 'blocked'
+      riskClass = 'blocked'
+    } else if (!credential || credential.status === 'missing') {
       status = 'blocked'
       riskClass = 'blocked'
     } else if (

@@ -16,6 +16,8 @@ The target operating model for Harlan, Crewbert, assistants, and delegation live
 
 BCrew AI OS exists to help Benson Crew and the agents it serves grow faster by turning strategy, source truth, training, coaching, decisions, and approved external intelligence into trusted execution.
 
+At the product level, AIOS exists to give governed agentic agents the shared truth, permissions, memory, tools, and approval paths they need to serve Steve, leadership, staff, and eventually agents/realtors without creating separate hidden systems.
+
 The vision is a source-backed agentic operating system where Steve, leadership, staff, and eventually agents/realtors get proactive help tied to their goals, data, training, and next best actions.
 
 For Steve and leadership, AIOS keeps context, reads approved sources, finds useful signal, recommends what matters, routes work to the right hub or agent, and proves what changed so leadership can spend more time recruiting, leading, decision-making, and building high-ticket systems.

@@ -38,6 +38,7 @@ These files are the current source of truth for the rebuild:
 - [`strategy/`](strategy/) — supporting strategy packet docs
 - [`source-notes/`](source-notes/) — source-specific operator notes and validation evidence
 - [`specs/`](specs/) — design contracts until promoted into active implementation
+- [`specs/bcrew-ui-design-contract.md`](specs/bcrew-ui-design-contract.md) — active BCrew UI style contract for login, launcher, Foundation, and hub surfaces
 
 ## Evidence
 

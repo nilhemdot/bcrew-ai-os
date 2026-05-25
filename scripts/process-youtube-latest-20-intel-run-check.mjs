@@ -31,6 +31,7 @@ function parseArgs(argv = process.argv.slice(2)) {
   return {
     json: argv.includes('--json') || argv.includes('--json=true'),
     creatorIds: readArgValues(argv, '--creator-id='),
+    videoIds: readArgValues(argv, '--video-id='),
     maxCreators: Number(readArgValue(argv, '--max-creators=')) || null,
     maxVideosPerCreator: Number(readArgValue(argv, '--max-videos-per-creator=')) || null,
     maxRunVideos: Number(readArgValue(argv, '--batch-size=')) || Number(readArgValue(argv, '--max-run-videos=')) || null,
@@ -185,6 +186,7 @@ async function main() {
     poolRows,
     alreadyFullWatchedVideoIds,
     creatorIds: args.creatorIds,
+    videoIds: args.videoIds,
     maxCreators: args.creatorIds.length ? Math.min(args.creatorIds.length, args.maxCreators || args.creatorIds.length) : args.maxCreators || undefined,
     maxVideosPerCreator: args.creatorIds.length ? args.maxVideosPerCreator || args.maxRunVideos || 9 : args.maxVideosPerCreator || undefined,
     maxRunVideos: args.maxRunVideos || undefined,
