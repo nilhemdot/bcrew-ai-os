@@ -1,6 +1,6 @@
 # Dev Team Intelligence Director - AIOS Mission V0
 
-Generated: 2026-05-24T23:57:05.993Z
+Generated: 2026-05-25T04:03:00.135Z
 Report artifact: `director:dev-team-intelligence-director-001:aios-mission-v0`
 Status: `ready_for_steve_review`
 
@@ -23,7 +23,20 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Promotion: proposal_only_needs_steve_approval
 - Mission lanes: God Mode Extractor 16/22; Reliable agents / execution systems 20/20; Context continuity 14/14
 
-### 2. Context-Forking Orchestrator Skill
+### 2. Claude Code State Parser & Visualizer
+
+- Mission score: 80
+- Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
+- Source video: `1jlKUxqRQAw`
+- Source trust: api_full_watch (14)
+- Build readiness: Ready for Scoper
+- Why: Allows developers to monitor complex multi-agent workflows in real-time instead of tailing raw terminal logs or JSON files.
+- Next step: Build a lightweight file watcher on ~/.claude/teams/ to stream config, inbox, and task updates to a local dashboard.
+- Scoper question: Do we want to scope Claude Code State Parser & Visualizer into an implementation card now?
+- Promotion: proposal_only_needs_steve_approval
+- Mission lanes: God Mode Extractor 16/22; Reliable agents / execution systems 16/20; Context continuity 11/14
+
+### 3. Context-Forking Orchestrator Skill
 
 - Mission score: 79
 - Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
@@ -36,7 +49,20 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Promotion: proposal_only_needs_steve_approval
 - Mission lanes: God Mode Extractor 11/22; Reliable agents / execution systems 20/20; Context continuity 11/14
 
-### 3. Shared-Directory State Passing
+### 4. Dynamic MCP Tool Injector for Chat Agents
+
+- Mission score: 79
+- Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
+- Source video: `KCeTFxoQdkI`
+- Source trust: api_full_watch (14)
+- Build readiness: Ready for Scoper
+- Why: Enables chat agents to dynamically leverage Model Context Protocol (MCP) servers (like Firecrawl) for real-time capabilities like web scraping.
+- Next step: Integrate an MCP client node into the AIOS workflow engine to allow runtime tool binding for LLMs.
+- Scoper question: Do we want to scope Dynamic MCP Tool Injector for Chat Agents into an implementation card now?
+- Promotion: proposal_only_needs_steve_approval
+- Mission lanes: God Mode Extractor 11/22; Reliable agents / execution systems 20/20; Context continuity 11/14
+
+### 5. Shared-Directory State Passing
 
 - Mission score: 79
 - Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
@@ -49,49 +75,23 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Promotion: proposal_only_needs_steve_approval
 - Mission lanes: God Mode Extractor 11/22; Reliable agents / execution systems 20/20; Context continuity 11/14
 
-### 4. Lifecycle Event Hooks for Context Injection
-
-- Mission score: 75
-- Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
-- Source video: `JcY1LekT954`
-- Source trust: api_full_watch (14)
-- Build readiness: Ready for Scoper
-- Why: Automates context loading, formatting, and safety checks by triggering deterministic scripts at key agent lifecycle events.
-- Next step: Implement an event bus in AIOS supporting hooks like SessionStart, PreToolUse, and PostEdit.
-- Scoper question: Do we want to scope Lifecycle Event Hooks for Context Injection into an implementation card now?
-- Promotion: proposal_only_needs_steve_approval
-- Mission lanes: Reliable agents / execution systems 16/20; Context continuity 14/14; Approval-gated build path 8/8
-
-### 5. Interactive Human-in-the-Loop Approval Gateways
-
-- Mission score: 72
-- Source report: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
-- Source video: `dlb_XgFVrHQ`
-- Source trust: api_full_watch (14)
-- Build readiness: Ready for Scoper
-- Why: Enables AIOS to pause complex agentic pipelines for user validation, reducing token waste and ensuring alignment on critical design decisions.
-- Next step: Develop a state-machine framework in AIOS that supports interactive CLI/UI prompts to halt, modify, or reject agent plans.
-- Scoper question: Do we want to scope Interactive Human-in-the-Loop Approval Gateways into an implementation card now?
-- Promotion: proposal_only_needs_steve_approval
-- Mission lanes: Reliable agents / execution systems 16/20; Context continuity 11/14; Approval-gated build path 8/8
-
 ## Strong Next / Merge Candidates
 
-- 6. 4-Layer Agentic OS Directory Template - score 71 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 7. Mark Kashef: Package reusable AIOS skills as governed operator tools - score 70 (scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20)
-- 8. Path-Scoped Context Router - score 70 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 9. Automated Skill Consolidation Engine - score 68 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 10. Isolated Skill Execution Engine - score 68 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 11. AIOS Context Linter & CLAUDE.md Generator - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 12. Cross-Device Session Teleportation Engine - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 13. Mark Kashef: Review adjacent developer workflow signals - score 67 (scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20)
-- 14. Silver Platter Data Bridge - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 15. Transient Query Bypass (/btw) - score 67 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 6. Shared Reasoning File Pattern - score 78 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 7. Context-Optimized Skill Registry - score 75 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 8. Lifecycle Event Hooks for Context Injection - score 75 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 9. Deterministic Agentic Workflow Guardrails - score 72 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 10. Interactive Human-in-the-Loop Approval Gateways - score 72 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 11. Unified Chat-to-Workflow Router - score 72 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 12. 4-Layer Agentic OS Directory Template - score 71 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 13. Workspace-Based Agent State Persistence - score 71 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 14. Dynamic Progress Checklist Sidebar - score 70 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 15. Mark Kashef: Package reusable AIOS skills as governed operator tools - score 70 (scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20)
 
 ## Source Coverage
 
 - `proof:mark-kashef-last-50-baseline-001:god-mode-end-to-end:5xrjO38WUYY` - Mark Kashef God Mode YouTube End-to-End Extraction; atoms 2; hits 2; approvals 7
-- `batch:mark-kashef-last-50:api-full-watch-small-batch-v1` - Mark Kashef God Mode API Full-Watch Small Batch; atoms 42; hits 42; approvals 16
+- `batch:mark-kashef-last-50:api-full-watch-small-batch-v1` - Mark Kashef God Mode API Full-Watch Small Batch; atoms 86; hits 86; approvals 9
 - `batch:mark-kashef-last-50:20260523221531` - Mark Kashef last-50 baseline batch 20260523221531; atoms 21; hits 21; approvals 1
 - `proof:god-mode-extractor-eyes-quality-loop-001` - God Mode Extractor Eyes Quality Loop; atoms 6; hits 6; approvals 24
 - `scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20` - Mark Kashef public YouTube latest/last-20 scout; atoms 7; hits 7; approvals 13
@@ -109,9 +109,9 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - PASS System Strategy contains AIOS mission and agent/realtor coaching lens - docs/system-strategy.md
 - PASS current sprint plan tells Director to use System Strategy as ranking lens - docs/rebuild/current-plan.md
 - PASS Director has multiple intelligence reports to synthesize - 7 reports
-- PASS Director has enough source-backed build candidates - 98 candidates
-- PASS Director top candidates are mission-scored - 1:87, 2:79, 3:79, 4:75, 5:72
-- PASS Director preserves approval-required items - 65 approval items
-- PASS Director surfaces API full-watch candidates ahead of weaker scout/subscription evidence - 1:api_full_watch:Video-to-SOP Agentic Pipeline | 2:api_full_watch:Context-Forking Orchestrator Skill | 3:api_full_watch:Shared-Directory State Passing | 4:api_full_watch:Lifecycle Event Hooks for Context Injection | 5:api_full_watch:Interactive Human-in-the-Loop Approval Gateways
+- PASS Director has enough source-backed build candidates - 142 candidates
+- PASS Director top candidates are mission-scored - 1:87, 2:80, 3:79, 4:79, 5:79
+- PASS Director preserves approval-required items - 58 approval items
+- PASS Director surfaces API full-watch candidates ahead of weaker scout/subscription evidence - 1:api_full_watch:Video-to-SOP Agentic Pipeline | 2:api_full_watch:Claude Code State Parser & Visualizer | 3:api_full_watch:Context-Forking Orchestrator Skill | 4:api_full_watch:Dynamic MCP Tool Injector for Chat Agents | 5:api_full_watch:Shared-Directory State Passing
 - PASS Director explains build readiness and missing pieces for top candidates - 1:ready_for_scoper, 2:ready_for_scoper, 3:ready_for_scoper, 4:ready_for_scoper, 5:ready_for_scoper
 

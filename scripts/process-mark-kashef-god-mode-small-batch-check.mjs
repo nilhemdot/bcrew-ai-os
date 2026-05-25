@@ -246,7 +246,7 @@ async function updateLiveSprintAndBacklog(snapshot = {}) {
   await updateBacklogItem(MARK_KASHEF_LAST_50_BASELINE_CARD_ID, {
     lane: 'executing',
     nextAction: `Review ${MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID}; rerun Dev Intelligence Director, then decide promote-vs-next-batch.`,
-    statusNote: `Active and not done. Latest API full-watch small batch ${snapshot.batchRunId} processed ${snapshot.summary?.videoCount || 0} Mark videos with ${snapshot.summary?.totalBuildCandidates || 0} proposal-only candidates, no auto backlog, and no private/auth/community crawl.`,
+    statusNote: `Active and not done. Proof reads back from ${MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID}. Latest API full-watch small batch ${snapshot.batchRunId} processed ${snapshot.summary?.videoCount || 0} Mark videos with ${snapshot.summary?.totalBuildCandidates || 0} proposal-only candidates, no auto backlog, and no private/auth/community crawl.`,
   }, ACTOR)
   const previous = await getActiveFoundationCurrentSprint()
   const items = list(previous.items).map(item => item.cardId === MARK_KASHEF_LAST_50_BASELINE_CARD_ID
@@ -299,8 +299,8 @@ async function main() {
   if (args.liveGeminiApi && !args.apply) {
     throw new Error('--live-gemini-api is only allowed with --apply so paid provider work is persisted and auditable.')
   }
-  if (args.batchSize < 3 || args.batchSize > MARK_KASHEF_GOD_MODE_SMALL_BATCH_MAX_SIZE) {
-    throw new Error(`--batch-size must be between 3 and ${MARK_KASHEF_GOD_MODE_SMALL_BATCH_MAX_SIZE}.`)
+  if (args.batchSize < 1 || args.batchSize > MARK_KASHEF_GOD_MODE_SMALL_BATCH_MAX_SIZE) {
+    throw new Error(`--batch-size must be between 1 and ${MARK_KASHEF_GOD_MODE_SMALL_BATCH_MAX_SIZE}; sizes under 3 are only allowed for a final tail batch.`)
   }
 
   await initFoundationDb()
@@ -312,11 +312,13 @@ async function main() {
       loadAlreadyApiWatchedVideoIds(),
       getActiveFoundationCurrentSprint(),
     ])
-    const selectedVideos = selectMarkGodModeSmallBatchVideos({
+    const remainingVideos = selectMarkGodModeSmallBatchVideos({
       poolRows,
       alreadyApiWatchedVideoIds: alreadyWatchedVideoIds,
-      limit: args.batchSize,
+      limit: MARK_KASHEF_GOD_MODE_SMALL_BATCH_MAX_SIZE,
     })
+    const selectedVideos = remainingVideos.slice(0, Math.min(args.batchSize, remainingVideos.length))
+    const finalTailBatch = remainingVideos.length > 0 && remainingVideos.length < 3 && selectedVideos.length === remainingVideos.length
 
     if (args.apply) {
       if (currentSprint.sprint?.activeBlockerCardId !== MARK_KASHEF_LAST_50_BASELINE_CARD_ID) {
@@ -325,8 +327,8 @@ async function main() {
       if (!args.liveGeminiApi) {
         throw new Error('--apply requires --live-gemini-api for a fresh small-batch extraction.')
       }
-      if (selectedVideos.length < 3) {
-        throw new Error(`Need at least 3 unwatched Mark videos from Foundation pool; selected ${selectedVideos.length}.`)
+      if (selectedVideos.length < 3 && !finalTailBatch) {
+        throw new Error(`Need at least 3 unwatched Mark videos from Foundation pool unless this is the final tail; selected ${selectedVideos.length}, remaining ${remainingVideos.length}.`)
       }
       const transcriptArtifacts = await loadTranscriptArtifacts()
       const videoResults = await runMarkGodModeSmallBatchExtraction({
@@ -344,6 +346,7 @@ async function main() {
         videoResults,
         model: args.model,
         liveGeminiApi: true,
+        finalTailBatch,
       })
       if (!snapshot.ok) {
         throw new Error(`Mark small batch blocked: ${snapshot.failures.map(failure => failure.check).join(', ')}`)
@@ -374,13 +377,19 @@ async function main() {
 
     addCheck(checks, packageJson.scripts?.['process:mark-kashef-god-mode-small-batch-check'] === `node --env-file-if-exists=.env ${MARK_KASHEF_GOD_MODE_SMALL_BATCH_SCRIPT_PATH}`, 'package exposes small-batch focused proof', packageJson.scripts?.['process:mark-kashef-god-mode-small-batch-check'] || 'missing')
     addCheck(checks, currentSprint.sprint?.activeBlockerCardId === MARK_KASHEF_LAST_50_BASELINE_CARD_ID, 'Current Sprint active blocker is Mark baseline', currentSprint.sprint?.activeBlockerCardId || 'missing')
-    addCheck(checks, selectedVideos.length >= 3 || snapshot?.ok === true, 'Foundation pool has enough next Mark videos or persisted batch exists', selectedVideos.map(video => `${video.rank}:${video.videoId}`).join(', ') || 'none')
+    addCheck(checks, selectedVideos.length >= 3 || finalTailBatch || snapshot?.ok === true, 'Foundation pool has enough next Mark videos, final tail, or persisted batch exists', selectedVideos.map(video => `${video.rank}:${video.videoId}`).join(', ') || 'none')
     addCheck(checks, snapshot?.ok === true, 'small-batch snapshot is healthy', snapshot?.failures?.map(failure => failure.check).join(', ') || snapshot?.status || 'missing')
     addCheck(checks, snapshot?.route?.fullVideoWatchRoute === 'gemini_api_youtube_url_video_understanding', 'small batch uses Gemini API full-watch route', snapshot?.route?.fullVideoWatchRoute || 'missing')
     addCheck(checks, snapshot?.route?.subscriptionWorkspaceFullWatch === false, 'subscription route is not labeled full-watch', String(snapshot?.route?.subscriptionWorkspaceFullWatch))
     addCheck(checks, snapshot?.model === args.model || !args.apply, 'batch model is explicit', snapshot?.model || 'missing')
-    addCheck(checks, list(snapshot?.videoResults).length >= 3 && list(snapshot?.videoResults).length <= MARK_KASHEF_GOD_MODE_SMALL_BATCH_MAX_SIZE, 'persisted video count is guarded', `${list(snapshot?.videoResults).length}`)
-    addCheck(checks, list(snapshot?.topBuildCandidates).length >= 6, 'small batch produced proposal candidates', `${list(snapshot?.topBuildCandidates).length}`)
+    addCheck(
+      checks,
+      (list(snapshot?.videoResults).length >= 3 && list(snapshot?.videoResults).length <= MARK_KASHEF_GOD_MODE_SMALL_BATCH_MAX_SIZE) ||
+        (snapshot?.finalTailBatch === true && list(snapshot?.videoResults).length >= 1 && list(snapshot?.videoResults).length < 3),
+      'persisted video count is guarded',
+      `${list(snapshot?.videoResults).length}${snapshot?.finalTailBatch ? ' final-tail' : ''}`,
+    )
+    addCheck(checks, list(snapshot?.topBuildCandidates).length >= Math.max(1, list(snapshot?.videoResults).length), 'small batch produced proposal candidates', `${list(snapshot?.topBuildCandidates).length}`)
     addCheck(checks, snapshot?.noAutoBacklogPromotion === true && snapshot?.externalWrites === false, 'small batch has no auto backlog or external writes', `noAuto=${snapshot?.noAutoBacklogPromotion} external=${snapshot?.externalWrites}`)
     addCheck(checks, persistence?.ok === true, 'persisted report, atoms, and hits read back', persistence?.failures?.map(failure => failure.check).join(', ') || 'ok')
     addCheck(
@@ -412,6 +421,7 @@ async function main() {
         totalTimestampedVisualEvidence: snapshot?.summary?.totalTimestampedVisualEvidence || 0,
         totalTokens: snapshot?.summary?.totalTokens || 0,
         approvalRequiredLinkCount: snapshot?.summary?.approvalRequiredLinkCount || 0,
+        finalTailBatch: snapshot?.finalTailBatch === true,
         videos: list(snapshot?.videoResults).map(result => ({
           videoId: result.video?.videoId,
           title: result.video?.title,
