@@ -52,4 +52,4 @@ Focused proof should create or simulate:
 - Source-family watermarks are derived from the durable `foundation_job_runs` ledger, not from markdown reports.
 - Completed archive/extractor/synthesis/action-router jobs get `metadata.synthesisFreshness` patched onto their Foundation job run.
 - The default behavior is no-spend mark-only mode. `SYNTHESIS_FRESHNESS_TRIGGER_AUTORUN=true` is required before the runner can automatically invoke the synthesis/action-router follow-up jobs.
-- `scripts/process-synthesis-router-freshness-trigger-check.mjs` owns the deterministic dogfood proof for stale, blocked, refreshed, and action-router-due states.
+- `scripts/process-synthesis-router-freshness-trigger-check.mjs` owns the deterministic dogfood proof for stale, blocked, refreshed, and action-router-due states, and also reads the live Foundation job ledger to prove runtime metadata is actually being patched.

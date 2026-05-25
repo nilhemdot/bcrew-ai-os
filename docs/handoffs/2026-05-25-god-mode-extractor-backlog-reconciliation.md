@@ -80,6 +80,8 @@ Parity gate progress: `GOD-MODE-EXTRACTOR-PARITY-GATE-001` now has `npm run proc
 
 Public comments progress: `YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001` now has `npm run process:youtube-public-comments-extractor-check -- --json`. The proof defines exact public-video/no-auth boundaries, comment provenance fields, source-packet classification for links found in comments, and a YouTube Data API public-comment adapter dogfooded with fake fetch. The repo currently has no `YOUTUBE_DATA_API_KEY` / `YOUTUBE_API_KEY` configured, so the adapter blocks honestly. The parity matrix must keep YouTube comments as adapter-ready, not fully working, until API key config and full-watch runner integration are done.
 
+Synthesis freshness progress: `SYNTHESIS-ROUTER-FRESHNESS-TRIGGER-001` has `npm run process:synthesis-router-freshness-trigger-check -- --json`. The proof now covers stale, blocked-by-extractor, synthesis-refreshed, action-router-due, runtime hook metadata patching, and a live Foundation job ledger read. Current live state shows failed extractor jobs block synthesis freshness instead of letting the brain layer look current. Automatic follow-up execution remains explicit through `SYNTHESIS_FRESHNESS_TRIGGER_AUTORUN=true`.
+
 ## New Source Lead Captured
 
 Steve added Nuno Tavares / Automated Marketer as an ungraded Build Intel source.

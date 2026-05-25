@@ -15,6 +15,10 @@ import {
   classifySynthesisFreshnessJob,
   handleSynthesisFreshnessAfterFoundationJobRun,
 } from '../lib/synthesis-router-freshness-trigger.js'
+import {
+  closeFoundationDb,
+  getFoundationJobRunSnapshot,
+} from '../lib/foundation-db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -108,6 +112,18 @@ function sourceHasForbiddenDestinationWrites(source = '') {
   return /createBacklogItem\s*\(|updateBacklogItem\s*\(|upsertFoundationCurrentSprintOverlay\s*\(|approveActionRoute\s*\(|applyApprovedActionRoute\s*\(|INSERT\s+INTO\s+backlog_items|UPDATE\s+backlog_items|INSERT\s+INTO\s+decisions|UPDATE\s+decisions|fetch\s*\(|sendEmail|writeFile\s*\(|fs\.writeFile/i.test(String(source || ''))
 }
 
+function liveTrackedRunsWithFreshness(latestRuns = []) {
+  return latestRuns
+    .filter(run => classifySynthesisFreshnessJob(run.jobKey))
+    .filter(run => run.metadata?.synthesisFreshness)
+}
+
+function liveFailedExtractorRuns(latestRuns = []) {
+  return latestRuns
+    .filter(run => classifySynthesisFreshnessJob(run.jobKey)?.role === 'extractor')
+    .filter(run => String(run.status || '').toLowerCase() === 'failed')
+}
+
 async function buildSyntheticRuntimeHookProof() {
   const metadataPatches = []
   const triggeredJobs = []
@@ -184,6 +200,14 @@ async function main() {
     blocked,
   )
   const runtimeHookProof = await buildSyntheticRuntimeHookProof()
+  const liveJobSnapshot = await getFoundationJobRunSnapshot({ limit: 120 })
+  const liveFreshness = buildSynthesisRouterFreshnessSnapshot({
+    jobs: liveJobSnapshot.jobs || [],
+    runs: liveJobSnapshot.latestRuns || [],
+    now: new Date().toISOString(),
+  })
+  const liveFreshnessMetadataRuns = liveTrackedRunsWithFreshness(liveJobSnapshot.latestRuns || [])
+  const liveFailedExtractors = liveFailedExtractorRuns(liveJobSnapshot.latestRuns || [])
 
   addCheck(
     checks,
@@ -258,6 +282,19 @@ async function main() {
   )
   addCheck(
     checks,
+    liveFreshnessMetadataRuns.length >= 1,
+    'live Foundation job ledger has runtime-patched synthesis freshness metadata',
+    liveFreshnessMetadataRuns.slice(0, 4).map(run => `${run.jobKey}:${run.metadata.synthesisFreshness.freshnessStatus}`).join(', ') || 'none',
+  )
+  addCheck(
+    checks,
+    liveFailedExtractors.length === 0 ||
+      (liveFreshness.blockedByExtractor === true && liveFreshness.failedExtractorJobKeys.length >= 1),
+    'live freshness snapshot blocks on failed extractors instead of claiming fresh',
+    `${liveFreshness.status} failed=${liveFreshness.failedExtractorJobKeys.join(',') || 'none'}`,
+  )
+  addCheck(
+    checks,
     moduleSource.includes(SYNTHESIS_FRESHNESS_TRIGGER_ENV) &&
       moduleSource.includes('shouldAutorunSynthesisFreshnessTrigger') &&
       process.env[SYNTHESIS_FRESHNESS_TRIGGER_ENV] !== 'true',
@@ -296,6 +333,13 @@ async function main() {
       afterSynthesis,
       afterActionRouter,
       runtimeHookProof,
+      liveFreshness: {
+        status: liveFreshness.status,
+        nextJobKey: liveFreshness.nextJobKey,
+        blockedByExtractor: liveFreshness.blockedByExtractor,
+        failedExtractorJobKeys: liveFreshness.failedExtractorJobKeys,
+        metadataPatchedRuns: liveFreshnessMetadataRuns.length,
+      },
     },
   }
 
@@ -313,8 +357,12 @@ async function main() {
   }
 }
 
-main().catch(error => {
-  console.error('Synthesis router freshness trigger check failed.')
-  console.error(error instanceof Error ? error.stack || error.message : String(error))
-  process.exitCode = 1
-})
+main()
+  .catch(error => {
+    console.error('Synthesis router freshness trigger check failed.')
+    console.error(error instanceof Error ? error.stack || error.message : String(error))
+    process.exitCode = 1
+  })
+  .finally(async () => {
+    await closeFoundationDb().catch(() => {})
+  })
