@@ -73,7 +73,8 @@ async function main() {
     checks,
     /Director -> Scoper -> Build Portfolio\/Sprint Master -> Steve approval/i.test(planSource) &&
       planSource.includes('source lineage') &&
-      /seven (related|overlapping) ideas/i.test(planSource),
+      /seven (related|overlapping) ideas/i.test(planSource) &&
+      planSource.includes('raw Director recommendations as Scoper inputs only'),
     'plan captures post-Scoper portfolio role and source-lineage merge behavior',
     BUILD_PORTFOLIO_SCRUM_MASTER_PLAN_PATH
   )
@@ -122,6 +123,13 @@ async function main() {
     dogfood.ok,
     'dogfood portfolio review handles merge, thin, blocked, existing-card, and standalone cases',
     JSON.stringify(dogfood.checks.filter(check => !check.ok))
+  )
+  addCheck(
+    checks,
+    dogfood.rawDirectorReview?.scoperRequired === true &&
+      dogfood.rawDirectorReview.groups?.every(group => group.decision === 'return_to_scoper'),
+    'raw Director recommendations are forced through Scoper before portfolio review',
+    dogfood.rawDirectorReview?.groups?.map(group => `${group.candidateIds.join('+')}:${group.decision}`).join(', ') || 'missing raw Director proof'
   )
 
   const failures = checks.filter(check => !check.ok)

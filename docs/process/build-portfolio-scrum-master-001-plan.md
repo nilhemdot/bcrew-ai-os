@@ -28,6 +28,7 @@ Short approval chain: Director -> Scoper -> Build Portfolio/Sprint Master -> Ste
 
 - Reads scoped build candidates from Foundation truth, not chat memory.
 - Reads Director recommendations, source reports, atoms, evidence hits, and Scoper output.
+- Treats raw Director recommendations as Scoper inputs only; they cannot become merged portfolio proposals until Scoper adds build scope, acceptance criteria, definition of done, proof/tests, risks, not-next boundaries, existing work to reuse, and source lineage.
 - Detects duplicate and overlapping ideas across sources, creators, meetings, comms, and prior backlog cards.
 - Clusters related candidates into build-opportunity groups.
 - Produces a merged/enhanced build concept when multiple cards are really one stronger opportunity.
@@ -47,7 +48,7 @@ Short approval chain: Director -> Scoper -> Build Portfolio/Sprint Master -> Ste
   - duplicate scoped cards merged
   - overlapping cards enhanced into one stronger concept
   - unrelated cards kept separate
-  - thin cards returned to Scoper
+  - thin or generic cards returned to Scoper when they lack acceptance criteria, definition of done, proof/tests, risks, not-next boundaries, existing work to reuse, or source lineage
   - blocked/source-auth cards parked
   - already-existing backlog card reused instead of duplicated
 
@@ -74,6 +75,7 @@ The difference is timing and input:
 - Do not auto-create sprint work.
 - Do not bypass Scoper.
 - Do not ask Steve to approve vague recommendations before scope exists.
+- Do not let "ready for Scoper" mean "ready for Steve approval" or "ready for sprint."
 - Do not merge ideas without preserving source lineage and evidence.
 - Do not run new extraction from this card.
 
@@ -108,3 +110,5 @@ What to change:
 - `node --check lib/build-portfolio-scrum-master.js`
 - `node --check scripts/process-build-portfolio-scrum-master-check.mjs`
 - `npm run process:build-portfolio-scrum-master-check -- --json`
+
+The focused proof must also dogfood raw Director recommendations and prove they return to Scoper with source lineage preserved instead of entering the portfolio queue.
