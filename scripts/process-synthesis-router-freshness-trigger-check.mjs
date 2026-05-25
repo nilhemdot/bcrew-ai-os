@@ -118,12 +118,6 @@ function liveTrackedRunsWithFreshness(latestRuns = []) {
     .filter(run => run.metadata?.synthesisFreshness)
 }
 
-function liveFailedExtractorRuns(latestRuns = []) {
-  return latestRuns
-    .filter(run => classifySynthesisFreshnessJob(run.jobKey)?.role === 'extractor')
-    .filter(run => String(run.status || '').toLowerCase() === 'failed')
-}
-
 async function buildSyntheticRuntimeHookProof() {
   const metadataPatches = []
   const triggeredJobs = []
@@ -207,7 +201,7 @@ async function main() {
     now: new Date().toISOString(),
   })
   const liveFreshnessMetadataRuns = liveTrackedRunsWithFreshness(liveJobSnapshot.latestRuns || [])
-  const liveFailedExtractors = liveFailedExtractorRuns(liveJobSnapshot.latestRuns || [])
+  const liveFailedExtractorJobKeys = liveFreshness.failedExtractorJobKeys || []
 
   addCheck(
     checks,
@@ -288,10 +282,13 @@ async function main() {
   )
   addCheck(
     checks,
-    liveFailedExtractors.length === 0 ||
-      (liveFreshness.blockedByExtractor === true && liveFreshness.failedExtractorJobKeys.length >= 1),
-    'live freshness snapshot blocks on failed extractors instead of claiming fresh',
-    `${liveFreshness.status} failed=${liveFreshness.failedExtractorJobKeys.join(',') || 'none'}`,
+    liveFailedExtractorJobKeys.length > 0
+      ? liveFreshness.blockedByExtractor === true && liveFreshness.failedExtractorJobKeys.length >= 1
+      : liveFreshness.blockedByExtractor === false && liveFreshness.status !== 'blocked_by_extractor',
+    liveFailedExtractorJobKeys.length > 0
+      ? 'live freshness snapshot blocks on failed extractors instead of claiming fresh'
+      : 'live freshness snapshot advances after extractor failures are repaired',
+    `${liveFreshness.status} failed=${liveFreshness.failedExtractorJobKeys.join(',') || 'none'} next=${liveFreshness.nextJobKey || 'none'}`,
   )
   addCheck(
     checks,
