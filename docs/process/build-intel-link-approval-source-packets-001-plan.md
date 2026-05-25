@@ -133,6 +133,19 @@ V1 implementation note:
 - Dev Hub approval rows show the plain-English packet consequence and runtime consequence so Steve can tell what approval would do before approving.
 - Operator-note parsing supports the future "Decide with AI" flow: Steve can leave a comment and the system maps it to the safest packet type before asking for confirmation.
 
+V1.1 public web runtime note:
+
+- `lib/source-packet-public-web-runtime.js` proves how a confirmed public/sales-page packet can become an exact one-page local browser/read worker run.
+- The runtime accepts only approved `approve_public_free_read` or `approve_sales_page_review` packets for public web/GitHub-style sources.
+- It does not follow discovered links. It turns them into new source-packet candidates so Steve can approve, hold, or reject them separately.
+- It blocks Skool, paid/private/community/course links, broad page limits, auth sessions, downloads, form submissions, external writes, and backlog writes.
+- Live Playwright mode exists behind an explicit `allowLive` flag and stays disabled in focused proof; the default proof is synthetic/no-network.
+- Focused proof:
+
+```bash
+node --env-file-if-exists=.env scripts/process-source-packet-public-web-runtime-check.mjs --json
+```
+
 ## Not Next
 
 - Do not crawl Skool, paid communities, courses, downloads, private/member content, comments, forms, or purchases.
