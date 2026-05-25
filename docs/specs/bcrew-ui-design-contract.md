@@ -158,11 +158,17 @@ explicitly creating a new approved version.
 - Stratum1 is for display headings, hub names, labels, numbers, and CTAs.
 - Open Sans is for readable body copy.
 - JetBrains Mono is for IDs, timestamps, counts, source IDs, and technical proof.
+- The font-family name is `Stratum1` everywhere. Do not create page-specific
+  aliases like `LauncherStratum1`. All pages load the same .otf files from
+  `/fonts/` and use `font-family: 'Stratum1'`.
 - Do not let Stratum1 fall back silently. A visual proof must show font files
   loaded.
 - Do not use negative letter spacing except the canonical Stratum1 display
   treatment already present in the mockups.
-- Keep body text at 14px or larger unless it is a compact label.
+- Keep body text at 13-14px. Use 13px (`--t-sm`) for card body text to match
+  the launcher pattern. Use 14px (`--t-body`) for standalone paragraphs.
+- Minimum readable size is 11px, and only for uppercase Stratum1 labels.
+  Never go below 11px for anything.
 
 ## Shell Patterns
 
@@ -316,11 +322,49 @@ single-page prototype.
   should roll up from the value of the items inside that source family, not from
   taste or assumed importance.
 
-### Locked Hub Card Patterns
+### Card Variation Guide — Which Card, When
+
+One card shell. Five content variations. Use this table before building any
+card on any page.
+
+| Variation | Use When | Content Inside | Example |
+|-----------|----------|---------------|---------|
+| **Standard card** | Showing a system, tool, or process that runs | Icon circle + label + title + description + dashed footer ("Last run" date) | Extractor cards on /dev |
+| **Big number card** | The main thing to say is a COUNT or METRIC | Giant number (38px) + label + description + meta footer | Evidence cards on /dev (200, 7, 14, 9) |
+| **Mini card** | Compact selection list, user picks one | Icon square + title + status line, no description | Source input row on /dev |
+| **Director card** | Ranked recommendations or prioritized items | Rank line + title + plain English description + source line | Build candidates in Director accordion |
+| **Hub station card** | A hub or department someone can click into | Number + title + 1-line description + win line + dashed footer (owner + action) | Hub cards on launcher (Strategy, Sales, Dev, etc.) |
+
+If none of these fit, do NOT invent a new card. Ask first.
+
+The shell is always the same:
+
+- White background, thin `--grey-line` border
+- 14px to 16px border-radius
+- 20px padding (16px on compact/mini cards)
+- 3px left accent bar, color-coded
+- Subtle resting shadow: `0 1px 3px rgba(10,15,26,0.04)`
+- Hover: `-4px` lift, blue border tint, shadow grows
+- Dashed footer divider when the card has a footer
+
+### Status Colors — Left Accent Bar
+
+The left accent bar is how every card communicates status. No pills
+needed. The color tells you instantly.
+
+| Color | Meaning | When to Use |
+|-------|---------|-------------|
+| Green `#16A34A` | Running / healthy / good | System is active, source is connected, hub is live |
+| Amber `#D97706` | Needs attention / partially working | Needs approval, needs setup, partially built |
+| Grey `#4B5563` at 25% opacity | Planned / not started | Hub not built yet, source not connected |
+| Blue `#0084C9` | Default / brand accent | Director recommendations, general non-status cards |
+| Ink `#0A0F1A` | Strong system boundary | Only for special emphasis (rarely used) |
+
+### Locked Card Patterns (Detail)
 
 Use these patterns before inventing a new one.
 
-**Left-accent repeated card**
+**Left-accent repeated card (Standard)**
 
 - White card, thin border, 14px to 16px radius.
 - 3px left accent bar.
@@ -351,6 +395,23 @@ Use these patterns before inventing a new one.
   Only show a status pill when something needs attention.
 - Selecting a source should reveal only new detail below. Do not repeat the
   whole source card as a second header.
+
+**Hub station card**
+
+- Same card shell as everything else: white, thin border, 14-16px radius,
+  left accent bar.
+- Green accent = hub is live and working. Amber = partially built or needs
+  attention. Grey = planned, not started yet.
+- Content: hub number (01-08), hub name in Stratum1 uppercase, one-line
+  description, a win/status line in plain English, dashed footer with
+  owner name and action link.
+- No status pills. The left accent bar color IS the status.
+- Do not use: CARVE OUT, PARTIAL, or any internal jargon. Say what the
+  hub actually is: "Running", "Partially built", "Planned".
+- Win line shows one useful fact: "54 active cases · 3 sold" or
+  "13 cards · 8 done" or "Needs source". No tinted background box.
+- Footer: owner name on left, "open →" or "queued" on right, separated
+  by dashed border-top.
 
 **Director accordion**
 

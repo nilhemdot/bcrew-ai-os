@@ -102,10 +102,16 @@ add(homeJs.includes("action.innerHTML = 'Open Foundation"), 'owner CTA removes u
 add(indexHtml.includes('mascot-6-cutout-v2-900.webp') && indexHtml.includes('mascot-6-cutout-v2-1400.webp'), 'launcher uses cleaned mascot cutout assets', 'mascot-6-cutout-v2')
 add(loginHtml.includes('mascot-7-900.webp') && loginHtml.includes('mascot-7-1600.webp') && !loginHtml.includes('mascot-7-cutout'), 'login keeps original transparent mascot asset', 'mascot-7 original')
 add(indexHtml.includes('launcher-logout') && homeJs.includes('/api/auth/logout'), 'launcher user menu exposes logout action', 'launcher-logout')
+add(!launcherCss.includes('LauncherStratum1') && !indexHtml.includes('LauncherStratum1') && !homeJs.includes('LauncherStratum1'), 'launcher uses canonical Stratum1 font name', 'Stratum1')
 add(launcherCss.includes('font-size: 22px;') && launcherCss.includes('font-size: 11px;'), 'launcher type polish uses locked heading/role sizes', '22px h2 / 11px role')
 add(indexHtml.includes('launcher-hub-partial') && launcherCss.includes('.launcher-hub::before') && launcherCss.includes('width: 3px;') && launcherCss.includes('height: 100%;'), 'launcher station cards use locked left accent bar', 'launcher-hub::before left rail')
-add(launcherCss.includes('.launcher-hub-status {') && launcherCss.includes('border: 0;') && launcherCss.includes('background: transparent;'), 'launcher station status is plain text, not chunky pills', 'launcher-hub-status')
-add(launcherCss.includes('.launcher-hub-win') && launcherCss.includes('background: transparent;'), 'launcher station value line is not a separate win-box card', 'launcher-hub-win transparent')
+add(!indexHtml.includes('launcher-hub-status') && !launcherCss.includes('launcher-hub-status') && !homeJs.includes('launcher-hub-status'), 'launcher station status pills are removed', 'launcher-hub-status absent')
+add(!indexHtml.includes('PARTIAL') && !indexHtml.includes('PLANNED') && !indexHtml.includes('CARVE OUT'), 'launcher station jargon removed', 'PARTIAL/PLANNED/CARVE OUT absent')
+add(!indexHtml.includes('launcher-hub-carve') && !launcherCss.includes('launcher-hub-carve'), 'Dev station no longer uses carve-out card state', 'launcher-hub-carve absent')
+add(indexHtml.includes('data-hub="dev"') && indexHtml.includes('class="launcher-hub launcher-route-card launcher-hub-live"'), 'Dev station uses running hub state', 'launcher-hub-live')
+add(launcherCss.includes('--launcher-green: #16a34a') && launcherCss.includes('.launcher-hub-live::before') && launcherCss.includes('background: var(--launcher-green);'), 'running hub cards use green left rail', 'launcher-hub-live green rail')
+add(!indexHtml.includes('launcher-hub-win') && !launcherCss.includes('launcher-hub-win'), 'launcher station win-box class is removed', 'launcher-hub-win absent')
+add(indexHtml.includes('launcher-hub-value') && launcherCss.includes('.launcher-hub-value') && launcherCss.includes('background: transparent;'), 'launcher station value line is plain text', 'launcher-hub-value transparent')
 
 const failed = checks.filter(check => !check.ok)
 const result = {

@@ -321,21 +321,15 @@ function updateAccessSummary(user, allowedCount) {
 }
 
 function setRouteCardLocked(card, locked) {
-  var status = card.querySelector('.launcher-hub-status')
   if (!card.dataset.originalHref) card.dataset.originalHref = card.getAttribute('href') || '#'
 
   card.classList.toggle('launcher-route-locked', locked)
   card.setAttribute('aria-disabled', locked ? 'true' : 'false')
   if (locked) {
     card.setAttribute('href', '#')
-    if (status) {
-      if (!status.dataset.originalText) status.dataset.originalText = status.textContent
-      status.textContent = 'LOCKED'
-    }
     return
   }
 
-  if (status && status.dataset.originalText) status.textContent = status.dataset.originalText
   if (card.dataset.routeEnabled === 'true') {
     card.setAttribute('href', card.dataset.originalHref)
   } else {
