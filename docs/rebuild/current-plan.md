@@ -71,7 +71,7 @@ Active sprint order:
 7. `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` - done under `subscription-brain-extractor-adapter-v1`.
 8. `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` - done under `gemini-workspace-eyes-route-proof-v1`.
 9. `MARK-KASHEF-LAST-50-BASELINE-001` - active card for morning review/closeout. The current Mark Foundation pool is 50/50 API full-watch complete; next action is inspect the refreshed Director report, choose candidates for Scoper, then close/advance through the proper closeout path.
-10. `YOUTUBE-LATEST-20-INTEL-RUN-001` - process approved public last-20 videos for other creators only after the Mark closeout/review confirms the extraction output quality.
+10. `YOUTUBE-LATEST-20-INTEL-RUN-001` - V1 run-manifest/proof built. Select the next bounded non-Mark public videos from the daily watch pool, require Gemini API full-watch extraction and resource-link disposition, and do not run broad/all-creator extraction.
 11. `YOUTUBE-RESOURCE-LINK-RESOLVER-001` - V1 contract/proof built. Resolve approved public YouTube description/resource links into Scoper-readable source packets and block private/paid/login/download/short-link routes with exact approval reasons.
 12. `DEV-SOURCE-SLICE-ROUTER-001` - V1 contract/proof built. Filter meetings/Gmail/Missive/Slack synthesis into Dev-relevant build signals while parking ops-only work before Director input.
 13. `DEV-INTEL-SOURCE-COVERAGE-001` - V1 contract/proof built. Show which source families feed Dev, which are blocked/planned, and which next card resolves each source gap before approving builds.

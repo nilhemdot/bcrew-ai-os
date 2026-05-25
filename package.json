@@ -92,6 +92,7 @@
     "process:dev-source-slice-router-check": "node --env-file-if-exists=.env scripts/process-dev-source-slice-router-check.mjs",
     "process:dev-intel-source-coverage-check": "node --env-file-if-exists=.env scripts/process-dev-intel-source-coverage-check.mjs",
     "process:youtube-resource-link-resolver-check": "node --env-file-if-exists=.env scripts/process-youtube-resource-link-resolver-check.mjs",
+    "process:youtube-latest-20-intel-run-check": "node --env-file-if-exists=.env scripts/process-youtube-latest-20-intel-run-check.mjs",
     "codex:usage": "node scripts/codex-usage.mjs",
     "codex:usage-web": "node scripts/codex-usage-web.mjs",
     "process:ship-check": "node --env-file-if-exists=.env scripts/process-ship-check.mjs",

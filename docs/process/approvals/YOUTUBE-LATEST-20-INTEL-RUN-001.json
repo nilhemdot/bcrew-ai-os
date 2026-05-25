@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-LATEST-20-INTEL-RUN-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T13:30:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-latest-20-intel-run-001-plan.md",
+  "approvedPlanSha256": "e5a370e3fb4b7afcd142a5e5126a088d458f50f631f6f6ccebb9b941dcd5ecd9",
+  "approvedRepoHead": "48d806f32529d9f14d68da5157f853cf9101f3cf",
+  "approvalSource": "Steve direct May 25 source-first correction: after Mark full-watch completion, prepare the next bounded non-Mark public YouTube latest-20 run from approved daily-watch data; do not broaden into private/auth/paid sources or weak transcript-only extraction.",
+  "notes": "Approved only for a read-only run manifest/proof. Not approved: live Gemini/model calls, transcript fetch, screenshot capture, comments/member crawling, paid/auth/community sources, external writes, or automatic backlog promotion.",
+  "approvalDigest": "bfa92c247f359720fa339264ff1ecb784e42a7127037443637b98406e51aca9b"
+}

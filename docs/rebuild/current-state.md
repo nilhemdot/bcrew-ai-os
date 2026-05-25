@@ -41,6 +41,8 @@ May 25 Dev source-slice router V1: `DEV-SOURCE-SLICE-ROUTER-001` is implemented 
 
 May 25 Dev intel source coverage V1: `DEV-INTEL-SOURCE-COVERAGE-001` is implemented as a read-only source-family matrix for Dev. It shows active public YouTube, YouTube resource links, and shared meetings/Gmail/Missive/Slack as Dev-feeding inputs; it keeps Skool and MyICOR visible but blocked until source-packet approval; it marks GitHub/repos, public communities, Drive/course docs, and business-system signals as planned/partial with next cards. It does not run extraction, auth, model calls, backlog writes, or external writes.
 
+May 25 latest-20 public YouTube run manifest V1: `YOUTUBE-LATEST-20-INTEL-RUN-001` is implemented as a read-only manifest/proof for the next non-Mark public creator extraction batch. It reads the daily watch pool, excludes Mark and already full-watched videos, selects only public/no-auth rows, caps the manifest at 3 creators / 3 videos each / 9 videos total, and requires the future runtime to use Gemini API full video/audio/visual watching plus resource-link disposition. It does not run extraction, call models, follow links, create backlog cards, or write externally.
+
 May 23 creator-watch reconcile: the daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This is still source discovery, not watched/analyzed video.
 
 Closed setup:
@@ -75,7 +77,7 @@ Sprint order:
 7. `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` - done under `subscription-brain-extractor-adapter-v1`
 8. `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` - done under `gemini-workspace-eyes-route-proof-v1`
 9. `MARK-KASHEF-LAST-50-BASELINE-001` - active card for morning review/closeout; current Mark Foundation pool is 50/50 API full-watch complete
-10. `YOUTUBE-LATEST-20-INTEL-RUN-001`
+10. `YOUTUBE-LATEST-20-INTEL-RUN-001` - V1 run manifest/proof selects the next bounded non-Mark public videos and keeps live extraction as a separate guarded runtime step
 11. `YOUTUBE-RESOURCE-LINK-RESOLVER-001` - resolve approved public YouTube description/resource links into Scoper-readable source packets and block private/paid/login/download/short-link routes with exact approval reasons
 12. `DEV-SOURCE-SLICE-ROUTER-001` - filter meetings/Gmail/Missive/Slack synthesis into Dev-relevant build signals while parking ops-only work before Director input
 13. `DEV-INTEL-SOURCE-COVERAGE-001` - show active, partial, blocked, and planned Dev intelligence source families before approving builds
