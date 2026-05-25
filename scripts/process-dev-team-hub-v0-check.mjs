@@ -237,6 +237,18 @@ async function main() {
   addCheck(checks, jsSource.includes('YouTube Creators') && jsSource.includes('Skool / Paid Courses') && jsSource.includes('GitHub / Repos') && jsSource.includes('Gmail / Missive / Slack') && jsSource.includes('Meetings / Transcripts') && jsSource.includes("label: 'Visual evidence'") && jsSource.includes("label: 'Links to review'") && !jsSource.includes("name: 'Video Artifacts'") && !jsSource.includes("name: 'Dev Director'") && !jsSource.includes("name: 'God Mode Eyes'"), 'source cards are actual source inputs and evidence is separate output', 'sources: YouTube/Skool/GitHub/internal/meetings; evidence cards carry output counts')
   addCheck(checks, cssSource.includes("font-family: 'Stratum1'") && cssSource.includes('--blue: #0084C9'), 'page-scoped CSS uses BCrew type and color tokens', 'public/dev.css')
   addCheck(checks, cssSource.includes('top: 0;') && !cssSource.includes('top: var(--topbar-h);'), 'Dev sidebar does not double-offset below shared topbar', 'sidebar top 0')
+  addCheck(
+    checks,
+    cssSource.includes('padding: 12px 0 var(--s-8);') &&
+      cssSource.includes('padding: 0 20px 8px;') &&
+      cssSource.includes('margin-bottom: 4px;') &&
+      cssSource.includes('padding: 0 20px 10px;') &&
+      cssSource.includes('margin-bottom: 6px;') &&
+      cssSource.includes('padding: 10px 20px;') &&
+      cssSource.includes('line-height: 0.84;'),
+    'Dev sidebar uses locked compact spacing values',
+    '12px top, 8px back gap, 4px kicker gap, 10px title padding, 6px nav gap'
+  )
   addCheck(checks, sourceDoesNotWriteOrExtract(readOnlyBundle), 'Dev Hub code has no extraction runner, external write, approval apply, or backlog writer path', 'read-only bundle scan')
   addCheck(checks, sourceDoesNotWriteOrExtract(scriptSource), 'focused proof stays read-only', SCRIPT_PATH)
   addCheck(checks, dogfood.ok === true, 'dogfood proves source-backed counts and missing-source fallback', JSON.stringify(dogfood.cases))

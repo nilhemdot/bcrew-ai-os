@@ -137,7 +137,7 @@ button {
 
 .sidebar {
   background: var(--grey-1);
-  padding: 0 0 var(--s-8);
+  padding: 12px 0 var(--s-8);
   position: sticky;
   top: 0;
   align-self: start;
@@ -149,27 +149,29 @@ button {
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  padding: var(--s-3) var(--s-5) var(--s-1);
+  padding: 0 20px 8px;
   color: var(--grey-d);
   font-family: var(--mono);
   font-size: var(--t-xs);
+  line-height: 0.84;
   text-decoration: none;
 }
 
 .sb-title {
-  padding: 0 var(--s-5) var(--s-2);
-  margin-bottom: 0;
+  padding: 0 20px 10px;
+  margin-bottom: 6px;
   border-bottom: 1px solid var(--grey-line);
 }
 
 .sb-title span {
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   color: var(--grey-d);
   font-family: var(--display);
   font-size: var(--t-xs);
   font-weight: var(--w-bold);
   letter-spacing: var(--ls-xwide);
+  line-height: 0.84;
   text-transform: uppercase;
 }
 
@@ -182,6 +184,7 @@ button {
   font-size: var(--t-md);
   font-weight: var(--w-black);
   letter-spacing: var(--ls-snug);
+  line-height: 0.84;
   text-transform: uppercase;
 }
 
@@ -205,7 +208,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px var(--s-5);
+  padding: 10px 20px;
   border: 0;
   border-left: 3px solid transparent;
   margin-left: -3px;
