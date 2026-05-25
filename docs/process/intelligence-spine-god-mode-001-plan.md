@@ -10,9 +10,11 @@ The spine is:
 
 This card upgrades the three critical decision layers:
 
+- Extraction routing: makes sure extractor calls use approved high-intelligence routes instead of weak/default placeholders.
 - Synthesis Engine: turns raw facts/evidence into plain-English, owner-ready signals.
 - Action Router: routes those signals into human-review destinations with useful reasons, owners, and next actions.
 - Dev Intelligence Director: ranks and explains build candidates, including whether each one is ready for Scoper or missing proof.
+- Video Eyes route: makes sure public YouTube video understanding uses the Gemini API video/audio/visual route, not browser/subscription guessing.
 
 ## Why
 
@@ -33,7 +35,10 @@ The old safe posture was useful but not enough:
 - Action Router payload explains why the human should review the item without internal provenance jargon.
 - Dev Intelligence Director dogfood promotes full-watch proof above weaker scout summaries.
 - Dev Intelligence Director dogfood emits build readiness, missing pieces, and the Scoper question for top recommendations.
-- Core synthesis/deep-review routes use the official `gpt-5.5` route with `extra_high_required` reasoning and `fast` speed mode.
+- Core text extraction uses a high-intelligence official route with extra-high reasoning.
+- Core synthesis/deep-review routes use the official `gpt-5.5` route with `extra_high_required` reasoning and `quality` or `max` mode, not fast mode.
+- Core video/eyes extraction uses Gemini API direct video/visual/audio understanding with a quality/vision posture.
+- No available critical route uses weak/default/configured placeholder model labels.
 - OpenClaw 5.4/medium routes are blocked for all Foundation workloads unless a future approved policy deliberately re-enables a specific route.
 
 ## Definition Of Done

@@ -113,26 +113,44 @@ Stop condition:
 
 - if the Director output cannot be explained in plain English, do not promote.
 
-### 5. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
+### 5. `BUILD-PORTFOLIO-SCRUM-MASTER-001`
 
-Goal: prepare the path from Director recommendation to scoped backlog candidate
-to Steve-approved queue/sprint work.
+Goal: prepare the post-Scoper portfolio layer that turns many scoped ideas into
+the best merged build opportunities before Steve approval.
 
 Work:
 
 - verify no recommendation auto-creates backlog;
-- define the Scoper step before Steve is asked to approve promotion;
-- define the Steve approval step as priority/promotion after a scoped brief,
-  not approval of a vague idea;
-- preserve evidence links and source route.
+- define the Scoper step before portfolio review;
+- define duplicate/overlap clustering;
+- define merge/enhance behavior so 7 related ideas can become 1 stronger build;
+- define weak-card return-to-Scoper behavior;
+- define source/auth blocker parking;
+- preserve evidence links, source route, and source lineage.
 
 Stop condition:
 
 - no auto-promotion without explicit approval.
-- no Steve approval request until the candidate has enough scope to judge value,
-  risk, source evidence, and build path.
+- no Steve approval request until the candidate has enough scope plus portfolio
+  review to judge value, risk, source evidence, and build path.
 
-### 6. `SYSTEM-014`
+### 6. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
+
+Goal: approve or reject portfolio-reviewed build opportunities into backlog
+cards or existing-card attachments.
+
+Work:
+
+- define Steve approval as priority/promotion after portfolio review;
+- define approved-for-backlog versus rejected versus parked;
+- keep source lineage attached to approved cards;
+- prevent auto-build.
+
+Stop condition:
+
+- no queue/sprint work starts without Steve approval after portfolio review.
+
+### 7. `SYSTEM-014`
 
 Goal: Brain Fleet/System Control surface.
 
@@ -147,7 +165,7 @@ Stop condition:
 
 - do not build provider switching if route proof and guardrails are not clear.
 
-### 7. `GOD-MODE-EXTRACTOR-PRODUCT-ARCHITECTURE-001`
+### 8. `GOD-MODE-EXTRACTOR-PRODUCT-ARCHITECTURE-001`
 
 Goal: capture the sellable/reusable extractor architecture.
 
@@ -162,7 +180,7 @@ Stop condition:
 
 - do not turn product architecture into broad source crawling.
 
-### 8. `YOUTUBE-LATEST-20-INTEL-RUN-001`
+### 9. `YOUTUBE-LATEST-20-INTEL-RUN-001`
 
 Goal: prepare broader public YouTube extraction after Mark proves quality.
 
@@ -176,7 +194,7 @@ Stop condition:
 
 - if Mark quality is not accepted, this waits.
 
-### 9. `SKOOL-LIVE-NAVIGATION-PROOF-002`
+### 10. `SKOOL-LIVE-NAVIGATION-PROOF-002`
 
 Goal: prepare one approved Skool proof.
 

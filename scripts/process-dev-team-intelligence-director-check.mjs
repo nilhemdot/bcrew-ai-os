@@ -33,6 +33,7 @@ import {
   DEV_TEAM_INTELLIGENCE_DIRECTOR_CHANGED_FILES,
   DEV_TEAM_INTELLIGENCE_DIRECTOR_INPUT_REPORT_IDS,
   DEV_TEAM_INTELLIGENCE_DIRECTOR_PLAN_PATH,
+  DEV_TEAM_INTELLIGENCE_DIRECTOR_PROMOTION_STATUS,
   DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID,
   DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_PATH,
   DEV_TEAM_INTELLIGENCE_DIRECTOR_SCRIPT_PATH,
@@ -114,7 +115,7 @@ async function persistDirector(snapshot = {}) {
 function buildClosedBacklogUpdate() {
   return {
     lane: 'done',
-    nextAction: 'Done under dev-team-intelligence-director-v1. Morning review starts with docs/source-notes/dev-team-intelligence-director-2026-05-24.md, then BUILD-OPPORTUNITY-PROMOTION-GATE-001 decides what becomes backlog work.',
+    nextAction: 'Done under dev-team-intelligence-director-v1. Morning review starts with docs/source-notes/dev-team-intelligence-director-2026-05-24.md, then Scoper and BUILD-PORTFOLIO-SCRUM-MASTER-001 review candidates before promotion.',
     statusNote: `Closed 2026-05-24 under dev-team-intelligence-director-v1; persisted ${DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID}, top proposal-only recommendation atoms/hits, preserved approval-required items, no auto backlog cards, no external writes, and no new extraction.`,
   }
 }
@@ -197,7 +198,7 @@ async function main() {
     addCheck(checks, snapshot.ok === true, 'Director snapshot is healthy', snapshot.failures.map(failure => failure.check).join(', ') || snapshot.status)
     addCheck(checks, snapshot.activeCard === 'MARK-KASHEF-LAST-50-BASELINE-001', 'Director respects active sprint context', snapshot.activeCard || 'missing')
     addCheck(checks, topCandidates.length >= 5, 'Director emits top 5 build candidates', `${topCandidates.length}`)
-    addCheck(checks, topCandidates.every(candidate => candidate.promotionStatus === 'proposal_only_needs_steve_approval'), 'top candidates are proposal-only', topCandidates.map(candidate => candidate.promotionStatus).join(', '))
+    addCheck(checks, topCandidates.every(candidate => candidate.promotionStatus === DEV_TEAM_INTELLIGENCE_DIRECTOR_PROMOTION_STATUS), 'top candidates require Scoper before Steve approval', topCandidates.map(candidate => candidate.promotionStatus).join(', '))
     addCheck(checks, topCandidates.every(candidate => candidate.missionScore?.laneScores?.some(lane => lane.id === 'agent_realtor_coaching') || true), 'Director scoring includes agent/realtor coaching lane', 'lane present in rubric')
     addCheck(checks, !writeRequested || persistedReport?.reportArtifactId === DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, 'persisted Director report reads back', persistedReport?.reportArtifactId || 'missing')
     addCheck(checks, !writeRequested || persistedAtoms.length >= Math.min(5, topCandidates.length), 'persisted Director atoms read back', `${persistedAtoms.length}`)

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-PORTFOLIO-SCRUM-MASTER-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T07:34:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/build-portfolio-scrum-master-001-plan.md",
+  "approvedPlanSha256": "704bba2bfa4b9c4d1e59c29fd25f90ab00c044f6df391e616c40211e552e8b11",
+  "approvedRepoHead": "7751ccad4e4568c20df2de9ba863badd9e89cf2e",
+  "approvalSource": "Steve direct May 25 correction: after Scoper, a Build Portfolio/Sprint Master must review scoped build candidates, merge duplicates/overlap into stronger source-backed opportunities, preserve source lineage, and propose queue order before Steve approval/promotion.",
+  "approvalDigest": "5d302d3d0f3c60284113d5583a5bf738409dd575484a7da339b9584f70bad329"
+}

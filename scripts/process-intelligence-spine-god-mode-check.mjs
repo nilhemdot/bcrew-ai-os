@@ -20,16 +20,29 @@ function parseArgs(argv = process.argv.slice(2)) {
 }
 
 const CORE_ROUTE_KEYS = new Set([
+  'foundation-extraction-openai-api',
   'foundation-extraction-openclaw-chatgpt',
+  'foundation-video-gemini-api',
   'foundation-synthesis-openai-api',
   'foundation-synthesis-openclaw-chatgpt',
   'foundation-deep-audit-openai-api',
   'foundation-deep-audit-openclaw-chatgpt',
 ])
 
+const CRITICAL_WORKLOADS = new Set([
+  'extraction',
+  'synthesis',
+  'deep_audit_senior_review',
+  'video_vision',
+])
+
 async function readRuntimeRoutes() {
   const snapshot = await getLlmRuntimeSnapshot({ limit: 200 })
-  return snapshot.routes.filter(route => CORE_ROUTE_KEYS.has(route.routeKey) || route.provider === 'openclaw')
+  return snapshot.routes.filter(route =>
+    CORE_ROUTE_KEYS.has(route.routeKey) ||
+    route.provider === 'openclaw' ||
+    CRITICAL_WORKLOADS.has(route.workload),
+  )
 }
 
 async function syncCoreRoutes(actor = 'intelligence-spine-god-mode-check') {
@@ -86,8 +99,10 @@ function renderText(result) {
   lines.push(`- Synthesis: ${result.proof.synthesis.title || 'missing'} (${result.proof.synthesis.actionReadiness || 'missing readiness'})`)
   lines.push(`- Router: ${result.proof.router.routeType || 'missing'} - ${result.proof.router.routingReason || 'missing reason'}`)
   lines.push(`- Director: ${result.proof.director.topTitle || 'missing'} (${result.proof.director.topReadiness || 'missing readiness'})`)
+  lines.push(`- Extraction model route: ${result.proof.routes.extraction?.provider || 'missing'} ${result.proof.routes.extraction?.model || ''}`)
   lines.push(`- Synthesis model route: ${result.proof.routes.synthesis?.provider || 'missing'} ${result.proof.routes.synthesis?.model || ''}`)
   lines.push(`- Deep review model route: ${result.proof.routes.deepAudit?.provider || 'missing'} ${result.proof.routes.deepAudit?.model || ''}`)
+  lines.push(`- Video eyes route: ${result.proof.routes.video?.provider || 'missing'} ${result.proof.routes.video?.model || ''}`)
   lines.push('')
   for (const check of result.checks) {
     lines.push(`${check.ok ? 'PASS' : 'FAIL'} [${check.area}] ${check.check}${check.detail ? ` - ${check.detail}` : ''}`)

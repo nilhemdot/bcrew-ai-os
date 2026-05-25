@@ -12,7 +12,7 @@ The extractor is now producing useful report/atom/evidence truth, but Steve shou
 
 The useful loop is:
 
-`approved source -> God Mode extraction -> report/atoms/hits -> Director synthesis -> Steve review -> approval-gated backlog promotion`
+`approved source -> God Mode extraction -> report/atoms/hits -> Director synthesis -> Scoper -> Build Portfolio/Sprint Master -> scoped backlog candidate -> Steve approval/promotion`
 
 This card creates the Director synthesis layer. It does not create backlog cards automatically.
 
@@ -23,13 +23,14 @@ This card creates the Director synthesis layer. It does not create backlog cards
 - The Director consumes at least three existing source-backed report artifacts from the YouTube/God Mode extraction lane.
 - The Director scores candidates against mission lanes: Foundation/shared truth, God Mode Extractor, reliable agents/execution systems, context continuity, agent/realtor coaching leverage, and approval-gated build path.
 - The Director emits top recommended build candidates, strong next/merge candidates, source coverage, approval-required items, open questions, and proof checks.
+- Top recommendations remain proposal-only and must go to Scoper plus Build Portfolio/Sprint Master before Steve is asked to approve promotion/build work.
 - The Director persists one `director_brief` report artifact, proposal-only atoms for the top recommendations, and supporting evidence hits.
 - No backlog cards are created automatically.
 - No private/auth/member/course extraction, external writes, purchases, downloads, opt-ins, forms, credential mutation, or browser-profile mutation occurs.
 
 ## Definition Of Done
 
-Done means `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` has a focused proof command that builds and persists the first Director report, reads it back from Foundation truth, records proposal-only atoms/hits, proves the AIOS mission is the ranking lens, and leaves Current Sprint/Backlog promotion approval-gated.
+Done means `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` has a focused proof command that builds and persists the first Director report, reads it back from Foundation truth, records proposal-only atoms/hits, proves the AIOS mission is the ranking lens, and leaves Scoper plus Current Sprint/Backlog promotion approval-gated.
 
 ## Details
 
@@ -70,7 +71,7 @@ Repair path: if source bundles are missing, mission scoring is not connected, pe
 
 - Source reports may be missing or stale. Repair path: fail closed and identify the missing report artifact instead of inventing candidates.
 - Candidate scoring may overweight keyword matches. Repair path: keep the source evidence visible and let Steve approve or reject promotion before backlog creation.
-- The Director could drift into auto-scrum-master behavior. Repair path: V0 stays proposal-only and does not create backlog cards.
+- The Director could drift into auto-scrum-master behavior. Repair path: V0 stays proposal-only, does not create backlog cards, and leaves duplicate/overlap merge work to `BUILD-PORTFOLIO-SCRUM-MASTER-001`.
 - The Director could become a UI rebuild. Repair path: keep V0 to report/atoms/hits and use Dev Hub UI as a separate card.
 - The Director could become another expensive model path. Repair path: V0 uses deterministic scoring only and no provider/model call.
 

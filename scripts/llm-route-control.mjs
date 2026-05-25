@@ -18,6 +18,7 @@ import {
 const ACTOR = 'llm-route-control'
 
 const CORE_INTELLIGENCE_ROUTE_KEYS = [
+  'foundation-extraction-openai-api',
   'foundation-synthesis-openai-api',
   'foundation-deep-audit-openai-api',
 ]

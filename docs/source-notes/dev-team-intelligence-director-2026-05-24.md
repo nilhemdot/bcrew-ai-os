@@ -1,6 +1,6 @@
 # Dev Team Intelligence Director - AIOS Mission V0
 
-Generated: 2026-05-25T04:03:00.135Z
+Generated: 2026-05-25T11:20:13.251Z
 Report artifact: `director:dev-team-intelligence-director-001:aios-mission-v0`
 Status: `ready_for_steve_review`
 
@@ -19,8 +19,8 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Build readiness: Ready for Scoper
 - Why: Allows users to generate structured system instructions and agent skills simply by recording their screen, capturing tacit knowledge.
 - Next step: Implement a local CLI tool that accepts screen recordings, calls Gemini Flash/Pro video API, and outputs structured markdown SOPs.
-- Scoper question: Do we want to scope Video-to-SOP Agentic Pipeline into an implementation card now?
-- Promotion: proposal_only_needs_steve_approval
+- Scoper question: What exact build plan, dependencies, risks, proof, and effort does Scoper need before Steve can approve Video-to-SOP Agentic Pipeline?
+- Promotion: proposal_only_needs_scoper_before_steve_approval
 - Mission lanes: God Mode Extractor 16/22; Reliable agents / execution systems 20/20; Context continuity 14/14
 
 ### 2. Claude Code State Parser & Visualizer
@@ -32,8 +32,8 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Build readiness: Ready for Scoper
 - Why: Allows developers to monitor complex multi-agent workflows in real-time instead of tailing raw terminal logs or JSON files.
 - Next step: Build a lightweight file watcher on ~/.claude/teams/ to stream config, inbox, and task updates to a local dashboard.
-- Scoper question: Do we want to scope Claude Code State Parser & Visualizer into an implementation card now?
-- Promotion: proposal_only_needs_steve_approval
+- Scoper question: What exact build plan, dependencies, risks, proof, and effort does Scoper need before Steve can approve Claude Code State Parser & Visualizer?
+- Promotion: proposal_only_needs_scoper_before_steve_approval
 - Mission lanes: God Mode Extractor 16/22; Reliable agents / execution systems 16/20; Context continuity 11/14
 
 ### 3. Context-Forking Orchestrator Skill
@@ -45,8 +45,8 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Build readiness: Ready for Scoper
 - Why: Enables complex multi-step workflows to run in isolated context windows, preventing token pollution and improving accuracy.
 - Next step: Create a parser for SKILL.md files that supports 'context: fork' and executes sub-commands in isolated threads.
-- Scoper question: Do we want to scope Context-Forking Orchestrator Skill into an implementation card now?
-- Promotion: proposal_only_needs_steve_approval
+- Scoper question: What exact build plan, dependencies, risks, proof, and effort does Scoper need before Steve can approve Context-Forking Orchestrator Skill?
+- Promotion: proposal_only_needs_scoper_before_steve_approval
 - Mission lanes: God Mode Extractor 11/22; Reliable agents / execution systems 20/20; Context continuity 11/14
 
 ### 4. Dynamic MCP Tool Injector for Chat Agents
@@ -58,8 +58,8 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Build readiness: Ready for Scoper
 - Why: Enables chat agents to dynamically leverage Model Context Protocol (MCP) servers (like Firecrawl) for real-time capabilities like web scraping.
 - Next step: Integrate an MCP client node into the AIOS workflow engine to allow runtime tool binding for LLMs.
-- Scoper question: Do we want to scope Dynamic MCP Tool Injector for Chat Agents into an implementation card now?
-- Promotion: proposal_only_needs_steve_approval
+- Scoper question: What exact build plan, dependencies, risks, proof, and effort does Scoper need before Steve can approve Dynamic MCP Tool Injector for Chat Agents?
+- Promotion: proposal_only_needs_scoper_before_steve_approval
 - Mission lanes: God Mode Extractor 11/22; Reliable agents / execution systems 20/20; Context continuity 11/14
 
 ### 5. Shared-Directory State Passing
@@ -71,8 +71,8 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - Build readiness: Ready for Scoper
 - Why: Allows sequential agent skills to pass state reliably by reading and writing to a shared output directory acting as a 'shared brain'.
 - Next step: Design a file-based state-passing protocol for chained agent tools in AIOS.
-- Scoper question: Do we want to scope Shared-Directory State Passing into an implementation card now?
-- Promotion: proposal_only_needs_steve_approval
+- Scoper question: What exact build plan, dependencies, risks, proof, and effort does Scoper need before Steve can approve Shared-Directory State Passing?
+- Promotion: proposal_only_needs_scoper_before_steve_approval
 - Mission lanes: God Mode Extractor 11/22; Reliable agents / execution systems 20/20; Context continuity 11/14
 
 ## Strong Next / Merge Candidates
