@@ -25,6 +25,7 @@ If the extractor watches the video but ignores those links, Scoper may scope fro
 - Resolves safe public docs/repo/pages without Steve manually chasing them.
 - Does not buy, download, opt in, submit forms, log in, mutate browser profiles, or crawl private/member/paid sources.
 - Writes a source-packet summary that Scoper can read: what the link is, what useful implementation detail it adds, and whether it is resolved or blocked.
+- Marks any safe public link that was not resolved yet as remaining Scoper work; queued public links are not a build-ready pass and are not Steve homework.
 - Preserves source lineage back to video, report artifact, resource URL, classification, and resolver result.
 - Emits approval-required items for blocked links with plain-English reason and allowed next decision.
 - Keeps all output proposal-only; no backlog cards, sprint work, external writes, or auto approvals.

@@ -2,11 +2,11 @@
   "approvalSchemaVersion": 2,
   "cardId": "DEV-BUILD-OPPORTUNITY-SCOPER-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-25T10:18:00-04:00",
+  "approvedAt": "2026-05-25T14:25:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/dev-build-opportunity-scoper-001-plan.md",
-  "approvedPlanSha256": "598d70abff0ad58bb3cd1b210d3592817c92e1720e09842e55c6091841a843a7",
+  "approvedPlanSha256": "f9289c3da3a985d3c4424eba16877849df7c80d5e2e85a9d7b67601af7a1aa98",
   "approvedRepoHead": "6e5f81266006bbe8ff3888b7c72f9e55915a0dc3",
-  "approvalSource": "Steve direct May 25 correction: before approving Dev builds, connect/extract approved source families and make Scoper chase or disposition YouTube resource links so Steve does not manually find linked code, skills, docs, or blocked source packets.",
-  "approvalDigest": "1a6f9a33e88dbcd5925671de7e224bd4393b08c47941d986f0b2292a7a0add45"
+  "approvalSource": "Steve May 25 correction: YouTube description/resource links must be resolved or explicitly blocked by the Scoper/resolver path, not left as Steve manual homework.",
+  "approvalDigest": "4cfec99715e38ab91d80ffbe5ab7f8d51ea6f8347b116ca7b212629f642c6ccd"
 }
