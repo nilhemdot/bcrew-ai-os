@@ -2,11 +2,12 @@
   "approvalSchemaVersion": 2,
   "cardId": "MARK-KASHEF-LAST-50-BASELINE-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-23T19:10:00-04:00",
+  "approvedAt": "2026-05-25T04:15:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/mark-kashef-last-50-baseline-001-plan.md",
-  "approvedPlanSha256": "ff476962b11e48c642113179bfc8d1164cd082fb303411b4a3382bc012b00d0d",
-  "approvedRepoHead": "a59f4bf445bdf502d42d142510f9f44bdd5afee9",
-  "approvalSource": "Steve direct May 23 GO: stop subscription-scout scale-up, use Gemini API for real full video/audio/visual watching, compare gemini-2.5-flash against gemini-3.5-flash, and prove one Mark video end to end before any Mark last-50 batch.",
-  "approvalDigest": "a0880461f2594b021fd874433b2f8a9a580b82a4bd58149dc1198a1798fa5b3d"
+  "approvedPlanSha256": "f837d0ff69934bb8192f0bbab368c601d5e9940b9f117032f9ee654038ec18f7",
+  "approvedRepoHead": "eeaf8c92441843131f00a635331fe033b605e72a",
+  "approvalSource": "Steve direct May 25 overnight correction: complete Mark last-50 through the Gemini API full-watch route, keep subscription scout output out of full-watch truth, persist proposal-only candidates with evidence, and keep broader creator latest-20 work blocked until Mark quality/review and guards are proven.",
+  "notes": "Re-approves the expanded Mark baseline plan after the small-batch/final-tail path was added. Not approved: Skool/MyICOR/private/auth/community crawling, downloads, purchases, opt-ins, form submissions, external writes, or automatic backlog promotion.",
+  "approvalDigest": "20e38ef9f52fdff03c4d226bc0439e7424a2f1f14b25381760fc9b2a188e9e4c"
 }
