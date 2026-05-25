@@ -90,6 +90,7 @@
     "process:dev-build-scoper-check": "node --env-file-if-exists=.env scripts/process-dev-build-opportunity-scoper-check.mjs",
     "process:dev-build-scoper-evidence-trace-check": "node --env-file-if-exists=.env scripts/process-dev-build-scoper-evidence-trace-check.mjs",
     "process:dev-source-slice-router-check": "node --env-file-if-exists=.env scripts/process-dev-source-slice-router-check.mjs",
+    "process:dev-intel-source-coverage-check": "node --env-file-if-exists=.env scripts/process-dev-intel-source-coverage-check.mjs",
     "process:youtube-resource-link-resolver-check": "node --env-file-if-exists=.env scripts/process-youtube-resource-link-resolver-check.mjs",
     "codex:usage": "node scripts/codex-usage.mjs",
     "codex:usage-web": "node scripts/codex-usage-web.mjs",

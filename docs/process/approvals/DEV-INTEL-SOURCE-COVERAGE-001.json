@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-INTEL-SOURCE-COVERAGE-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T12:46:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-intel-source-coverage-001-plan.md",
+  "approvedPlanSha256": "aa8991337de250d3d62ed75ccc901da7f026e0c0d2af74fa7d6187c822c395fc",
+  "approvedRepoHead": "e3bb60ebeb4928ccb6a2f9a416e26a4738baf6d0",
+  "approvalSource": "Steve direct May 25 correction: connect and expose Dev source families before approving build work; YouTube resource links are resolver/scoper work, not Steve homework; blocked private/auth sources stay visible but do not block approved public/internal progress.",
+  "notes": "Approved only for a read-only Dev intelligence source coverage matrix and focused proof. Not approved: live extraction, auth-required provider calls, paid/community crawling, model calls, backlog writes, external writes, source-system mutation, or UI redesign.",
+  "approvalDigest": "6ec36aa873fef95bb2270994bd76265122f82c555fd34157639bd8a039cad0ac"
+}

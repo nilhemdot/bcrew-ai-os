@@ -74,11 +74,12 @@ Active sprint order:
 10. `YOUTUBE-LATEST-20-INTEL-RUN-001` - process approved public last-20 videos for other creators only after the Mark closeout/review confirms the extraction output quality.
 11. `YOUTUBE-RESOURCE-LINK-RESOLVER-001` - V1 contract/proof built. Resolve approved public YouTube description/resource links into Scoper-readable source packets and block private/paid/login/download/short-link routes with exact approval reasons.
 12. `DEV-SOURCE-SLICE-ROUTER-001` - V1 contract/proof built. Filter meetings/Gmail/Missive/Slack synthesis into Dev-relevant build signals while parking ops-only work before Director input.
-13. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - report generated and refreshed to 160 ranked candidates; use it as the morning review input, not as auto-build approval.
-14. `DEV-BUILD-OPPORTUNITY-SCOPER-001` - convert Director recommendations into proposal-only scoped build candidates only when source lineage, raw atom/hit evidence, resource-link disposition, codebase research, proof, risks, not-next boundaries, and existing work are explicit.
-15. `BUILD-PORTFOLIO-SCRUM-MASTER-001` - after Scoper produces enough implementation detail, merge/dedupe/enhance related scoped candidates into stronger source-backed build opportunities, assign portfolio scores/ranks, and propose queue order before Steve approval.
-16. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - after Build Portfolio/Sprint Master produces a reviewed portfolio proposal, approve source-backed build opportunities into backlog cards or existing-card attachments.
-17. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION` - close the full Build Intel extraction loop only after the slices above are proven.
+13. `DEV-INTEL-SOURCE-COVERAGE-001` - V1 contract/proof built. Show which source families feed Dev, which are blocked/planned, and which next card resolves each source gap before approving builds.
+14. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - report generated and refreshed to 160 ranked candidates; use it as the morning review input, not as auto-build approval.
+15. `DEV-BUILD-OPPORTUNITY-SCOPER-001` - convert Director recommendations into proposal-only scoped build candidates only when source lineage, raw atom/hit evidence, resource-link disposition, codebase research, proof, risks, not-next boundaries, and existing work are explicit.
+16. `BUILD-PORTFOLIO-SCRUM-MASTER-001` - after Scoper produces enough implementation detail, merge/dedupe/enhance related scoped candidates into stronger source-backed build opportunities, assign portfolio scores/ranks, and propose queue order before Steve approval.
+17. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - after Build Portfolio/Sprint Master produces a reviewed portfolio proposal, approve source-backed build opportunities into backlog cards or existing-card attachments.
+18. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION` - close the full Build Intel extraction loop only after the slices above are proven.
 
 Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, `AGENT-BRAIN-FOUNDATION-SEPARATION-001`, `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002`, `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`, `DEV-TEAM-HUB-TWO-VIEW-INTEL-PROOF-001`, `MARK-CLAUDE-CLAW-CODE-PACKAGE-REVIEW-001`, and `BUILD-INTEL-SOURCE-VALUE-LEADERBOARD-001-001`.
 

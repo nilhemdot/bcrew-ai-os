@@ -39,6 +39,8 @@ May 25 resource-link resolver V1: `YOUTUBE-RESOURCE-LINK-RESOLVER-001` is implem
 
 May 25 Dev source-slice router V1: `DEV-SOURCE-SLICE-ROUTER-001` is implemented as a read-only filter from the shared Foundation source pond into Dev. It reads recent meetings/Gmail/Missive/Slack synthesis reports, sends system/build signals to the Dev Director input bundle, parks normal ops chores like commission follow-up, ignores training/content-only lessons that are not Dev builds, and keeps Mark full-watch build intel ahead of weaker internal-source signals when the mission score warrants it.
 
+May 25 Dev intel source coverage V1: `DEV-INTEL-SOURCE-COVERAGE-001` is implemented as a read-only source-family matrix for Dev. It shows active public YouTube, YouTube resource links, and shared meetings/Gmail/Missive/Slack as Dev-feeding inputs; it keeps Skool and MyICOR visible but blocked until source-packet approval; it marks GitHub/repos, public communities, Drive/course docs, and business-system signals as planned/partial with next cards. It does not run extraction, auth, model calls, backlog writes, or external writes.
+
 May 23 creator-watch reconcile: the daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This is still source discovery, not watched/analyzed video.
 
 Closed setup:
@@ -76,11 +78,12 @@ Sprint order:
 10. `YOUTUBE-LATEST-20-INTEL-RUN-001`
 11. `YOUTUBE-RESOURCE-LINK-RESOLVER-001` - resolve approved public YouTube description/resource links into Scoper-readable source packets and block private/paid/login/download/short-link routes with exact approval reasons
 12. `DEV-SOURCE-SLICE-ROUTER-001` - filter meetings/Gmail/Missive/Slack synthesis into Dev-relevant build signals while parking ops-only work before Director input
-13. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - report refreshed to 160 ranked candidates; use as review input, not auto-build approval
-14. `DEV-BUILD-OPPORTUNITY-SCOPER-001` - convert Director recommendations into proposal-only scoped build candidates only when source lineage, raw atom/hit evidence, resource-link disposition, codebase research, proof, risks, not-next boundaries, and existing work are explicit
-15. `BUILD-PORTFOLIO-SCRUM-MASTER-001` - merge/dedupe/enhance related scoped candidates, assign portfolio scores/ranks, and propose queue order before Steve approval
-16. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - promote only after Scoper and Portfolio produce enough implementation detail for Steve to approve priority
-17. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
+13. `DEV-INTEL-SOURCE-COVERAGE-001` - show active, partial, blocked, and planned Dev intelligence source families before approving builds
+14. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - report refreshed to 160 ranked candidates; use as review input, not auto-build approval
+15. `DEV-BUILD-OPPORTUNITY-SCOPER-001` - convert Director recommendations into proposal-only scoped build candidates only when source lineage, raw atom/hit evidence, resource-link disposition, codebase research, proof, risks, not-next boundaries, and existing work are explicit
+16. `BUILD-PORTFOLIO-SCRUM-MASTER-001` - merge/dedupe/enhance related scoped candidates, assign portfolio scores/ranks, and propose queue order before Steve approval
+17. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - promote only after Scoper and Portfolio produce enough implementation detail for Steve to approve priority
+18. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
 
 Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, `AGENT-BRAIN-FOUNDATION-SEPARATION-001`, `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002`, `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`, `DEV-TEAM-HUB-TWO-VIEW-INTEL-PROOF-001`, `MARK-CLAUDE-CLAW-CODE-PACKAGE-REVIEW-001`, and `BUILD-INTEL-SOURCE-VALUE-LEADERBOARD-001-001`.
 
