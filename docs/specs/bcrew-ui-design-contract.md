@@ -1,7 +1,7 @@
 # BCrew AI OS UI Design Contract
 
 Status: Active
-Version: 2026-05-24-v2
+Version: 2026-05-24-v3
 Owner: Foundation / Steve
 
 This is the builder-facing style source of truth for BCrew AI OS surfaces.
@@ -26,6 +26,15 @@ The live `/dev` page is the implementation proof for the hub-page pattern:
 - plain-English labels such as `ready`, `next`, `total`
 - no visible `source-backed`, database table names, or internal report jargon
 
+The live hub launcher station grid is the implementation proof for the launcher
+station-card pattern:
+
+- left-accent hub status rails
+- plain status text instead of chunky status pills
+- one clean source/value line
+- aligned dashed footers across the full card row
+- equal card heights on desktop and mobile
+
 ## Canonical Evidence
 
 Use these files as the approved visual direction:
@@ -41,6 +50,8 @@ Use these files as the approved visual direction:
   structure below the blue pill.
 - `public/dev.html`, `public/dev.css`, and `public/dev.js` as the first live
   implementation proof of the locked hub-page pattern.
+- `public/index.html` and `public/hub-launcher.css` as the live implementation
+  proof of the locked launcher station-card pattern.
 
 Secondary references:
 
@@ -180,6 +191,28 @@ The hub launcher is the command center front door:
 - hub cards as stations
 - only source-backed values or explicit `Needs source`
 
+Launcher station cards must use the same card philosophy as hub working pages.
+The launcher is allowed to feel more celebratory, but the repeated hub cards
+should not drift into a separate old UI system.
+
+For launcher station cards:
+
+- use the locked repeated-card skeleton: white card, thin border, 14px to 16px
+  radius, stable row tracks, aligned footer line, and consistent hover lift
+- prefer the left-accent status bar used on `/dev` when the card represents a
+  hub/system status. Green/blue means live or healthy, amber means attention or
+  partial, grey means planned/not active, and black means carve-out/strong
+  system boundary
+- do not use chunky status pills as the primary status pattern on repeated hub
+  station cards
+- if a status label is needed, use plain text or one compact badge in a
+  consistent slot; do not combine a top accent bar, a status pill, a win box,
+  and footer text in the same card
+- Material-style icons are optional on launcher hub cards, but if used they
+  must follow the same icon-circle pattern as the Dev Data Pool cards
+- KPI/metric cards are a separate pattern. The launcher's hero KPI cards may
+  keep their numeric treatment when the numbers are source-backed and aligned.
+
 ### Hub Pages
 
 Hub pages use the light operating shell:
@@ -249,7 +282,10 @@ single-page prototype.
 - Do not put cards inside cards.
 - Prefer 8px to 14px radius. Avoid oversized soft cards.
 - White card, `--grey-line` border, subtle shadow only when needed.
-- Blue top rule or label is the normal active accent.
+- Left accent bars are the default for repeated operating cards, status cards,
+  source cards, extraction cards, evidence cards, and launcher hub station cards.
+  Use top rules only for compact metric/KPI cards, legacy surfaces awaiting
+  cleanup, or an explicitly approved design exception.
 - Black top rule is for system/alert/strong emphasis.
 - Every visible metric must be source-backed or clearly marked as placeholder or
   `Needs source`.

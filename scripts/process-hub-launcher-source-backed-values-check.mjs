@@ -103,6 +103,9 @@ add(indexHtml.includes('mascot-6-cutout-v2-900.webp') && indexHtml.includes('mas
 add(loginHtml.includes('mascot-7-900.webp') && loginHtml.includes('mascot-7-1600.webp') && !loginHtml.includes('mascot-7-cutout'), 'login keeps original transparent mascot asset', 'mascot-7 original')
 add(indexHtml.includes('launcher-logout') && homeJs.includes('/api/auth/logout'), 'launcher user menu exposes logout action', 'launcher-logout')
 add(launcherCss.includes('font-size: 22px;') && launcherCss.includes('font-size: 11px;'), 'launcher type polish uses locked heading/role sizes', '22px h2 / 11px role')
+add(indexHtml.includes('launcher-hub-partial') && launcherCss.includes('.launcher-hub::before') && launcherCss.includes('width: 3px;') && launcherCss.includes('height: 100%;'), 'launcher station cards use locked left accent bar', 'launcher-hub::before left rail')
+add(launcherCss.includes('.launcher-hub-status {') && launcherCss.includes('border: 0;') && launcherCss.includes('background: transparent;'), 'launcher station status is plain text, not chunky pills', 'launcher-hub-status')
+add(launcherCss.includes('.launcher-hub-win') && launcherCss.includes('background: transparent;'), 'launcher station value line is not a separate win-box card', 'launcher-hub-win transparent')
 
 const failed = checks.filter(check => !check.ok)
 const result = {
