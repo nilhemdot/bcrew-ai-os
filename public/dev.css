@@ -137,7 +137,7 @@ button {
 
 .sidebar {
   background: var(--grey-1);
-  padding: var(--s-3) 0 var(--s-8);
+  padding: 0 0 var(--s-8);
   position: sticky;
   top: 0;
   align-self: start;
@@ -149,7 +149,7 @@ button {
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  padding: 0 var(--s-5) var(--s-1);
+  padding: var(--s-3) var(--s-5) var(--s-1);
   color: var(--grey-d);
   font-family: var(--mono);
   font-size: var(--t-xs);
@@ -246,7 +246,7 @@ button {
   width: 100%;
   max-width: 1180px;
   min-width: 0;
-  padding: var(--s-6) var(--s-8) var(--s-12);
+  padding: var(--s-3) var(--s-8) var(--s-12);
 }
 
 .view {
@@ -1599,7 +1599,7 @@ button {
 }
 
 .sidebar {
-  top: var(--topbar-h);
+  top: 0;
   height: calc(100vh - var(--topbar-h));
 }
 

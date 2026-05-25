@@ -226,7 +226,12 @@ Hub pages use the light operating shell:
 - white topbar using the same `launcher-topbar` / `launcher-brand` /
   `launcher-clock` / `launcher-live` / `launcher-user` classes as the hub
   launcher. Do not create page-local `topbar` or `tb-*` header systems.
-- 248px left sidebar
+- 248px left sidebar, sticky, full viewport height, grey-1 background
+- sidebar internal spacing must be tight: 12px top padding, minimal gaps
+  between back link → hub kicker → hub name → first nav item. Do not let
+  the sidebar header area grow past ~80px before the first nav link starts.
+  The sidebar shows: back link, hub kicker (e.g. "HUB · 07"), hub name
+  with pulse dot (e.g. "DEV · BUILD ●"), then nav items immediately.
 - mobile topbar hides subtitles and clock first, keeps the live pill and avatar
   visible, and must not overflow horizontally
 - max-width main content
