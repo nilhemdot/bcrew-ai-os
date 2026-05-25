@@ -169,7 +169,9 @@ This handoff closes that gap.
 
 - `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
   - Lane: scoped
-  - Job: approve/reject Director candidates before any become backlog work.
+  - Job: keep Director candidates proposal-only until a Scoper creates a
+    build brief, then route Steve approval for promotion/priority into
+    backlog queue or sprint.
 
 - `INTEL-SCOPER-001`
   - Lane: done
@@ -283,7 +285,9 @@ specific final-remainder proof. Do not bypass the guard silently.
 ## Morning Plan
 
 1. Review the Director Lens on `/dev`.
-2. Decide whether the top candidate should go to Scoper.
+2. Pick whether the top candidate deserves a Scoper brief. Do not approve it
+   for build until the scoped brief proves value, risk, evidence, and build
+   path.
 3. Decide whether to:
    - finish final Mark remainder if any;
    - start another public creator batch;
@@ -298,4 +302,3 @@ Branch is local and ahead of origin. A normal `git push` is blocked by the
 protected Foundation full ship gate. Do not bypass silently. Use the proper
 `process:foundation-ship` closeout under the right card or get Steve's explicit
 approval to bypass.
-

@@ -239,15 +239,15 @@ async function main() {
   addCheck(checks, cssSource.includes('top: 0;') && !cssSource.includes('top: var(--topbar-h);'), 'Dev sidebar does not double-offset below shared topbar', 'sidebar top 0')
   addCheck(
     checks,
-    cssSource.includes('padding: 12px 0 var(--s-8);') &&
-      cssSource.includes('padding: 0 20px 8px;') &&
-      cssSource.includes('margin-bottom: 4px;') &&
-      cssSource.includes('padding: 0 20px 10px;') &&
-      cssSource.includes('margin-bottom: 6px;') &&
-      cssSource.includes('padding: 10px 20px;') &&
-      cssSource.includes('line-height: 0.84;'),
-    'Dev sidebar uses locked compact spacing values',
-    '12px top, 8px back gap, 4px kicker gap, 10px title padding, 6px nav gap'
+    !htmlSource.includes('class="sb-back"') &&
+      !htmlSource.includes('HUB · 07</span>') &&
+      cssSource.includes('padding: var(--s-4) 0 var(--s-8);') &&
+      cssSource.includes('padding: 0 var(--s-5) var(--s-3);') &&
+      cssSource.includes('margin-bottom: var(--s-2);') &&
+      cssSource.includes('font-size: var(--t-xl);') &&
+      cssSource.includes('padding: 10px 20px;'),
+    'Dev sidebar uses locked simplified sidebar values',
+    'hub name only, 16px top padding, 12px title padding, 8px nav gap'
   )
   addCheck(checks, sourceDoesNotWriteOrExtract(readOnlyBundle), 'Dev Hub code has no extraction runner, external write, approval apply, or backlog writer path', 'read-only bundle scan')
   addCheck(checks, sourceDoesNotWriteOrExtract(scriptSource), 'focused proof stays read-only', SCRIPT_PATH)

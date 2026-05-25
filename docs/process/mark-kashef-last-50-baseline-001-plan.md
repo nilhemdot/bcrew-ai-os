@@ -38,6 +38,7 @@ This card also answers Steve's model question: use the best quality-for-value Ge
 - No backlog cards are auto-created.
 - No private/auth/member/comment/course crawling runs.
 - No purchases, downloads, opt-ins, bookings, forms, credential mutation, browser-profile mutation, or external writes occur.
+- No `MEETING-VAULT-ACL-001` Phase B, Drive permissions mutation, or request-access emails are in scope.
 
 ## Definition Of Done
 

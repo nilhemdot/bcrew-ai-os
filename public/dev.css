@@ -137,7 +137,7 @@ button {
 
 .sidebar {
   background: var(--grey-1);
-  padding: 12px 0 var(--s-8);
+  padding: var(--s-4) 0 var(--s-8);
   position: sticky;
   top: 0;
   align-self: start;
@@ -145,46 +145,21 @@ button {
   overflow-y: auto;
 }
 
-.sb-back {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: 0 20px 8px;
-  color: var(--grey-d);
-  font-family: var(--mono);
-  font-size: var(--t-xs);
-  line-height: 0.84;
-  text-decoration: none;
-}
-
 .sb-title {
-  padding: 0 20px 10px;
-  margin-bottom: 6px;
+  padding: 0 var(--s-5) var(--s-3);
+  margin-bottom: var(--s-2);
   border-bottom: 1px solid var(--grey-line);
-}
-
-.sb-title span {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--grey-d);
-  font-family: var(--display);
-  font-size: var(--t-xs);
-  font-weight: var(--w-bold);
-  letter-spacing: var(--ls-xwide);
-  line-height: 0.84;
-  text-transform: uppercase;
 }
 
 .sb-title strong {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: var(--ink);
   font-family: var(--display);
-  font-size: var(--t-md);
+  font-size: var(--t-xl);
   font-weight: var(--w-black);
   letter-spacing: var(--ls-snug);
-  line-height: 0.84;
   text-transform: uppercase;
 }
 

@@ -340,11 +340,16 @@ Correct flow:
 
 ```text
 Director recommends
-  -> Steve reviews
-  -> selected idea goes to Scoper
-  -> Scoper creates implementation proposal
-  -> Promotion Gate creates/updates backlog after approval
+  -> Scoper turns a promising recommendation into an evidence-backed build brief
+  -> Promotion Gate creates or updates a proposal/backlog candidate
+  -> Steve approves priority/promotion into queue or sprint
+  -> Builder executes only approved queued/sprint work
 ```
+
+Steve should not be asked to approve a vague recommendation. The approval point
+is after enough scoping exists to judge quality, risk, expected value, source
+evidence, and build path. Separate source-access approvals still happen before
+private, paid, auth-required, or external-link extraction.
 
 Existing cards:
 

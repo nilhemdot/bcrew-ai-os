@@ -227,13 +227,13 @@ Hub pages use the light operating shell:
   `launcher-clock` / `launcher-live` / `launcher-user` classes as the hub
   launcher. Do not create page-local `topbar` or `tb-*` header systems.
 - 248px left sidebar, sticky, full viewport height, grey-1 background.
-- sidebar internal spacing is fixed: 12px top padding, 8px below the back
-  link, 4px below the hub kicker, 10px below the hub name with the
-  border-bottom, then 6px margin after the border before nav items start.
-  Back-link, kicker, and hub-name line-height use `0.84` on the compact
-  sidebar header.
-  Sidebar nav links use 10px 20px padding. Total sidebar header height to the
-  first nav text should be about 80-90px: not crammed, not swimming in space.
+- sidebar shows ONLY: hub name with pulse dot (22px Stratum1 Black),
+  divider line, then nav items. No back link (breadcrumb handles
+  navigation). No hub kicker/number (the blue banner handles that).
+- sidebar top padding: 16px. Hub name padding-bottom: 12px with
+  border-bottom divider. 8px margin below divider. Nav items at 13px
+  with 10px 20px padding. Total sidebar header to first nav text:
+  ~60-70px. Clean, not crammed, not swimming in space.
 - mobile topbar hides subtitles and clock first, keeps the live pill and avatar
   visible, and must not overflow horizontally
 - max-width main content

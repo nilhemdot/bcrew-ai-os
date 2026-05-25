@@ -115,18 +115,22 @@ Stop condition:
 
 ### 5. `BUILD-OPPORTUNITY-PROMOTION-GATE-001`
 
-Goal: prepare the approval path from Director recommendation to real backlog
-work.
+Goal: prepare the path from Director recommendation to scoped backlog candidate
+to Steve-approved queue/sprint work.
 
 Work:
 
 - verify no recommendation auto-creates backlog;
-- define the Steve approval step;
+- define the Scoper step before Steve is asked to approve promotion;
+- define the Steve approval step as priority/promotion after a scoped brief,
+  not approval of a vague idea;
 - preserve evidence links and source route.
 
 Stop condition:
 
 - no auto-promotion without explicit approval.
+- no Steve approval request until the candidate has enough scope to judge value,
+  risk, source evidence, and build path.
 
 ### 6. `SYSTEM-014`
 
