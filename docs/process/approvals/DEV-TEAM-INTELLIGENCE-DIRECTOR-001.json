@@ -2,11 +2,11 @@
   "approvalSchemaVersion": 2,
   "cardId": "DEV-TEAM-INTELLIGENCE-DIRECTOR-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-25T07:29:20-04:00",
+  "approvedAt": "2026-05-25T11:12:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/dev-team-intelligence-director-001-plan.md",
-  "approvedPlanSha256": "327950f9a8c10a01d177be0f5f196742d7a543c4fad0d5fc15b7766eabec8d2b",
-  "approvedRepoHead": "7751ccad4e4568c20df2de9ba863badd9e89cf2e",
-  "approvalSource": "Steve direct May 25 correction: Director recommendations are not Steve approval. The required flow is recommendation -> Scoper -> Build Portfolio/Sprint Master -> scoped backlog candidate -> Steve approval/promotion, with System Strategy and agent/realtor coaching as ranking lenses.",
-  "approvalDigest": "97e54aacf796efc6a536b7bdf464c1e1a3c49c954b2688d9364e8e56f1146b41"
+  "approvedPlanSha256": "4cb7993285cc30bb538716c4bdeda2470307e36e0a6a1525ea15081ef45a3082",
+  "approvedRepoHead": "d8a4837d3a9cc6108300d4b785c1e1fd795764ba",
+  "approvalSource": "Steve direct May 25 correction: connect source families before approving Dev builds; Director should read the filtered Dev slice from Foundation shared sources, not YouTube only and not raw ops noise.",
+  "approvalDigest": "9c50d9b1f5ac8a3e584d166782f4b6430057d105c4a459e3a7157b9c0c173f93"
 }

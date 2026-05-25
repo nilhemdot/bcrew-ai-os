@@ -2,9 +2,9 @@
 
 ## What
 
-Build the first narrow Dev Team Intelligence Director V0 for the YouTube-to-Dev-Team sprint.
+Build the first narrow Dev Team Intelligence Director V0 for the YouTube-to-Dev-Team sprint and the filtered Dev slice of shared Foundation sources.
 
-The Director reads existing Foundation intelligence truth from public YouTube/God Mode extractor reports, atoms, evidence hits, action-required links, Current Sprint, and the AIOS mission in `docs/system-strategy.md`. It produces one source-backed Director report that ranks build candidates against the mission instead of treating every extracted idea as equally important.
+The Director reads existing Foundation intelligence truth from public YouTube/God Mode extractor reports, the Dev source-slice router, atoms, evidence hits, action-required links, Current Sprint, and the AIOS mission in `docs/system-strategy.md`. It produces one source-backed Director report that ranks build candidates against the mission instead of treating every extracted idea as equally important.
 
 ## Why
 
@@ -21,6 +21,7 @@ This card creates the Director synthesis layer. It does not create backlog cards
 - The Director reads `docs/system-strategy.md`, including the AIOS Mission.
 - The Director reads `docs/business-strategy.md`, `docs/rebuild/current-plan.md`, live Current Sprint, and existing intelligence report bundles.
 - The Director consumes at least three existing source-backed report artifacts from the YouTube/God Mode extraction lane.
+- The Director consumes the filtered Dev source-slice bundle from meetings/Gmail/Missive/Slack without allowing normal ops tasks to pollute Dev recommendations.
 - The Director scores candidates against mission lanes: Foundation/shared truth, God Mode Extractor, reliable agents/execution systems, context continuity, agent/realtor coaching leverage, and approval-gated build path.
 - The Director emits top recommended build candidates, strong next/merge candidates, source coverage, approval-required items, open questions, and proof checks.
 - Top recommendations remain proposal-only and must go to `DEV-BUILD-OPPORTUNITY-SCOPER-001` plus `BUILD-PORTFOLIO-SCRUM-MASTER-001` before Steve is asked to approve promotion/build work.
@@ -36,7 +37,7 @@ Done means `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` has a focused proof command that
 
 Existing work reused:
 
-- Existing code: `lib/dev-team-hub.js`, `lib/foundation-build-intel-routes.js`, Foundation intelligence report/atom/hit stores, and Current Sprint readers.
+- Existing code: `lib/dev-team-hub.js`, `lib/foundation-build-intel-routes.js`, `lib/dev-source-slice-router.js`, Foundation intelligence report/atom/hit stores, and Current Sprint readers.
 - Existing docs: `docs/system-strategy.md`, `docs/business-strategy.md`, `docs/rebuild/current-plan.md`, `docs/rebuild/current-state.md`, God Mode source notes, and YouTube sprint handoffs.
 - Existing scripts: `scripts/process-mark-kashef-last-50-baseline-check.mjs`, `scripts/process-god-mode-extractor-eyes-quality-loop-check.mjs`, and `scripts/process-dev-team-hub-v0-check.mjs`.
 - Live Backlog and Current Sprint remain the task truth. This card reads Current Sprint context but does not advance or close the active Mark card.
@@ -90,6 +91,7 @@ Out of scope / do not:
 
 - `node --check lib/dev-team-intelligence-director.js`
 - `node --check scripts/process-dev-team-intelligence-director-check.mjs`
+- `npm run process:dev-source-slice-router-check -- --json`
 - `npm run process:dev-team-intelligence-director-check -- --apply --json`
 - `npm run process:current-sprint-active-card-gate-check -- --json`
 - `npm run backlog:hygiene -- --json`

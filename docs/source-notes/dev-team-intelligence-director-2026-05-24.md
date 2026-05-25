@@ -1,6 +1,6 @@
 # Dev Team Intelligence Director - AIOS Mission V0
 
-Generated: 2026-05-25T11:20:13.251Z
+Generated: 2026-05-25T12:11:03.036Z
 Report artifact: `director:dev-team-intelligence-director-001:aios-mission-v0`
 Status: `ready_for_steve_review`
 
@@ -80,13 +80,13 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - 6. Shared Reasoning File Pattern - score 78 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
 - 7. Context-Optimized Skill Registry - score 75 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
 - 8. Lifecycle Event Hooks for Context Injection - score 75 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 9. Deterministic Agentic Workflow Guardrails - score 72 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 10. Interactive Human-in-the-Loop Approval Gateways - score 72 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 11. Unified Chat-to-Workflow Router - score 72 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 12. 4-Layer Agentic OS Directory Template - score 71 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 13. Workspace-Based Agent State Persistence - score 71 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 14. Dynamic Progress Checklist Sidebar - score 70 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
-- 15. Mark Kashef: Package reusable AIOS skills as governed operator tools - score 70 (scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20)
+- 9. Agents report onboarding overwhelm from too many tools and too much new information - score 73 (slice:dev-source-slice-router-001:live-foundation-sources)
+- 10. Deterministic Agentic Workflow Guardrails - score 72 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 11. Interactive Human-in-the-Loop Approval Gateways - score 72 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 12. Steve will add assignment and action-plan tracking to the stale-listings workflow by end of day - score 72 (slice:dev-source-slice-router-001:live-foundation-sources)
+- 13. Unified Chat-to-Workflow Router - score 72 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 14. 4-Layer Agentic OS Directory Template - score 71 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
+- 15. Workspace-Based Agent State Persistence - score 71 (batch:mark-kashef-last-50:api-full-watch-small-batch-v1)
 
 ## Source Coverage
 
@@ -97,6 +97,7 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - `scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20` - Mark Kashef public YouTube latest/last-20 scout; atoms 7; hits 7; approvals 13
 - `research:god-mode-extractor-research-swarm-001` - God Mode extractor research swarm brief; atoms 0; hits 0; approvals 2
 - `extraction:marketing-ai-avatar:xUdKBqP81k8:gemini-workspace-eyes` - AI avatar marketing video extraction; atoms 4; hits 4; approvals 2
+- `slice:dev-source-slice-router-001:live-foundation-sources` - Dev source slice from shared Foundation sources; atoms 0; hits 0; approvals 0
 
 ## Approval Boundary
 
@@ -108,8 +109,8 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 
 - PASS System Strategy contains AIOS mission and agent/realtor coaching lens - docs/system-strategy.md
 - PASS current sprint plan tells Director to use System Strategy as ranking lens - docs/rebuild/current-plan.md
-- PASS Director has multiple intelligence reports to synthesize - 7 reports
-- PASS Director has enough source-backed build candidates - 142 candidates
+- PASS Director has multiple intelligence reports to synthesize - 8 reports
+- PASS Director has enough source-backed build candidates - 160 candidates
 - PASS Director top candidates are mission-scored - 1:87, 2:80, 3:79, 4:79, 5:79
 - PASS Director preserves approval-required items - 58 approval items
 - PASS Director surfaces API full-watch candidates ahead of weaker scout/subscription evidence - 1:api_full_watch:Video-to-SOP Agentic Pipeline | 2:api_full_watch:Claude Code State Parser & Visualizer | 3:api_full_watch:Context-Forking Orchestrator Skill | 4:api_full_watch:Dynamic MCP Tool Injector for Chat Agents | 5:api_full_watch:Shared-Directory State Passing

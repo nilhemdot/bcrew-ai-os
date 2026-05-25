@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-SOURCE-SLICE-ROUTER-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T11:04:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-source-slice-router-001-plan.md",
+  "approvedPlanSha256": "82e149b9f9671a9cdab6d16e267822b928152964f60c648b6c97816d58f55c0c",
+  "approvedRepoHead": "d8a4837d3a9cc6108300d4b785c1e1fd795764ba",
+  "approvalSource": "Steve direct May 25 correction: connect source families before approving builds; Dev should pull relevant data from Foundation rather than manually inspect every source or pollute Dev with normal ops tasks.",
+  "approvalDigest": "1eb4c95c670a58f99bd5ff7e6afa625d09a42de50dbabdef960b09abb4af0449"
+}

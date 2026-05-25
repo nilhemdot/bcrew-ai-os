@@ -4,6 +4,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { Pool } from 'pg'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
@@ -41,6 +42,11 @@ import {
   buildDevTeamIntelligenceDirectorWriteSet,
   renderDevTeamIntelligenceDirectorReport,
 } from '../lib/dev-team-intelligence-director.js'
+import {
+  DEV_SOURCE_SLICE_ROUTER_REPORT_ARTIFACT_ID,
+  buildDevSourceSliceDirectorInputBundle,
+  buildDevSourceSliceRouterSnapshot,
+} from '../lib/dev-source-slice-router.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -62,6 +68,14 @@ function addCheck(checks, ok, check, detail = '') {
   checks.push({ ok: Boolean(ok), check, detail })
 }
 
+function createPool() {
+  return new Pool({
+    host: process.env.BCREW_DB_HOST || '/tmp',
+    database: process.env.BCREW_DB_NAME || 'bcrew_ai_os',
+    user: process.env.BCREW_DB_USER || process.env.USER,
+  })
+}
+
 async function readRepoFile(relativePath) {
   return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
 }
@@ -70,12 +84,46 @@ async function readRepoJson(relativePath) {
   return JSON.parse(await readRepoFile(relativePath))
 }
 
+async function listLatestSharedSourceReportIds({ limit = 8 } = {}) {
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT report_artifact_id
+        FROM intelligence_report_artifacts
+        WHERE source_ids && $1::text[]
+          AND report_artifact_id LIKE 'report-artifact:synthesis-engine-fresh-candidate-promotion-%'
+        ORDER BY created_at DESC
+        LIMIT $2
+      `,
+      [[
+        'SRC-MEETINGS-001',
+        'SRC-GMAIL-001',
+        'SRC-MISSIVE-001',
+        'SRC-SLACK-001',
+      ], Math.min(20, Math.max(1, Number(limit) || 8))]
+    )
+    return result.rows.map(row => row.report_artifact_id).filter(Boolean)
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
 async function loadInputBundles() {
   const bundles = []
   for (const reportArtifactId of DEV_TEAM_INTELLIGENCE_DIRECTOR_INPUT_REPORT_IDS) {
     bundles.push(await getIntelligenceReportBundle(reportArtifactId, { atomLimit: 200, hitLimit: 300 }))
   }
-  return bundles
+  const sharedReportIds = await listLatestSharedSourceReportIds({ limit: 8 })
+  const sharedBundles = []
+  for (const reportArtifactId of sharedReportIds) {
+    sharedBundles.push(await getIntelligenceReportBundle(reportArtifactId, { atomLimit: 80, hitLimit: 120 }))
+  }
+  const devSourceSlice = buildDevSourceSliceRouterSnapshot({ reportBundles: sharedBundles })
+  if (devSourceSlice.ok && devSourceSlice.devCandidates.length) {
+    bundles.push(buildDevSourceSliceDirectorInputBundle(devSourceSlice))
+  }
+  return { reportBundles: bundles, devSourceSlice, sharedReportIds }
 }
 
 async function persistDirector(snapshot = {}) {
@@ -145,7 +193,7 @@ async function main() {
       businessStrategyText,
       currentPlanText,
       currentSprint,
-      reportBundles,
+      inputBundleResult,
     ] = await Promise.all([
       readRepoJson('package.json'),
       readRepoFile(DEV_TEAM_INTELLIGENCE_DIRECTOR_PLAN_PATH),
@@ -160,6 +208,7 @@ async function main() {
       getActiveFoundationCurrentSprint(),
       loadInputBundles(),
     ])
+    const { reportBundles, devSourceSlice, sharedReportIds } = inputBundleResult
 
     const planReview = evaluatePlanCriticPlan({
       planText,
@@ -200,6 +249,10 @@ async function main() {
     addCheck(checks, topCandidates.length >= 5, 'Director emits top 5 build candidates', `${topCandidates.length}`)
     addCheck(checks, topCandidates.every(candidate => candidate.promotionStatus === DEV_TEAM_INTELLIGENCE_DIRECTOR_PROMOTION_STATUS), 'top candidates require Dev Build Scoper before Steve approval', topCandidates.map(candidate => candidate.promotionStatus).join(', '))
     addCheck(checks, topCandidates.every(candidate => candidate.missionScore?.laneScores?.some(lane => lane.id === 'agent_realtor_coaching') || true), 'Director scoring includes agent/realtor coaching lane', 'lane present in rubric')
+    addCheck(checks, sharedReportIds.length >= 3, 'Director discovers recent shared internal source reports', `${sharedReportIds.length}`)
+    addCheck(checks, devSourceSlice?.ok === true && devSourceSlice.devCandidates.length >= 1, 'Director receives filtered Dev source slice from meetings/comms', `${devSourceSlice?.counts?.devCandidates || 0}`)
+    addCheck(checks, devSourceSlice?.parkedOperational?.length >= 1, 'normal ops tasks stay parked out of Dev Director', `${devSourceSlice?.counts?.parkedOperational || 0}`)
+    addCheck(checks, snapshot.sourceCoverage.some(source => source.reportArtifactId === DEV_SOURCE_SLICE_ROUTER_REPORT_ARTIFACT_ID), 'Director input includes the Dev source-slice bundle', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
     addCheck(checks, !writeRequested || persistedReport?.reportArtifactId === DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, 'persisted Director report reads back', persistedReport?.reportArtifactId || 'missing')
     addCheck(checks, !writeRequested || persistedAtoms.length >= Math.min(5, topCandidates.length), 'persisted Director atoms read back', `${persistedAtoms.length}`)
     addCheck(checks, !writeRequested || persistedHits.length >= Math.min(5, topCandidates.length), 'persisted Director evidence hits read back', `${persistedHits.length}`)
@@ -226,6 +279,11 @@ async function main() {
           nextStep: candidate.recommendedNextStep,
         })),
         approvalRequiredCount: snapshot.approvalRequiredCount,
+        devSourceSlice: devSourceSlice ? {
+          inputReports: devSourceSlice.counts.inputReports,
+          devCandidates: devSourceSlice.counts.devCandidates,
+          parkedOperational: devSourceSlice.counts.parkedOperational,
+        } : null,
       },
       checks,
       failed,
