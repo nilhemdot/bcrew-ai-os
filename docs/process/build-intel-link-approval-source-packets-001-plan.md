@@ -38,6 +38,8 @@ Target UI flow:
    - what the system will do
    - what it will not do
    - what extractor/worker will eventually use it
+   - what runtime lane would handle it after approval
+   - what must be true before that runtime is allowed to run
    - whether credentials, purchase, budget, or source-specific approval are still required
 6. Steve can approve, adjust the note, or reject.
 
@@ -60,6 +62,9 @@ The AI chat can propose a packet. It cannot crawl, log in, buy, submit forms, st
   - budget/cadence
   - output destination
   - extractor that may use it
+  - runtime plan: local Playwright first, hosted Browserbase/Browse-style fallback only if local reliability fails
+  - required preconditions before any future worker run
+  - proof that approval does not start the runtime
 - Free/public Skool is not treated the same as paid/private Skool.
 - Purchase/download/form/opt-in links remain held unless a separate packet says exactly what to do.
 - The system never treats "approve link" as permission to crawl adjacent pages, paid spaces, member posts, private comments, downloads, payments, forms, or credentials.
@@ -122,9 +127,10 @@ npm run process:build-intel-link-approval-source-packets-check -- --json
 
 V1 implementation note:
 
-- `lib/build-intel-link-approval-source-packets.js` owns the no-crawl source packet preview and validation rules.
+- `lib/build-intel-link-approval-source-packets.js` owns the no-crawl source packet preview, runtime plan, and validation rules.
+- Every source packet preview includes a no-start runtime plan. The default runtime policy is local Playwright first; hosted Browserbase/Browse-style runtime is only a fallback if local browser reliability fails later.
 - `scripts/process-build-intel-link-approval-source-packets-check.mjs` proves live approval links can become source-packet previews without browsing, crawling, writing backlog, or writing external systems.
-- Dev Hub approval rows show the plain-English packet consequence so Steve can tell what approval would do before approving.
+- Dev Hub approval rows show the plain-English packet consequence and runtime consequence so Steve can tell what approval would do before approving.
 - Operator-note parsing supports the future "Decide with AI" flow: Steve can leave a comment and the system maps it to the safest packet type before asking for confirmation.
 
 ## Not Next

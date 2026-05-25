@@ -1823,7 +1823,9 @@ button {
   line-height: var(--lh-body);
 }
 
-.approval-row .approval-packet-copy {
+.approval-row .approval-packet-copy,
+.approval-row .approval-runtime-copy,
+.approval-packet-preview .approval-runtime-copy {
   color: var(--ink);
   font-weight: 700;
 }

@@ -395,6 +395,7 @@ function renderApprovalReview(snapshot = {}) {
             <h3>${escapeHtml(approvalReviewTitle(item))}</h3>
             <p>${escapeHtml(item.reason || 'Needs approval before the system reads this link.')}</p>
             ${item.sourcePacketPreview?.plainEnglish ? `<p class="approval-packet-copy">${escapeHtml(item.sourcePacketPreview.plainEnglish)}</p>` : ''}
+            ${item.sourcePacketPreview?.runtimePlan?.plainEnglish ? `<p class="approval-runtime-copy">${escapeHtml(item.sourcePacketPreview.runtimePlan.plainEnglish)}</p>` : ''}
             <a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.url)}</a>
           </div>
           <aside>
@@ -437,14 +438,22 @@ function packetPreviewParams(item = {}, operatorNote = '') {
 
 function renderPacketPreviewResult(result = {}) {
   const packet = result.packet || {}
+  const runtime = packet.runtimePlan || {}
   return `
     <article class="approval-packet-preview">
       <span>${escapeHtml(packet.proposedDecision || 'packet preview')}</span>
       <h4>${escapeHtml(packet.plainEnglish || result.plainEnglish || 'Packet preview ready.')}</h4>
+      ${runtime.plainEnglish ? `<p class="approval-runtime-copy">${escapeHtml(runtime.plainEnglish)}</p>` : ''}
       <ul>
         ${list(packet.allowedActions).slice(0, 4).map(action => `<li>${escapeHtml(action)}</li>`).join('')}
       </ul>
-      <p>${escapeHtml(result.plainEnglish || 'Preview only. Nothing runs until confirmed later.')}</p>
+      ${list(runtime.requiredBeforeRun).length ? `
+        <p>Before anything runs:</p>
+        <ul>
+          ${list(runtime.requiredBeforeRun).slice(0, 4).map(action => `<li>${escapeHtml(action)}</li>`).join('')}
+        </ul>
+      ` : ''}
+      <p>${escapeHtml(result.plainEnglish || 'Preview only. No crawl, login, purchase, form, worker, or backlog write starts from this preview.')}</p>
     </article>
   `
 }
