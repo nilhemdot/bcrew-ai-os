@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-RESOURCE-LINK-RESOLVER-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T10:42:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-resource-link-resolver-001-plan.md",
+  "approvedPlanSha256": "d970063cc4db41b8c5232a534bf596c92e20c14e2438f3650709140086ecc6e3",
+  "approvedRepoHead": "26026df8df59d84f2ca229245d12ed138b2f8420",
+  "approvalSource": "Steve direct May 25 correction: YouTube description/resource links should be resolved or blocked by the system and Scoper, not manually chased by Steve.",
+  "approvalDigest": "85fd9ba6409457943a1eca3c6edceecac6d8e0113d5e8090c6fec20fb529f591"
+}

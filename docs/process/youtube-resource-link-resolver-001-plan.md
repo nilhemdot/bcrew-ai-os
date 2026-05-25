@@ -32,10 +32,21 @@ If the extractor watches the video but ignores those links, Scoper may scope fro
 ## Definition Of Done
 
 - Add a resolver contract/check after link classification and before Scoper.
-- Prove safe public repo/docs links can be summarized into a Scoper-readable packet.
+- Prove safe public repo/docs links can be resolved as read-only metadata and summarized into a Scoper-readable packet.
 - Prove Skool/Gumroad/download/login/private links are blocked with exact reason.
 - Prove Scoper rejects YouTube candidates whose resource links were ignored.
 - Expose resolved vs blocked link counts in the Dev Data Pool when the read path is ready.
+- Keep live public fetch explicit through `--live-fetch`; default proof uses deterministic fixtures plus live Foundation report readback without surprise internet work.
+
+## Changed Files
+
+- `lib/youtube-resource-link-resolver.js`
+- `scripts/process-youtube-resource-link-resolver-check.mjs`
+- `docs/process/youtube-resource-link-resolver-001-plan.md`
+- `docs/process/approvals/YOUTUBE-RESOURCE-LINK-RESOLVER-001.json`
+- `docs/rebuild/current-plan.md`
+- `docs/rebuild/current-state.md`
+- `package.json`
 
 ## Not Next
 
@@ -46,7 +57,10 @@ If the extractor watches the video but ignores those links, Scoper may scope fro
 
 ## Tests
 
-- Resolver fixture with one GitHub/docs link returns `resolved_public_resource`.
-- Resolver fixture with one Skool link returns `blocked_source_packet_required`.
-- Resolver fixture with one Gumroad/download link returns `blocked_download_or_purchase_required`.
+- `node --check lib/youtube-resource-link-resolver.js`
+- `node --check scripts/process-youtube-resource-link-resolver-check.mjs`
+- `npm run process:youtube-resource-link-resolver-check -- --json`
+- Resolver fixture with GitHub/docs links returns `resolved_public_metadata`.
+- Resolver fixture with one Skool link returns `blocked_private_or_course_source`.
+- Resolver fixture with one Gumroad/download link returns `blocked_purchase_or_checkout` or `blocked_download`.
 - Scoper proof rejects a YouTube-derived candidate with missing `resourceLinkDispositions`.

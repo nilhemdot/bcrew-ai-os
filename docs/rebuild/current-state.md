@@ -35,6 +35,8 @@ May 25 source-first correction: do not approve actual Dev build work from a thin
 
 May 25 resource-link correction: YouTube extraction must include description/resource link disposition. If a creator points to code, a skill, a repo, docs, or a course/resource page, the system should resolve approved public links or mark the exact source/auth blocker. Steve should not manually chase every link.
 
+May 25 resource-link resolver V1: `YOUTUBE-RESOURCE-LINK-RESOLVER-001` is implemented as a governed resolver contract/check. It reads captured YouTube links from Foundation reports, resolves allowlisted public repo/docs links as read-only metadata, blocks unsafe/private/paid/download/login/short-link/course/community links with exact reasons, and emits Scoper-readable resource dispositions. Default proof does not surprise-fetch the internet; live public fetch requires `--live-fetch`.
+
 May 23 creator-watch reconcile: the daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This is still source discovery, not watched/analyzed video.
 
 Closed setup:
