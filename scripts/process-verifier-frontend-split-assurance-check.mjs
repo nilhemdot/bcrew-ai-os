@@ -69,12 +69,14 @@ async function main() {
 
   const [
     moduleSource,
+    structuralAssuranceSource,
     verifierSource,
     scriptSource,
     planSource,
     packageSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-verifier-frontend-split-assurance.js'),
+    readRepoFile('lib/foundation-verifier-frontend-structural-assurance.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile(VERIFIER_FRONTEND_SPLIT_ASSURANCE_SCRIPT_PATH),
     readRepoFile(VERIFIER_FRONTEND_SPLIT_ASSURANCE_PLAN_PATH),
@@ -119,7 +121,18 @@ async function main() {
     'dogfood rejects frontend split assurance failures',
     dogfood.dogfoodInvariant,
   )
-  addCheck(checks, verifierSource.includes('evaluateFoundationVerifierFrontendSplitAssurance({') && verifierSource.includes('verifierFrontendSplitAssurance.checks'), 'foundation verifier delegates frontend split assurance checks to focused module', 'evaluateFoundationVerifierFrontendSplitAssurance')
+  const delegationSource = [verifierSource, structuralAssuranceSource].join('\n')
+  addCheck(
+    checks,
+    (
+      verifierSource.includes('evaluateFoundationVerifierFrontendSplitAssurance({') ||
+      verifierSource.includes('evaluateFoundationVerifierFrontendStructuralAssurance({')
+    ) &&
+      delegationSource.includes('evaluateFoundationVerifierFrontendSplitAssurance({') &&
+      delegationSource.includes('verifierFrontendSplitAssurance.checks'),
+    'foundation verifier delegates frontend split assurance checks to focused module',
+    'evaluateFoundationVerifierFrontendSplitAssurance',
+  )
   addCheck(checks, !verifierSource.includes(oldStylesheetInlineMarker) && !verifierSource.includes(oldFrontendInputMarker), 'old inline frontend split blocks are removed', 'stylesheetMonolithSplitCard and frontendSplitVerifierInput no longer appear inline')
   addCheck(checks, verifierLines < VERIFIER_FRONTEND_SPLIT_ASSURANCE_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_FRONTEND_SPLIT_ASSURANCE_BEFORE_LINES} -> ${verifierLines}`)
   addCheck(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only', 'no live-state write tokens')
