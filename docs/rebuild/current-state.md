@@ -61,6 +61,8 @@ May 25 broad source-comparison public YouTube batch: the first broad comparison 
 
 May 25 source-value grading doctrine: before major build promotion, extracted creator/source output should be compared side-by-side. Do not let Mark, ICOR, or any early source dominate the roadmap just because it was extracted first. Broader creator catch-up should extract enough recent videos to grade sources S/A/B/C/D by lane, then keep heavy watch budget on S/A sources, selective B, and sharply reduce or stop C/D. Grades must be lane-specific: a creator can be S for realtor AI coaching but B/C for AIOS build architecture.
 
+May 25 Build Intel source-value grader V1: `BUILD-INTEL-SOURCE-VALUE-GRADER-001` is implemented as a deterministic, report-only grader. It reads full-watch reports plus the Dev Director report, dedupes split creator rows, grades creators by AIOS/dev build, realtor AI training, marketing/content, ops/process, and leadership/strategy value, and persists `grader:build-intel-source-value-grader-001:v1` plus `docs/source-notes/build-intel-source-value-grader-2026-05-25.md`. Current Dev build S-tier sources are ICOR, Mark Kashef, Nate Herk, and Austin Marchese; realtor-training value is tracked separately. It does not mutate watchlists, delete sources, create backlog cards, or promote sprint work.
+
 May 23 creator-watch reconcile: the daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This is still source discovery, not watched/analyzed video.
 
 Closed setup:
