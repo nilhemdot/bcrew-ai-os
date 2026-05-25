@@ -2,11 +2,11 @@
   "approvalSchemaVersion": 2,
   "cardId": "YOUTUBE-CREATOR-DAILY-WATCH-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-21T16:39:00-04:00",
+  "approvedAt": "2026-05-25T17:00:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/youtube-creator-daily-watch-001-plan.md",
-  "approvedPlanSha256": "d4767479800b78212790f1e1dd205243e7b0cefbc35bc58248722668c4a5a9fb",
-  "approvedRepoHead": "b005f7f79781c5fdd7e4465afd52407d0e6007d0",
-  "approvalSource": "Steve direct May 21 active-card instruction: build the scheduled public no-auth YouTube creator watch first, with Mark Kashef last 50 public videos, other approved public creators last 20, dedupe/provenance/review pool, no external writes, and no automatic backlog cards.",
-  "approvalDigest": "591b73eb64c7b0096ad5e72f4b11ff9b07dd7a731daadccfd7ed04a43f74ad6d"
+  "approvedPlanSha256": "8210b7f4b28c97c6df5a59e6dbceff5d7055a166d2c45bf4dd2ac02ddbd9cf3a",
+  "approvedRepoHead": "9821faddeb493489ceedecbf4b4ab2431d1ea583",
+  "approvalSource": "Steve direct May 25 instruction: after Mark is done, prioritize ICOR with Tom/myICOR and watch the last 50 public YouTube videos as catch-up only; keep watching anything new they release today, tomorrow, or later through daily public no-auth deltas.",
+  "approvalDigest": "9803936dff2835ae32231fe955ed4ecd76be0c01e495b3411a25c490202cb6e6"
 }

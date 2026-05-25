@@ -31,7 +31,6 @@ import {
 import {
   YOUTUBE_LATEST_20_FULL_WATCH_MODEL,
   YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID,
-  YOUTUBE_LATEST_20_FULL_WATCH_REPORT_PATH,
   YOUTUBE_LATEST_20_FULL_WATCH_RUNNER_APPROVAL_PATH,
   YOUTUBE_LATEST_20_FULL_WATCH_RUNNER_CARD_ID,
   YOUTUBE_LATEST_20_FULL_WATCH_RUNNER_PLAN_PATH,
@@ -44,6 +43,8 @@ import {
   renderYoutubeLatest20FullWatchReport,
   runYoutubeLatest20FullWatchExtraction,
   verifyYoutubeLatest20FullWatchPersistedProof,
+  youtubeLatest20FullWatchReportArtifactId,
+  youtubeLatest20FullWatchReportPath,
 } from '../lib/youtube-latest-20-full-watch-runner.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -58,12 +59,21 @@ function parseArgs(argv = process.argv.slice(2)) {
     batchSize: Number(readArgValue(argv, '--batch-size=')) || 9,
     model: readArgValue(argv, '--model=') || YOUTUBE_LATEST_20_FULL_WATCH_MODEL,
     geminiTimeoutMs: Number(readArgValue(argv, '--gemini-timeout-ms=')) || YOUTUBE_LATEST_20_FULL_WATCH_TIMEOUT_MS,
+    creatorIds: readArgValues(argv, '--creator-id='),
   }
 }
 
 function readArgValue(argv = [], prefix = '') {
   const found = argv.find(arg => String(arg || '').startsWith(prefix))
   return found ? String(found).slice(prefix.length).trim() : ''
+}
+
+function readArgValues(argv = [], prefix = '') {
+  return argv
+    .filter(arg => String(arg || '').startsWith(prefix))
+    .flatMap(arg => String(arg).slice(prefix.length).split(','))
+    .map(text)
+    .filter(Boolean)
 }
 
 function text(value) {
@@ -206,12 +216,34 @@ async function persistBatch(snapshot = {}) {
     ...writeSet.reportArtifact,
     inputAtomIds: atoms.map(atom => atom.atomId || atom.atom_id),
   }, ACTOR)
-  await fs.writeFile(path.join(repoRoot, YOUTUBE_LATEST_20_FULL_WATCH_REPORT_PATH), renderYoutubeLatest20FullWatchReport(snapshot), 'utf8')
+  await fs.writeFile(path.join(repoRoot, snapshot.reportPath || youtubeLatest20FullWatchReportPath({ batchRunId: snapshot.batchRunId })), renderYoutubeLatest20FullWatchReport(snapshot), 'utf8')
   return { writeSet, report, atoms, hits }
 }
 
+async function loadLatestPersistedReportArtifactId() {
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT report_artifact_id
+        FROM intelligence_report_artifacts
+        WHERE report_artifact_id = $1
+           OR report_artifact_id LIKE $2
+           OR metadata->>'proofMode' = 'youtube_latest_20_god_mode_api_full_watch'
+        ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+        LIMIT 1
+      `,
+      [YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID, `${YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID}:%`],
+    )
+    return result.rows[0]?.report_artifact_id || YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
 async function loadPersistedBatch() {
-  const bundle = await getIntelligenceReportBundle(YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID, { atomLimit: 260, hitLimit: 360 })
+  const reportArtifactId = await loadLatestPersistedReportArtifactId()
+  const bundle = await getIntelligenceReportBundle(reportArtifactId, { atomLimit: 260, hitLimit: 360 })
   return {
     ...bundle,
     snapshot: buildSnapshotFromYoutubeLatest20FullWatchReport(bundle.report),
@@ -235,6 +267,9 @@ async function main() {
   await initFoundationDb()
   try {
     const now = new Date().toISOString()
+    const batchRunId = now.replace(/[^0-9]/g, '').slice(0, 14)
+    const reportArtifactId = youtubeLatest20FullWatchReportArtifactId({ batchRunId, creatorIds: args.creatorIds })
+    const reportPath = youtubeLatest20FullWatchReportPath({ batchRunId, creatorIds: args.creatorIds })
     const [
       packageJson,
       planSource,
@@ -259,6 +294,9 @@ async function main() {
     const manifest = buildYoutubeLatest20IntelRunSnapshot({
       poolRows,
       alreadyFullWatchedVideoIds,
+      creatorIds: args.creatorIds,
+      maxCreators: args.creatorIds.length ? args.creatorIds.length : undefined,
+      maxVideosPerCreator: args.creatorIds.length ? args.batchSize : undefined,
       maxRunVideos: args.batchSize,
     })
     selectedVideos = list(manifest.selectedVideos).slice(0, args.batchSize)
@@ -278,10 +316,13 @@ async function main() {
         now,
         actor: ACTOR,
         geminiTimeoutMs: args.geminiTimeoutMs,
+        reportArtifactId,
       })
       snapshot = buildYoutubeLatest20FullWatchSnapshot({
         generatedAt: now,
-        batchRunId: now.replace(/[^0-9]/g, '').slice(0, 14),
+        batchRunId,
+        reportArtifactId,
+        reportPath,
         videos: selectedVideos,
         videoResults,
         model: args.model,
@@ -292,7 +333,7 @@ async function main() {
         throw new Error(`Latest-20 full-watch batch blocked: ${snapshot.failures.map(failure => failure.check).join(', ')}`)
       }
       const persistedWrite = await persistBatch(snapshot)
-      const persisted = await getIntelligenceReportBundle(YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID, { atomLimit: 260, hitLimit: 360 })
+      const persisted = await getIntelligenceReportBundle(reportArtifactId, { atomLimit: 260, hitLimit: 360 })
       persistence = verifyYoutubeLatest20FullWatchPersistedProof({
         snapshot,
         report: persisted.report,
@@ -339,7 +380,7 @@ async function main() {
             ? 'healthy_persisted_batch_ready_for_next_apply'
             : 'ready_for_apply',
       cardId: YOUTUBE_LATEST_20_FULL_WATCH_RUNNER_CARD_ID,
-      reportArtifactId: YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID,
+      reportArtifactId: args.apply ? reportArtifactId : (snapshot?.reportArtifactId || YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID),
       selectedVideos: selectedVideos.map(video => ({
         creator: video.creator,
         creatorId: video.creatorId,

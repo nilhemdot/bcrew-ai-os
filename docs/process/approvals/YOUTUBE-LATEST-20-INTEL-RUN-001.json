@@ -2,12 +2,12 @@
   "approvalSchemaVersion": 2,
   "cardId": "YOUTUBE-LATEST-20-INTEL-RUN-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-25T13:30:00-04:00",
+  "approvedAt": "2026-05-25T17:00:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/youtube-latest-20-intel-run-001-plan.md",
-  "approvedPlanSha256": "e5a370e3fb4b7afcd142a5e5126a088d458f50f631f6f6ccebb9b941dcd5ecd9",
-  "approvedRepoHead": "48d806f32529d9f14d68da5157f853cf9101f3cf",
-  "approvalSource": "Steve direct May 25 source-first correction: after Mark full-watch completion, prepare the next bounded non-Mark public YouTube latest-20 run from approved daily-watch data; do not broaden into private/auth/paid sources or weak transcript-only extraction.",
-  "notes": "Approved only for a read-only run manifest/proof. Not approved: live Gemini/model calls, transcript fetch, screenshot capture, comments/member crawling, paid/auth/community sources, external writes, or automatic backlog promotion.",
-  "approvalDigest": "bfa92c247f359720fa339264ff1ecb784e42a7127037443637b98406e51aca9b"
+  "approvedPlanSha256": "b329e72941346ca5ae932372f06786edd0c98b3a4c14965404f3d4e13e702f29",
+  "approvedRepoHead": "9821faddeb493489ceedecbf4b4ab2431d1ea583",
+  "approvalSource": "Steve direct May 25 instruction: get fully caught up on the YouTube followers, prioritize ICOR with Tom after Mark, and treat last-50/latest-20 as baseline catch-up while every new upload remains eligible for governed full-watch extraction.",
+  "notes": "Approved for read-only manifest/proof plus targeted creator selection. Live model calls remain owned by the full-watch runner approval and must stay public/no-auth, proposal-only, and non-external-write.",
+  "approvalDigest": "19cd8bc9911069399e4dae136a5764b8036999417ffd5ad2c019c83778ad7845"
 }

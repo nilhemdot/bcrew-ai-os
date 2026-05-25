@@ -47,7 +47,10 @@ import {
   buildDevSourceSliceDirectorInputBundle,
   buildDevSourceSliceRouterSnapshot,
 } from '../lib/dev-source-slice-router.js'
-import { YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID } from '../lib/youtube-latest-20-full-watch-runner.js'
+import {
+  YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID,
+  isYoutubeLatest20FullWatchReportId,
+} from '../lib/youtube-latest-20-full-watch-runner.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -110,9 +113,39 @@ async function listLatestSharedSourceReportIds({ limit = 8 } = {}) {
   }
 }
 
+async function listLatestYoutubeLatest20FullWatchReportIds({ limit = 12 } = {}) {
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT report_artifact_id
+        FROM intelligence_report_artifacts
+        WHERE report_artifact_id = $1
+           OR report_artifact_id LIKE $2
+           OR metadata->>'proofMode' = 'youtube_latest_20_god_mode_api_full_watch'
+        ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+        LIMIT $3
+      `,
+      [
+        YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID,
+        `${YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID}:%`,
+        Math.min(30, Math.max(1, Number(limit) || 12)),
+      ],
+    )
+    return result.rows.map(row => row.report_artifact_id).filter(Boolean)
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
 async function loadInputBundles() {
   const bundles = []
-  for (const reportArtifactId of DEV_TEAM_INTELLIGENCE_DIRECTOR_INPUT_REPORT_IDS) {
+  const latest20ReportIds = await listLatestYoutubeLatest20FullWatchReportIds({ limit: 12 })
+  const inputIds = Array.from(new Set([
+    ...DEV_TEAM_INTELLIGENCE_DIRECTOR_INPUT_REPORT_IDS,
+    ...latest20ReportIds,
+  ]))
+  for (const reportArtifactId of inputIds) {
     bundles.push(await getIntelligenceReportBundle(reportArtifactId, { atomLimit: 200, hitLimit: 300 }))
   }
   const sharedReportIds = await listLatestSharedSourceReportIds({ limit: 8 })
@@ -124,7 +157,7 @@ async function loadInputBundles() {
   if (devSourceSlice.ok && devSourceSlice.devCandidates.length) {
     bundles.push(buildDevSourceSliceDirectorInputBundle(devSourceSlice))
   }
-  return { reportBundles: bundles, devSourceSlice, sharedReportIds }
+  return { reportBundles: bundles, devSourceSlice, sharedReportIds, latest20ReportIds }
 }
 
 async function persistDirector(snapshot = {}) {
@@ -209,7 +242,7 @@ async function main() {
       getActiveFoundationCurrentSprint(),
       loadInputBundles(),
     ])
-    const { reportBundles, devSourceSlice, sharedReportIds } = inputBundleResult
+    const { reportBundles, devSourceSlice, sharedReportIds, latest20ReportIds } = inputBundleResult
 
     const planReview = evaluatePlanCriticPlan({
       planText,
@@ -254,7 +287,8 @@ async function main() {
     addCheck(checks, devSourceSlice?.ok === true && devSourceSlice.devCandidates.length >= 1, 'Director receives filtered Dev source slice from meetings/comms', `${devSourceSlice?.counts?.devCandidates || 0}`)
     addCheck(checks, devSourceSlice?.parkedOperational?.length >= 1, 'normal ops tasks stay parked out of Dev Director', `${devSourceSlice?.counts?.parkedOperational || 0}`)
     addCheck(checks, snapshot.sourceCoverage.some(source => source.reportArtifactId === DEV_SOURCE_SLICE_ROUTER_REPORT_ARTIFACT_ID), 'Director input includes the Dev source-slice bundle', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
-    addCheck(checks, snapshot.sourceCoverage.some(source => source.reportArtifactId === YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID), 'Director input includes latest-20 full-watch batch', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
+    addCheck(checks, latest20ReportIds.length >= 1, 'Director discovers persisted latest-20 full-watch batch reports', latest20ReportIds.join(', '))
+    addCheck(checks, snapshot.sourceCoverage.some(source => isYoutubeLatest20FullWatchReportId(source.reportArtifactId)), 'Director input includes latest-20 full-watch batch', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
     addCheck(checks, !writeRequested || persistedReport?.reportArtifactId === DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, 'persisted Director report reads back', persistedReport?.reportArtifactId || 'missing')
     addCheck(checks, !writeRequested || persistedAtoms.length >= Math.min(5, topCandidates.length), 'persisted Director atoms read back', `${persistedAtoms.length}`)
     addCheck(checks, !writeRequested || persistedHits.length >= Math.min(5, topCandidates.length), 'persisted Director evidence hits read back', `${persistedHits.length}`)

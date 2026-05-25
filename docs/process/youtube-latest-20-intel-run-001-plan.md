@@ -4,7 +4,9 @@
 
 Create the governed run manifest for the next non-Mark public YouTube Build Intel extraction.
 
-Plain English: Mark is the first completed baseline. The next public YouTube step should not be "watch everything." It should select a small, source-backed, public/no-auth, non-Mark batch from the daily watch pool and prove that the batch can only move forward through the full God Mode route.
+Plain English: Mark is the first completed baseline. The next public YouTube step should not be "watch everything" without control. It should select a small, source-backed, public/no-auth, non-Mark batch from the daily watch pool and prove that the batch can only move forward through the full God Mode route. Default mode spreads coverage across creators; targeted mode can focus a high-priority creator like ICOR with Tom for repeated guarded batches.
+
+The manifest is not a "last 50 and done" process. Baseline videos are catch-up. New videos discovered today, tomorrow, or any future daily-watch run remain eligible until they are full-watched or intentionally rejected.
 
 ## Why
 
@@ -17,11 +19,12 @@ The missing gap is that `YOUTUBE-LATEST-20-INTEL-RUN-001` was in sprint truth bu
 - Reads from the existing public YouTube daily watch pool.
 - Excludes Mark videos because Mark has its own completed baseline path.
 - Excludes already full-watched videos.
+- Includes new daily-delta videos after baseline catch-up; already full-watched videos stay excluded.
 - Selects only public/no-auth, non-private, non-paid rows.
 - Caps the manifest to a small batch:
-  - at most 3 creators
-  - at most 3 videos per creator
-  - at most 9 videos total
+  - default coverage mode: at most 9 creators, 1 video per creator, 9 videos total
+  - targeted creator mode: one requested creator can contribute up to the batch cap so ICOR/other priority baselines can catch up without mixing sources
+  - every mode stays at most 9 videos total
 - Records that runtime extraction must use Gemini API full video/audio/visual watching, not transcript-only or subscription scout output.
 - Records that YouTube description/resource links must go through the resolver/Scoper path.
 - Does not run extraction, call models, follow links, write backlog cards, or write externally from this proof.
@@ -32,7 +35,7 @@ The missing gap is that `YOUTUBE-LATEST-20-INTEL-RUN-001` was in sprint truth bu
 - Add `scripts/process-youtube-latest-20-intel-run-check.mjs`.
 - Add package script `process:youtube-latest-20-intel-run-check`.
 - Focused proof reads the live daily watch pool and emits the selected non-Mark run manifest.
-- Dogfood proof rejects Mark rows, paid/private rows, and already full-watched rows.
+- Dogfood proof rejects Mark rows, paid/private rows, already full-watched rows, random channel noise, and proves targeted ICOR creator mode can select multiple videos without broadening into paid/auth sources.
 
 ## Not Next
 

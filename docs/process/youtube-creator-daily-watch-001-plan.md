@@ -4,7 +4,7 @@
 
 Build the scheduled public no-auth YouTube creator watch for `SRC-CREATOR-WATCHLIST-001` and `SRC-YOUTUBE-INTEL-001`.
 
-The watch reads the canonical Build Intel creator watchlist, selects active known public YouTube channel refs, checks their public `/videos` pages daily, and records video metadata into a deduped Foundation research pool. Mark Kashef starts with the last 50 public videos. Other known public YouTube creator channels start with the last 20 public videos. After baseline, the same watch records daily deltas by keeping first-seen and last-seen provenance.
+The watch reads the canonical Build Intel creator watchlist, selects active known public YouTube channel refs, checks their public `/videos` pages daily, and records video metadata into a deduped Foundation research pool. Mark Kashef and ICOR with Tom start with the last 50 public videos because Steve treats both as highest-value Build Intel sources. Other known public YouTube creator channels start with the last 20 public videos. That baseline is only catch-up, not completion: every new video released today, tomorrow, or later must keep entering the daily-delta queue for full extraction review. After baseline, the same watch records daily deltas by keeping first-seen and last-seen provenance.
 
 ## Why
 
@@ -17,7 +17,8 @@ Foundation remains the source/intelligence truth. Dev Team Hub reads the Foundat
 - The scheduled Foundation job `youtube-creator-daily-watch` is registered, enabled, daily, and allowlisted as `operational_write`.
 - The job writes only governed internal Foundation rows: `source_crawl_targets`, `source_crawl_items`, `intelligence_report_artifacts`, `intelligence_atoms`, and `intelligence_atom_hits`.
 - The watch derives creators from `lib/build-intel-watchlist.js`; it does not hardcode an alternate watchlist.
-- Mark Kashef uses baseline depth `50`; every other watched public YouTube channel uses baseline depth `20`.
+- Mark Kashef and ICOR with Tom use baseline depth `50`; every other watched public YouTube channel uses baseline depth `20`.
+- Baseline depth does not cap future monitoring. New public uploads after baseline are still detected daily, preserved as deltas, and eligible for the governed full-watch extraction queue.
 - Creator refs without a known public YouTube channel URL become lookup gaps, not invented URLs.
 - Private, paid, auth, member, community, comment, course, Skool, MyICOR, Gumroad, Calendly, Loom, purchase, download, opt-in, booking, and form paths are not opened or followed.
 - The research pool dedupes by YouTube video ID and preserves creator, channel URL, video ID, title, visible publish date text, URL, discovery run, source IDs, first-seen timestamp, and last-seen timestamp.
@@ -78,7 +79,8 @@ Operator value:
 Speed boundary:
 
 - The focused closeout gate stays proportional and fast by reading the latest successful job, target rows, report, atoms, hits, dogfood fixtures, and sprint truth; it does not recrawl YouTube during closeout.
-- The live job is the only public YouTube discovery pass and is bounded to known public channel `/videos` pages, last 50 for Mark Kashef, last 20 for other approved public creators, and no transcripts, models, screenshots, comments, or external links.
+- The live job is the only public YouTube discovery pass and is bounded to known public channel `/videos` pages, last 50 for Mark Kashef and ICOR with Tom, last 20 for other approved public creators, and no transcripts, models, screenshots, comments, or external links.
+- The baseline catch-up is not a one-time archive. The same job keeps running after catch-up so new public uploads keep flowing into the research pool.
 - If the focused proof or gates become slow, the repair path is to narrow the proof to the same real artifacts and keep broad crawling out of this card, not bypass the gate.
 
 Runtime behavior:
@@ -94,7 +96,7 @@ Runtime behavior:
 
 Gate decision tree: full ship gate. This card adds a scheduled operational-write job, source-crawl writes, report/atom/hit writes, a read API route, closeout registry entry, verifier coverage, and Current Sprint advancement. Static-only proof is insufficient.
 
-Behavior proof: the focused proof requires a real successful Foundation job run, then reads back the target, pool rows, report, atoms, hits, job posture, and Current Sprint state. The dogfood proof recreates duplicate video IDs, Mark 50 versus other 20 baseline rules, daily delta first-seen preservation, private URL rejection, and no-auto-promotion flags.
+Behavior proof: the focused proof requires a real successful Foundation job run, then reads back the target, pool rows, report, atoms, hits, job posture, and Current Sprint state. The dogfood proof recreates duplicate video IDs, Mark/ICOR 50 versus other 20 baseline rules, daily delta first-seen preservation, private URL rejection, and no-auto-promotion flags.
 
 Repair path: if YouTube discovery, DB persistence, scheduled job status, report/atom readback, or a Foundation gate fails, keep this card active and fix the exact path. Do not hide failures with classification or mark the job healthy without a fresh successful run.
 

@@ -30,7 +30,24 @@ const repoRoot = path.resolve(__dirname, '..')
 function parseArgs(argv = process.argv.slice(2)) {
   return {
     json: argv.includes('--json') || argv.includes('--json=true'),
+    creatorIds: readArgValues(argv, '--creator-id='),
+    maxCreators: Number(readArgValue(argv, '--max-creators=')) || null,
+    maxVideosPerCreator: Number(readArgValue(argv, '--max-videos-per-creator=')) || null,
+    maxRunVideos: Number(readArgValue(argv, '--batch-size=')) || Number(readArgValue(argv, '--max-run-videos=')) || null,
   }
+}
+
+function readArgValue(argv = [], prefix = '') {
+  const found = argv.find(arg => String(arg || '').startsWith(prefix))
+  return found ? String(found).slice(prefix.length).trim() : ''
+}
+
+function readArgValues(argv = [], prefix = '') {
+  return argv
+    .filter(arg => String(arg || '').startsWith(prefix))
+    .flatMap(arg => String(arg).slice(prefix.length).split(','))
+    .map(text)
+    .filter(Boolean)
 }
 
 function addCheck(checks, ok, check, detail = '') {
@@ -164,7 +181,14 @@ async function main() {
     loadAlreadyFullWatchedVideoIds(),
   ])
 
-  const snapshot = buildYoutubeLatest20IntelRunSnapshot({ poolRows, alreadyFullWatchedVideoIds })
+  const snapshot = buildYoutubeLatest20IntelRunSnapshot({
+    poolRows,
+    alreadyFullWatchedVideoIds,
+    creatorIds: args.creatorIds,
+    maxCreators: args.creatorIds.length ? Math.min(args.creatorIds.length, args.maxCreators || args.creatorIds.length) : args.maxCreators || undefined,
+    maxVideosPerCreator: args.creatorIds.length ? args.maxVideosPerCreator || args.maxRunVideos || 9 : args.maxVideosPerCreator || undefined,
+    maxRunVideos: args.maxRunVideos || undefined,
+  })
 
   addCheck(checks, approvalValidation.ok && approvalValidation.mode === 'v2', 'approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || YOUTUBE_LATEST_20_INTEL_RUN_APPROVAL_PATH)
   addCheck(checks, packageJson.scripts?.['process:youtube-latest-20-intel-run-check'] === 'node --env-file-if-exists=.env scripts/process-youtube-latest-20-intel-run-check.mjs', 'package exposes focused latest-20 proof', packageJson.scripts?.['process:youtube-latest-20-intel-run-check'] || 'missing')
