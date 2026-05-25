@@ -1,6 +1,6 @@
 # Mark Kashef God Mode API Full-Watch Small Batch
 
-Generated: 2026-05-24T23:45:14.830Z
+Generated: 2026-05-25T02:10:50.017Z
 Card: `MARK-KASHEF-LAST-50-BASELINE-001`
 Report artifact: `batch:mark-kashef-last-50:api-full-watch-small-batch-v1`
 Status: `ready_for_director_resynthesis`
@@ -8,52 +8,78 @@ Model: `gemini-3.5-flash`
 
 ## Plain-English Summary
 
-The system watched 3 public Mark Kashef videos through the Gemini API video/audio/visual route, read the YouTube page evidence, classified resource links, and kept every recommendation proposal-only.
+The system watched 5 public Mark Kashef videos through the Gemini API video/audio/visual route, read the YouTube page evidence, classified resource links, and kept every recommendation proposal-only.
 
 ## Videos
 
-- I Tried Claude Code Remote Control So You Don't Have To (HPo5M-6QJDo)
-  - URL: https://www.youtube.com/watch?v=HPo5M-6QJDo
-  - Visual evidence: 3; build candidates: 2; tokens: 65696
-- I Replaced OpenClaw With Claude Code in One Day (9Svv-n11Ysk)
-  - URL: https://www.youtube.com/watch?v=9Svv-n11Ysk
-  - Visual evidence: 3; build candidates: 2; tokens: 86120
-- 7 Things You Can Build with Claude Code Agent Teams (dlb_XgFVrHQ)
-  - URL: https://www.youtube.com/watch?v=dlb_XgFVrHQ
-  - Visual evidence: 3; build candidates: 2; tokens: 140853
+- You Have the OpenClaw Mind Virus (s-BHmRewyNI)
+  - URL: https://www.youtube.com/watch?v=s-BHmRewyNI
+  - Visual evidence: 3; build candidates: 2; tokens: 70007
+- Anthropic's Full Claude Skills Guide In 22 Minutes (TzJecWCbex0)
+  - URL: https://www.youtube.com/watch?v=TzJecWCbex0
+  - Visual evidence: 3; build candidates: 2; tokens: 125380
+- How to Make Stunning Graphics with Claude Code Agent Teams (mGfQV4s1MgE)
+  - URL: https://www.youtube.com/watch?v=mGfQV4s1MgE
+  - Visual evidence: 3; build candidates: 2; tokens: 82527
+- Claude Code Agent Teams Explained (Complete Guide) (1jlKUxqRQAw)
+  - URL: https://www.youtube.com/watch?v=1jlKUxqRQAw
+  - Visual evidence: 3; build candidates: 2; tokens: 122009
+- Anthropic Just Gave Claude 11 New Superpowers (eT_6uaHNlk8)
+  - URL: https://www.youtube.com/watch?v=eT_6uaHNlk8
+  - Visual evidence: 3; build candidates: 2; tokens: 79074
 
 ## Top Build Candidates
 
-- AIOS Secure Remote Tunneling CLI
-  - Source video: I Tried Claude Code Remote Control So You Don't Have To
-  - Why: Allows developers to securely monitor and approve long-running AIOS agent tasks from mobile devices without exposing local ports.
-  - Next: Research secure outbound WebSocket/HTTPS tunneling protocols to securely mirror AIOS terminal state to a web client.
-  - Evidence: 01:57
-- Workspace-Scoped Persona & Memory Bootstrapping
-  - Source video: I Tried Claude Code Remote Control So You Don't Have To
-  - Why: Enables project-specific agent behaviors, custom rules, and persistent local memory files automatically loaded upon entering a directory.
-  - Next: Implement a parser for a local .aios.md file that automatically injects system instructions and loads local memory files into the agent's context.
-  - Evidence: 08:46
-- Local CLI Agent Bridge (AIOS-Bridge)
-  - Source video: I Replaced OpenClaw With Claude Code in One Day
-  - Why: Connects mobile clients directly to a local, fully-configured AI OS CLI instance, avoiding API costs and dual-maintenance of agent skills.
-  - Next: Implement a lightweight Node.js daemon that spawns a local CLI subprocess and exposes a secure webhook.
-  - Evidence: 01:46, 05:17
-- FTS5-Powered Hybrid Memory System
-  - Source video: I Replaced OpenClaw With Claude Code in One Day
-  - Why: Provides zero-latency, cost-free semantic and episodic memory locally using SQLite FTS5 instead of expensive vector databases.
-  - Next: Integrate SQLite FTS5 into the AIOS memory layer to index and retrieve recent conversation contexts.
-  - Evidence: 05:40, 06:23
-- Interactive Human-in-the-Loop Approval Gateways
-  - Source video: 7 Things You Can Build with Claude Code Agent Teams
-  - Why: Enables AIOS to pause complex agentic pipelines for user validation, reducing token waste and ensuring alignment on critical design decisions.
-  - Next: Develop a state-machine framework in AIOS that supports interactive CLI/UI prompts to halt, modify, or reject agent plans.
-  - Evidence: 07:03
-- Hybrid Subagent Context Pre-Processor
-  - Source video: 7 Things You Can Build with Claude Code Agent Teams
-  - Why: Optimizes token usage and context windows by using a single focused subagent for heavy analysis before spinning up a collaborative multi-agent team.
-  - Next: Design a pipeline where a specialized scout agent generates a markdown summary of a codebase, which is then injected into the system prompt of a spawned agent team.
-  - Evidence: 21:13
+- Markdown-Driven Custom Agent Generator
+  - Source video: You Have the OpenClaw Mind Virus
+  - Why: Allows users to select modular agent capabilities (memory, tools, platforms) and compile a minimal, custom Python codebase, avoiding bloated frameworks.
+  - Next: Build a CLI tool or web UI that maps agent features to reference implementations and uses Claude Code to synthesize a tailored agent script.
+  - Evidence: 02:52, 05:15, 07:00
+- Zero-Docker Interactive Agent CLI
+  - Source video: You Have the OpenClaw Mind Virus
+  - Why: Simplifies local agent onboarding by replacing complex Docker/Kubernetes setups with a simple Python CLI wizard for API keys and model selection.
+  - Next: Develop a lightweight Python setup script that prompts for OpenRouter/Telegram keys and writes a clean config.json for the agent runtime.
+  - Evidence: 07:17, 08:37
+- Context-Optimized Skill Registry
+  - Source video: Anthropic's Full Claude Skills Guide In 22 Minutes
+  - Why: Implements progressive disclosure (YAML frontmatter -> SKILL.md -> linked files) to minimize token usage in agent loops.
+  - Next: Create a parser that extracts YAML frontmatter for initial system prompts, loading full markdown only when triggered.
+  - Evidence: 01:55, 03:11
+- Multi-MCP Coordination Skill Pattern
+  - Source video: Anthropic's Full Claude Skills Guide In 22 Minutes
+  - Why: Orchestrates multiple Model Context Protocol (MCP) servers sequentially with validation gates between phases.
+  - Next: Build a state machine that coordinates Figma, Drive, Linear, and Slack MCPs with strict validation checks.
+  - Evidence: 13:10
+- Multi-Agent Image Generation Pipeline (Banana Squad)
+  - Source video: How to Make Stunning Graphics with Claude Code Agent Teams
+  - Why: Automates high-fidelity infographic generation by separating research, prompt engineering, API calling, and critique into specialized agents.
+  - Next: Implement an orchestrator agent in AIOS that spawns specialized sub-agents for style analysis and iterative image critique.
+  - Evidence: 04:14, 05:58
+- Iterative Visual Critic Loop
+  - Source video: How to Make Stunning Graphics with Claude Code Agent Teams
+  - Why: Improves image generation accuracy and visual appeal by 10%+ through structured multi-dimensional evaluation (faithfulness, readability, aesthetics).
+  - Next: Integrate a vision-LLM critic step in AIOS asset generation workflows to score and refine outputs before final delivery.
+  - Evidence: 03:56, 08:10
+- Claude Code State Parser & Visualizer
+  - Source video: Claude Code Agent Teams Explained (Complete Guide)
+  - Why: Allows developers to monitor complex multi-agent workflows in real-time instead of tailing raw terminal logs or JSON files.
+  - Next: Build a lightweight file watcher on ~/.claude/teams/ to stream config, inbox, and task updates to a local dashboard.
+  - Evidence: 00:12, 13:34
+- Hybrid Model Team Allocator
+  - Source video: Claude Code Agent Teams Explained (Complete Guide)
+  - Why: Optimizes token usage by assigning expensive models (Opus 4.6) to the Team Lead and cheaper models (Sonnet 4.5/Haiku) to sub-agents.
+  - Next: Implement a routing layer in the AIOS orchestrator that dynamically swaps model endpoints based on agent role complexity.
+  - Evidence: 04:24, 17:32
+- File-Based AIOS Plugin Engine
+  - Source video: Anthropic Just Gave Claude 11 New Superpowers
+  - Why: Allows AIOS to ingest Anthropic-compatible plugin directories (JSON manifests + markdown prompts) to dynamically register slash commands and domain-specific skills.
+  - Next: Build a parser that reads .claude-plugin/plugin.json and registers the markdown files in the commands/ and skills/ directories to the agent context.
+  - Evidence: 03:10, 13:07
+- Meta-Plugin Generator Agent
+  - Source video: Anthropic Just Gave Claude 11 New Superpowers
+  - Why: Enables users to describe a workflow in natural language and automatically generate a deployable .zip plugin package containing the manifest, commands, and skills.
+  - Next: Create an AIOS system prompt that outputs the exact folder structure and files required for a valid Claude Cowork plugin based on user requirements.
+  - Evidence: 12:04, 14:06
 
 ## Boundaries
 
@@ -66,13 +92,13 @@ The system watched 3 public Mark Kashef videos through the Gemini API video/audi
 
 ## Checks
 
-- PASS batch size is guarded at 3-5 videos - 3
-- PASS all videos come from the Mark Kashef Foundation pool - HPo5M-6QJDo:mark-kashef, 9Svv-n11Ysk:mark-kashef, dlb_XgFVrHQ:mark-kashef
-- PASS one-video seed is not reprocessed in the small batch - HPo5M-6QJDo, 9Svv-n11Ysk, dlb_XgFVrHQ
-- PASS public YouTube page evidence captured for every video - HPo5M-6QJDo:true, 9Svv-n11Ysk:true, dlb_XgFVrHQ:true
-- PASS Gemini API full-watch result exists for every video - gemini-3.5-flash:true, gemini-3.5-flash:true, gemini-3.5-flash:true
-- PASS every video has timestamped visual evidence - gemini-3.5-flash:3, gemini-3.5-flash:3, gemini-3.5-flash:3
-- PASS every video has build candidates - gemini-3.5-flash:2, gemini-3.5-flash:2, gemini-3.5-flash:2
-- PASS batch produced ranked build candidates - 6
-- PASS safe resource follows are read-only metadata only - 0
+- PASS batch size is guarded at 3-5 videos - 5
+- PASS all videos come from the Mark Kashef Foundation pool - s-BHmRewyNI:mark-kashef, TzJecWCbex0:mark-kashef, mGfQV4s1MgE:mark-kashef, 1jlKUxqRQAw:mark-kashef, eT_6uaHNlk8:mark-kashef
+- PASS one-video seed is not reprocessed in the small batch - s-BHmRewyNI, TzJecWCbex0, mGfQV4s1MgE, 1jlKUxqRQAw, eT_6uaHNlk8
+- PASS public YouTube page evidence captured for every video - s-BHmRewyNI:true, TzJecWCbex0:true, mGfQV4s1MgE:true, 1jlKUxqRQAw:true, eT_6uaHNlk8:true
+- PASS Gemini API full-watch result exists for every video - gemini-3.5-flash:true, gemini-3.5-flash:true, gemini-3.5-flash:true, gemini-3.5-flash:true, gemini-3.5-flash:true
+- PASS every video has timestamped visual evidence - gemini-3.5-flash:3, gemini-3.5-flash:3, gemini-3.5-flash:3, gemini-3.5-flash:3, gemini-3.5-flash:3
+- PASS every video has build candidates - gemini-3.5-flash:2, gemini-3.5-flash:2, gemini-3.5-flash:2, gemini-3.5-flash:2, gemini-3.5-flash:2
+- PASS batch produced ranked build candidates - 10
+- PASS safe resource follows are read-only metadata only - 1
 
