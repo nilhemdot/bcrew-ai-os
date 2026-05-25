@@ -38,16 +38,40 @@ async function syncCoreRoutes(actor = 'intelligence-spine-god-mode-check') {
   const synced = []
   for (const route of DEFAULT_LLM_ROUTES.filter(item => CORE_ROUTE_KEYS.has(item.routeKey))) {
     const existing = byKey.get(route.routeKey)
+    const operatorConfigured = route.provider !== 'openclaw' && (
+      existing?.metadata?.modelRouteControl?.operatorConfigured === true ||
+      existing?.metadata?.intelligenceSpinePolicy?.operatorConfigured === true
+    )
+    const existingBrain = existing?.metadata?.brainFleetCapability || {}
+    const routeBrain = route.metadata?.brainFleetCapability || {}
+    const existingPolicy = existing?.metadata?.intelligenceSpinePolicy || {}
+    const routePolicy = route.metadata?.intelligenceSpinePolicy || {}
     synced.push(await upsertLlmRoute({
       ...route,
+      provider: operatorConfigured ? existing.provider : route.provider,
+      model: operatorConfigured ? existing.model : route.model,
+      authPath: operatorConfigured ? existing.authPath : route.authPath,
+      credentialKey: operatorConfigured ? existing.credentialKey : route.credentialKey,
+      fallbackRouteKey: operatorConfigured ? existing.fallbackRouteKey : route.fallbackRouteKey,
+      priority: operatorConfigured ? existing.priority : route.priority,
       status: route.provider === 'openclaw' ? route.status : (existing?.status || route.status),
       policyClassification: route.provider === 'openclaw' ? route.policyClassification : (existing?.policyClassification || route.policyClassification),
       riskClass: route.provider === 'openclaw' ? route.riskClass : (existing?.riskClass || route.riskClass),
       metadata: {
         ...(route.metadata || {}),
+        ...(operatorConfigured ? (existing.metadata || {}) : {}),
+        brainFleetCapability: {
+          ...routeBrain,
+          ...(operatorConfigured ? existingBrain : {}),
+        },
+        intelligenceSpinePolicy: {
+          ...routePolicy,
+          ...(operatorConfigured ? existingPolicy : {}),
+        },
         syncedBy: 'INTELLIGENCE-SPINE-GOD-MODE-001',
         syncedAt: new Date().toISOString(),
         preservedStatus: existing?.status || null,
+        preservedOperatorModelRoute: operatorConfigured,
       },
     }, actor))
   }
