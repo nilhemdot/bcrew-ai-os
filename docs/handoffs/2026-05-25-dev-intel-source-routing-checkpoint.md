@@ -6,7 +6,7 @@ Date: 2026-05-25
 
 - Public YouTube full-watch extraction is working through the Gemini API video/audio/visual route.
 - Dev Intelligence Director now reads Mark, ICOR, Nate, Austin, broad latest-20 public batches, and the filtered Dev slice from meetings/Gmail/Missive/Slack.
-- Dev Director report `director:dev-team-intelligence-director-001:aios-mission-v0` now ranks 320 proposal-only candidates.
+- Dev Director report `director:dev-team-intelligence-director-001:aios-mission-v0` now ranks 338 proposal-only candidates.
 - Source value grading is report-only and lane-specific. A creator can be S-tier for AIOS builds and lower for realtor teaching, or the reverse.
 - The current Dev build S-tier public sources are ICOR, Austin Marchese, Mark Kashef, and Nate Herk.
 - Realtor AI training value is tracked separately. Do not globally pause or promote a source from the Dev build grade alone.
@@ -62,6 +62,15 @@ Next paid-source move:
 - Nate second batch watched 4 standard public videos and produced 8 proposal-only build candidates, 12 visual evidence items, and 44 approval-required links.
 - Nate is now exhausted for the standard public Build Intel lane. The selector surfaces 2 remaining course-style videos for the long-course path.
 - Nate remains S for AIOS/dev build and is now S for ops/process value.
+
+## Broad Public Follow-Up
+
+- Ran one more 9-video standard public comparison batch after long-course routing was fixed.
+- Sources watched: Chase AI, Matt Pocock, Aaron Bitwise, Dan Martell, Dream Labs AI, Kia Ghasem, Nick Saraev, Jack, and Jono Catliff.
+- Result: 18 proposal-only build candidates, 27 visual evidence items, 107 approval-required links, 1 resolved public resource link, no external/backlog writes.
+- The top 5 Director picks did not change; Mark/ICOR/generic ideas still lead immediate Dev build priority.
+- Jono entered the source grader at B Dev build with best Director rank 15.
+- The source grader health check was repaired so lane-specific grading stays valid even when the current live source set is Dev-heavy.
 
 ## Recommended Next Order
 
