@@ -74,6 +74,8 @@ Important drift: `foundation-data-sources-v2` exists in code/routes, but the exa
 
 Important drift: there is no direct "parallel builder mission-control grid" UI card. This should stay parked until extraction/router/director quality is stable, otherwise it becomes a distraction from the actual bottleneck.
 
+Follow-up correction: a report-only parallel builder lane snapshot was briefly exposed on `/dev` as "Active Build Lanes." That was wrong because it rendered hardcoded protocol state as live operator truth. The Dev page must not show builder lanes again until the data comes from real runtime/worker state with current owners, file locks, proof status, and stop paths. Until then, parallel-builder material stays in process docs/checks only.
+
 ## New Source Lead Captured
 
 Steve added Nuno Tavares / Automated Marketer as an ungraded Build Intel source.
@@ -126,4 +128,3 @@ Known unrelated warning:
 - Do not crawl paid/private/auth sources without source packets and explicit approval.
 - Do not claim an extractor is God Mode unless the parity gate proves it.
 - Do not auto-create backlog cards from extracted ideas before Scoper/Portfolio gates.
-

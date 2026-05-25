@@ -107,7 +107,6 @@ function pageHasRequiredSections(html = '') {
 	    'id="evidence-grid"',
 	    'id="approval-review"',
 	    'id="source-leaderboard"',
-	    'id="builder-lane-panel"',
 	    'id="source-grid"',
 	    'id="target-panel"',
 	    'id="director-panel"',
@@ -243,7 +242,7 @@ async function main() {
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
   addCheck(checks, includesAll(serverSource, ['getIntelligenceReportBundle', 'registerFoundationBuildIntelRoutes(app']), 'server passes Foundation report bundle dependency', 'server.js')
   addCheck(checks, includesAll(appRoutesSource, ["app.get('/dev'", 'dev.html']), 'app routes serve owner-only Dev page', DEV_TEAM_HUB_V0_PAGE_ROUTE)
-  addCheck(checks, htmlSource.includes('/dev.css') && htmlSource.includes('/dev.js') && pageHasRequiredSections(htmlSource), 'Dev page has required Data Pool sections', 'Director lens, builder lanes, extractors, evidence, approval review, source leaderboard, source systems, selected detail')
+  addCheck(checks, htmlSource.includes('/dev.css') && htmlSource.includes('/dev.js') && pageHasRequiredSections(htmlSource), 'Dev page has required Data Pool sections', 'Director lens, extractors, evidence, approval review, source leaderboard, source systems, selected detail')
   addCheck(checks, pageUsesSharedLauncherTopbar(htmlSource, cssSource), 'Dev page uses the shared launcher topbar structure/CSS', 'launcher-topbar classes + /hub-launcher.css')
   addCheck(checks, !htmlSource.includes('id="active-card"') && !htmlSource.includes('id="source-proof"') && !htmlSource.includes('id="director-status"'), 'Dev page does not show redundant status-only middle cards', 'active card/source proof/director mini cards removed')
   addCheck(checks, jsSource.includes(DEV_TEAM_HUB_V0_API_ROUTE) && jsSource.includes('Needs source') && jsSource.includes("cache: 'no-store'"), 'frontend consumes API and renders missing-source state', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -252,7 +251,16 @@ async function main() {
   addCheck(checks, moduleSource.includes('buildExtractionEconomics') && moduleSource.includes('GEMINI_STANDARD_PRICING_BY_MODEL') && routeSource.includes('listLlmCalls'), 'Dev Hub API exposes extraction economics from LLM call usage', 'llm_calls + Gemini pricing tokens')
   addCheck(checks, moduleSource.includes('buildApprovalReviewQueue') && jsSource.includes('renderApprovalReview'), 'Dev Hub exposes actual approval links instead of a blind count', 'approvalReviewQueue + #approval-review')
   addCheck(checks, moduleSource.includes('buildDevIntelSourceCoverageSnapshot') && jsSource.includes('renderSourceLeaderboard'), 'Dev Hub page exposes source-family leaderboard coverage', 'sourceCoverage + sourceValueGrader')
-  addCheck(checks, moduleSource.includes('buildParallelBuilderLanesSnapshot') && moduleSource.includes('evaluateParallelBuilderLanes') && jsSource.includes('renderBuilderLanes'), 'Dev Hub exposes parallel builder lane control plane', 'parallelBuilderLanes + #builder-lane-panel')
+  addCheck(
+    checks,
+      !htmlSource.includes('builder-lane-panel') &&
+      !jsSource.includes('renderBuilderLanes') &&
+      !moduleSource.includes('buildParallelBuilderLanesSnapshot') &&
+      !Object.prototype.hasOwnProperty.call(payload || {}, 'parallelBuilderLanes') &&
+      !list(payload?.sourceRoutes).some(route => String(route.visibleValue || '').includes('Parallel builder')),
+    'Dev Hub does not expose report-only builder lanes as live operator truth',
+    'parallel builder protocol stays out of /dev until backed by real runtime state'
+  )
   addCheck(checks, cssSource.includes("font-family: 'Stratum1'") && cssSource.includes('--blue: #0084C9'), 'page-scoped CSS uses BCrew type and color tokens', 'public/dev.css')
   addCheck(checks, cssSource.includes('top: 0;') && !cssSource.includes('top: var(--topbar-h);'), 'Dev sidebar does not double-offset below shared topbar', 'sidebar top 0')
   addCheck(
@@ -283,7 +291,6 @@ async function main() {
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => item.url && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
   addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos'), 'source coverage includes planned GitHub and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)
   addCheck(checks, list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'meetings-transcripts') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'email-missive-comms') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'slack-comms'), 'active extraction lanes expose internal Foundation signals', list(payload?.activeExtractionLanes).map(lane => lane.laneId).join(', ') || 'missing')
-  addCheck(checks, payload?.parallelBuilderLanes?.reportOnly === true && payload?.parallelBuilderLanes?.evaluation?.ok === true && list(payload?.parallelBuilderLanes?.lanes).length >= 4, 'live snapshot exposes builder lane cards without launching workers', `${list(payload?.parallelBuilderLanes?.lanes).length} lanes`)
   addCheck(checks, Array.isArray(payload?.sourceRoutes) && payload.sourceRoutes.length >= 5, 'visible value source map is present', `${payload?.sourceRoutes?.length || 0} routes`)
 
   const failed = checks.filter(check => !check.ok)
