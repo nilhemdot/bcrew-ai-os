@@ -78,6 +78,8 @@ Follow-up correction: a report-only parallel builder lane snapshot was briefly e
 
 Parity gate progress: `GOD-MODE-EXTRACTOR-PARITY-GATE-001` now has `npm run process:god-mode-extractor-parity-gate-check -- --json`. The proof covers 13 source families, confirms the current system has zero full-God-Mode claims, and dogfoods that false claims fail for partial YouTube video extraction and paid Skool. The Dev Hub read model now exposes `godModeExtractorParity` for future UI display, while the YouTube lane is labeled truthfully as video intelligence until comments, approved resource follow-up, and browser hands are proven.
 
+Public comments progress: `YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001` now has `npm run process:youtube-public-comments-extractor-check -- --json`. The proof defines exact public-video/no-auth boundaries, comment provenance fields, source-packet classification for links found in comments, and a YouTube Data API public-comment adapter dogfooded with fake fetch. The repo currently has no `YOUTUBE_DATA_API_KEY` / `YOUTUBE_API_KEY` configured, so the adapter blocks honestly. The parity matrix must keep YouTube comments as adapter-ready, not fully working, until API key config and full-watch runner integration are done.
+
 ## New Source Lead Captured
 
 Steve added Nuno Tavares / Automated Marketer as an ungraded Build Intel source.

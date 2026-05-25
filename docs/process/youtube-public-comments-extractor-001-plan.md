@@ -37,6 +37,31 @@ Steve expected comments to be part of God Mode. The system has proof that a spec
 - Update the YouTube full-watch runner to optionally include comment capture after the parity gate allows it.
 - Update source notes/reports so comment evidence is visible and source-linked.
 
+## Current V1 Proof
+
+V1 now defines the public-comments evidence contract, safety gate, and a YouTube Data API public-comment adapter. The adapter is dogfooded with a fake fetch and blocks cleanly when no `YOUTUBE_DATA_API_KEY` / `YOUTUBE_API_KEY` is configured.
+
+Run:
+
+```bash
+npm run process:youtube-public-comments-extractor-check -- --json
+```
+
+The proof must show:
+
+- exact-video only
+- public/no-auth only
+- no cookies or logged-in browser session
+- no author-profile crawling
+- no automatic outbound-link following
+- comment links become source packets first
+- each comment has video/source provenance, comment ID, safe excerpt, text hash, author hash, capture timestamp, report artifact, signal role, and relevance reason
+- the live adapter uses the public YouTube Data API `commentThreads` endpoint only
+- missing API key, API failure, disabled comments, or quota failure block without downstream writes
+- the proof packet is report-only and does not start crawlers, write backlog cards, or write external systems
+
+Do not call comments “working” in the normal YouTube batch lane until a real API key is configured and the full-watch runner stores comment evidence beside transcript, audio, visual, and resource-link evidence.
+
 ## Not Next
 
 - Do not log in to YouTube.
