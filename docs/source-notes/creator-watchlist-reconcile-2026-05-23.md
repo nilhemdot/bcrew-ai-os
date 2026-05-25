@@ -79,6 +79,14 @@ Steve supplied more public YouTube Build Intel leads. The stored refs use resolv
 
 These are pending God Mode extraction leads, not accepted claims and not automatic backlog cards.
 
+## 2026-05-25 Added Ungraded Build Intel Lead
+
+Steve supplied one more public YouTube Build Intel lead:
+
+- Nuno Tavares / Automated Marketer: `https://www.youtube.com/watch?v=L2JKgj7WzU4` - "6 Claude Code GitHub Repos That Change Everything."
+
+This creator is intentionally ungraded. Treat the lead as a pending God Mode extraction target, then let the source-value grader classify whether Nuno belongs in S/A/B/C/D after evidence is compared beside the other creators.
+
 `OpenHuman / tinyhumansai` remains a Build Intel source lead without a public YouTube channel ref and is not part of the daily YouTube channel watch.
 
 ## Marketing Sources Captured But Parked
