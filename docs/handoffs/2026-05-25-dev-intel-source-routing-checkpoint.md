@@ -6,7 +6,7 @@ Date: 2026-05-25
 
 - Public YouTube full-watch extraction is working through the Gemini API video/audio/visual route.
 - Dev Intelligence Director now reads Mark, ICOR, Nate, Austin, broad latest-20 public batches, and the filtered Dev slice from meetings/Gmail/Missive/Slack.
-- Dev Director report `director:dev-team-intelligence-director-001:aios-mission-v0` now ranks 312 proposal-only candidates.
+- Dev Director report `director:dev-team-intelligence-director-001:aios-mission-v0` now ranks 320 proposal-only candidates.
 - Source value grading is report-only and lane-specific. A creator can be S-tier for AIOS builds and lower for realtor teaching, or the reverse.
 - The current Dev build S-tier public sources are ICOR, Austin Marchese, Mark Kashef, and Nate Herk.
 - Realtor AI training value is tracked separately. Do not globally pause or promote a source from the Dev build grade alone.
@@ -54,6 +54,14 @@ What is blocked:
 Next paid-source move:
 
 - Approve one exact source packet and one bounded lesson/community proof before any private extraction starts.
+
+## Nate Follow-Up
+
+- After paid/auth checks, Nate was the next safe S-tier public source.
+- The normal full-watch lane was tightened to route multi-hour courses out to a future long-course lane.
+- Nate second batch watched 4 standard public videos and produced 8 proposal-only build candidates, 12 visual evidence items, and 44 approval-required links.
+- Nate is now exhausted for the standard public Build Intel lane. Remaining course-style videos should wait for the long-course path.
+- Nate remains S for AIOS/dev build and is now S for ops/process value.
 
 ## Recommended Next Order
 

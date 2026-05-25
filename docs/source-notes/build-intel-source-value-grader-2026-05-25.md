@@ -1,6 +1,6 @@
 # Build Intel Source Value Grader
 
-Generated: 2026-05-25T14:42:37.419Z
+Generated: 2026-05-25T14:52:24.091Z
 Status: ready_for_source_review
 Sources graded: 13
 
@@ -35,40 +35,40 @@ Sources graded: 13
 - Dev build grade: S
 - Overall best grade: S (AIOS / Dev build)
 - Watch recommendation: watch_heavily
-- Evidence: 10 represented videos, 20 candidates, best Director rank 7
-- Why: Nate Herk has 10 represented videos, 20 build candidates, best Director rank 7, and strongest value in AIOS / Dev build.
+- Evidence: 14 represented videos, 28 candidates, best Director rank 7
+- Why: Nate Herk has 14 represented videos, 28 build candidates, best Director rank 7, and strongest value in AIOS / Dev build.
 
 ### 5. Aaron Bitwise
 
 - Dev build grade: B
 - Overall best grade: B (AIOS / Dev build)
 - Watch recommendation: watch_selectively
-- Evidence: 4 represented videos, 8 candidates, best Director rank 85
-- Why: Aaron Bitwise has 4 represented videos, 8 build candidates, best Director rank 85, and strongest value in AIOS / Dev build.
+- Evidence: 4 represented videos, 8 candidates, best Director rank 89
+- Why: Aaron Bitwise has 4 represented videos, 8 build candidates, best Director rank 89, and strongest value in AIOS / Dev build.
 
 ### 6. Ambitious AI
 
 - Dev build grade: B
 - Overall best grade: B (AIOS / Dev build)
 - Watch recommendation: watch_selectively
-- Evidence: 3 represented videos, 6 candidates, best Director rank 41
-- Why: Ambitious AI has 3 represented videos, 6 build candidates, best Director rank 41, and strongest value in AIOS / Dev build.
+- Evidence: 3 represented videos, 6 candidates, best Director rank 44
+- Why: Ambitious AI has 3 represented videos, 6 build candidates, best Director rank 44, and strongest value in AIOS / Dev build.
 
 ### 7. Dan Martell
 
 - Dev build grade: C
 - Overall best grade: C (AIOS / Dev build)
 - Watch recommendation: sample_only
-- Evidence: 1 represented video, 2 candidates, best Director rank 21
-- Why: Dan Martell has 1 represented video, 2 build candidates, best Director rank 21, and strongest value in AIOS / Dev build.
+- Evidence: 1 represented video, 2 candidates, best Director rank 24
+- Why: Dan Martell has 1 represented video, 2 build candidates, best Director rank 24, and strongest value in AIOS / Dev build.
 
 ### 8. Chase AI
 
 - Dev build grade: D
 - Overall best grade: D (AIOS / Dev build)
 - Watch recommendation: pause_until_new_signal
-- Evidence: 1 represented video, 2 candidates, best Director rank 56
-- Why: Chase AI has 1 represented video, 2 build candidates, best Director rank 56, and strongest value in AIOS / Dev build.
+- Evidence: 1 represented video, 2 candidates, best Director rank 60
+- Why: Chase AI has 1 represented video, 2 build candidates, best Director rank 60, and strongest value in AIOS / Dev build.
 
 ## Lane Leaders
 
@@ -100,16 +100,16 @@ Sources graded: 13
 
 - ICOR with Tom | AI Productivity: S (100) - watch_heavily
 - Mark Kashef: S (99) - watch_heavily
+- Nate Herk: S (95) - watch_heavily
 - Austin Marchese: A (76) - watch_heavily
-- Nate Herk: A (76) - watch_heavily
 - Ambitious AI: B (51) - watch_selectively
 
 ### Leadership / strategy
 
 - ICOR with Tom | AI Productivity: S (100) - watch_heavily
 - Mark Kashef: B (60) - watch_selectively
+- Nate Herk: B (60) - watch_selectively
 - Austin Marchese: B (56) - watch_selectively
-- Nate Herk: B (56) - watch_selectively
 - Aaron Bitwise: C (37) - sample_only
 
 ## Boundaries
