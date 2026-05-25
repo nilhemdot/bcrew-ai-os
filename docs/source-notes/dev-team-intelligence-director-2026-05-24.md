@@ -1,6 +1,6 @@
 # Dev Team Intelligence Director - AIOS Mission V0
 
-Generated: 2026-05-25T14:06:37.780Z
+Generated: 2026-05-25T14:24:35.950Z
 Report artifact: `director:dev-team-intelligence-director-001:aios-mission-v0`
 Status: `ready_for_steve_review`
 
@@ -98,6 +98,7 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 - `scout:youtube-scout-latest-video-vision-002:mark-kashef-latest-20` - Mark Kashef public YouTube latest/last-20 scout; atoms 7; hits 7; approvals 13
 - `research:god-mode-extractor-research-swarm-001` - God Mode extractor research swarm brief; atoms 0; hits 0; approvals 2
 - `extraction:marketing-ai-avatar:xUdKBqP81k8:gemini-workspace-eyes` - AI avatar marketing video extraction; atoms 4; hits 4; approvals 2
+- `batch:youtube-latest-20:api-full-watch-v1:20260525141433` - YouTube Latest-20 God Mode API Full-Watch Batch; atoms 18; hits 18; approvals 72
 - `batch:youtube-latest-20:api-full-watch-v1:icor-tom-ai-productivity:20260525140158` - YouTube Latest-20 God Mode API Full-Watch Batch; atoms 12; hits 12; approvals 47
 - `batch:youtube-latest-20:api-full-watch-v1:icor-tom-ai-productivity:20260525135304` - YouTube Latest-20 God Mode API Full-Watch Batch; atoms 18; hits 18; approvals 69
 - `batch:youtube-latest-20:api-full-watch-v1:icor-tom-ai-productivity:20260525134421` - YouTube Latest-20 God Mode API Full-Watch Batch; atoms 18; hits 18; approvals 118
@@ -116,10 +117,10 @@ Rank build intelligence by whether it advances source-backed AIOS execution for 
 
 - PASS System Strategy contains AIOS mission and agent/realtor coaching lens - docs/system-strategy.md
 - PASS current sprint plan tells Director to use System Strategy as ranking lens - docs/rebuild/current-plan.md
-- PASS Director has multiple intelligence reports to synthesize - 15 reports
-- PASS Director has enough source-backed build candidates - 280 candidates
+- PASS Director has multiple intelligence reports to synthesize - 16 reports
+- PASS Director has enough source-backed build candidates - 298 candidates
 - PASS Director top candidates are mission-scored - 1:87, 2:84, 3:82, 4:80, 5:80
-- PASS Director preserves approval-required items - 580 approval items
+- PASS Director preserves approval-required items - 652 approval items
 - PASS Director surfaces API full-watch candidates ahead of weaker scout/subscription evidence - 1:api_full_watch:Video-to-SOP Agentic Pipeline | 2:api_full_watch:Miro MCP Connector for AIOS | 3:api_full_watch:Event-Driven Agent Lifecycle Hooks | 4:api_full_watch:Claude Code State Parser & Visualizer | 5:api_full_watch:Visual Agent Pipeline Builder
 - PASS Director explains build readiness and missing pieces for top candidates - 1:ready_for_scoper, 2:ready_for_scoper, 3:ready_for_scoper, 4:ready_for_scoper, 5:ready_for_scoper
 
