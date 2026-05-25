@@ -63,6 +63,8 @@ May 25 source-value grading doctrine: before major build promotion, extracted cr
 
 May 25 Build Intel source-value grader V1: `BUILD-INTEL-SOURCE-VALUE-GRADER-001` is implemented as a deterministic, report-only grader. It reads full-watch reports plus the Dev Director report, dedupes split creator rows, grades creators by AIOS/dev build, realtor AI training, marketing/content, ops/process, and leadership/strategy value, and persists `grader:build-intel-source-value-grader-001:v1` plus `docs/source-notes/build-intel-source-value-grader-2026-05-25.md`. Current Dev build S-tier sources are ICOR, Mark Kashef, Nate Herk, and Austin Marchese; realtor-training value is tracked separately. It does not mutate watchlists, delete sources, create backlog cards, or promote sprint work.
 
+May 25 Austin Marchese public YouTube catch-up: after the first source-value grade showed Austin as high-value on too few represented videos, the targeted Austin catch-up watched 7 more relevant public videos through Gemini API full video/audio/visual route. The persisted batch `batch:youtube-latest-20:api-full-watch-v1:austin-marchese:20260525143648` produced 21 timestamped visual evidence items, 14 proposal-only build candidates, 54 approval-required links, 6 resolved public resource links, and no external/backlog writes. Dev Director now ranks 312 candidates, and the source-value grader now has Austin at 10 represented videos / 20 candidates with an S Dev build grade.
+
 May 23 creator-watch reconcile: the daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This is still source discovery, not watched/analyzed video.
 
 Closed setup:
