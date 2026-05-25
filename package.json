@@ -262,6 +262,7 @@
     "process:parallel-builder-worktree-protocol-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-worktree-protocol-check.mjs",
     "process:parallel-builder-operating-system-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-operating-system-check.mjs",
     "process:parallel-builder-merge-lane-enforcement-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-merge-lane-enforcement-check.mjs",
+    "process:parallel-builder-lanes-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-lanes-check.mjs",
     "process:build-lane-reliability-sprint-check": "node --env-file-if-exists=.env scripts/process-build-lane-reliability-sprint-check.mjs",
     "process:build-lane-failure-telemetry-check": "node --env-file-if-exists=.env scripts/process-build-lane-failure-telemetry-check.mjs",
     "process:build-lane-served-code-fanout-sync-repair-check": "node --env-file-if-exists=.env scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs",
