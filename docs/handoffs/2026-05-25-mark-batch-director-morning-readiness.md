@@ -91,6 +91,19 @@ Key results:
 - OpenClaw routes remain blocked for Foundation intelligence
 - Runtime synthesis/deep-audit route remains `openai / gpt-5.5 / quality / extra_high_required`
 
+## Push Status
+
+Local commits exist, but `git push` is blocked by the protected Foundation
+pre-push hook because the branch now contains protected Foundation process/code
+changes and needs the full ship path:
+
+```bash
+npm run process:foundation-ship -- --card=<shipping-card> --closeoutKey=<closeout-key>
+```
+
+Do not bypass silently. Either run the proper ship closeout under the right
+card or get Steve's explicit bypass approval.
+
 ## Design Work Completed In Same Overnight Window
 
 Committed:
@@ -115,4 +128,3 @@ Recommended order:
    - build `SYSTEM-014` Brain Fleet/System Control page.
 3. Do not run broad creator extraction until the Director output quality is
    accepted.
-
