@@ -2,11 +2,11 @@
   "approvalSchemaVersion": 2,
   "cardId": "DEV-BUILD-OPPORTUNITY-SCOPER-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-25T08:42:00-04:00",
+  "approvedAt": "2026-05-25T10:18:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/dev-build-opportunity-scoper-001-plan.md",
-  "approvedPlanSha256": "fd7f1d15bcc4dea834e614cb4f8ae6704db6752802dba601a886cd7e09b7544e",
-  "approvedRepoHead": "de1a31264a15dd4a28f36b0090fbc279d7e1fe6d",
-  "approvalSource": "Steve direct May 25 correction: old Dev agents had useful role separation, but the rebuild should be better. Director recommendations need a Dev Build Scoper before Portfolio/Sprint Master and Steve approval.",
-  "approvalDigest": "5635f23ccff0cc03f8fabf690ec5e1e74379b40bc080aca6cc9e24e36fa2eed7"
+  "approvedPlanSha256": "598d70abff0ad58bb3cd1b210d3592817c92e1720e09842e55c6091841a843a7",
+  "approvedRepoHead": "6e5f81266006bbe8ff3888b7c72f9e55915a0dc3",
+  "approvalSource": "Steve direct May 25 correction: before approving Dev builds, connect/extract approved source families and make Scoper chase or disposition YouTube resource links so Steve does not manually find linked code, skills, docs, or blocked source packets.",
+  "approvalDigest": "1a6f9a33e88dbcd5925671de7e224bd4393b08c47941d986f0b2292a7a0add45"
 }

@@ -131,6 +131,15 @@ async function main() {
     'raw Director recommendations are forced through Scoper before portfolio review',
     dogfood.rawDirectorReview?.groups?.map(group => `${group.candidateIds.join('+')}:${group.decision}`).join(', ') || 'missing raw Director proof'
   )
+  addCheck(
+    checks,
+    dogfood.review.groups.every(group => Number.isFinite(Number(group.portfolioScore)) && group.portfolioRank >= 1) &&
+      dogfood.review.groups
+        .filter(group => ['merged_enhanced_build_opportunity', 'standalone_scoped_candidate'].includes(group.decision))
+        .every((group, index, buildableGroups) => index === 0 || Number(buildableGroups[index - 1].portfolioScore) >= Number(group.portfolioScore)),
+    'portfolio output keeps ranked scores after scoping and merging',
+    dogfood.review.groups.map(group => `#${group.portfolioRank}:${group.portfolioScore}:${group.title}`).join(' | ')
+  )
 
   const failures = checks.filter(check => !check.ok)
   const output = {

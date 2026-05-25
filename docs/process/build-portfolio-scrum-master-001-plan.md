@@ -16,6 +16,8 @@ The system will eventually extract hundreds or thousands of useful ideas from Yo
 
 If every extracted idea becomes a separate scoped card, the backlog becomes noise. Seven related ideas from seven sources may actually describe one much stronger AIOS capability. The useful behavior is not just ranking individual cards; it is combining overlapping source-backed ideas into one better build that advances the AIOS mission.
 
+Steve likes the Director showing visible scores like 87, 81, and 79 because it makes the strength of the signal obvious. That scoring should continue after scoping. The Director score means "this looks valuable." The Scoper makes it buildable. The Build Portfolio/Sprint Master then gives each scoped or merged opportunity a portfolio score and rank so Steve can see the strongest build opportunities after overlap, blockers, evidence strength, and buildability are considered.
+
 The target loop is:
 
 `approved sources -> extraction -> Director recommendations -> Scoper -> Build Portfolio/Sprint Master -> merged/enhanced build opportunities -> Steve approval/promotion -> queue/sprint`
@@ -33,6 +35,7 @@ Short approval chain: Director -> Scoper -> Build Portfolio/Sprint Master -> Ste
 - Clusters related candidates into build-opportunity groups.
 - Produces a merged/enhanced build concept when multiple cards are really one stronger opportunity.
 - Preserves source lineage for every merged concept: which ideas, sources, videos/reports/atoms, and evidence contributed.
+- Produces `portfolioScore` and `portfolioRank` for every reviewed opportunity so overnight extraction can turn into a ranked queue, not a flat list.
 - Reuses useful old-system operating rules from Dev Director, Implementation Scoper, Sprint Master, and Backlog Monitor evidence, but does not recreate the old system as a swarm of always-on agents.
 - Scores merged concepts against System Strategy and the AIOS mission:
   - Foundation/shared truth
@@ -51,6 +54,7 @@ Short approval chain: Director -> Scoper -> Build Portfolio/Sprint Master -> Ste
   - thin or generic cards returned to Scoper when they lack acceptance criteria, definition of done, proof/tests, risks, not-next boundaries, existing work to reuse, or source lineage
   - blocked/source-auth cards parked
   - already-existing backlog card reused instead of duplicated
+  - scoped/merged opportunities ranked by portfolio score after Scoper and merge review
 
 ## Definition Of Done
 
@@ -88,6 +92,7 @@ Useful patterns were pulled from:
 - `/Users/bensoncrew/bcrew-buddy-reference/skills/bcrew-sprint-master/SKILL.md`
 - `/Users/bensoncrew/bcrew-buddy-reference/skills/bcrew-backlog-monitor/SKILL.md`
 - `/Users/bensoncrew/bcrew-buddy-reference/skills/knowledge/dev-planning.md`
+- `docs/source-notes/old-system-dev-agent-harvest-2026-05-25.md`
 - `/Users/bensoncrew/bcrew-ai-os/public/dev-reference/old-neural-map.html`
 
 What to keep:

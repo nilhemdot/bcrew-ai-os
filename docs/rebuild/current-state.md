@@ -29,7 +29,11 @@ May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe i
 
 May 25 overnight result: the current Mark Foundation last-50 pool is 50/50 watched through the Gemini API video/audio/visual route. The final tail video `F6JTJ9GeSOY` completed under batch `20260525040147`. Queue proof shows `remaining=0`, and the Dev Intelligence Director report now ranks 142 candidates with top ready-for-Scoper picks. The active card stays open for Steve morning review/closeout because the existing close script was built for the earlier one-video proof and refuses full-card closure.
 
-May 25 Dev intelligence handoff correction: a Director recommendation is not scoped work. The named flow is now Director recommendation -> `DEV-BUILD-OPPORTUNITY-SCOPER-001` -> `BUILD-PORTFOLIO-SCRUM-MASTER-001` -> Steve approval/promotion. Dev Build Scoper requires source lineage, codebase refs, proof refs, acceptance criteria, definition of done, risks, not-next boundaries, and existing work to reuse before Portfolio can compare or merge the idea.
+May 25 Dev intelligence handoff correction: a Director recommendation is not scoped work. The named flow is now Director recommendation -> `DEV-BUILD-OPPORTUNITY-SCOPER-001` -> `BUILD-PORTFOLIO-SCRUM-MASTER-001` -> Steve approval/promotion. Dev Build Scoper requires source lineage, at least one raw intelligence atom or evidence hit, codebase refs, proof refs, acceptance criteria, definition of done, risks, not-next boundaries, and existing work to reuse before Portfolio can compare or merge the idea.
+
+May 25 source-first correction: do not approve actual Dev build work from a thin or single-source hunch when more approved source extraction can materially improve the call. Foundation should show the source families, extract approved/high-value sources, then let synthesis, Director, Scoper, and Portfolio rank the evidence. Blocked paid/auth/private sources stay visible as blocked; they do not hold up all progress.
+
+May 25 resource-link correction: YouTube extraction must include description/resource link disposition. If a creator points to code, a skill, a repo, docs, or a course/resource page, the system should resolve approved public links or mark the exact source/auth blocker. Steve should not manually chase every link.
 
 May 23 creator-watch reconcile: the daily public YouTube metadata watch now has 30 public creator channels, zero lookup gaps, and the latest applied run wrote 538 deduped metadata items with 538 atoms and 538 evidence hits. This is still source discovery, not watched/analyzed video.
 
@@ -67,10 +71,11 @@ Sprint order:
 9. `MARK-KASHEF-LAST-50-BASELINE-001` - active card for morning review/closeout; current Mark Foundation pool is 50/50 API full-watch complete
 10. `YOUTUBE-LATEST-20-INTEL-RUN-001`
 11. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - report refreshed; use as review input, not auto-build approval
-12. `DEV-BUILD-OPPORTUNITY-SCOPER-001` - convert Director recommendations into proposal-only scoped build candidates only when source lineage, codebase research, proof, risks, not-next boundaries, and existing work are explicit
-13. `BUILD-PORTFOLIO-SCRUM-MASTER-001` - merge/dedupe/enhance related scoped candidates and propose queue order before Steve approval
-14. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - promote only after Scoper and Portfolio produce enough implementation detail for Steve to approve priority
-15. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
+12. `YOUTUBE-RESOURCE-LINK-RESOLVER-001` - resolve approved public YouTube description/resource links into Scoper-readable source packets and block private/paid/login/download/short-link routes with exact approval reasons
+13. `DEV-BUILD-OPPORTUNITY-SCOPER-001` - convert Director recommendations into proposal-only scoped build candidates only when source lineage, raw atom/hit evidence, resource-link disposition, codebase research, proof, risks, not-next boundaries, and existing work are explicit
+14. `BUILD-PORTFOLIO-SCRUM-MASTER-001` - merge/dedupe/enhance related scoped candidates, assign portfolio scores/ranks, and propose queue order before Steve approval
+15. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - promote only after Scoper and Portfolio produce enough implementation detail for Steve to approve priority
+16. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
 
 Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, `AGENT-BRAIN-FOUNDATION-SEPARATION-001`, `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002`, `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`, `DEV-TEAM-HUB-TWO-VIEW-INTEL-PROOF-001`, `MARK-CLAUDE-CLAW-CODE-PACKAGE-REVIEW-001`, and `BUILD-INTEL-SOURCE-VALUE-LEADERBOARD-001-001`.
 

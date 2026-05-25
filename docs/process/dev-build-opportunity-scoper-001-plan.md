@@ -23,12 +23,15 @@ Plain English: the Director says "this looks valuable." The Dev Build Scoper say
 - Reads Director recommendations as inputs only, not approvals.
 - Produces proposal-only scoped build candidates.
 - Requires source lineage before any candidate can be called scoped.
+- Requires at least one raw intelligence atom or evidence hit before any candidate can be called scoped; a Director summary alone is not enough.
+- Requires resource link disposition for YouTube/video-derived recommendations when description/resource links exist. Safe public repo/docs links should be resolved by the approved resolver; Skool, Gumroad, short links, downloads, paid, login, opt-in, and private links stay blocked until source-packet approval.
 - Requires codebase research refs before any candidate can be called scoped.
 - Requires proof refs or proof commands before any candidate can be called scoped.
 - Requires acceptance criteria, definition of done, risks, not-next boundaries, and existing work to reuse.
 - Returns unresearched or generic candidates for deeper Scoper research.
 - Parks paid/private/auth/source-packet candidates before Portfolio promotion.
 - Outputs a Portfolio-compatible candidate only when the scope is complete enough.
+- Does not make Steve manually chase source links. The Scoper either resolves approved public resource links or names the exact blocker/approval needed.
 - Does not create backlog cards, open sprints, approve work, start extraction, call providers, or write externally.
 
 ## Definition Of Done
@@ -39,6 +42,8 @@ Plain English: the Director says "this looks valuable." The Dev Build Scoper say
 - Update `docs/rebuild/current-plan.md` so named flow includes Dev Build Scoper before Portfolio.
 - Focused proof dogfoods:
   - researched Director candidate becomes a complete scoped portfolio candidate
+  - researched-looking candidate without a raw atom/evidence hit is rejected as not truly scoped
+  - YouTube/video-derived candidate with unreviewed description/resource links is rejected until link disposition is present
   - unresearched Director candidate returns to Scoper/research
   - paid/auth candidate parks before promotion
   - no output writes backlog, opens sprint, auto-approves, or writes externally
@@ -67,4 +72,6 @@ This does not replace the Strategic Intelligence Scoper. It is the Dev build-opp
 
 - `node --check lib/dev-build-opportunity-scoper.js`
 - `node --check scripts/process-dev-build-opportunity-scoper-check.mjs`
+- `node --check scripts/process-dev-build-scoper-evidence-trace-check.mjs`
 - `npm run process:dev-build-scoper-check -- --json`
+- `npm run process:dev-build-scoper-evidence-trace-check -- --json`

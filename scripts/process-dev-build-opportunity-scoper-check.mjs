@@ -68,10 +68,18 @@ async function main() {
   )
   addCheck(
     checks,
+    packageJson.scripts?.['process:dev-build-scoper-evidence-trace-check'] === 'node --env-file-if-exists=.env scripts/process-dev-build-scoper-evidence-trace-check.mjs',
+    'package exposes live evidence-trace Scoper proof',
+    packageJson.scripts?.['process:dev-build-scoper-evidence-trace-check'] || 'missing'
+  )
+  addCheck(
+    checks,
     /Director recommendation -> Dev Build Scoper -> Build Portfolio\/Sprint Master -> Steve approval/i.test(planSource) &&
       planSource.includes('acceptance criteria') &&
       planSource.includes('not-next boundaries') &&
-      planSource.includes('source lineage'),
+      planSource.includes('source lineage') &&
+      planSource.includes('raw intelligence atom or evidence hit') &&
+      planSource.includes('resource link disposition'),
     'plan defines the correct post-Director scoping contract',
     DEV_BUILD_OPPORTUNITY_SCOPER_PLAN_PATH
   )
