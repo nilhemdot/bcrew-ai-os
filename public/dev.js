@@ -74,6 +74,7 @@ const els = {
   evidenceGrid: document.getElementById('evidence-grid'),
   approvalReview: document.getElementById('approval-review'),
   sourceLeaderboard: document.getElementById('source-leaderboard'),
+  builderLanePanel: document.getElementById('builder-lane-panel'),
   directorPanel: document.getElementById('director-panel'),
   directorHeadStats: document.getElementById('director-head-stats'),
 }
@@ -716,6 +717,73 @@ function candidateSourceCopy(candidate = {}) {
   return 'From approved research'
 }
 
+function builderLaneTone(lane = {}) {
+  const status = text(lane.status).toLowerCase()
+  if (status.includes('ready')) return 'verified'
+  if (status.includes('blocked')) return 'pending'
+  if (status.includes('building') || status.includes('integrating')) return 'live'
+  if (status.includes('done')) return 'verified'
+  return ''
+}
+
+function builderLaneStatusCopy(lane = {}) {
+  const status = text(lane.status).toLowerCase()
+  if (status.includes('ready')) return 'Ready for review'
+  if (status.includes('blocked')) return 'Blocked'
+  if (status.includes('integrating')) return 'Integrating'
+  if (status.includes('building')) return 'Building'
+  if (status.includes('done')) return 'Done'
+  if (status.includes('paused')) return 'Paused'
+  return statusLabel(lane.status || 'Planned')
+}
+
+function builderLaneIcon(lane = {}) {
+  const role = text(lane.role).toLowerCase()
+  if (role.includes('orchestrator')) return 'hub'
+  if (role.includes('runtime')) return 'account_tree'
+  if (role.includes('explorer')) return 'travel_explore'
+  if (role.includes('control')) return 'view_quilt'
+  return 'terminal'
+}
+
+function renderBuilderLanes(snapshot = {}) {
+  if (!els.builderLanePanel) return
+  const builder = snapshot.parallelBuilderLanes || {}
+  const lanes = list(builder.lanes)
+  const summary = builder.evaluation?.summary || {}
+  if (!lanes.length) {
+    els.builderLanePanel.innerHTML = '<article class="loading-card">No builder lane records returned from Foundation.</article>'
+    return
+  }
+  els.builderLanePanel.innerHTML = `
+    <div class="builder-lane-summary">
+      <span><b>${escapeHtml(compactNumber(summary.activeLaneCount || lanes.length))}</b> active lanes</span>
+      <span><b>${escapeHtml(compactNumber(summary.readyForReviewLaneCount || 0))}</b> ready</span>
+      <span><b>${escapeHtml(compactNumber(summary.blockedLaneCount || 0))}</b> blocked</span>
+      <span>Orchestrator integrates</span>
+    </div>
+    <div class="builder-lane-grid">
+      ${lanes.map(lane => {
+        const owned = list(lane.filesOwned).slice(0, 2).join(' · ')
+        const proof = list(lane.proofCommands)[0] || 'Proof command required'
+        const blocker = list(lane.blockers)[0] || ''
+        return `
+          <article class="builder-lane-card ${escapeHtml(builderLaneTone(lane))}">
+            <div class="card-icon"><span class="material-symbols-outlined">${escapeHtml(builderLaneIcon(lane))}</span></div>
+            <span class="label">${escapeHtml(builderLaneStatusCopy(lane))}</span>
+            <h3>${escapeHtml(lane.cardId || lane.laneId || 'Builder lane')}</h3>
+            <p>${escapeHtml(blocker || lane.purpose || `${text(lane.owner, 'Builder')} owns ${owned || 'declared files'} and must prove before integration.`)}</p>
+            <div class="builder-lane-meta">
+              <span>${escapeHtml(text(lane.owner, 'Unassigned'))}</span>
+              <strong title="${escapeHtml(proof)}">${escapeHtml(text(lane.integrationStatus, 'Needs review'))}</strong>
+            </div>
+          </article>
+        `
+      }).join('')}
+    </div>
+  `
+}
+
 function renderExtractors(snapshot = {}) {
   const extractors = list(snapshot.activeExtractionLanes)
 
@@ -855,6 +923,7 @@ function renderSnapshot(snapshot = {}) {
   state.sources = buildLiveSources(snapshot)
   state.selectedSourceId = state.selectedSourceId || state.sources[0]?.id || null
   renderExtractors(snapshot)
+  renderBuilderLanes(snapshot)
   renderEvidence(snapshot)
   renderApprovalReview(snapshot)
   renderSourceLeaderboard(snapshot)
@@ -869,6 +938,7 @@ function renderError(error) {
   els.extractorGrid.innerHTML = html
   if (els.approvalReview) els.approvalReview.innerHTML = html
   if (els.sourceLeaderboard) els.sourceLeaderboard.innerHTML = html
+  if (els.builderLanePanel) els.builderLanePanel.innerHTML = html
   els.grid.innerHTML = html
   els.panel.innerHTML = html
   els.directorPanel.innerHTML = html
