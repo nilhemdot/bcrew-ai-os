@@ -60,6 +60,12 @@ Each family gets a plain-English maturity level:
 - Add proof that no extractor can claim God Mode unless the required capability fields are present.
 - Add next-card mapping for every partial extractor.
 
+Proof command:
+
+```bash
+npm run process:god-mode-extractor-parity-gate-check -- --json
+```
+
 ## Not Next
 
 - Do not implement every extractor inside this one card.

@@ -248,6 +248,7 @@
     "process:youtube-build-intel-link-resource-check": "node --env-file-if-exists=.env scripts/process-youtube-build-intel-link-resource-check.mjs",
     "process:god-mode-extractor-research-swarm-check": "node --env-file-if-exists=.env scripts/process-god-mode-extractor-research-swarm-check.mjs",
     "process:god-mode-extractor-eyes-quality-loop-check": "node --env-file-if-exists=.env scripts/process-god-mode-extractor-eyes-quality-loop-check.mjs",
+    "process:god-mode-extractor-parity-gate-check": "node --env-file-if-exists=.env scripts/process-god-mode-extractor-parity-gate-check.mjs",
     "process:extractor-overnight-run-guard-check": "node --env-file-if-exists=.env scripts/process-extractor-overnight-run-guard-check.mjs",
     "process:subscription-brain-extractor-adapter-check": "node --env-file-if-exists=.env scripts/process-subscription-brain-extractor-adapter-check.mjs",
     "credentials:vault": "node --env-file-if-exists=.env scripts/credentials-vault.mjs",

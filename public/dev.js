@@ -576,7 +576,7 @@ function renderSourceLeaderboard(snapshot = {}) {
 function extractorSummary(item = {}) {
   if (item.summary) return text(item.summary)
   const byLane = {
-    'youtube-god-mode-pipeline': 'Reads public video/page context, transcripts, audio, and approved visual evidence. Browser hands, comments, and logged-in navigation are next.',
+    'youtube-video-intelligence-pipeline': 'Reads public video/page context, transcripts, audio, and approved visual evidence. Browser hands, comments, and logged-in navigation are next.',
     'meetings-transcripts': 'Reads meeting notes and transcripts into Foundation. Dev-specific routing is pending.',
     'email-missive-comms': 'Reads governed email/comms candidates into Foundation. Dev-specific routing is pending.',
     'slack-comms': 'Reads governed Slack threads into Foundation. Dev-specific routing is pending.',
@@ -587,7 +587,7 @@ function extractorSummary(item = {}) {
 
 function extractorTitle(item = {}) {
   const byLane = {
-    'youtube-god-mode-pipeline': 'YouTube video extractor',
+    'youtube-video-intelligence-pipeline': 'YouTube video extractor',
     'meetings-transcripts': 'Meetings extractor',
     'email-missive-comms': 'Gmail / Missive extractor',
     'slack-comms': 'Slack extractor',
@@ -598,7 +598,7 @@ function extractorTitle(item = {}) {
 
 function extractorIcon(item = {}) {
   const byLane = {
-    'youtube-god-mode-pipeline': 'video_library',
+    'youtube-video-intelligence-pipeline': 'video_library',
     'meetings-transcripts': 'forum',
     'email-missive-comms': 'mail',
     'slack-comms': 'tag',

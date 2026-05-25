@@ -54,6 +54,12 @@ An extractor is God Mode only when it can prove the source-appropriate version o
 - Add Dev Hub capability fields so Steve can see what each extractor actually does.
 - Update current sprint order so `DEV-BUILD-OPPORTUNITY-SCOPER-001` does not become the next major build-promotion step before extractor parity/catch-up.
 
+Proof command:
+
+```bash
+npm run process:god-mode-extractor-parity-gate-check -- --json
+```
+
 ## Not Next
 
 - Do not crawl paid/private/auth sources from this card.

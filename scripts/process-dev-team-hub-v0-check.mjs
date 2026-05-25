@@ -138,7 +138,7 @@ function buildVisibleNumbers(payload = {}) {
     { label: 'Evidence hits', value: counts.evidenceHits, route: 'intelligence_atom_hits.report_artifact_id', sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'Approval-required links', value: counts.approvalRequiredLinks, route: 'intelligence_report_artifacts.action_required_items', sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'Review routes', value: counts.reviewRoutes, route: 'intelligence_report_artifacts.structured_output_json.reviewRoutes', sourceId: 'SRC-YOUTUBE-INTEL-001' },
-    { label: 'God Mode Eyes candidates', value: counts.eyesBuildCandidates, route: `getIntelligenceReportBundle(${GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
+    { label: 'Video/audio/visual candidates', value: counts.eyesBuildCandidates, route: `getIntelligenceReportBundle(${GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'API full-watch videos', value: counts.apiFullWatchVideos, route: `getIntelligenceReportBundle(${MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'API full-watch candidates', value: counts.apiFullWatchBuildCandidates, route: `getIntelligenceReportBundle(${MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'Director picks', value: payload.director?.recommendedBuildNow?.length || 0, route: `getIntelligenceReportBundle(${DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
@@ -251,6 +251,7 @@ async function main() {
   addCheck(checks, moduleSource.includes('buildExtractionEconomics') && moduleSource.includes('GEMINI_STANDARD_PRICING_BY_MODEL') && routeSource.includes('listLlmCalls'), 'Dev Hub API exposes extraction economics from LLM call usage', 'llm_calls + Gemini pricing tokens')
   addCheck(checks, moduleSource.includes('buildApprovalReviewQueue') && jsSource.includes('renderApprovalReview'), 'Dev Hub exposes actual approval links instead of a blind count', 'approvalReviewQueue + #approval-review')
   addCheck(checks, moduleSource.includes('buildDevIntelSourceCoverageSnapshot') && jsSource.includes('renderSourceLeaderboard'), 'Dev Hub page exposes source-family leaderboard coverage', 'sourceCoverage + sourceValueGrader')
+  addCheck(checks, moduleSource.includes('buildGodModeExtractorParitySnapshot') && moduleSource.includes('evaluateGodModeExtractorParity'), 'Dev Hub API carries extractor God Mode parity data for later UI display', 'godModeExtractorParity read model')
   addCheck(
     checks,
       !htmlSource.includes('builder-lane-panel') &&
@@ -283,7 +284,7 @@ async function main() {
   addCheck(checks, payload?.dailyWatch?.sourceRoute === '/api/foundation/build-intel/youtube-creator-daily-watch', 'daily watch source route is preserved', payload?.dailyWatch?.sourceRoute || 'missing')
   addCheck(checks, payload?.markYoutube?.latestVideoId === 'tjjX43FoAUg' && Number(payload?.markYoutube?.markResearchPoolCount) >= 50, 'Mark latest video/count are mapped from Foundation daily watch', `${payload?.markYoutube?.latestVideoId || 'missing'} / ${payload?.markYoutube?.markResearchPoolCount ?? 'missing'}`)
   addCheck(checks, payload?.scout?.sourceRoute?.includes('getIntelligenceReportBundle'), 'scout source route is report-bundle backed', payload?.scout?.sourceRoute || 'missing')
-  addCheck(checks, payload?.eyesQualityLoop?.sourceRoute?.includes(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID) && list(payload?.eyesQualityLoop?.buildCandidates).length >= 1, 'God Mode Eyes candidates are exposed to Dev Hub', `${list(payload?.eyesQualityLoop?.buildCandidates).length} candidates`)
+  addCheck(checks, payload?.eyesQualityLoop?.sourceRoute?.includes(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID) && list(payload?.eyesQualityLoop?.buildCandidates).length >= 1, 'Video/audio/visual candidates are exposed to Dev Hub', `${list(payload?.eyesQualityLoop?.buildCandidates).length} candidates`)
   addCheck(checks, payload?.markApiFullWatch?.sourceRoute?.includes(MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID) && list(payload?.markApiFullWatch?.buildCandidates).length >= 1 && Number(payload?.counts?.apiFullWatchVideos || 0) >= 3, 'Mark API full-watch small batch is exposed to Dev Hub', `${payload?.counts?.apiFullWatchVideos || 0} videos / ${payload?.counts?.apiFullWatchBuildCandidates || 0} candidates`)
   addCheck(checks, payload?.director?.sourceRoute?.includes(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID) && list(payload?.director?.recommendedBuildNow).length >= 1, 'Dev Intelligence Director recommendations are exposed to Dev Hub', `${list(payload?.director?.recommendedBuildNow).length} recommendations`)
   addCheck(checks, list(payload?.sourceValueGrader?.sourceGrades).length >= 3 && list(payload?.dailyWatch?.creators).length >= 3, 'live source cards can be built from multiple graded creators', `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.dailyWatch?.creators).length} watched`)
@@ -291,6 +292,7 @@ async function main() {
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => item.url && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
   addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos'), 'source coverage includes planned GitHub and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)
   addCheck(checks, list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'meetings-transcripts') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'email-missive-comms') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'slack-comms'), 'active extraction lanes expose internal Foundation signals', list(payload?.activeExtractionLanes).map(lane => lane.laneId).join(', ') || 'missing')
+  addCheck(checks, payload?.godModeExtractorParity?.evaluation?.ok === true && list(payload?.godModeExtractorParity?.families).length >= 13 && Number(payload?.godModeExtractorParity?.summary?.claimsGodModeCount || 0) === 0, 'live snapshot exposes extractor parity without false full-God-Mode claims', `${list(payload?.godModeExtractorParity?.families).length} families / claims=${payload?.godModeExtractorParity?.summary?.claimsGodModeCount ?? 'missing'}`)
   addCheck(checks, Array.isArray(payload?.sourceRoutes) && payload.sourceRoutes.length >= 5, 'visible value source map is present', `${payload?.sourceRoutes?.length || 0} routes`)
 
   const failed = checks.filter(check => !check.ok)
@@ -326,6 +328,11 @@ async function main() {
       sourceCoverage: {
         status: payload.sourceCoverage?.status,
         counts: payload.sourceCoverage?.counts,
+      },
+      godModeExtractorParity: {
+        status: payload.godModeExtractorParity?.evaluation?.status,
+        familyCount: list(payload.godModeExtractorParity?.families).length,
+        summary: payload.godModeExtractorParity?.summary,
       },
       activeExtractionLanes: list(payload.activeExtractionLanes).map(lane => ({ laneId: lane.laneId, status: lane.status, latestRunAt: lane.latestRunAt })),
       reportArtifactIds: payload.reportArtifactIds,
