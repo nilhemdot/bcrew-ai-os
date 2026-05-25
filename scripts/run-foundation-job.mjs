@@ -21,6 +21,9 @@ import {
   getJobRunPermission,
   terminateProcessTree,
 } from '../lib/runtime-process-control.js';
+import {
+  handleSynthesisFreshnessAfterFoundationJobRun,
+} from '../lib/synthesis-router-freshness-trigger.js';
 
 const OUTPUT_TAIL_LIMIT = 20000;
 
@@ -216,7 +219,7 @@ async function runCommand(job, runId, actor) {
   const finishedAt = new Date();
   const durationMs = finishedAt.getTime() - startedAt.getTime();
 
-  await finishFoundationJobRun(
+  const finishedRun = await finishFoundationJobRun(
     runId,
     {
       status: outcome.status,
@@ -229,6 +232,18 @@ async function runCommand(job, runId, actor) {
     },
     actor,
   );
+
+  try {
+    await handleSynthesisFreshnessAfterFoundationJobRun(finishedRun, {
+      actor,
+      getJobRunSnapshot: (...args) => getFoundationJobRunSnapshot(...args),
+      updateJobRunMetadata: (...args) => updateFoundationJobRunMetadata(...args),
+      runFollowupJob: runFoundationJob,
+    });
+  } catch (error) {
+    console.warn(`Synthesis freshness trigger failed after ${job.key}; original job result stays ${outcome.status}.`);
+    console.warn(error instanceof Error ? error.message : String(error));
+  }
 
   console.log(`Foundation job ${outcome.status}: ${job.key} (${durationMs}ms)`);
   return outcome.status === 'succeeded' ? 0 : 1;

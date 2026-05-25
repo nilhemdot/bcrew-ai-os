@@ -98,6 +98,7 @@
     "process:youtube-god-mode-autonomous-watch-scheduler-check": "node --env-file-if-exists=.env scripts/process-youtube-god-mode-autonomous-watch-scheduler-check.mjs",
     "process:build-intel-link-approval-source-packets-check": "node --env-file-if-exists=.env scripts/process-build-intel-link-approval-source-packets-check.mjs",
     "process:build-intel-source-value-grader-check": "node --env-file-if-exists=.env scripts/process-build-intel-source-value-grader-check.mjs",
+    "process:synthesis-router-freshness-trigger-check": "node --env-file-if-exists=.env scripts/process-synthesis-router-freshness-trigger-check.mjs",
     "codex:usage": "node scripts/codex-usage.mjs",
     "codex:usage-web": "node scripts/codex-usage-web.mjs",
     "process:ship-check": "node --env-file-if-exists=.env scripts/process-ship-check.mjs",
