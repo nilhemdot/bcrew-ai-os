@@ -87,6 +87,7 @@
     "intelligence:action-router-apply": "node --env-file-if-exists=.env scripts/intelligence-action-router-apply.mjs",
     "intelligence:spine-god-mode-check": "node --env-file-if-exists=.env scripts/process-intelligence-spine-god-mode-check.mjs",
     "process:build-portfolio-scrum-master-check": "node --env-file-if-exists=.env scripts/process-build-portfolio-scrum-master-check.mjs",
+    "process:dev-build-scoper-check": "node --env-file-if-exists=.env scripts/process-dev-build-opportunity-scoper-check.mjs",
     "codex:usage": "node scripts/codex-usage.mjs",
     "codex:usage-web": "node scripts/codex-usage-web.mjs",
     "process:ship-check": "node --env-file-if-exists=.env scripts/process-ship-check.mjs",

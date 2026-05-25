@@ -106,7 +106,7 @@ async function main() {
   )
   addCheck(
     checks,
-    directorPlanSource.includes('Build Portfolio/Sprint Master') &&
+    (directorPlanSource.includes('Build Portfolio/Sprint Master') || directorPlanSource.includes('BUILD-PORTFOLIO-SCRUM-MASTER-001')) &&
       directorPlanSource.includes('Director could drift into auto-scrum-master behavior'),
     'Director plan keeps Director separate from portfolio/sprint master behavior',
     'docs/process/dev-team-intelligence-director-001-plan.md'

@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-25T07:29:20-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/dev-team-intelligence-director-001-plan.md",
-  "approvedPlanSha256": "3bdba8f80a5f030fa9ca46fa98a05078ff460a4b5c682b66df76c8edba631e94",
+  "approvedPlanSha256": "327950f9a8c10a01d177be0f5f196742d7a543c4fad0d5fc15b7766eabec8d2b",
   "approvedRepoHead": "7751ccad4e4568c20df2de9ba863badd9e89cf2e",
   "approvalSource": "Steve direct May 25 correction: Director recommendations are not Steve approval. The required flow is recommendation -> Scoper -> Build Portfolio/Sprint Master -> scoped backlog candidate -> Steve approval/promotion, with System Strategy and agent/realtor coaching as ranking lenses.",
-  "approvalDigest": "3c66b4a503632dfac8c83dd624842db1a1ebc5f6228d55f1d200c187b7e57c3f"
+  "approvalDigest": "97e54aacf796efc6a536b7bdf464c1e1a3c49c954b2688d9364e8e56f1146b41"
 }
