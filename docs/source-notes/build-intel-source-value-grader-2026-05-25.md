@@ -116,3 +116,4 @@ Sources graded: 13
 
 - Report-only: no backlog cards, sprint changes, source deletion, watchlist mutation, or external writes.
 - Grades are lane-specific. A source can be strong for realtor AI training and weaker for AIOS build work.
+- Do not globally pause a creator from the Dev build grade alone. Use the lane grade for the lane asking the question: AIOS build, realtor AI teaching, marketing/content, ops/process, or leadership strategy.
