@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "INTELLIGENCE-SPINE-QUALITY-EVAL-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T04:35:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/intelligence-spine-quality-eval-001-plan.md",
+  "approvedPlanSha256": "37643415a95679f94972845fdaa90294630c701b726d9c876bb094cacdf36bf4",
+  "approvedRepoHead": "bb27bfd335ab1440c6a6b502b55553f717052218",
+  "approvalSource": "Steve May 25/26 overnight standing instruction: work all night, park blockers, move to the next sensible card, and avoid work that needs Steve while he is asleep. Codex selected INTELLIGENCE-SPINE-QUALITY-EVAL-001 because it evaluates existing stored Mark and internal source intelligence without provider calls, live extraction, browser navigation, auth/private source work, external writes, sprint mutation, or automatic backlog creation.",
+  "notes": "Approval covers the no-provider same-input quality eval, Steve-readable report, focused proof, and close-card path if proof passes. It does not approve new source watching, Skool/MyICOR/auth/private runs, or automatic build promotion.",
+  "approvalDigest": "5076052e11ec2ef1451ba7694b9ac5992d74f5264aa2af53869df6cb06c425e3"
+}

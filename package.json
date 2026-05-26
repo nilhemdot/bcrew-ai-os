@@ -269,6 +269,7 @@
     "process:mark-kashef-last-50-baseline-check": "node --env-file-if-exists=.env scripts/process-mark-kashef-last-50-baseline-check.mjs",
     "process:mark-kashef-god-mode-small-batch-check": "node --env-file-if-exists=.env scripts/process-mark-kashef-god-mode-small-batch-check.mjs",
     "process:dev-team-intelligence-director-check": "node --env-file-if-exists=.env scripts/process-dev-team-intelligence-director-check.mjs",
+    "process:intelligence-spine-quality-eval-check": "node --env-file-if-exists=.env scripts/process-intelligence-spine-quality-eval-check.mjs",
     "process:youtube-dev-team-intelligence-sprint-plan-check": "node --env-file-if-exists=.env scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs",
     "process:youtube-creator-daily-watch-sprint-update-check": "node --env-file-if-exists=.env scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs",
     "process:youtube-current-sprint-workspace-cleanup-check": "node --env-file-if-exists=.env scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs",
