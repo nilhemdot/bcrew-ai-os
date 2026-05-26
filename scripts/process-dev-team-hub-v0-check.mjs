@@ -84,6 +84,7 @@ function includesAll(source = '', markers = []) {
 function sourceDoesNotWriteOrExtract(source = '') {
   const text = String(source || '')
     .replace(/fetch\('\/api\/auth\/logout'[\s\S]*?\}\)/g, 'fetch-auth-logout-allowed')
+    .replace(/fetch\(LINK_PACKET_DECISION_ROUTE[\s\S]*?\n\s*\}\)/g, 'source-packet-decision-ledger-post-allowed')
   const forbidden = [
     'runYoutubeScout' + 'Latest20Discovery',
     'runYoutubeScout' + 'SeedVideoCapture',
@@ -99,6 +100,20 @@ function sourceDoesNotWriteOrExtract(source = '') {
     'method:' + ' "POST"',
   ]
   return forbidden.every(token => !text.includes(token))
+}
+
+function devHubWriteSurfaceIsOnlySourcePacketDecision(routeSource = '', jsSource = '') {
+  const routePosts = [...String(routeSource || '').matchAll(/app\.post\('([^']+)'/g)].map(match => match[1])
+  const uiFetches = [...String(jsSource || '').matchAll(/fetch\(([^,\n]+),\s*\{([\s\S]*?)\n\s*\}\)/g)]
+    .map(match => ({ route: match[1].trim(), options: match[2] || '' }))
+  const uiPostRoutes = uiFetches
+    .filter(fetchCall => /method:\s*'POST'/.test(fetchCall.options))
+    .map(fetchCall => fetchCall.route)
+    .filter(route => route !== "'/api/auth/logout'")
+  return routePosts.length === 1 &&
+    routePosts[0] === '/api/foundation/dev-team-hub/link-source-packet-decision' &&
+    uiPostRoutes.length === 1 &&
+    uiPostRoutes[0] === 'LINK_PACKET_DECISION_ROUTE'
 }
 
 function pageHasRequiredSections(html = '') {
@@ -276,7 +291,8 @@ async function main() {
     'Dev sidebar uses locked simplified sidebar values',
     'hub name only, 16px top padding, 12px title padding, 8px nav gap'
   )
-  addCheck(checks, sourceDoesNotWriteOrExtract(readOnlyBundle), 'Dev Hub code has no extraction runner, external write, approval apply, or backlog writer path', 'read-only bundle scan')
+  addCheck(checks, devHubWriteSurfaceIsOnlySourcePacketDecision(routeSource, jsSource), 'Dev Hub write surface is only the source-packet decision ledger', 'no crawler/backlog/external write POST routes')
+  addCheck(checks, sourceDoesNotWriteOrExtract(readOnlyBundle), 'Dev Hub code has no extraction runner, external write, broad approval apply, or backlog writer path', 'safe bundle scan')
   addCheck(checks, sourceDoesNotWriteOrExtract(scriptSource), 'focused proof stays read-only', SCRIPT_PATH)
   addCheck(checks, dogfood.ok === true, 'dogfood proves source-backed counts and missing-source fallback', JSON.stringify(dogfood.cases))
   addCheck(checks, payload?.cardId === DEV_TEAM_HUB_V0_CARD_ID && payload?.readOnly === true, 'live snapshot identifies read-only active card', payload?.cardId || 'missing')

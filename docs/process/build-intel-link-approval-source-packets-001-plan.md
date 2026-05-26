@@ -146,6 +146,21 @@ V1.1 public web runtime note:
 node --env-file-if-exists=.env scripts/process-source-packet-public-web-runtime-check.mjs --json
 ```
 
+V1.2 approval decision ledger note:
+
+- Source-packet approval decisions are durable records now, not chat residue and not preview-only UI.
+- `lib/source-packet-approval-decision-ledger.js` converts Steve approve/hold/reject actions into source-crawl ledger rows under `build-intel-link-approval-source-packet-decisions`.
+- The decision ledger target is a manual decision ledger, not a crawler queue.
+- Recording a decision may write `source_crawl_targets`/`source_crawl_items` so the decision survives reloads, but it does not start a worker, crawl a link, log in, buy, submit, mutate credentials, write external systems, or create backlog cards.
+- Approving a manual/ambiguous source packet fails closed until Steve adjusts the packet.
+- Rejecting a link records a `reject_noise` packet so the same link should not keep resurfacing.
+- Dev Hub can record approve/hold/reject from the link-review panel; the response explains in plain English that nothing ran.
+- Focused proof:
+
+```bash
+npm run process:source-packet-approval-decision-ledger-check -- --json
+```
+
 ## Not Next
 
 - Do not crawl Skool, paid communities, courses, downloads, private/member content, comments, forms, or purchases.

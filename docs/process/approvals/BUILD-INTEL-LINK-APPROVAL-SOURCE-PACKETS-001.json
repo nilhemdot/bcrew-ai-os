@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-INTEL-LINK-APPROVAL-SOURCE-PACKETS-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T20:07:18-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/build-intel-link-approval-source-packets-001-plan.md",
+  "approvedPlanSha256": "3375e7c9a3d26f5bdbed912d445d92fb7055755d2ec673fcf6fe44542a97d535",
+  "approvedRepoHead": "a9afe2316dca250133b2ad7bd1e64b5f9e474aed",
+  "approvalSource": "Steve May 25 live operator direction: link approvals must be durable and explain what happens after approve/hold/reject, with no crawl, login, purchase, form, worker, backlog, external write, credential, or browser-profile side effects from approval alone.",
+  "notes": "Approval covers V1.2 decision persistence for BUILD-INTEL-LINK-APPROVAL-SOURCE-PACKETS-001 only. Not approved: starting source workers from approval, broad crawling, paid/private/auth/community/course extraction, purchases, opt-ins, form submissions, external writes, or automatic backlog promotion.",
+  "approvalDigest": "293e13d2b8f272a64fe00155a937cd88f2ca3adffa4f167bb60f28adbc99084f"
+}

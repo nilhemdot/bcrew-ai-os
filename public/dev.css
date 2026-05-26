@@ -1980,6 +1980,16 @@ button {
   padding: 12px 14px;
 }
 
+.approval-packet-preview.recorded {
+  border-color: rgba(16, 185, 129, 0.22);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.approval-packet-preview.blocked {
+  border-color: rgba(180, 83, 9, 0.22);
+  background: rgba(180, 83, 9, 0.06);
+}
+
 .approval-packet-preview h4 {
   margin: 0;
   color: var(--ink);

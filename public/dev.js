@@ -1,5 +1,6 @@
 const API_ROUTE = '/api/foundation/dev-team-hub'
 const LINK_PACKET_PREVIEW_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-preview'
+const LINK_PACKET_DECISION_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-decision'
 
 const plannedSources = [
   {
@@ -409,7 +410,10 @@ function renderApprovalReview(snapshot = {}) {
             </label>
             <div class="approval-ai-actions">
               <button type="button" data-approval-action="preview" data-approval-index="${escapeHtml(String(index))}">Preview packet</button>
-              <em>Preview only. No crawl, login, purchase, form, worker, or backlog write.</em>
+              <button type="button" data-approval-action="record" data-approval-decision="approve_packet" data-approval-index="${escapeHtml(String(index))}">Approve packet</button>
+              <button type="button" data-approval-action="record" data-approval-decision="hold_packet" data-approval-index="${escapeHtml(String(index))}">Hold</button>
+              <button type="button" data-approval-action="record" data-approval-decision="reject_link" data-approval-index="${escapeHtml(String(index))}">Reject</button>
+              <em>Recording saves Steve's decision only. No crawl, login, purchase, form, worker, or backlog write.</em>
             </div>
             <div class="approval-ai-result" data-approval-result="${escapeHtml(String(index))}"></div>
           </div>
@@ -458,6 +462,20 @@ function renderPacketPreviewResult(result = {}) {
   `
 }
 
+function renderPacketDecisionResult(result = {}) {
+  const record = result.record || {}
+  const item = result.sourceCrawlItem || {}
+  const blocked = result.status === 'blocked' || result.validation?.ok === false
+  return `
+    <article class="approval-packet-preview ${blocked ? 'blocked' : 'recorded'}">
+      <span>${escapeHtml(blocked ? 'Needs adjustment' : 'Decision recorded')}</span>
+      <h4>${escapeHtml(result.plainEnglish || record.plainEnglish || 'Decision saved.')}</h4>
+      <p>${escapeHtml(blocked ? 'Nothing ran. Adjust the note or hold the link.' : 'This is now saved in the Foundation decision ledger. It did not start a worker.')}</p>
+      ${item.itemKey ? `<p>${escapeHtml(item.itemKey)}</p>` : ''}
+    </article>
+  `
+}
+
 function bindApprovalReviewControls(queue = []) {
   if (!els.approvalReview) return
   els.approvalReview.querySelectorAll('[data-approval-action="toggle"]').forEach(button => {
@@ -485,6 +503,50 @@ function bindApprovalReviewControls(queue = []) {
         result.innerHTML = renderPacketPreviewResult(payload)
       } catch (error) {
         result.innerHTML = `<p class="approval-ai-error">${escapeHtml(error instanceof Error ? error.message : 'Packet preview failed.')}</p>`
+      } finally {
+        button.disabled = false
+      }
+    })
+  })
+  els.approvalReview.querySelectorAll('[data-approval-action="record"]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const index = Number(button.getAttribute('data-approval-index'))
+      const item = queue[index]
+      const panel = els.approvalReview.querySelector(`[data-approval-panel="${CSS.escape(String(index))}"]`)
+      const result = els.approvalReview.querySelector(`[data-approval-result="${CSS.escape(String(index))}"]`)
+      const operatorNote = panel?.querySelector('textarea')?.value || ''
+      const operatorAction = button.getAttribute('data-approval-decision') || 'hold_packet'
+      if (!item || !result) return
+      button.disabled = true
+      result.innerHTML = '<p class="approval-ai-loading">Recording decision...</p>'
+      try {
+        const response = await fetch(LINK_PACKET_DECISION_ROUTE, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: item.url,
+            host: item.host,
+            sourceVideoId: item.sourceVideoId,
+            sourceUrl: item.sourceUrl,
+            reportArtifactId: item.reportArtifactId,
+            reason: item.reason,
+            operatorNote,
+            operatorAction,
+          }),
+        })
+        const payload = await response.json().catch(() => ({}))
+        if (!response.ok) {
+          result.innerHTML = renderPacketDecisionResult({
+            ...payload,
+            status: 'blocked',
+            plainEnglish: payload.plainEnglish || `HTTP ${response.status}`,
+          })
+          return
+        }
+        result.innerHTML = renderPacketDecisionResult(payload)
+      } catch (error) {
+        result.innerHTML = `<p class="approval-ai-error">${escapeHtml(error instanceof Error ? error.message : 'Decision record failed.')}</p>`
       } finally {
         button.disabled = false
       }
