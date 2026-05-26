@@ -41,6 +41,21 @@ Rules:
 - keep screenshots/keyframes governed by storage/use policy
 - preserve course URL, lesson URL, timestamp, screenshot/frame reference, extractor version, runtime cost, and permission class
 
+## Current MCP Discovery
+
+May 26, 2026 live preflight found the current MyICOR MCP route:
+
+- MCP endpoint: `https://mcp.myicor.com/mcp`
+- OAuth metadata: `https://app.myicor.com/.well-known/oauth-authorization-server`
+- Authorization endpoint: `https://app.myicor.com/mcp/authorize`
+- Token endpoint: `https://app.myicor.com/api/oauth/token`
+- Server: `myicor-mcp` version `1.15.0`
+- Supported scopes: `mcp:read`, `mcp:tools`, `mcp:progress`, `mcp:inner-circle`, `mcp:admin`
+- Extraction scope should request read/progress/inner-circle/tool-stack access only, not `mcp:admin`.
+- The older `https://mcp.myicor.com/sse` endpoint is stale and returned `404`.
+
+The local helper is `npm run myicor:mcp-preflight`, then `npm run myicor:mcp-authorize -- --account=myicor-authorized-member` once Steve is ready to approve OAuth. Tokens are stored in macOS Keychain under `myicor-mcp-oauth`, not in repo docs or Postgres.
+
 ## Extraction Levels
 
 Level 1: public YouTube subtitle proof  

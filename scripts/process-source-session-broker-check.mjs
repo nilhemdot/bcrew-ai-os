@@ -162,9 +162,11 @@ async function main() {
     proofScriptSource,
     credentialVaultSource,
     credentialCliSource,
+    myicorMcpOauthSource,
     paidMapperSource,
     harlanSource,
     planSource,
+    myicorSourceNote,
     seedSource,
     closeoutSource,
     approval,
@@ -174,9 +176,11 @@ async function main() {
     readRepoFile(SOURCE_SESSION_BROKER_SCRIPT_PATH),
     readRepoFile('lib/credential-vault.js'),
     readRepoFile('scripts/credentials-vault.mjs'),
+    readRepoFile('scripts/myicor-mcp-oauth.mjs'),
     readRepoFile('scripts/run-supervised-paid-source-map.mjs'),
     readRepoFile('lib/harlan-auth-escalation-loop.js'),
     readRepoFile(SOURCE_SESSION_BROKER_PLAN_PATH),
+    readRepoFile('docs/source-notes/myicro-training.md'),
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
     readRepoFile('lib/foundation-build-closeout-source-records.js'),
     validatePlanApprovalFile({
@@ -281,6 +285,33 @@ async function main() {
       !credentialCliSource.includes('readKeychainPassword'),
     'credential CLI has source add/status/delete and does not expose raw password retrieval',
     'scripts/credentials-vault.mjs',
+  )
+  addCheck(
+    checks,
+      packageJson.scripts?.['myicor:mcp-preflight'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs preflight' &&
+      packageJson.scripts?.['myicor:mcp-authorize'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs authorize' &&
+      packageJson.scripts?.['myicor:mcp-tools'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs tools' &&
+      packageJson.scripts?.['myicor:mcp-call'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs call' &&
+      myicorMcpOauthSource.includes('https://mcp.myicor.com/mcp') &&
+      myicorMcpOauthSource.includes('https://app.myicor.com/.well-known/oauth-authorization-server') &&
+      myicorMcpOauthSource.includes("DEFAULT_SCOPE = 'mcp:read mcp:tools mcp:progress mcp:inner-circle'") &&
+      !/DEFAULT_SCOPE\s*=\s*['"][^'"]*mcp:admin/i.test(myicorMcpOauthSource) &&
+      myicorMcpOauthSource.includes('storeKeychainPassword') &&
+      myicorMcpOauthSource.includes("method: 'tools/call'") &&
+      myicorMcpOauthSource.includes("grant_type: 'refresh_token'") &&
+      myicorMcpOauthSource.includes('rawSecretPrinted: false'),
+    'MyICOR MCP OAuth helper is registered, read-scope only, refresh-capable, callable, and Keychain-backed',
+    'scripts/myicor-mcp-oauth.mjs',
+  )
+  addCheck(
+    checks,
+    myicorSourceNote.includes('https://mcp.myicor.com/mcp') &&
+      myicorSourceNote.includes('https://app.myicor.com/.well-known/oauth-authorization-server') &&
+      myicorSourceNote.includes('https://mcp.myicor.com/sse') &&
+      myicorSourceNote.includes('returned `404`') &&
+      myicorSourceNote.includes('not `mcp:admin`'),
+    'MyICOR source note records current MCP endpoint and stale SSE route',
+    'docs/source-notes/myicro-training.md',
   )
   addCheck(
     checks,
