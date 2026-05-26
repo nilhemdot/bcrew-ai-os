@@ -139,6 +139,7 @@
     "process:nightly-deep-audit-upgrade-check": "node --env-file-if-exists=.env scripts/process-nightly-deep-audit-upgrade-check.mjs",
     "process:nightly-audit-fleet-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-fleet-check.mjs",
     "process:nightly-audit-fleet-runtime-scan-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-fleet-runtime-scan-check.mjs",
+    "process:nightly-audit-fleet-signal-quality-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-fleet-signal-quality-check.mjs",
     "process:foundation-deep-auditor-real-loop-check": "node --env-file-if-exists=.env scripts/process-foundation-deep-auditor-real-loop-check.mjs",
     "process:foundation-deep-merge-audit-check": "node --env-file-if-exists=.env scripts/process-foundation-deep-merge-audit-check.mjs",
     "process:old-system-research-team-harvest-check": "node --env-file-if-exists=.env scripts/process-old-system-research-team-harvest-check.mjs",

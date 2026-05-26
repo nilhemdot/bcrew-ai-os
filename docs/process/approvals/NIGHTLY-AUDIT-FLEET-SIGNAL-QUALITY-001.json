@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T06:20:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/nightly-audit-fleet-signal-quality-001-plan.md",
+  "approvedPlanSha256": "45bb04a5c655d49b8ea522885c0452dab956c3dd9676c36ae4f68f76a54c2e43",
+  "approvedRepoHead": "30c3c896ef8a15101b99a1baa5d076582dbd2aea",
+  "approvalSource": "Steve May 25-26 overnight audit correction: auditors must find hardcoded bullshit without noisy/Frankenstein reports; keep report-only/no-auto and continue the sprint.",
+  "approvalDigest": "d7e9606671ea8eaa810f95db4fc81721d825d9fa614b12da942e8fdfd11f387f"
+}
