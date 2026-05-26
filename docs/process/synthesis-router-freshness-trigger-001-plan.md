@@ -1,8 +1,8 @@
 # SYNTHESIS-ROUTER-FRESHNESS-TRIGGER-001
 
-Status: Scoped
+Status: Closed under `synthesis-router-freshness-trigger-v1`
 
-Last updated: 2026-05-25
+Last updated: 2026-05-26
 
 ## Purpose
 
@@ -53,3 +53,5 @@ Focused proof should create or simulate:
 - Completed archive/extractor/synthesis/action-router jobs get `metadata.synthesisFreshness` patched onto their Foundation job run.
 - The default behavior is no-spend mark-only mode. `SYNTHESIS_FRESHNESS_TRIGGER_AUTORUN=true` is required before the runner can automatically invoke the synthesis/action-router follow-up jobs.
 - `scripts/process-synthesis-router-freshness-trigger-check.mjs` owns the deterministic dogfood proof for stale, blocked, refreshed, and action-router-due states, and also reads the live Foundation job ledger to prove runtime metadata is actually being patched.
+
+Closeout proof lives in `docs/handoffs/2026-05-26-synthesis-router-freshness-trigger-v1-closeout.md`. The live proof on 2026-05-26 reports `waiting_for_extractor`, not fake freshness, because source-family activity exists ahead of extractor/synthesis readiness.

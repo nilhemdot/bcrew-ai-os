@@ -618,7 +618,7 @@ Rule:
 
 ## Latest Foundation Cleanup
 
-- May 25 Dev Data Pool correction: Gmail/Missive archive sync and candidate extraction are now shown separately enough for operators to see the real state. Fresh archive syncs after the last synthesis refresh make the Synthesis Router show `Needs refresh`; failed candidate extractors make the source lane show `Needs repair`. `SYNTHESIS-ROUTER-FRESHNESS-TRIGGER-001` owns the remaining automatic freshness trigger/watermark build.
+- May 25-26 Dev Data Pool correction: Gmail/Missive archive sync and candidate extraction are now shown separately enough for operators to see the real state. Fresh archive syncs after the last synthesis refresh make the Synthesis Router show `Needs refresh`; failed candidate extractors make the source lane show `Needs repair`. `SYNTHESIS-ROUTER-FRESHNESS-TRIGGER-001` is closed under `synthesis-router-freshness-trigger-v1`: completed Foundation jobs patch `metadata.synthesisFreshness`, the focused proof covers stale/blocked/waiting/fresh/action-router states, live readback reports `waiting_for_extractor` instead of fake freshness, and synthesis/action-router autorun remains opt-in through `SYNTHESIS_FRESHNESS_TRIGGER_AUTORUN=true`.
 - `FOUNDATION-IDENTITY-001` is done under `foundation-identity-surface-v1`.
 - `/api/system-inventory` now exposes a metadata-only `identity` section covering repo-visible user/runtime docs, local-private memory posture, active skills, and plugin counts.
 - Foundation System Inventory now renders a Workspace Identity panel from that payload, and source-trust verification proves private memory remains metadata-only and plugins are not treated as source-truth signoff.
