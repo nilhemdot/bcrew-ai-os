@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T11:45:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/extractor-eyes-hands-brain-runtime-001-plan.md",
+  "approvedPlanSha256": "7233b0d7dd93bcc495eee323b87787b7ec104365d2ee2276c51b086e25f6f8ab",
+  "approvedRepoHead": "abf1765e8112894f7fabad964a2ea7b47fe43ec1",
+  "approvalSource": "Steve May 26 direct correction: lock the full God Mode extractor requirement as a parent runtime and source SOP system before more broad YouTube extraction. Requirement includes metadata triage, latest 10 baseline per creator, visible creator grades, whole YouTube page extraction, description/resource links, free resources, free Skool/community packet handling, paid-gate evaluation, and morning autopilot; no video-only catch-up may claim God Mode.",
+  "approvalDigest": "e7f970b3d69dc9cbd9d1fe3ae972e831d6f7ebf2eeabea8f1afbe808b3a0f3b9"
+}
