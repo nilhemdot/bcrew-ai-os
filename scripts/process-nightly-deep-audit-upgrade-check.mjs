@@ -80,12 +80,20 @@ function sameCounts(left = {}, right = {}) {
 
 async function writeReportArtifacts(audit) {
   const markdown = renderNightlyDeepAuditUpgradeReport(audit)
+  const json = JSON.stringify(serializeNightlyDeepAuditUpgradeJson(audit))
   const reportPath = path.join(repoRoot, audit.reportPath)
   const jsonPath = path.join(repoRoot, audit.jsonPath)
   await fs.mkdir(path.dirname(reportPath), { recursive: true })
   await fs.writeFile(reportPath, markdown, 'utf8')
-  await fs.writeFile(jsonPath, JSON.stringify(serializeNightlyDeepAuditUpgradeJson(audit), null, 2), 'utf8')
-  return { markdown, reportPath: audit.reportPath, jsonPath: audit.jsonPath }
+  await fs.writeFile(jsonPath, `${json}\n`, 'utf8')
+  return {
+    markdown,
+    json,
+    jsonBytes: Buffer.byteLength(json),
+    jsonLines: 1,
+    reportPath: audit.reportPath,
+    jsonPath: audit.jsonPath,
+  }
 }
 
 async function main() {
@@ -116,7 +124,17 @@ async function main() {
     runLlmReview: args.runLlmReview,
   })
   const artifacts = args.noWrite
-    ? { markdown: renderNightlyDeepAuditUpgradeReport(audit), reportPath: audit.reportPath, jsonPath: audit.jsonPath }
+    ? (() => {
+        const json = JSON.stringify(serializeNightlyDeepAuditUpgradeJson(audit))
+        return {
+          markdown: renderNightlyDeepAuditUpgradeReport(audit),
+          json,
+          jsonBytes: Buffer.byteLength(json),
+          jsonLines: 1,
+          reportPath: audit.reportPath,
+          jsonPath: audit.jsonPath,
+        }
+      })()
     : await writeReportArtifacts(audit)
 
   const after = await getFoundationSnapshot()
@@ -256,6 +274,12 @@ async function main() {
       /^docs\/handoffs\/nightly-deep-audit-\d{4}-\d{2}-\d{2}\.json$/.test(audit.jsonPath),
     'audit uses date-based report and JSON paths',
     `${audit.reportPath} / ${audit.jsonPath}`,
+  )
+  addCheck(
+    checks,
+    artifacts.jsonBytes < 250_000 && artifacts.jsonLines <= 20,
+    'nightly JSON artifact stays compact enough for hot-doc budget',
+    `${artifacts.jsonBytes || 0} bytes / ${artifacts.jsonLines || 0} lines`,
   )
   addCheck(
     checks,

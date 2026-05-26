@@ -133,6 +133,7 @@
     "process:codebase-de-slop-gate-check": "node --env-file-if-exists=.env scripts/process-codebase-de-slop-gate-check.mjs",
     "process:code-quality-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-code-quality-nightly-audit-check.mjs",
     "process:code-quality-audit-guarded-mutator-classifier-check": "node --env-file-if-exists=.env scripts/process-code-quality-audit-guarded-mutator-classifier-check.mjs",
+    "process:process-check-report-output-policy-check": "node --env-file-if-exists=.env scripts/process-check-report-output-policy-check.mjs",
     "process:nightly-deep-audit-upgrade-check": "node --env-file-if-exists=.env scripts/process-nightly-deep-audit-upgrade-check.mjs",
     "process:nightly-audit-fleet-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-fleet-check.mjs",
     "process:foundation-deep-auditor-real-loop-check": "node --env-file-if-exists=.env scripts/process-foundation-deep-auditor-real-loop-check.mjs",
