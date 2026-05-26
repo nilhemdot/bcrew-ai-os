@@ -18,6 +18,7 @@ import {
 import {
   YOUTUBE_CREATOR_DAILY_WATCH_SOURCE_ID,
   YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
+  YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
   buildYoutubeCreatorDailyWatchPlan,
 } from '../lib/youtube-creator-daily-watch.js'
 import {
@@ -172,7 +173,11 @@ function sourceDoesNotWriteOrExtract(source = '') {
 
 async function loadLiveSnapshot() {
   const [poolItems, fullWatchedVideoIds, sourceValueGraderBundle] = await Promise.all([
-    listSourceCrawlItems({ targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY, limit: 1000, order: 'desc' }),
+    listSourceCrawlItems({
+      targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
+      limit: YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
+      order: 'desc',
+    }),
     loadAlreadyFullWatchedVideoIds(),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
   ])
@@ -198,6 +203,7 @@ async function main() {
     devHubSource,
     devHubProofSource,
     publicDevSource,
+    buildIntelRoutesSource,
   ] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile('docs/process/youtube-creator-god-mode-catchup-001-plan.md'),
@@ -208,6 +214,7 @@ async function main() {
     readRepoFile('lib/dev-team-hub.js'),
     readRepoFile('scripts/process-dev-team-hub-v0-check.mjs'),
     readRepoFile('public/dev.js'),
+    readRepoFile('lib/foundation-build-intel-routes.js'),
   ])
 
   await initFoundationDb()
@@ -239,6 +246,13 @@ async function main() {
   addCheck(checks, list(snapshot.creators).every(row => row.commentStatus === 'operator_excluded'), 'comments are operator-excluded, not parked', 'operator_excluded')
   addCheck(checks, list(snapshot.creators).every(row => row.approvedResourceFollowStatus && row.sourcePacketWorkerStatus && row.browserHandsStatus), 'every creator exposes resource-follow, worker, and Hands status', 'all rows explicit')
   addCheck(checks, Number(snapshot.summary?.trackedMetadataCount || 0) >= list(snapshot.creators).length, 'tracked YouTube metadata is visible for catch-up planning', `${snapshot.summary?.trackedMetadataCount || 0} rows`)
+  addCheck(
+    checks,
+    buildIntelRoutesSource.includes('YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT') &&
+      !/targetKey:\s*['"]youtube-creator-daily-watch['"][\s\S]{0,120}limit:\s*200/.test(buildIntelRoutesSource),
+    'daily watch API route uses the full creator readback limit',
+    `limit=${YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT}`,
+  )
   addCheck(
     checks,
     sourceCrawlStoreSource.includes('async function listSourceCrawlItems') &&

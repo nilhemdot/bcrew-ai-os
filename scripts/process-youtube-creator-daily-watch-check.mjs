@@ -48,6 +48,7 @@ import {
   YOUTUBE_CREATOR_DAILY_WATCH_NOT_NEXT as NOT_NEXT,
   YOUTUBE_CREATOR_DAILY_WATCH_PLAN_PATH as PLAN_PATH,
   YOUTUBE_CREATOR_DAILY_WATCH_PROOF_COMMANDS as PROOF_COMMANDS,
+  YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
   YOUTUBE_CREATOR_DAILY_WATCH_REPORT_ARTIFACT_ID as REPORT_ARTIFACT_ID,
   YOUTUBE_CREATOR_DAILY_WATCH_RUNNER_PATH as RUNNER_PATH,
   YOUTUBE_CREATOR_DAILY_WATCH_SCRIPT_PATH as SCRIPT_PATH,
@@ -522,7 +523,11 @@ async function main() {
     const jobDefinition = getFoundationJobDefinition(JOB_KEY)
     const [target, items, reportProof, latestJobRun] = await Promise.all([
       loadTargetSnapshot(),
-      listSourceCrawlItems({ targetKey: TARGET_KEY, limit: 200, order: 'desc' }),
+      listSourceCrawlItems({
+        targetKey: TARGET_KEY,
+        limit: YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
+        order: 'desc',
+      }),
       loadReportProof(),
       loadLatestJobRun(),
     ])
@@ -594,7 +599,14 @@ async function main() {
     addCheck(checks, moduleSource.includes('buildYoutubeCreatorDailyWatchPoolItems') && runnerSource.includes('leaseSourceCrawlTarget') && runnerSource.includes('upsertSourceCrawlItem'), 'runner reuses source-crawl target/item ledger', 'target lease + item upsert markers')
     addCheck(checks, jobsSource.includes(`key: '${JOB_KEY}'`) && jobsSource.includes('Public YouTube Creator Daily Watch'), 'Foundation job definition is registered', JOB_KEY)
     addCheck(checks, allowlistSource.includes(`'${JOB_KEY}'`) && allowlistSource.includes('operational_write'), 'Foundation job mutation allowlist permits scheduled operational write', JOB_KEY)
-    addCheck(checks, routesSource.includes('/api/foundation/build-intel/youtube-creator-daily-watch') && serverSource.includes('buildYoutubeCreatorDailyWatchReadSnapshot'), 'Build Intel route exposes daily watch read snapshot', 'route + server dependency')
+    addCheck(
+      checks,
+      routesSource.includes('/api/foundation/build-intel/youtube-creator-daily-watch') &&
+        routesSource.includes('YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT') &&
+        serverSource.includes('buildYoutubeCreatorDailyWatchReadSnapshot'),
+      'Build Intel route exposes full daily watch read snapshot',
+      `route + server dependency; limit=${YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT}`,
+    )
     addCheck(checks, closeoutRegistrySource.includes(CLOSEOUT_KEY) && closeoutRegistrySource.includes(CARD_ID), 'closeout registry source includes daily watch', 'lib/foundation-build-closeout-intelligence-records.js')
     addCheck(checks, closeout?.operatorCloseout === true && list(closeout.backlogIds).includes(CARD_ID), 'build closeout lookup resolves daily watch', closeout?.key || 'missing')
     addCheck(checks, coverageSource.includes(CARD_ID), 'verifier coverage includes daily watch card ID', 'coverage card ID present')

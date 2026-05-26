@@ -19,6 +19,7 @@ import { getSourceContracts } from '../lib/source-contracts.js'
 import { buildCreatorWatchlistSnapshot } from '../lib/build-intel-watchlist.js'
 import {
   YOUTUBE_CREATOR_DAILY_WATCH_JOB_KEY,
+  YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
   YOUTUBE_CREATOR_DAILY_WATCH_REPORT_ARTIFACT_ID,
   YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
   buildYoutubeCreatorDailyWatchReadSnapshot,
@@ -184,7 +185,11 @@ async function loadLiveSnapshot() {
     getFoundationSnapshot(),
     getActiveFoundationCurrentSprint(),
     getExtractionControlSnapshot({ limit: 200 }),
-    listSourceCrawlItems({ targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY, limit: 1000, order: 'desc' }),
+    listSourceCrawlItems({
+      targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
+      limit: YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
+      order: 'desc',
+    }),
     getIntelligenceReportBundle(YOUTUBE_SCOUT_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(YOUTUBE_BUILD_INTEL_LINK_RESOURCE_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
@@ -271,6 +276,13 @@ async function main() {
   addCheck(checks, jsSource.includes('YouTube Creators') && jsSource.includes('Skool / Paid Courses') && jsSource.includes('GitHub / Repos') && jsSource.includes('Gmail / Missive / Slack') && jsSource.includes('Meetings / Transcripts') && jsSource.includes("label: 'Visual evidence'") && jsSource.includes("label: 'Links to review'") && !jsSource.includes("name: 'Video Artifacts'") && !jsSource.includes("name: 'Dev Director'") && !jsSource.includes("name: 'God Mode Eyes'"), 'source cards are actual source inputs and evidence is separate output', 'sources: YouTube/Skool/GitHub/internal/meetings; evidence cards carry output counts')
   addCheck(checks, moduleSource.includes('sourceValueGrader') && routeSource.includes('BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID'), 'Dev Hub API exposes source-value grader data to avoid hardcoded creator cards', BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID)
   addCheck(checks, moduleSource.includes('youtubeCreatorGodModeCatchup') && moduleSource.includes('buildYoutubeCreatorGodModeCatchupSnapshot') && jsSource.includes('youtubeCreatorGodModeCatchup'), 'Dev Hub API/page exposes YouTube creator catch-up baseline readback', 'youtubeCreatorGodModeCatchup')
+  addCheck(
+    checks,
+    routeSource.includes('YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT') &&
+      !/targetKey:\s*['"]youtube-creator-daily-watch['"][\s\S]{0,120}limit:\s*200/.test(routeSource),
+    'daily watch direct API and Dev Hub use the full creator readback limit',
+    `limit=${YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT}`,
+  )
   addCheck(
     checks,
     jsSource.includes('YOUTUBE_CREATOR_TARGET_FALLBACK_LIMIT') &&
