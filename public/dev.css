@@ -1445,6 +1445,29 @@ button {
   white-space: nowrap;
 }
 
+.target-subhead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 16px 0 8px;
+  color: var(--ink);
+}
+
+.target-subhead span {
+  font-family: var(--display);
+  font-size: var(--t-sm);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.target-subhead small {
+  color: var(--grey-d);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+
 .autopilot-step-list {
   display: flex;
   flex-wrap: wrap;

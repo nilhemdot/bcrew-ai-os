@@ -346,9 +346,10 @@ async function main() {
       jsSource.includes('Next dry-run batch') &&
       jsSource.includes('youtubeGodModeAutopilotPlan') &&
       jsSource.includes('renderAutopilotRows') &&
+      jsSource.includes('buildYoutubeAutopilotBlockedRows') &&
       jsSource.includes('autopilot-step-list'),
-    'Dev Hub exposes YouTube morning autopilot dry-run with SOP steps without starting a provider run',
-    'catch-up candidates -> dry-run plan -> Dev evidence card/source detail/SOP steps',
+    'Dev Hub exposes YouTube morning autopilot dry-run with SOP steps and filtered-candidate reasons without starting a provider run',
+    'catch-up candidates -> dry-run plan -> Dev evidence card/source detail/SOP steps/filtered reasons',
   )
   addCheck(checks, moduleSource.includes('buildExtractionEconomics') && moduleSource.includes('estimateGeminiStandardTokenCostUsd') && routeSource.includes('listLlmCalls'), 'Dev Hub API exposes extraction economics from LLM call usage', 'llm_calls + shared Gemini pricing tokens')
   addCheck(checks, moduleSource.includes('buildApprovalReviewQueue') && jsSource.includes('renderApprovalReview'), 'Dev Hub exposes actual approval links instead of a blind count', 'approvalReviewQueue + #approval-review')
@@ -454,6 +455,13 @@ async function main() {
       ),
     'live Dev Hub exposes YouTube autopilot dry-run plan from catch-up candidates with SOP step readiness',
     `${list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).length} selected / ${payload?.youtubeGodModeAutopilotPlan?.candidateVideoCount || 0} candidates / ${payload?.youtubeGodModeAutopilotPlan?.status || 'missing'}`,
+  )
+  addCheck(
+    checks,
+    list(payload?.youtubeGodModeAutopilotPlan?.rejectedVideos).some(video => video.reason === 'source_sop_next_action_blocks_video_watch') &&
+      list(payload?.youtubeGodModeAutopilotPlan?.rejectedVideos).length > list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).length,
+    'live Dev Hub exposes autopilot filtered candidates, including source-SOP-first blocks',
+    `${list(payload?.youtubeGodModeAutopilotPlan?.rejectedVideos).length} rejected / ${list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).length} selected`,
   )
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => /^https?:\/\//i.test(text(item.url)) && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
   addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos'), 'source coverage includes planned GitHub and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)

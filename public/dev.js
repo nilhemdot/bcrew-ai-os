@@ -399,6 +399,29 @@ function buildYoutubeAutopilotRows(snapshot = {}) {
   }))
 }
 
+function buildYoutubeAutopilotBlockedRows(snapshot = {}) {
+  const autopilot = snapshot.youtubeGodModeAutopilotPlan || {}
+  const groups = new Map()
+  for (const video of list(autopilot.rejectedVideos)) {
+    const reason = text(video.reason || 'blocked')
+    if (!groups.has(reason)) groups.set(reason, [])
+    groups.get(reason).push(video)
+  }
+  return Array.from(groups.entries())
+    .map(([reason, videos]) => ({
+      title: statusCopy(reason),
+      count: videos.length,
+      subtitle: `${compactNumber(videos.length)} ${videos.length === 1 ? 'candidate' : 'candidates'} blocked`,
+      description: videos
+        .slice(0, 3)
+        .map(video => `${text(video.creator || video.creatorId, 'Unknown creator')}: ${text(video.title || video.videoId, 'Untitled video')}`)
+        .join(' · '),
+      status: reason.includes('blocks') || reason.includes('approval') || reason.includes('not_public') ? 'Blocked' : 'Filtered',
+    }))
+    .sort((left, right) => Number(right.count || 0) - Number(left.count || 0))
+    .slice(0, 6)
+}
+
 function buildLiveSources(snapshot = {}) {
   const daily = snapshot.dailyWatch || {}
   const catchup = snapshot.youtubeCreatorGodModeCatchup || {}
@@ -423,6 +446,7 @@ function buildLiveSources(snapshot = {}) {
       tags: ['public', 'daily', gradedCount ? 'graded' : 'needs grade', baselineIncomplete ? 'baseline gap' : 'baseline met'],
       targets: youtubeTargets,
       autopilotRows: buildYoutubeAutopilotRows(snapshot),
+      autopilotBlockedRows: buildYoutubeAutopilotBlockedRows(snapshot),
       targetNoun: 'public creator',
       statusLine: `Running · ${catchupStatus}`,
       sourceRoute: daily.sourceRoute || '/api/foundation/build-intel/youtube-creator-daily-watch',
@@ -1151,6 +1175,31 @@ function renderAutopilotRows(source = {}) {
   `
 }
 
+function renderAutopilotBlockedRows(source = {}) {
+  const rows = list(source.autopilotBlockedRows)
+  if (!rows.length) return ''
+  return `
+    <div class="target-subhead">
+      <span>Autopilot filtered candidates</span>
+      <small>Blocked/filtered before spend</small>
+    </div>
+    <div class="target-list">
+      ${rows.map(row => `
+        <div class="target-row">
+          <div class="target-row-head">
+            <div>
+              <strong>${escapeHtml(row.title)}</strong>
+              <small>${escapeHtml(row.subtitle)}</small>
+            </div>
+            <span class="pill ${pillClass(row.status)}">${escapeHtml(statusLabel(row.status))}</span>
+          </div>
+          <p>${escapeHtml(row.description || 'No sample rows available.')}</p>
+        </div>
+      `).join('')}
+    </div>
+  `
+}
+
 function renderTargets(sourceId) {
   const source = state.sources.find(item => item.id === sourceId) || state.sources[0]
   if (!source) {
@@ -1158,7 +1207,7 @@ function renderTargets(sourceId) {
     return
   }
   state.selectedSourceId = source.id
-  const targetCount = list(source.targets).length + list(source.autopilotRows).length
+  const targetCount = list(source.targets).length + list(source.autopilotRows).length + list(source.autopilotBlockedRows).length
   const sourceStatus = statusLabel(source.badge || source.label)
   const sourceNeedsAttention = !['Live', 'Foundation', 'Verified', 'Source-backed', 'Clear'].includes(sourceStatus)
   els.panel.innerHTML = `
@@ -1170,6 +1219,7 @@ function renderTargets(sourceId) {
       ${sourceNeedsAttention ? `<span class="source-status ${pillClass(source.badge || source.label)}">${escapeHtml(sourceStatus)}</span>` : ''}
     </div>
     ${renderAutopilotRows(source)}
+    ${renderAutopilotBlockedRows(source)}
     <div class="target-list">
       ${list(source.targets).map(target => {
         const targetStatus = statusLabel(target[3])
