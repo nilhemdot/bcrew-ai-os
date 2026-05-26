@@ -40,6 +40,7 @@ async function main() {
     currentPlanSource,
     portfolioPlanSource,
     evidenceTraceSource,
+    evidenceTraceHelperSource,
     approval,
   ] = await Promise.all([
     readRepoFile(DEV_BUILD_OPPORTUNITY_SCOPER_PLAN_PATH),
@@ -47,6 +48,7 @@ async function main() {
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/process/build-portfolio-scrum-master-001-plan.md'),
     readRepoFile('scripts/process-dev-build-scoper-evidence-trace-check.mjs'),
+    readRepoFile('lib/dev-build-opportunity-evidence-trace.js'),
     validatePlanApprovalFile({
       repoRoot,
       approvalRef: DEV_BUILD_OPPORTUNITY_SCOPER_APPROVAL_PATH,
@@ -77,17 +79,18 @@ async function main() {
   addCheck(
     checks,
     evidenceTraceSource.includes('DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID') &&
-      evidenceTraceSource.includes('getDirectorCandidates') &&
-      evidenceTraceSource.includes('findRawEvidence') &&
-      !/const\s+(TARGET_TITLE|SOURCE_VIDEO_ID|RAW_REPORT_ARTIFACT_ID)\b/.test(evidenceTraceSource),
+      evidenceTraceSource.includes('buildDevBuildOpportunityEvidenceTrace') &&
+      evidenceTraceHelperSource.includes('getDevBuildDirectorCandidates') &&
+      evidenceTraceHelperSource.includes('findRawEvidence') &&
+      !/const\s+(TARGET_TITLE|SOURCE_VIDEO_ID|RAW_REPORT_ARTIFACT_ID)\b/.test(`${evidenceTraceSource}\n${evidenceTraceHelperSource}`),
     'evidence-trace proof reads live Director candidates instead of hardcoded target constants',
-    'scripts/process-dev-build-scoper-evidence-trace-check.mjs'
+    'scripts/process-dev-build-scoper-evidence-trace-check.mjs + lib/dev-build-opportunity-evidence-trace.js'
   )
   addCheck(
     checks,
-    !/(?:\bfs\.(?:writeFile|appendFile)|\bwriteFile\s*\(|\bappendFile\s*\(|\bupdateBacklogItem\s*\(|\bcreateBacklogItem\s*\(|\bupsertIntelligence\w*\s*\(|globalThis\.fetch|chromium\.launch)/.test(evidenceTraceSource),
+    !/(?:\bfs\.(?:writeFile|appendFile)|\bwriteFile\s*\(|\bappendFile\s*\(|\bupdateBacklogItem\s*\(|\bcreateBacklogItem\s*\(|\bupsertIntelligence\w*\s*\(|globalThis\.fetch|chromium\.launch)/.test(`${evidenceTraceSource}\n${evidenceTraceHelperSource}`),
     'evidence-trace proof is read-only and has no writer/browser/provider side effects',
-    'scripts/process-dev-build-scoper-evidence-trace-check.mjs'
+    'scripts/process-dev-build-scoper-evidence-trace-check.mjs + lib/dev-build-opportunity-evidence-trace.js'
   )
   addCheck(
     checks,

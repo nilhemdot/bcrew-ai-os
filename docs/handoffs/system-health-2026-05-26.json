@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T03:18:21.765Z",
+  "generatedAt": "2026-05-26T09:16:00.149Z",
   "status": "healthy",
   "plainEnglish": "Foundation system health has no red or yellow rollup findings.",
   "summary": {
@@ -92,8 +92,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-26T03:11:59.557Z",
-        "latestSuccessAt": "2026-05-26T03:11:59.557Z",
+        "latestRunAt": "2026-05-26T08:48:07.496Z",
+        "latestSuccessAt": "2026-05-26T08:48:07.496Z",
         "plainEnglish": "Connector Uptime Monitor has a fresh successful run and is not due.",
         "nextAction": "Review degraded/down connector rows; do not auto-fix credentials or source data from this job."
       },
@@ -136,8 +136,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-26T02:24:51.659Z",
-        "latestSuccessAt": "2026-05-26T02:24:51.659Z",
+        "latestRunAt": "2026-05-26T08:33:55.304Z",
+        "latestSuccessAt": "2026-05-26T08:33:55.304Z",
         "plainEnglish": "Foundation Verifier has a fresh successful run and is not due.",
         "nextAction": "Run after meaningful builds and before checkpoints."
       },
@@ -147,8 +147,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-26T02:27:57.350Z",
-        "latestSuccessAt": "2026-05-26T02:27:57.350Z",
+        "latestRunAt": "2026-05-26T08:36:54.899Z",
+        "latestSuccessAt": "2026-05-26T08:36:54.899Z",
         "plainEnglish": "Gmail Current Sync has a fresh successful run and is not due.",
         "nextAction": "Watch first scheduled runs; keep historical Gmail backfill manual until current-day stays clean."
       },
@@ -191,8 +191,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-26T02:11:52.160Z",
-        "latestSuccessAt": "2026-05-26T02:11:52.160Z",
+        "latestRunAt": "2026-05-26T08:16:34.141Z",
+        "latestSuccessAt": "2026-05-26T08:16:34.141Z",
         "plainEnglish": "Missive Current Sync has a fresh successful run and is not due.",
         "nextAction": "Watch first scheduled runs; keep Gmail/manual backfill off until this lane stays clean."
       },
@@ -202,8 +202,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-26T03:10:12.631Z",
-        "latestSuccessAt": "2026-05-26T03:10:12.631Z",
+        "latestRunAt": "2026-05-26T07:05:56.199Z",
+        "latestSuccessAt": "2026-05-26T07:05:56.199Z",
         "plainEnglish": "Nightly Specialist Audit Fleet has a fresh successful run and is not due.",
         "nextAction": "System Health rolls the scheduled job and audit-fleet registry status into the morning report; proposed findings remain report-only until separate scoped repair cards exist."
       },
@@ -213,8 +213,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-25T07:01:55.323Z",
-        "latestSuccessAt": "2026-05-25T07:01:55.323Z",
+        "latestRunAt": "2026-05-26T07:00:55.529Z",
+        "latestSuccessAt": "2026-05-26T07:00:55.529Z",
         "plainEnglish": "Nightly Hybrid Deep Audit has a fresh successful run and is not due.",
         "nextAction": "Review the diff-only morning report; P0/P1 senior findings must route to proposed repair cards or the report must say the deep review degraded/not run."
       },
@@ -224,8 +224,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-26T02:12:52.960Z",
-        "latestSuccessAt": "2026-05-26T02:12:52.960Z",
+        "latestRunAt": "2026-05-26T06:13:31.513Z",
+        "latestSuccessAt": "2026-05-26T06:13:31.513Z",
         "plainEnglish": "Shared Comms Coverage has a fresh successful run and is not due.",
         "nextAction": "Run before deciding whether to backfill more or build synthesis."
       },
@@ -235,8 +235,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-26T03:18:21.758Z",
-        "latestSuccessAt": "2026-05-26T03:18:21.758Z",
+        "latestRunAt": "2026-05-26T09:16:00.140Z",
+        "latestSuccessAt": "2026-05-26T09:16:00.140Z",
         "plainEnglish": "System Health Nightly Audit has a fresh successful run and is not due.",
         "nextAction": "Review red/yellow system-health rows before treating Foundation as green."
       },
@@ -268,8 +268,8 @@
         "priority": "P1",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-25T03:47:56.994Z",
-        "latestSuccessAt": "2026-05-25T03:47:56.994Z",
+        "latestRunAt": "2026-05-26T03:49:23.344Z",
+        "latestSuccessAt": "2026-05-26T03:49:23.344Z",
         "plainEnglish": "Admin Deal Backlog Inspection has a fresh successful run and is not due.",
         "nextAction": "Keep source-field corrections human-owned until Ops approves an apply/fix lane."
       },
@@ -327,7 +327,7 @@
     "hardcodedTruthLanePresent": true,
     "reportOnly": true,
     "latestRunStatus": "succeeded",
-    "latestRunAt": "2026-05-26T03:10:12.631Z",
+    "latestRunAt": "2026-05-26T07:05:56.199Z",
     "scheduledJobStatus": "healthy",
     "failures": []
   },
@@ -340,19 +340,19 @@
       "reviewCount": 0,
       "riskCount": 0,
       "missingCount": 0,
-      "maxDurationMs": 425.626083,
-      "maxPayloadBytes": 620125
+      "maxDurationMs": 457.2555,
+      "maxPayloadBytes": 629438
     },
     "topFindings": []
   },
   "docArtifactBloat": {
     "status": "healthy",
     "summary": {
-      "artifactCount": 1426,
-      "handoffFileCount": 218,
-      "handoffLineTotal": 16889,
-      "recentHandoffFileCount": 217,
-      "nightlyArtifactCount": 12,
+      "artifactCount": 1443,
+      "handoffFileCount": 220,
+      "handoffLineTotal": 17928,
+      "recentHandoffFileCount": 219,
+      "nightlyArtifactCount": 14,
       "riskCount": 0,
       "reviewCount": 0
     },
@@ -437,15 +437,15 @@
     "status": "healthy",
     "summary": {
       "eventCount7d": 0,
-      "rawEventCount7d": 636,
+      "rawEventCount7d": 681,
       "fingerprintCount": 0,
-      "rawFingerprintCount": 146,
+      "rawFingerprintCount": 155,
       "redFingerprintCount": 0,
       "yellowFingerprintCount": 0,
       "oneOffFingerprintCount": 0,
-      "resolvedEventCount7d": 636,
-      "resolvedFingerprintCount": 146,
-      "latestResolutionProofAt": "2026-05-26T02:58:42.265Z",
+      "resolvedEventCount7d": 681,
+      "resolvedFingerprintCount": 155,
+      "latestResolutionProofAt": "2026-05-26T09:04:31.290Z",
       "warningThreshold24h": 3,
       "riskThreshold24h": 5
     },
