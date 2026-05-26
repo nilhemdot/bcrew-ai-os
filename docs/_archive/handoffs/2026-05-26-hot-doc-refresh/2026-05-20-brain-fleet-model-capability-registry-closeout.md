@@ -26,7 +26,7 @@ The registry records, per route:
 - `scripts/process-brain-fleet-model-capability-registry-check.mjs`
 - `docs/process/brain-fleet-model-capability-registry-001-plan.md`
 - `docs/process/approvals/BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001.json`
-- `docs/handoffs/2026-05-20-brain-fleet-model-capability-registry-closeout.md`
+- `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-model-capability-registry-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `lib/foundation-build-closeout-model-records.js`

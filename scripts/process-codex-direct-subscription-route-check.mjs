@@ -233,8 +233,8 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
       'docs/handoffs/2026-05-20-harlan-auth-escalation-loop-closeout.md',
-      'docs/handoffs/2026-05-20-brain-fleet-quota-ledger-closeout.md',
-      'docs/handoffs/2026-05-20-brain-fleet-model-capability-registry-closeout.md',
+      'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-quota-ledger-closeout.md',
+      'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-model-capability-registry-closeout.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

@@ -50,7 +50,7 @@ const CHANGED_FILES = [
   'scripts/process-decision-007-check.mjs',
   'docs/process/decision-007-plan.md',
   'docs/process/approvals/DECISION-007.json',
-  'docs/handoffs/2026-05-20-decision-007-closeout.md',
+  'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-decision-007-closeout.md',
   'lib/foundation-build-closeout-intelligence-records.js',
   'package.json',
 ]

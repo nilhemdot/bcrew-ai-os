@@ -30,7 +30,7 @@ The route remains `experimental` and local-tooling-only. It is not promoted to a
 - `scripts/process-codex-direct-subscription-route-check.mjs`
 - `docs/process/codex-direct-subscription-route-001-plan.md`
 - `docs/process/approvals/CODEX-DIRECT-SUBSCRIPTION-ROUTE-001.json`
-- `docs/handoffs/2026-05-20-codex-direct-subscription-route-closeout.md`
+- `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-codex-direct-subscription-route-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `lib/foundation-build-closeout-model-records.js`

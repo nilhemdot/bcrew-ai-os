@@ -53,7 +53,7 @@ const CHANGED_FILES = [
   SCRIPT_PATH,
   PLAN_PATH,
   BRAIN_FLEET_FOUNDATION_APPROVAL_PATH,
-  'docs/handoffs/2026-05-20-brain-fleet-foundation-closeout.md',
+  'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-foundation-closeout.md',
   'docs/rebuild/current-plan.md',
   'docs/rebuild/current-state.md',
   'lib/foundation-build-closeout-model-records.js',

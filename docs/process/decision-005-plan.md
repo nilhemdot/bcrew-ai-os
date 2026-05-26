@@ -52,7 +52,7 @@ Existing work reused:
 - Existing `decisions` table, Foundation decision store, shared-communications candidate apply path, and Foundation Decisions UI.
 - Existing source/route/artifact identifiers from shared communications and Strategic Intel.
 - Existing code: `lib/foundation-decision-store.js`, `lib/foundation-db-schema-seed-store.js`, `lib/foundation-write-routes.js`, `lib/foundation-shared-comms-store.js`, and `lib/strategy-shared-comms-routes.js`.
-- Existing docs: `docs/process/decision-004-plan.md`, `docs/process/approvals/DECISION-004.json`, and `docs/handoffs/2026-05-20-decision-004-pending-decision-review-closeout.md`.
+- Existing docs: `docs/process/decision-004-plan.md`, `docs/process/approvals/DECISION-004.json`, and `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-decision-004-pending-decision-review-closeout.md`.
 - Existing scripts: `scripts/process-decision-004-check.mjs`, `process:system-health-nightly-audit-check`, `process:build-lane-repeated-failure-action-gate-check`, `backlog:hygiene`, `foundation:verify`, and `process:foundation-ship`.
 - Live backlog and Current Sprint truth: `DECISION-005` is the active card and `FOUNDATION-SURFACE-UPDATES-001` is the next sprint item.
 

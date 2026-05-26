@@ -21,7 +21,7 @@ Steve needs the next useful workflow to move toward governed Build Intel extract
 - `lib/brain-fleet-foundation.js` contains the Brain Fleet contract, snapshot, route-plan wrapper, no-auth guards, and synthetic proof.
 - `scripts/process-brain-fleet-foundation-check.mjs` validates approval integrity, Plan Critic, live LLM runtime snapshot, no-auth contract behavior, package script wiring, closeout registry wiring, and live Current Sprint truth.
 - `docs/process/approvals/BRAIN-FLEET-FOUNDATION-001.json` validates at 9.8+ for this plan.
-- `docs/handoffs/2026-05-20-brain-fleet-foundation-closeout.md` records the shipped boundary and next card.
+- `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-foundation-closeout.md` records the shipped boundary and next card.
 - `package.json` exposes `process:brain-fleet-foundation-check`.
 - Closeout registry and verifier coverage include `BRAIN-FLEET-FOUNDATION-001`.
 - Proof commands pass: `node --check`, `npm run process:brain-fleet-foundation-check -- --close-card --json`, System Health, repeated-failure gate, backlog hygiene, `foundation:verify`, and `process:foundation-ship`.

@@ -35,7 +35,7 @@ Operator value: Steve can open the decision ledger, see which proposed decisions
 - `lib/foundation-decision-store.js` uses the lock validator before any `locked` status update.
 - `scripts/process-decision-004-check.mjs` validates approval, Plan Critic, live snapshot, dogfood behavior, closeout registry, package script, backlog, and Current Sprint.
 - `docs/process/approvals/DECISION-004.json` validates under approval-integrity.
-- `docs/handoffs/2026-05-20-decision-004-pending-decision-review-closeout.md` is written by the close-card proof.
+- `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-decision-004-pending-decision-review-closeout.md` is written by the close-card proof.
 - Backlog marks `DECISION-004` done and keeps `DECISION-005` live as the next blocker.
 
 ## Details

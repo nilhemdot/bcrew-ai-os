@@ -15,7 +15,7 @@ This card adds the bounded Claude Code review route proof for Brain Fleet. It ke
 - `lib/llm-router.js`
 - `docs/process/claude-code-review-brain-route-001-plan.md`
 - `docs/process/approvals/CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001.json`
-- `docs/handoffs/2026-05-20-claude-code-review-brain-route-closeout.md`
+- `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-claude-code-review-brain-route-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `lib/foundation-build-closeout-model-records.js`

@@ -144,7 +144,7 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/agents/harlan.md',
       'docs/agents/harlan-operator-loop.md',
-      'docs/handoffs/2026-05-20-brain-fleet-foundation-closeout.md',
+      'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-foundation-closeout.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

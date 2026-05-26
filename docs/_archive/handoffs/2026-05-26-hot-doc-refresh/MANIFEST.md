@@ -2,7 +2,7 @@
 
 Purpose: keep `docs/handoffs` focused on current working handoffs while preserving cold reports/checkpoints in Git.
 
-This archive moved 29 files and 11,295 lines out of the hot handoff root.
+This archive moved 39 files and 11,831 lines out of the hot handoff root.
 
 | Old hot path | Archived path |
 | --- | --- |
@@ -35,3 +35,13 @@ This archive moved 29 files and 11,295 lines out of the hot handoff root.
 | `docs/handoffs/2026-05-25-full-conversation-god-mode-reset-checkpoint.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-25-full-conversation-god-mode-reset-checkpoint.md` |
 | `docs/handoffs/system-health-2026-05-25.json` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/system-health-2026-05-25.json` |
 | `docs/handoffs/system-health-2026-05-25.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/system-health-2026-05-25.md` |
+| `docs/handoffs/2026-05-20-brain-fleet-foundation-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-foundation-closeout.md` |
+| `docs/handoffs/2026-05-20-brain-fleet-model-capability-registry-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-model-capability-registry-closeout.md` |
+| `docs/handoffs/2026-05-20-brain-fleet-quota-ledger-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-quota-ledger-closeout.md` |
+| `docs/handoffs/2026-05-20-claude-code-review-brain-route-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-claude-code-review-brain-route-closeout.md` |
+| `docs/handoffs/2026-05-20-codex-direct-subscription-route-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-codex-direct-subscription-route-closeout.md` |
+| `docs/handoffs/2026-05-20-data-001-freedom-source-adapter-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-data-001-freedom-source-adapter-closeout.md` |
+| `docs/handoffs/2026-05-20-decision-004-pending-decision-review-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-decision-004-pending-decision-review-closeout.md` |
+| `docs/handoffs/2026-05-20-decision-005-provenance-participant-model-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-decision-005-provenance-participant-model-closeout.md` |
+| `docs/handoffs/2026-05-20-decision-007-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-decision-007-closeout.md` |
+| `docs/handoffs/2026-05-20-engine-001-planning-attrition-input-closeout.md` | `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-engine-001-planning-attrition-input-closeout.md` |
