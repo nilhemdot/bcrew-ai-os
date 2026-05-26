@@ -2,11 +2,11 @@
   "approvalSchemaVersion": 2,
   "cardId": "EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-26T11:45:00-04:00",
+  "approvedAt": "2026-05-26T12:30:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/extractor-eyes-hands-brain-runtime-001-plan.md",
-  "approvedPlanSha256": "7233b0d7dd93bcc495eee323b87787b7ec104365d2ee2276c51b086e25f6f8ab",
-  "approvedRepoHead": "abf1765e8112894f7fabad964a2ea7b47fe43ec1",
-  "approvalSource": "Steve May 26 direct correction: lock the full God Mode extractor requirement as a parent runtime and source SOP system before more broad YouTube extraction. Requirement includes metadata triage, latest 10 baseline per creator, visible creator grades, whole YouTube page extraction, description/resource links, free resources, free Skool/community packet handling, paid-gate evaluation, and morning autopilot; no video-only catch-up may claim God Mode.",
-  "approvalDigest": "e7f970b3d69dc9cbd9d1fe3ae972e831d6f7ebf2eeabea8f1afbe808b3a0f3b9"
+  "approvedPlanSha256": "a5068894b648d747a43fe8b46f4b6fde7a622081a906ab29531717668a2b4188",
+  "approvedRepoHead": "f35f396f478211bf2e7d8821ff4d886c741efa99",
+  "approvalSource": "Steve May 26 direct correction: expand God Mode extractor source policy to include creator source stacks, approved free newsletters, free Skool/community source lanes, safe free resources/downloads, and per-creator visibility across YouTube, blog/site, newsletter, GitHub/docs/resources, free community, paid course, and other source surfaces. Standing free-source actions may use ai@bensoncrew.ca or crewbert@bensoncrew.ca; paid/private/member/unsafe/external-write boundaries still stop.",
+  "approvalDigest": "b325ee3b6be99afeff89058257cde3693716168552c2b9eac559570d5d99f6af"
 }

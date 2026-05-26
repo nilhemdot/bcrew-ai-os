@@ -182,7 +182,7 @@ async function main() {
   )
   addCheck(
     checks,
-    GOD_MODE_REQUIRED_FAMILY_IDS.every(familyId => familyIds.has(familyId)) && snapshot.families.length >= 13,
+    GOD_MODE_REQUIRED_FAMILY_IDS.every(familyId => familyIds.has(familyId)) && snapshot.families.length >= GOD_MODE_REQUIRED_FAMILY_IDS.length,
     'maturity snapshot covers every required source family',
     `${snapshot.families.length} families`
   )

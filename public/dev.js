@@ -8,6 +8,48 @@ const SOURCE_LEADERBOARD_LIMIT = 10
 
 const plannedSources = [
   {
+    id: 'creator-source-stack',
+    name: 'Creator Source Stack',
+    label: 'Unified creator card',
+    badge: 'Planned',
+    status: 'Planned source-stack lane',
+    summary: 'Each creator should show YouTube, blog/site, newsletter, GitHub/resources, free Skool/community, paid course, extracted value, blocker, and next action in one place.',
+    tags: ['creator', 'source stack', 'planned'],
+    sourceRoute: 'EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001',
+    targets: [
+      ['All approved creators', 'Source stack', 'Show what we get from every surface: video, blog, newsletter, repos/docs, free community, paid/course gate.', 'Planned'],
+      ['Grades', 'Lane-specific', 'Grade Dev build, realtor training, marketing, ops, and other lanes separately instead of one global score.', 'Planned'],
+    ],
+  },
+  {
+    id: 'creator-newsletters',
+    name: 'Creator Newsletters',
+    label: 'Free newsletter source',
+    badge: 'Planned',
+    status: 'Planned source lane',
+    summary: 'Approved free creator newsletters should sign up through a source inbox, land in AIOS Sources/Newsletters, and feed creator grades/resources.',
+    tags: ['newsletter', 'free source', 'mailbox'],
+    sourceRoute: 'AIOS Sources/Newsletters mailbox label',
+    targets: [
+      ['ai@bensoncrew.ca', 'Default intake inbox', 'Use for free creator newsletter signups and confirmations when approved by source policy.', 'Planned'],
+      ['crewbert@bensoncrew.ca', 'Fallback identity', 'Use only when a named operator identity is needed.', 'Planned'],
+    ],
+  },
+  {
+    id: 'skool-free',
+    name: 'Skool / Free Communities',
+    label: 'Free community',
+    badge: 'Planned',
+    status: 'Planned free-source lane',
+    summary: 'Free communities should be inspected with the approved source identity/session boundary: last 20 days of free posts/comments, free courses, resources, and safe free downloads.',
+    tags: ['free community', 'hands', 'resources'],
+    sourceRoute: 'Free community SOP · approved source identity',
+    targets: [
+      ['Free chat/posts/comments', '20-day window', 'Read allowed free areas only; no posting, commenting, DMs, profile mutation, or paid/private areas.', 'Planned'],
+      ['Free resources', 'Resource capture', 'Follow public/free links and capture safe free resources; stop at paid/private/unsafe boundaries.', 'Planned'],
+    ],
+  },
+  {
     id: 'skool-paid',
     name: 'Skool / Paid Courses',
     label: 'Paid / auth',
@@ -354,10 +396,11 @@ function creatorTargetFromCatchup(row = {}) {
   const packetCopy = packetCount
     ? ` Packets: ${compactNumber(packetCount)} review, ${compactNumber(evidence.runnablePublicSourcePacketCount || 0)} public, ${compactNumber(evidence.freeCommunityPacketCount || 0)} community, ${compactNumber(evidence.paidGatePacketCount || 0)} paid/gate.`
     : ''
+  const stackCopy = ' Source stack: YouTube tracked; newsletter, blog/site, GitHub/resources, Skool/community, and paid course status pending source-stack lane.'
   return [
     text(row.creator || creatorNameFromId(row.creatorId), 'Unknown creator'),
     `${grade} Dev build · ${status} · ${sopCopy}`,
-    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}.${evidenceCopy}${packetCopy} ${statusCopy(row.nextWatchAction || '')}`,
+    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}.${evidenceCopy}${packetCopy}${stackCopy} ${statusCopy(row.nextWatchAction || '')}`,
     creatorRepresentationLabel(row),
   ]
 }

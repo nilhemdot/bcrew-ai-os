@@ -4,7 +4,7 @@
 
 Catch up the approved public YouTube creator list through the YouTube source SOP under `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`.
 
-Plain English: this is not "watch more videos." The YouTube lane must run the whole source workflow: metadata triage, latest-10 baseline, full video/audio/visual watch, whole page extraction, description/resource links, approved free-resource capture, paid/free-community evaluation packets, creator grade updates, and morning autopilot reporting.
+Plain English: this is not "watch more videos." The YouTube lane must run the whole source workflow: metadata triage, latest-10 baseline, full video/audio/visual watch, whole page extraction, description/resource links, newsletter signup/status when linked, approved free-resource capture, free-community SOP follow-up, paid/free-community evaluation packets, creator source-stack updates, creator grade updates, and morning autopilot reporting.
 
 ## Why
 
@@ -19,7 +19,7 @@ V1 baseline:
 - Mark and ICOR remain priority deep baselines.
 - New releases from watched creators continue after catch-up; this is not "latest 10 and done."
 - Long-course videos route to the long-course lane instead of failing the standard lane.
-- Videos already watched under video/audio/visual full-watch are valuable, but they are tagged as not fully source-appropriate God Mode until whole-page extraction, resource follow-up, source-packet worker status, browser Hands status, free-resource capture, paid-gate evaluation, source grade, and autopilot disposition are resolved. YouTube comments are operator-excluded.
+- Videos already watched under video/audio/visual full-watch are valuable, but they are tagged as not fully source-appropriate God Mode until whole-page extraction, resource follow-up, newsletter status, source-packet worker status, browser Hands status, free-resource capture, free-community status, paid-gate evaluation, creator source-stack update, source grade, and autopilot disposition are resolved. YouTube comments are operator-excluded.
 
 ## YouTube Source SOP
 
@@ -49,18 +49,20 @@ V1 baseline:
    - docs
    - public resource pages
    - checklists or other free implementation material
-9. If a free Skool/community is linked, create an exact free-community source packet; after approval, inspect allowed free chat, free courses, and free resources with governed Hands.
-10. If a paid gate, login gate, purchase, private area, member-only area, form, checkout, or download boundary appears, stop and create an evaluation packet for Steve.
-11. Paid-gate evaluation must answer:
+   - safe free downloads/resources
+9. If a free newsletter/signup page is linked, subscribe through the Newsletter Source Lane SOP with `ai@bensoncrew.ca` or `crewbert@bensoncrew.ca`, route future issues to `AIOS Sources/Newsletters`, and show newsletter status on the creator source stack.
+10. If a free Skool/community is linked, use the Skool Free Community SOP: join/sign in only under the approved free-source identity/session boundary, inspect allowed free areas including the last 20 days of free chat/posts/comments, free courses, pinned resources, docs, linked resources, and safe free downloads/resources.
+11. If a paid gate, login gate, purchase, private area, member-only area, unapproved form, checkout, unsafe download, account mutation, posting, commenting, or messaging boundary appears, stop and create an evaluation packet for Steve.
+12. Paid-gate evaluation must answer:
    - what was learned for free
    - what appears to be behind the gate
    - price if visible
    - likely AIOS value
    - risks/unknowns
    - buy / do not buy / needs more free evidence recommendation
-12. Persist atoms, evidence hits, resource dispositions, source-packet status, paid-gate evaluation, Director input, Scoper readiness, and creator grade update.
-13. Update the source card so every approved creator is visible with grade/score, metadata count, watched count, pending baseline, resource status, paid-gate status, blockers, and next action.
-14. Morning autopilot runs this SOP only after dry-run/live-bounded proof is green; it stops and reports blockers instead of guessing.
+13. Persist atoms, evidence hits, resource dispositions, source-packet status, newsletter status, free-community status, paid-gate evaluation, Director input, Scoper readiness, creator source-stack update, and creator grade update.
+14. Update the source card so every approved creator is visible with grade/score, metadata count, watched count, pending baseline, YouTube/blog/newsletter/GitHub/Skool/course source-stack status, resource status, paid-gate status, blockers, and next action.
+15. Morning autopilot runs this SOP only after dry-run/live-bounded proof is green; it stops and reports blockers instead of guessing.
 
 ## Acceptance Criteria
 
@@ -71,11 +73,13 @@ V1 baseline:
   - comment status as `operator_excluded`
   - full YouTube page extraction status
   - approved resource-follow status
+  - newsletter signup/monitoring status
   - source-packet worker status
   - browser Hands status
   - free-resource capture status
   - free-community packet status
   - paid-gate evaluation status
+  - creator source-stack status across YouTube, blog/site, newsletter, GitHub/docs/resources, free Skool/community, paid Skool/course, and other approved surfaces
   - long-course pending count
   - current source grade by lane
   - next watch action
@@ -89,7 +93,7 @@ V1 baseline:
 
 - Add or update the coverage report used by Dev Hub/source leaderboard.
 - Add scheduler logic for ungraded-source sampling and all-creator baseline catch-up.
-- Add the YouTube SOP runner/read model fields for page extraction, resource-link packet status, free-resource capture, free-community packets, paid-gate evaluations, and autopilot disposition.
+- Add the YouTube SOP runner/read model fields for page extraction, resource-link packet status, newsletter signup/monitoring status, free-resource capture, free-community packets, creator source-stack status, paid-gate evaluations, and autopilot disposition.
 - Add a proof that all approved creators are represented or have a clear blocked reason.
 - Add a proof that Scoper/build promotion can see whether source baseline is incomplete.
 - Add a proof that video-only completion fails.
@@ -100,4 +104,5 @@ V1 baseline:
 - Do not watch C/D sources deeply after the baseline without override.
 - Do not use transcript-only results as catch-up completion.
 - Do not use video-only results as God Mode completion.
-- Do not treat this as permission to crawl Skool, MyICOR, private communities, paid courses, operator-excluded comments, or external resources without the required source packet.
+- Do not treat this as permission to crawl paid/private Skool, MyICOR, private communities, paid courses, operator-excluded YouTube comments, or unsafe external resources without the required source packet.
+- Do not submit unrelated forms, post, comment, message, buy, mutate accounts/profiles, or download unsafe files.

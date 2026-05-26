@@ -82,6 +82,8 @@ function liveParentIsStabbed(item = {}) {
     item.lane === 'scoped' &&
     item.priority === 'P0' &&
     includesAll(haystack, [
+      'creator source stack',
+      'newsletters',
       'source-family SOPs',
       'metadata',
       'latest 10',
@@ -105,9 +107,11 @@ function liveYoutubeIsBlockedFromVideoOnly(item = {}) {
       'metadata triage',
       'latest-10 baseline',
       'whole page/description extraction',
+      'newsletter signup/monitoring status',
       'free-resource capture',
-      'free-community packet',
+      'free-community',
       'paid-gate value evaluation',
+      'creator source-stack',
       'morning autopilot',
       'A watched video is not complete God Mode by itself',
     ])
@@ -181,6 +185,10 @@ async function main() {
       'latest 10 relevant public videos for every approved creator',
       'whole YouTube page',
       'description/resource links',
+      'Creator Source Stack SOP',
+      'Newsletter Source Lane SOP',
+      'AIOS Sources/Newsletters',
+      'last 20 days',
       'free Skool/community',
       'paid-gate evaluation',
       'Morning autopilot',
@@ -215,7 +223,9 @@ async function main() {
     includesAll(contractModuleSource, [
       'GOD_MODE_EXTRACTOR_REQUIRED_CAPABILITIES',
       'GOD_MODE_EXTRACTOR_SOURCE_SOPS',
+      'creator_source_stack',
       'youtube_public_creator',
+      'creator_newsletters',
       'skool_free_community',
       'skool_paid_or_private',
       'myicor_paid_training',
