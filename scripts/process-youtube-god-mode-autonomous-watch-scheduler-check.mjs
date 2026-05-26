@@ -17,14 +17,14 @@ import {
   buildYoutubeGodModeAutonomousWatchSchedulerDogfoodProof,
 } from '../lib/youtube-god-mode-autonomous-watch-scheduler.js'
 import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
+import {
+  GEMINI_STANDARD_PRICING_DEFAULT_MODEL,
+  estimateGeminiStandardTokenCostUsd,
+} from '../lib/llm-provider-pricing.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const DEFAULT_COMMAND_TIMEOUT_MS = 60 * 60 * 1000
-const GEMINI_STANDARD_PRICING_BY_MODEL = {
-  'gemini-3.5-flash': { inputPerMillionUsd: 1.50, outputPerMillionUsd: 9.00 },
-  'gemini-2.5-flash': { inputPerMillionUsd: 0.30, outputPerMillionUsd: 2.50 },
-}
 
 function text(value) {
   return String(value || '').trim()
@@ -147,15 +147,14 @@ function devVideoReviewCall(call = {}) {
 
 function estimatedGeminiCostUsd(call = {}) {
   const usage = usageFromCall(call)
-  const model = text(call.model || call.metadata?.model) || 'gemini-3.5-flash'
-  const pricing = GEMINI_STANDARD_PRICING_BY_MODEL[model] || GEMINI_STANDARD_PRICING_BY_MODEL['gemini-3.5-flash']
+  const model = text(call.model || call.metadata?.model) || GEMINI_STANDARD_PRICING_DEFAULT_MODEL
   const input = Number(usage.promptTokenCount ?? call.estimated_input_tokens ?? call.estimatedInputTokens) || 0
   const thinking = Number(usage.thoughtsTokenCount) || 0
   const candidateOutput = Number(usage.candidatesTokenCount ?? call.estimated_output_tokens ?? call.estimatedOutputTokens) || 0
   const output = candidateOutput + thinking
   const storedCost = Number(call.estimated_cost_usd ?? call.estimatedCostUsd)
   if (Number.isFinite(storedCost) && storedCost > 0) return storedCost
-  return (input / 1_000_000) * pricing.inputPerMillionUsd + (output / 1_000_000) * pricing.outputPerMillionUsd
+  return estimateGeminiStandardTokenCostUsd({ model, inputTokens: input, outputTokens: output })
 }
 
 async function loadTodayGeminiVideoSpend() {

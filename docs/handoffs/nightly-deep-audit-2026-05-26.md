@@ -1,17 +1,17 @@
 # Nightly Deep Audit Report - 2026-05-26
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
-Generated at: `2026-05-26T07:26:12.352Z`
+Generated at: `2026-05-26T07:40:44.275Z`
 Report path: `docs/handoffs/nightly-deep-audit-2026-05-26.md`
 
 ## Morning Read
 
 - Status: `deep_review_degraded`
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev.
-- Active deterministic findings: 14 total (0 P0, 0 P1, 14 P2, 0 P3)
-- Closed detector signals reconciled out of active audit: 7 of 21
-- Changed files selected: 5
-- High-risk review targets: 18
+- Active deterministic findings: 0 total (0 P0, 0 P1, 0 P2, 0 P3)
+- Closed detector signals reconciled out of active audit: 7 of 7
+- Changed files selected: 9
+- High-risk review targets: 17
 - LLM review mode: `packet_only_explicitly_degraded`
 - Deep senior review rollup: `degraded` (Deep senior review did not execute. This run produced review packets only; do not present it as a completed deep code review.)
 - Dogfood against May 13 failures: passed
@@ -20,10 +20,10 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-26.md`
 ## Diff Summary
 
 - Previous report: `docs/handoffs/nightly-deep-audit-2026-05-25.json`
-- New findings: 1
+- New findings: 0
 - Still open: 0
 - Resolved: 0
-- Finding delta: 1
+- Finding delta: 0
 
 ## LLM Review Boundary
 
@@ -55,11 +55,11 @@ Deep senior review did not execute. Packet-only output is degraded and must not 
 
 ## Endpoint And Payload Trend
 
-- /api/foundation-hub: 153ms, 575831B, risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: 34ms, 199966B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: 467ms, 629491B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: 133ms, 253917B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: 39ms, 33222B, risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: 117ms, 575701B, risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: 31ms, 199966B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: 457ms, 629438B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: 127ms, 255083B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: 35ms, 33222B, risk=healthy (Within V1 audit budget.)
 
 ## Largest Files
 
@@ -315,118 +315,61 @@ function isLocalRequest(req) {
   ) {
 ```
 
-### P1 lib/code-quality-nightly-audit.js
+### P1 lib/foundation-jobs.js
 
-- Lines: 1295
-- Bytes: 59217
+- Lines: 1485
+- Bytes: 64845
 - Reasons: changed_since_baseline
 
 ```
-  })
-  const timeoutEndpoint = classifyEndpointMetric({
-    ok: false,
-    timeout: true,
-    timeoutMs: 5000,
-  })
-  const mutator = detectMutationPatternsInText({
-    relativePath: 'synthetic/process-check.mjs',
-    text: `await updateBacklogItem('CARD-001', { lane: 'done' })`,
-  })
-  const guardedMutator = detectMutationPatternsInText({
-    relativePath: 'scripts/process-safe-check.mjs',
-    text: `
-      import { PROCESS_CHECK_WRITE_FLAGS, assertProcessCheckWriteAllowed, isProcessCheckWriteRequested } from '../lib/process-write-guard.js'
-      assertProcessCheckWriteAllowed({ argv: process.argv.slice(2), scriptPath: 'scripts/process-safe-check.mjs', operation: 'synthetic update', allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] })
-      if (isProcessCheckWriteRequested({ argv: process.argv.slice(2), allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] })) await updateBacklogItem('CARD-001', { lane: 'done' })
-    `,
-  })
-  const unguardedReportWriter = detectProcessReportWritePolicyInText({
-    relativePath: 'scripts/process-report-check.mjs',
-    text: `
-      import fs from 'node:fs/promises'
-      await fs.writeFile('docs/source-notes/run.md', '# generated')
-    `,
-  })
-  const guardedReportWriter = detectProcessReportWritePolicyInText({
-    relativePath: 'scripts/process-report-check.mjs',
-    text: `
-      import fs from 'node:fs/promises'
-      import { isProcessReportWriteRequested } from '../lib/process-write-guard.js'
-      const args = { writeReport: isProcessReportWriteRequested(process.argv.slice(2)) }
-      if (args.writeReport) await fs.writeFile('docs/source-notes/run.md', '# generated')
-    `,
-  })
-  return {
-    ok: hardcoded.length >= 2 &&
-      activeCurrentSprint.some(finding => finding.id === 'hardcoded-current-sprint-truth' && finding.severity === 'P0') &&
-      historicalCurrentSprint.every(finding => finding.id !== 'hardcoded-current-sprint-truth') &&
-      bootstrapCurrentSprint.every(finding => finding.id !== 'hardcoded-current-sprint-truth') &&
-      slowEndpoint.status === 'risk' &&
-      timeoutEndpoint.severity === 'P0' &&
-      mutator.length === 1 &&
-      guardedMutator.length === 0 &&
-      unguardedReportWriter.length === 1 &&
-      guardedReportWriter.length === 0,
-    hardcodedCount: hardcoded.length,
-    activeCurrentSprintCount: activeCurrentSprint.length,
-    historicalCurrentSprintCount: historicalCurrentSprint.length,
-```
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  parseProcessWriteFlags,
+} from './process-write-guard.js'
+import {
+  RECURRING_DEEP_AUDIT_CADENCE,
+  RECURRING_DEEP_AUDIT_JOB_KEY,
+} from './recurring-deep-audit.js'
+import {
+  NIGHTLY_DEEP_AUDIT_JOB_KEY,
+  NIGHTLY_DEEP_AUDIT_SCHEDULE_LOCAL_TIME,
+  NIGHTLY_DEEP_AUDIT_SCHEDULE_TIMEZONE,
+} from './nightly-deep-audit-constants.js'
+import {
+  FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY,
+} from './foundation-lessons-learned-loop.js'
+import {
+  NIGHTLY_AUDIT_FLEET_JOB_KEY,
+  NIGHTLY_AUDIT_FLEET_SCHEDULE_LOCAL_TIME,
+  NIGHTLY_AUDIT_FLEET_SCHEDULE_TIMEZONE,
+} from './nightly-audit-fleet.js'
+import {
+  FOUNDATION_JOB_MUTATION_ALLOWLIST_CARD_ID,
+  evaluateFoundationJobMutationAllowlist,
+} from './foundation-job-mutation-allowlist.js'
+import {
+  buildAdminDealBacklogReviewArgs,
+  buildAdminDealBacklogReviewInputs,
+  buildAdminDealBacklogReviewSummary,
+} from './admin-deal-policy-source-contract.js'
 
-### P1 lib/nightly-deep-audit-upgrade.js
+export const PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID = 'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001'
 
-- Lines: 1187
-- Bytes: 47750
-- Reasons: changed_since_baseline
+export const FOUNDATION_JOB_MUTATION_POSTURES = Object.freeze({
+  readOnly: 'read_only',
+  reportOnly: 'report_only',
+  mutating: 'mutating',
+  externalWrite: 'external_write',
+  operationalWrite: 'operational_write',
+  unknown: 'unknown',
+})
 
-```
-    timeoutMs: 90_000,
-  })
-  const selfRepair = detectVerifierSelfRepairRiskInText({
-    relativePath: 'synthetic/foundation-verify.mjs',
-    text: `async function verify() { await resetFoundationDb(); await bootstrapFoundationDb({ includeBootstrapSeed: true }); await repairLiveState(); return { ok: true } }`,
-  })
-  const writeCapableCheck = detectMutationPatternsInText({
-    relativePath: 'synthetic/process-danger-check.mjs',
-    text: `await updateBacklogItem('CARD-001', { lane: 'done' }); await upsertFoundationCurrentSprintOverlay({ sprint: { status: 'active' } })`,
-  })
-  const hardcodedTruth = detectHardcodedLiveTruthInText({
-    relativePath: 'synthetic/live-truth.js',
-    text: `const EXPECTED_SOURCE_COUNT = 35; const currentSummary = 'Latest live checkpoint: 14/14 tables and 5/5 RPCs are passing.'`,
-  })
-  const monolith = classifyFileRisk({ file: 'lib/foundation-db.js', lines: 19_494, changed: false })
+const MUTATING_PROCESS_CHECK_FLAGS = new Set([
+  PROCESS_CHECK_WRITE_FLAGS.apply,
+  PROCESS_CHECK_WRITE_FLAGS.closeCard,
+  PROCESS_CHECK_WRITE_FLAGS.mutateSprint,
+])
 
-  return {
-    ok: slowEndpoint.status === 'risk' &&
-      selfRepair.length === 1 &&
-      writeCapableCheck.length >= 1 &&
-      hardcodedTruth.length >= 2 &&
-      monolith.reasons.includes('actively_dangerous_10k_plus_file'),
-    slowEndpoint,
-    selfRepairCount: selfRepair.length,
-    writeCapableCheckCount: writeCapableCheck.length,
-    hardcodedTruthCount: hardcodedTruth.length,
-    monolith,
-  }
-}
-
-async function resolveLlmReviewRoute() {
-  try {
-    const plan = await planLlmRoute({ workload: LLM_WORKLOADS.DEEP_AUDIT_SENIOR_REVIEW, hubKey: 'foundation' })
-    return {
-      runnable: plan.runnable,
-      selectedRoute: plan.selectedRoute?.routeKey || null,
-      provider: plan.selectedRoute?.provider || null,
-      model: plan.selectedRoute?.model || null,
-      blockReason: plan.blockReason || null,
-      routeReadiness: plan.routeReadiness || [],
-    }
-  } catch (error) {
-    return {
-      runnable: false,
-      selectedRoute: null,
-      provider: null,
-      model: null,
-      blockReason: error instanceof Error ? error.message : String(error),
 ```
 
 ### P1 lib/connector-uptime-monitor.js
@@ -486,120 +429,6 @@ export const CONNECTOR_HEALTH_STATUSES = Object.freeze({
   unknown: 'unknown',
 ```
 
-### P1 lib/source-lifecycle.js
-
-- Lines: 1050
-- Bytes: 42260
-- Reasons: source_health_surface
-
-```
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { readCombinedFoundationStylesheet } from './foundation-stylesheet-monolith-split.js'
-import {
-  YOUTUBE_CREATOR_DAILY_WATCH_DEFAULT_BASELINE_DEPTH,
-  YOUTUBE_CREATOR_DAILY_WATCH_MARK_BASELINE_DEPTH,
-  YOUTUBE_CREATOR_DAILY_WATCH_MAX_BASELINE_DEPTH,
-  buildYoutubeCreatorDailyWatchPlan,
-} from './youtube-creator-daily-watch.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const defaultRepoRoot = path.resolve(__dirname, '..')
-
-export const SOURCE_LIFECYCLE_SCHEMA_VERSION = 1
-export const SOURCE_LIFECYCLE_CARD_ID = 'SOURCE-LIFECYCLE-EXPANSION-001'
-export const SOURCE_LIFECYCLE_CLOSEOUT_KEY = 'source-lifecycle-expansion-v1'
-export const SOURCE_LIFECYCLE_ROUTE = '/foundation#source-lifecycle'
-export const SOURCE_LIFECYCLE_API_PATH = '/api/foundation/source-lifecycle'
-export const SOURCE_LIFECYCLE_APPROVED_PLAN_PATH = 'docs/process/approved-plans/source-lifecycle-expansion-v1.md'
-export const SOURCE_LIFECYCLE_APPROVAL_PATH = 'docs/process/approvals/SOURCE-LIFECYCLE-EXPANSION-001.json'
-export const SOURCE_LIFECYCLE_BASELINE_PATH = 'docs/audits/2026-04-30-source-lifecycle-expansion-baseline.md'
-export const SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH = 'docs/audits/2026-04-30-source-lifecycle-expansion-manual-review.md'
-
-export const SOURCE_LIFECYCLE_INCLUDED_SOURCE_IDS = [
-  'SRC-GMAIL-001',
-  'SRC-GCAL-001',
-  'SRC-MISSIVE-001',
-  'SRC-MEETINGS-001',
-  'SRC-SLACK-001',
-  'SRC-GDRIVE-001',
-  'SRC-VIDEO-001',
-  'SRC-YOUTUBE-INTEL-001',
-  'SRC-SKOOL-001',
-  'SRC-LOOM-001',
-  'SRC-MYICRO-001',
-  'SRC-CREATOR-WATCHLIST-001',
-]
-
-export const SOURCE_LIFECYCLE_EXCLUDED_LANES = [
-  'Strategy Hub activation',
-  'Scoper',
-  'Agent Factory',
-  'broad corpus expansion',
-  'Action Review applying',
-  'research cleanup',
-  'Missive attachment implementation',
-```
-
-### P1 scripts/process-subscription-brain-extractor-adapter-check.mjs
-
-- Lines: 749
-- Bytes: 36512
-- Reasons: process_check_surface
-
-```
-    scriptPath: SCRIPT_PATH,
-    operation: 'update subscription adapter backlog rows, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  const currentHead = git(['rev-parse', 'HEAD'])
-  const previous = await getActiveFoundationCurrentSprint()
-  await upsertBacklogRows({ closeCard })
-  await upsertPlanCriticRun(planReview)
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        ...(previous.sprint || {}),
-        sprintId: SPRINT_ID,
-        status: 'active',
-        activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
-        goal: previous.sprint?.goal || 'YouTube To Dev Team Intelligence V1: connect source-backed Build Intel into Dev Team decisions and approval-gated build promotion.',
-        metadata: {
-          ...(previous.sprint?.metadata || {}),
-          currentHead,
-          currentStatus: closeCard ? 'subscription_brain_extractor_adapter_closed' : 'subscription_brain_extractor_adapter_building',
-          lastClosedCardId: closeCard ? CARD_ID : previous.sprint?.metadata?.lastClosedCardId,
-          activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
-          nextAction: closeCard
-            ? `${NEXT_CARD_ID}: run guarded Mark public last-50 baseline using proven Eyes route and subscription reasoning boundary.`
-            : `${CARD_ID}: prove logged-in subscription mini-brain evidence reasoning before Mark last-50.`,
-          subscriptionAdapterReportArtifactId: REPORT_ARTIFACT_ID,
-          seedVideoId: SUBSCRIPTION_BRAIN_EXTRACTOR_ADAPTER_SEED_VIDEO_ID,
-          directVideoEyesRoute: 'foundation-video-gemini-api',
-          subscriptionRouteUse: 'bounded_evidence_reasoning_only',
-          noBroadExtraction: true,
-          noCredentialMutation: true,
-          noExternalWrites: true,
-          noAutoBacklogCards: true,
-          strategyPeopleParked: true,
-        },
-      },
-      items: buildSprintItems(previous, { closeCard, currentHead }),
-    },
-    ACTOR,
-    {
-      apply: true,
-      allowItemReplacement: true,
-      expectedPreviousActiveSprintId: previous?.sprint?.sprintId || SPRINT_ID,
-      reason: 'Steve ordered subscription mini-brain adapter proof before Mark last-50 extraction.',
-    },
-  )
-}
-
-```
-
 ### P1 scripts/process-extract-current-check.mjs
 
 - Lines: 551
@@ -657,398 +486,524 @@ async function main() {
   const jobKeys = [
 ```
 
-### P1 scripts/process-harlan-auth-escalation-loop-check.mjs
+### P1 scripts/process-old-system-research-team-harvest-check.mjs
 
-- Lines: 546
-- Bytes: 25981
-- Reasons: process_check_surface
-
-```
-    scriptPath: SCRIPT_PATH,
-    operation: 'update HARLAN-AUTH-ESCALATION-LOOP-001 backlog row, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  const previous = await getActiveFoundationCurrentSprint()
-  if (!previous?.sprint?.sprintId) throw new Error('No active Current Sprint found for Harlan auth escalation update.')
-
-  await upsertPlanCriticRun(planReview)
-  await updateBacklogItem(CARD_ID, buildBacklogUpdate({ closeCard }), ACTOR)
-
-  const previousItems = previous.items || []
-  const nextItems = previousItems.map(item => {
-    const cardId = item.cardId || item.backlogId
-    if (cardId === CARD_ID) return buildSprintItem(item, { closeCard })
-    if (closeCard && cardId === NEXT_CARD_ID) return buildNextSprintItem(item)
-    return cloneSprintItem(item)
-  })
-
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        sprintId: SPRINT_ID,
-        status: 'active',
-        goal: previous.sprint.goal || 'Build Foundation control-plane and Brain Fleet readiness before extractor runtime work.',
-        activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
-        metadata: {
-          ...(previous.sprint.metadata || {}),
-          activeQueue: [
-            CARD_ID,
-            NEXT_CARD_ID,
-            'BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001',
-            'CODEX-DIRECT-SUBSCRIPTION-ROUTE-001',
-            'GEMINI-VIDEO-BRAIN-ROUTE-001',
-            'CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001',
-            'OPENCLAW-ADAPTER-BOUNDARY-001',
-            'EXTRACTOR-BRAIN-FLEET-PROOF-001',
-            'YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001',
-          ],
-          currentStatus: closeCard ? `continue ${NEXT_CARD_ID}` : `building ${CARD_ID}`,
-          closeoutKey: closeCard ? CLOSEOUT_KEY : previous.sprint.metadata?.closeoutKey,
-          notNext: NOT_NEXT,
-        },
-      },
-      items: nextItems.length ? nextItems : [buildSprintItem({}, { closeCard })],
-    },
-    ACTOR,
-    {
-      apply: true,
-```
-
-### P1 scripts/process-youtube-god-mode-autonomous-watch-scheduler-check.mjs
-
-- Lines: 537
-- Bytes: 21656
-- Reasons: process_check_surface
+- Lines: 399
+- Bytes: 16493
+- Reasons: changed_since_baseline, process_check_surface
 
 ```
 #!/usr/bin/env node
 
-import { spawn } from 'node:child_process'
+import crypto from 'node:crypto'
+import fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  closeFoundationDb,
+  getBacklogItemsByIds,
+} from '../lib/foundation-db.js'
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  assertProcessCheckWriteAllowed,
+} from '../lib/process-write-guard.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const repoRoot = path.resolve(__dirname, '..')
+const CARD_ID = 'OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001'
+const CLOSEOUT_KEY = 'old-system-research-team-harvest-v1'
+const PLAN_PATH = 'docs/process/old-system-research-team-harvest-001-plan.md'
+const APPROVAL_PATH = 'docs/process/approvals/OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001.json'
+const REPORT_PATH = 'docs/audits/2026-05-19-old-system-research-team-harvest.md'
+const JSON_PATH = 'docs/audits/2026-05-19-old-system-research-team-harvest.json'
+const DEFAULT_OLD_REPO = path.join(os.homedir(), 'bcrew-buddy-reference')
+
+const PROMOTED_CARD_IDS = [
+  'WEB-GODMODE-001',
+  'LOOM-001',
+  'MEETING-VIDEO-001',
+  'SKOOL-WORKER-001',
+  'MYICRO-TRAINING-001',
+  'DRIVE-WORKER-001',
+  'BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001',
+  'FOUNDATION-OPERATOR-PULSE-001',
+  'SOURCE-019',
+  'SOURCE-020',
+  'DATA-002',
+]
+
+const KEY_EVIDENCE_PATHS = [
+  'docs/agent-inventory.md',
+  'docs/team-reference.md',
+  'docs/architecture/intelligence-loop.md',
+  'skills/bcrew-external-scout/SKILL.md',
+```
+
+### P1 scripts/process-nightly-deep-audit-upgrade-check.mjs
+
+- Lines: 359
+- Bytes: 16209
+- Reasons: changed_since_baseline, process_check_surface
+
+```
+#!/usr/bin/env node
+
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { Pool } from 'pg'
 
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
-  YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_CARD_ID,
-  YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_JOB_KEY,
-  YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_PLAN_PATH,
-  YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_SCRIPT_PATH,
-  YOUTUBE_GOD_MODE_SCHEDULER_DEFAULT_CONFIG,
-  buildYoutubeGodModeAutonomousWatchPlan,
-  buildYoutubeGodModeAutonomousWatchSchedulerDogfoodProof,
-} from '../lib/youtube-god-mode-autonomous-watch-scheduler.js'
+  NIGHTLY_DEEP_AUDIT_APPROVAL_PATH,
+  NIGHTLY_DEEP_AUDIT_JOB_KEY,
+  NIGHTLY_DEEP_AUDIT_PLAN_PATH,
+  NIGHTLY_DEEP_AUDIT_SCRIPT_PATH,
+  NIGHTLY_DEEP_AUDIT_SCHEDULE_LOCAL_TIME,
+  NIGHTLY_DEEP_AUDIT_SCHEDULE_TIMEZONE,
+  NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID,
+  NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY,
+  NIGHTLY_DEEP_AUDIT_UPGRADE_SPRINT_ID,
+  buildDeepAuditorRealLoopDogfoodProof,
+  buildNightlyDeepAuditUpgrade,
+  buildNightlyDeepAuditUpgradeDogfoodProof,
+  renderNightlyDeepAuditUpgradeReport,
+  serializeNightlyDeepAuditUpgradeJson,
+} from '../lib/nightly-deep-audit-upgrade.js'
 import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
+import {
+  closeFoundationDb,
+  getActiveFoundationCurrentSprint,
+  getBacklogItemsByIds,
+  getFoundationSnapshot,
+  getPlanCriticRunsByCardIds,
+} from '../lib/foundation-db.js'
+import {
+  isProcessReportWriteRequested,
+} from '../lib/process-write-guard.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
-const DEFAULT_COMMAND_TIMEOUT_MS = 60 * 60 * 1000
-const GEMINI_STANDARD_PRICING_BY_MODEL = {
-  'gemini-3.5-flash': { inputPerMillionUsd: 1.50, outputPerMillionUsd: 9.00 },
-  'gemini-2.5-flash': { inputPerMillionUsd: 0.30, outputPerMillionUsd: 2.50 },
-}
 
-function text(value) {
-  return String(value || '').trim()
-}
-
-function readArgValue(argv = [], prefix = '') {
-  const found = argv.find(arg => String(arg || '').startsWith(prefix))
-  return found ? String(found).slice(prefix.length).trim() : ''
-}
-
-function readArgValues(argv = [], prefix = '') {
-  return argv
-    .filter(arg => String(arg || '').startsWith(prefix))
-    .flatMap(arg => String(arg).slice(prefix.length).split(','))
-    .map(text)
-    .filter(Boolean)
-}
-
-function flag(argv = [], name = '') {
-  return argv.includes(name) || argv.includes(`${name}=true`)
-}
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = {
+    json: false,
+    noWrite: false,
+    skipEndpointFetch: false,
+    baseUrl: process.env.FOUNDATION_BASE_URL || 'http://localhost:3000',
+    timeoutMs: 8000,
+    changedSinceRef: 'HEAD~1',
+    runLlmReview: process.env.NIGHTLY_DEEP_AUDIT_RUN_LLM === 'true',
 ```
 
-### P1 scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs
+### P1 scripts/process-foundation-deep-merge-audit-check.mjs
 
-- Lines: 487
-- Bytes: 23081
-- Reasons: process_check_surface
+- Lines: 316
+- Bytes: 13242
+- Reasons: changed_since_baseline, process_check_surface
 
 ```
-  const missing = EXPECTED_ACTIVE_IDS.filter(id => !byId.has(id))
-  if (missing.length) {
-    throw new Error(`Cannot clean sprint; missing active sprint item(s): ${missing.join(', ')}`)
+#!/usr/bin/env node
+
+import { execFile as execFileCallback } from 'node:child_process'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+import { promisify } from 'node:util'
+
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  FOUNDATION_DEEP_MERGE_AUDIT_APPROVAL_PATH,
+  FOUNDATION_DEEP_MERGE_AUDIT_CARD_ID,
+  FOUNDATION_DEEP_MERGE_AUDIT_CLOSEOUT_KEY,
+  FOUNDATION_DEEP_MERGE_AUDIT_JSON_PATH,
+  FOUNDATION_DEEP_MERGE_AUDIT_PLAN_PATH,
+  FOUNDATION_DEEP_MERGE_AUDIT_REPORT_PATH,
+  FOUNDATION_DEEP_MERGE_AUDIT_SCRIPT_PATH,
+} from '../lib/nightly-deep-audit-constants.js'
+import {
+  buildNightlyDeepAuditUpgrade,
+  renderNightlyDeepAuditUpgradeReport,
+  serializeNightlyDeepAuditUpgradeJson,
+} from '../lib/nightly-deep-audit-upgrade.js'
+import {
+  closeFoundationDb,
+  getBacklogItemsByIds,
+} from '../lib/foundation-db.js'
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  assertProcessCheckWriteAllowed,
+} from '../lib/process-write-guard.js'
+
+const execFile = promisify(execFileCallback)
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const repoRoot = path.resolve(__dirname, '..')
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = {
+    json: false,
+    apply: false,
+    runLlmReview: false,
+    baseUrl: process.env.FOUNDATION_BASE_URL || 'http://localhost:3000',
+    timeoutMs: 8000,
+    baselineRef: '',
   }
-
-  await upsertCleanupBacklogRow()
-  await upsertPlanCriticRun(planReview)
-
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        ...(previous.sprint || {}),
-        sprintId: SPRINT_ID,
-        status: 'active',
-        goal: 'YouTube To Dev Team Intelligence V1: daily public creator watch, Mark last-50 baseline, Dev Team Hub, Director output, and approval-gated build promotion.',
-        activeBlockerCardId: ACTIVE_CARD_ID,
-        metadata: {
-          ...(previous.sprint?.metadata || {}),
-          sprintWorkspaceCleanupCardId: CARD_ID,
-          sprintPlanRef: PRIMARY_SPRINT_PLAN_REF,
-          sprintProcessPlanRef: PROCESS_SPRINT_PLAN_REF,
-          sprintCorrectionPlanRef: DAILY_WATCH_CORRECTION_PLAN_REF,
-          sprintPlanCloseoutKey: 'youtube-dev-team-intelligence-sprint-plan-v1',
-          sprintCorrectionCloseoutKey: 'youtube-creator-daily-watch-sprint-update-v1',
-          currentStatus: 'youtube_sprint_workspace_clean',
-          executiveSummary: 'Current sprint is clean: old shipped cards live in Backlog done and Recent Work; this board shows only the YouTube To Dev Team Intelligence V1 execution cards.',
-          nextAction: `${ACTIVE_CARD_ID}: build scheduled public creator watch with Mark last-50 and other creator last-20 baseline rules.`,
-          activeBlockerCardId: ACTIVE_CARD_ID,
-          runOrder: EXPECTED_ACTIVE_IDS,
-          previousDoneRowsMovedToRecentWork: HISTORICAL_DONE_IDS,
-          parkedOutsideSprint: PARKED_OUTSIDE_SPRINT,
-          exitCriteria: EXIT_CRITERIA,
-          cleanSprintOverlay: true,
-          doneThisSprintClearedForNewSprint: true,
-          oldDoneMovedToRecentWork: true,
-          dailyWatchRequired: true,
-          markKashefBaselineDepth: 50,
-          defaultCreatorBaselineDepth: 20,
-          noBroadExtraction: true,
-          noCredentialMutation: true,
-          noExternalWrites: true,
-          noAutoBacklogCards: true,
-          publicYoutubeFirst: true,
-          strategyPeopleParked: true,
-          approvalPolicy: 'Approval-bound private/external actions park the exact source item and continue safe sprint work; daily watch may inspect public no-auth metadata only; deeper extractio
+  for (const arg of argv) {
+    if (arg === '--json' || arg === '--json=true') args.json = true
 ```
 
-### P1 scripts/process-foundation-gate-check-serialization-check.mjs
+### P1 scripts/process-source-lifecycle-dynamic-counts-check.mjs
 
-- Lines: 477
-- Bytes: 23619
-- Reasons: process_check_surface
+- Lines: 272
+- Bytes: 10909
+- Reasons: process_check_surface, source_health_surface
 
 ```
-  assertProcessCheckWriteAllowed({
-    argv: process.argv.slice(2),
-    scriptPath: SCRIPT_PATH,
-    operation: `create/update ${CARD_ID} card, Plan Critic row, and Current Sprint overlay`,
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  const previous = await getActiveFoundationCurrentSprint()
-  await upsertLiveRows({ closeCard, planReview })
-  await upsertFoundationCurrentSprintOverlay(
-    buildCurrentSprintOverlay(previous, { closeCard, currentHead: gitState.head }),
-    ACTOR,
-    {
-      apply: true,
-      allowItemReplacement: true,
-      expectedPreviousActiveSprintId: previous?.sprint?.sprintId || null,
-      reason: `${CARD_ID} ${closeCard ? 'closed; advance to Brain Fleet contract' : 'is the active serialization blocker'}.`,
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  closeFoundationDb,
+  getActiveFoundationCurrentSprint,
+  getBacklogItemsByIds,
+  getPlanCriticRunsByCardIds,
+} from '../lib/foundation-db.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
+import { buildSourceLifecycleCompletionStatus } from '../lib/source-lifecycle-completion.js'
+import {
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_APPROVAL_PATH,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CLOSEOUT_KEY,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_PLAN_PATH,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SCRIPT_PATH,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SPRINT_ID,
+  buildSourceLifecycleDynamicCountsDogfoodProof,
+} from '../lib/source-lifecycle-dynamic-counts.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const repoRoot = path.resolve(__dirname, '..')
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = {
+    json: false,
+    baseUrl: process.env.BCREW_FOUNDATION_BASE_URL || 'http://localhost:3000',
+  }
+  for (const arg of argv) {
+    if (arg === '--json' || arg === '--json=true') args.json = true
+    else if (arg.startsWith('--baseUrl=')) args.baseUrl = arg.slice('--baseUrl='.length)
+  }
+  return args
+}
+
+function addCheck(checks, condition, check, detail = '') {
+  checks.push({ ok: Boolean(condition), check, detail })
+}
+
+async function readText(relativePath) {
+  return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
+```
+
+### P1 scripts/process-research-lane-purge-check.mjs
+
+- Lines: 242
+- Bytes: 11601
+- Reasons: changed_since_baseline, process_check_surface
+
+```
+}
+
+async function writeReport(snapshot) {
+  await fs.writeFile(RESEARCH_LANE_PURGE_REPORT_PATH, renderResearchLanePurgeReport(snapshot))
+}
+
+async function closeSprintCard(snapshot) {
+  const counts = snapshot.summary?.dispositionCounts || {}
+  await updateBacklogItem(RESEARCH_LANE_PURGE_CARD_ID, {
+    lane: 'done',
+    nextAction: 'Done for v1. Stop for Source Truth Guardrails sprint review/rollover; do not silently open another sprint or product work.',
+    statusNote: [
+      `Closed on 2026-05-13 under \`${RESEARCH_LANE_PURGE_CLOSEOUT_KEY}\`.`,
+      `V1 generated \`${RESEARCH_LANE_PURGE_REPORT_PATH}\` from live backlog research rows.`,
+      `The proposed-only report covers ${snapshot.summary?.researchCardCount || 0} research cards with disposition counts promote_review=${counts.promote_review || 0}, keep_review=${counts.keep_review || 0}, kill_review=${counts.kill_review || 0}, move_to_future_concepts_review=${counts.move_to_future_concepts_review || 0}.`,
+      'Proof compares research-lane signatures before and after report generation, proves synthetic stale/recent/high-priority/deprecated behavior, and confirms no research card lane is changed by the report.',
+      'This does not delete cards, auto-move research cards, edit or create a future-concepts parking doc, start Reply/Watching Loop, expand Strategy UI, implement connectors, mutate Drive permissions, or send request-access emails.',
+    ].join(' '),
+  }, 'codex')
+
+  const current = await getActiveFoundationCurrentSprint()
+  const sprint = current.sprint
+  await upsertFoundationCurrentSprintOverlay({
+    sprint: {
+      sprintId: SPRINT_ID,
+      status: 'active',
+      goal: sprint.goal,
+      activeBlockerCardId: null,
+      metadata: {
+        ...sprint.metadata,
+        currentStatus: 'source_truth_guardrails_complete_review_required',
+        nextAction: 'Source Truth Guardrails sprint is complete. Stop for sprint review/rollover before opening another sprint.',
+        completedAt: new Date().toISOString(),
+      },
     },
-  )
+    items: current.items.map(item => ({
+      cardId: item.backlogId,
+      order: item.order,
+      stage: item.backlogId === RESEARCH_LANE_PURGE_CARD_ID ? 'done_this_sprint' : item.stage,
+      planRef: item.planRef,
+      definitionOfDone: item.definitionOfDone,
+      proofCommands: item.proofCommands,
+      readinessBlockerCleared: item.readinessBlockerCleared,
+
+```
+
+### P1 scripts/process-build-intel-extraction-check.mjs
+
+- Lines: 199
+- Bytes: 7608
+- Reasons: changed_since_baseline, process_check_surface
+
+```
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises'
+import process from 'node:process'
+import {
+  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS,
+  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY,
+  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH,
+  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_SPRINT_ID,
+  buildBuildIntelExtractionImplementationSnapshot,
+  renderBuildIntelExtractionReport,
+} from '../lib/build-intel-extraction-implementation.js'
+import {
+  closeFoundationDb,
+  getActiveFoundationCurrentSprint,
+  getFoundationSnapshot,
+  searchSharedCommunicationArtifactsForContext,
+} from '../lib/foundation-db.js'
+import {
+  validatePlanApprovalFile,
+} from '../lib/approval-integrity.js'
+import {
+  isProcessReportWriteRequested,
+} from '../lib/process-write-guard.js'
+
+const args = new Set(process.argv.slice(2))
+const json = args.has('--json')
+const noWrite = args.has('--no-write')
+const writeReport = isProcessReportWriteRequested(process.argv.slice(2)) && !noWrite
+
+function laneCounts(backlogItems = []) {
+  return backlogItems.reduce((acc, item) => {
+    const key = `${item.lane || 'unknown'}:${item.priority || 'unknown'}`
+    acc[key] = (acc[key] || 0) + 1
+    return acc
+  }, {})
+}
+
+function sameJson(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right)
+}
+
+function check(ok, name, detail = '') {
+  return { ok: Boolean(ok), name, detail }
 }
 
 async function main() {
-  const args = parseArgs()
-  const checks = []
-  await initFoundationDb()
-
-  const [
-    approval,
-    planSource,
-    packageJson,
-    moduleSource,
-    scriptSource,
-    foundationVerifySource,
-    systemHealthScriptSource,
-    repeatedFailureScriptSource,
-    backlogHygieneScriptSource,
-    foundationShipSource,
-    shipGateDoc,
-    currentPlan,
-    currentState,
-    closeoutRegistrySource,
-    coverageSource,
-    closeoutDoc,
-  ] = await Promise.all([
-    validatePlanApprovalFile({ repoRoot, approvalRef: APPROVAL_PATH, cardId: CARD_ID }),
-    readRepoFile(PLAN_PATH),
-    readRepoJson('package.json'),
-    readRepoFile('lib/foundation-gate-check-serialization.js'),
-    readRepoFile(SCRIPT_PATH),
+  const before = await getFoundationSnapshot()
 ```
 
-### P1 scripts/process-mark-kashef-goal-build-intel-packet-check.mjs
+### P1 scripts/process-gstack-build-intel-check.mjs
 
-- Lines: 472
-- Bytes: 26565
-- Reasons: process_check_surface
-
-```
-  assertProcessCheckWriteAllowed({
-    argv: process.argv.slice(2),
-    scriptPath: MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_SCRIPT_PATH,
-    operation: 'create/update Mark Kashef goal Build Intel packet card, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  const previous = await getActiveFoundationCurrentSprint()
-  await upsertLiveCardAndPlanCritic({ closeCard, stage, planReview })
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        sprintId: MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_SPRINT_ID,
-        status: 'active',
-        goal: 'Close Mark Kashef public /goal Build Intel packet without transcript/visual extraction or implementation drift.',
-        activeBlockerCardId: closeCard ? MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_NEXT_CARD_ID : MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CARD_ID,
-        metadata: {
-          stage: closeCard ? 'done_this_sprint' : stage,
-          startedBy: 'codex-mark-kashef-goal-packet',
-          currentStatus: closeCard ? 'next_scoping' : stage,
-          closeoutKey: MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CLOSEOUT_KEY,
-          nextAction: closeCard
-            ? `Continue ${MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_NEXT_CARD_ID} from repo truth.`
-            : 'Write Mark Kashef /goal public metadata packet and keep extraction/implementation blocked.',
-          priorityOrder: [
-            MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CARD_ID,
-            MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_NEXT_CARD_ID,
-          ],
-          notNext: MARK_KASHEF_GOAL_NOT_NEXT_BOUNDARIES,
-          exitCriteria: [
-            'Exact public source metadata is verified without transcript or visual extraction.',
-            'Official /goal docs are linked for mechanics and Mark-specific workflow claims remain unextracted.',
-            'Pattern candidates route to AIOS goal-runner eval rather than direct implementation.',
-            'Dogfood rejects missing source proof, title mismatch, missing official docs, transcript fetch, private Skool access, copied transcript, downstream writes, and direct implementation.',
-            'Focused proof, backlog hygiene, foundation:verify, and process:foundation-ship pass.',
-          ],
-        },
-      },
-      items: closeCard
-        ? [buildSprintItem({ closeCard, stage }), buil
-```
-
-### P1 scripts/process-mark-m-skool-extraction-preflight-check.mjs
-
-- Lines: 468
-- Bytes: 26158
-- Reasons: process_check_surface
+- Lines: 175
+- Bytes: 10288
+- Reasons: changed_since_baseline, process_check_surface
 
 ```
-  assertProcessCheckWriteAllowed({
-    argv: process.argv.slice(2),
-    scriptPath: MARK_M_SKOOL_EXTRACTION_PREFLIGHT_SCRIPT_PATH,
-    operation: 'create/update Mark M Skool preflight card, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  const previous = await getActiveFoundationCurrentSprint()
-  await upsertLiveCardAndPlanCritic({ closeCard, stage, planReview })
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        sprintId: MARK_M_SKOOL_EXTRACTION_PREFLIGHT_SPRINT_ID,
-        status: 'active',
-        goal: 'Close Mark M Skool private-community source/auth preflight without accessing private content.',
-        activeBlockerCardId: closeCard ? MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NEXT_CARD_ID : MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CARD_ID,
-        metadata: {
-          stage: closeCard ? 'done_this_sprint' : stage,
-          startedBy: 'codex-mark-m-skool-extraction-preflight',
-          currentStatus: closeCard ? 'next_scoping' : stage,
-          closeoutKey: MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CLOSEOUT_KEY,
-          nextAction: closeCard
-            ? `Continue ${MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NEXT_CARD_ID} from repo truth.`
-            : 'Write Skool metadata-only source/auth preflight and keep private access blocked.',
-          priorityOrder: [
-            MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CARD_ID,
-            MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NEXT_CARD_ID,
-            'MATT-POCOCK-CLAUDE-FOLDER-EVAL-001',
-          ],
-          notNext: MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NOT_NEXT_BOUNDARIES,
-          exitCriteria: [
-            'Source contract, connector credential, validation profile, and source-auth row all prove Skool is blocked pending approval.',
-            'Approval packet draft names every required field without granting extraction.',
-            'Dogfood rejects missing source truth, unsafe approval, paid/private auth, live extraction, copied community content, inspected community map, downstream writes, and model calls.',
-            'No Skool private access, posts, comments, member data, lessons, transcripts, screenshots, downloads, model calls, or downstream writes occur.',
-            'Focused proof, backlog hygiene, foundation:verify, and process:foundation-ship pass.',
-          ],
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import {
+  GSTACK_BUILD_INTEL_CARD_IDS,
+  GSTACK_BUILD_INTEL_CLOSEOUT_KEY,
+  GSTACK_BUILD_INTEL_EXPECTED_COMMIT,
+  GSTACK_BUILD_INTEL_LOCAL_MIRROR,
+  GSTACK_BUILD_INTEL_REPORT_PATH,
+  GSTACK_BUILD_INTEL_SCRIPT_PATH,
+  GSTACK_BUILD_INTEL_SOURCE_ID,
+  GSTACK_BUILD_INTEL_SPRINT_ID,
+  buildGStackBuildIntelSnapshot,
+  renderGStackBuildIntelReport,
+} from '../lib/gstack-build-intel.js'
+import {
+  isBuildIntelSnapshotBaselineEvidence,
+} from '../lib/build-intel-snapshot-baseline.js'
+import {
+  closeFoundationDb,
+  getActiveFoundationCurrentSprint,
+  getFoundationSnapshot,
+} from '../lib/foundation-db.js'
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  isProcessReportWriteRequested,
+} from '../lib/process-write-guard.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const repoRoot = path.resolve(__dirname, '..')
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = { json: false, noWrite: false, card: null }
+  for (const arg of argv) {
+    if (arg === '--json' || arg === '--json=true') args.json = true
+    else if (arg === '--no-write') args.noWrite = true
+    else if (arg.startsWith('--card=')) args.card = arg.slice('--card='.length)
+  }
+  args.writeReport = isProcessReportWriteRequested(argv) && !args.noWrite
+  return args
+}
+
+function addFinding(findings, ok, check, detail = '') {
+  findings.push({ ok: Boolean(ok), check, detail })
+}
 
 ```
 
-### P1 scripts/process-matt-pocock-claude-folder-eval-check.mjs
+### P1 scripts/process-code-quality-nightly-audit-check.mjs
 
-- Lines: 458
-- Bytes: 24023
-- Reasons: process_check_surface
+- Lines: 167
+- Bytes: 8522
+- Reasons: changed_since_baseline, process_check_surface
 
 ```
-  assertProcessCheckWriteAllowed({
-    argv: process.argv.slice(2),
-    scriptPath: MATT_POCOCK_CLAUDE_FOLDER_EVAL_SCRIPT_PATH,
-    operation: 'create/update Matt Pocock eval card, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  const previous = await getActiveFoundationCurrentSprint()
-  await upsertLiveCardAndPlanCritic({ closeCard, planReview })
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        sprintId: MATT_POCOCK_CLAUDE_FOLDER_EVAL_SPRINT_ID,
-        status: 'active',
-        goal: 'Close Matt Pocock public Claude folder/source eval without install, extraction, import, or implementation drift.',
-        activeBlockerCardId: closeCard ? MATT_POCOCK_CLAUDE_FOLDER_EVAL_NEXT_CARD_ID : MATT_POCOCK_CLAUDE_FOLDER_EVAL_CARD_ID,
-        metadata: {
-          stage: closeCard ? 'done_this_sprint' : stage,
-          startedBy: 'codex-matt-pocock-claude-folder-eval',
-          currentStatus: closeCard ? 'done_ready_for_next_repo_truth' : stage,
-          closeoutKey: MATT_POCOCK_CLAUDE_FOLDER_EVAL_CLOSEOUT_KEY,
-          nextAction: closeCard
-            ? 'Continue the next safe Foundation-up backlog card from repo truth.'
-            : 'Write Matt Pocock public source eval packet and keep install/extraction/import blocked.',
-          priorityOrder: [
-            MATT_POCOCK_CLAUDE_FOLDER_EVAL_CARD_ID,
-            MATT_POCOCK_CLAUDE_FOLDER_EVAL_NEXT_CARD_ID,
-          ],
-          notNext: MATT_POCOCK_NOT_NEXT_BOUNDARIES,
-          exitCriteria: [
-            'Public GitHub repo metadata, commit, license, and skill catalog shape are recorded.',
-            'Commands/skills/markdown-memory patterns are classified without copying raw skills.',
-            '90-day context handling remains blocked as unverified because the public repo scan did not find it.',
-            'Dogfood rejects install, plugin/symlink writes, raw content copy, extraction, false 90-day claim, and downstream writes.',
-            'Focused proof, backlog hygiene, foundation:verify, and process:foundation-ship pass.',
-          ],
-        },
-      },
-      items: closeCard
-        ? [buildSprintItem({ closeCard, stage }), buildNextSprintItem()]
-        : [buildSprintItem({ closeCard, stage })],
-    },
-    'codex-matt-pocock-claude-folder
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import {
+  CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS,
+  CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY,
+  CODE_QUALITY_NIGHTLY_AUDIT_JOB_KEY,
+  CODE_QUALITY_NIGHTLY_AUDIT_MIN_FINDING_COUNT,
+  CODE_QUALITY_NIGHTLY_AUDIT_REPORT_PATH,
+  CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS,
+  CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH,
+  CODE_QUALITY_NIGHTLY_AUDIT_SPRINT_ID,
+  buildCodeQualityNightlyAudit,
+  renderCodeQualityNightlyAuditReport,
+} from '../lib/code-quality-nightly-audit.js'
+import {
+  closeFoundationDb,
+  getActiveFoundationCurrentSprint,
+  getFoundationSnapshot,
+  getPlanCriticRunsByCardIds,
+} from '../lib/foundation-db.js'
+import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  APPROVAL_MIN_APPROVED_PLAN_SCORE_LABEL,
+  meetsApprovalThreshold,
+} from '../lib/approval-threshold-registry.js'
+import {
+  isProcessReportWriteRequested,
+} from '../lib/process-write-guard.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const repoRoot = path.resolve(__dirname, '..')
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = {
+    json: false,
+    noWrite: false,
+    skipEndpointFetch: false,
+    baseUrl: process.env.FOUNDATION_BASE_URL || 'http://localhost:3000',
+    timeoutMs: 5000,
+    reportPath: CODE_QUALITY_NIGHTLY_AUDIT_REPORT_PATH,
+  }
+  for (const arg of argv) {
+    if (arg === '--json' || arg === '--json=true') args.json = true
+    else if (arg === '--no-write') args.noWrite = true
+```
+
+### P1 scripts/process-check-report-output-policy-check.mjs
+
+- Lines: 141
+- Bytes: 7292
+- Reasons: changed_since_baseline, process_check_surface
+
+```
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import {
+  PROCESS_CHECK_REPORT_OUTPUT_POLICY_CARD_ID,
+  PROCESS_CHECK_REPORT_OUTPUT_POLICY_SCRIPT_PATH,
+  buildSyntheticProcessCheckReportOutputPolicyProof,
+  scanProcessCheckReportOutputPolicy,
+} from '../lib/process-check-report-output-policy.js'
+import {
+  buildCodeQualityNightlyAudit,
+} from '../lib/code-quality-nightly-audit.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const repoRoot = path.resolve(__dirname, '..')
+
+const EXPECTED_REPAIRED_PATHS = [
+  'scripts/process-build-intel-extraction-check.mjs',
+  'scripts/process-code-quality-nightly-audit-check.mjs',
+  'scripts/process-foundation-deep-merge-audit-check.mjs',
+  'scripts/process-gstack-build-intel-check.mjs',
+  'scripts/process-nightly-deep-audit-upgrade-check.mjs',
+  'scripts/process-old-system-research-team-harvest-check.mjs',
+  'scripts/process-research-lane-purge-check.mjs',
+]
+
+const EXPECTED_PROTECTED_PATHS = [
+  'scripts/process-build-intel-source-value-grader-check.mjs',
+  'scripts/process-source-maturity-atom-flow-repair-check.mjs',
+  'scripts/process-youtube-latest-20-full-watch-runner-check.mjs',
+]
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = { json: false }
+  for (const arg of argv) {
+    if (arg === '--json' || arg === '--json=true') args.json = true
+  }
+  return args
+}
+
+function addCheck(checks, ok, check, detail = '') {
+  checks.push({ ok: Boolean(ok), check, detail })
+}
+
+function findingPaths(findings = []) {
 ```
 
 ## Top Deterministic Findings
 
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
+- none
 
 ## Doc / Report Artifact Bloat
 
 - Status: `healthy`
 - Handoff files: 217
-- Handoff hot lines: 17930
+- Handoff hot lines: 17920
 - Nightly artifacts: 14
 - Red/yellow findings: 0/0
 
@@ -1077,24 +1032,24 @@ async function main() {
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-26T07:26:13.055Z`
+Generated at: `2026-05-26T07:40:44.991Z`
 
 ## Morning Read
 
 - Status: `report_ready`
-- Findings: 14 total (0 P0, 0 P1, 14 P2, 0 P3)
-- Proposed backlog fixes: 1
+- Findings: 0 total (0 P0, 0 P1, 0 P2, 0 P3)
+- Proposed backlog fixes: 0
 - Detection mode: deterministic code first; no LLM detection used.
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work.
 - Synthetic proof: passed (hardcoded=2, mutator=1, slowEndpoint=risk)
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=153ms payload=575831B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=34ms payload=199966B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=467ms payload=629491B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=133ms payload=253917B risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: status=200 latency=39ms payload=33222B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=117ms payload=575701B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=31ms payload=199966B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=457ms payload=629438B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=127ms payload=255083B risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: status=200 latency=35ms payload=33222B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
 
@@ -1136,135 +1091,11 @@ Largest files:
 
 ## Top Findings
 
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `lib/foundation-intelligence-audit-verifier.js:96`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
 
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `lib/source-lifecycle.js:296`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `lib/gstack-build-intel.js:387`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-connector-credential-check.mjs:227`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-foundation-gate-check-serialization-check.mjs:195`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-foundation-plan-reconcile-check.mjs:53`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-gstack-build-intel-check.mjs:125`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-harlan-auth-escalation-loop-check.mjs:322`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-mark-kashef-goal-build-intel-packet-check.mjs:158`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-mark-m-skool-extraction-preflight-check.mjs:312`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-matt-pocock-claude-folder-eval-check.mjs:37`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-subscription-brain-extractor-adapter-check.mjs:688`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs:71`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
-
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-youtube-god-mode-autonomous-watch-scheduler-check.mjs:25`
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
 
 ## Findings By Sprint Card
 
-- `CODEBASE-HARDCODE-AUDIT-001`: 14 findings
+- `CODEBASE-HARDCODE-AUDIT-001`: 0 findings
 - `FOUNDATION-API-PERF-AUDIT-001`: 0 findings
 - `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 0 findings
 - `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 0 findings
@@ -1274,7 +1105,7 @@ Largest files:
 
 ## Proposed Backlog Fixes
 
-- `LLM-RUNTIME-CONFIG-AUDIT-001`
+
 
 ## Browser QA Route Matrix Proposal
 
