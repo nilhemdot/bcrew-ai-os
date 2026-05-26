@@ -9,6 +9,7 @@ import { Pool } from 'pg'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+  getBacklogItemsByIds,
   getIntelligenceReportBundle,
   getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
@@ -243,6 +244,7 @@ async function main() {
       moduleSource,
       approvalValidation,
       dogfood,
+      backlogCards,
       poolRows,
       alreadyFullWatchedVideoIds,
     ] = await Promise.all([
@@ -255,9 +257,11 @@ async function main() {
         cardId: YOUTUBE_LONG_COURSE_FULL_WATCH_LANE_CARD_ID,
       }),
       buildYoutubeLongCourseFullWatchDogfoodProof(),
+      getBacklogItemsByIds([YOUTUBE_LONG_COURSE_FULL_WATCH_LANE_CARD_ID]),
       loadDailyWatchPoolRows(),
       loadAlreadyFullWatchedVideoIds(),
     ])
+    const [liveBacklogCard] = backlogCards || []
     const selection = selectYoutubeLongCourseVideos({
       poolRows,
       alreadyFullWatchedVideoIds,
@@ -317,6 +321,7 @@ async function main() {
     }
 
     addCheck(checks, approvalValidation.ok && approvalValidation.mode === 'v2', 'approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || YOUTUBE_LONG_COURSE_FULL_WATCH_LANE_APPROVAL_PATH)
+    addCheck(checks, liveBacklogCard && ['scoped', 'executing', 'done'].includes(liveBacklogCard.lane), 'live backlog exposes long-course lane card', liveBacklogCard ? `${liveBacklogCard.id}:${liveBacklogCard.lane}` : 'missing')
     addCheck(checks, packageJson.scripts?.['process:youtube-long-course-full-watch-lane-check'] === `node --env-file-if-exists=.env ${YOUTUBE_LONG_COURSE_FULL_WATCH_LANE_SCRIPT_PATH}`, 'package exposes long-course focused proof', packageJson.scripts?.['process:youtube-long-course-full-watch-lane-check'] || 'missing')
     addCheck(checks, /promptProfile: 'long_course'/.test(moduleSource), 'module uses long-course prompt profile', 'lib/youtube-long-course-full-watch-lane.js')
     addCheck(checks, /course map/i.test(planSource) && /implementation plan/i.test(planSource), 'plan requires course map and implementation plan', YOUTUBE_LONG_COURSE_FULL_WATCH_LANE_PLAN_PATH)
