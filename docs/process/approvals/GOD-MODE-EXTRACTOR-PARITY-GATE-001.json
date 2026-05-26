@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "GOD-MODE-EXTRACTOR-PARITY-GATE-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T03:50:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/god-mode-extractor-parity-gate-001-plan.md",
+  "approvedPlanSha256": "3e7b14d95921b80ef19ae5d7bd84aa7a24323d220a3e680b6b1487266805515c",
+  "approvedRepoHead": "744bdfc28d57628d8b25f6b073038b24ece85237",
+  "approvalSource": "Steve May 25-26 overnight God Mode extractor sprint approval: define the truth/parity gate, stop false God Mode claims, keep comments excluded, and continue to the next card if blocked.",
+  "approvalDigest": "8f6c1aa20695952809bf898d6e05a38cf26280287bc881ff58d565eaaafac743"
+}

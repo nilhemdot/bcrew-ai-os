@@ -167,8 +167,8 @@ async function main() {
   addCheck(
     checks,
     includesAll(paritySource, [
-      'EXTRACTOR_HANDS_PRODUCTION_RUNNER_CARD_ID',
       'production_safe_hands_queue_ready',
+      'SOURCE-FAMILY-GOD-MODE-EXTRACTORS-001',
     ]),
     'God Mode parity sees production Hands runner as partial public/resource-link progress without claiming full God Mode',
     'lib/god-mode-extractor-parity-gate.js',

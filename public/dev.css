@@ -787,6 +787,192 @@ button {
   overflow-wrap: break-word;
 }
 
+.god-mode-parity {
+  display: grid;
+  gap: 14px;
+}
+
+.parity-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-md);
+  background: var(--white);
+}
+
+.parity-head span {
+  display: block;
+  color: var(--blue);
+  font-family: var(--display);
+  font-size: var(--t-micro);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.parity-head h3 {
+  margin: 4px 0 0;
+  font-family: var(--display);
+  font-size: var(--t-2xl);
+  font-weight: 900;
+  line-height: var(--lh-tight);
+  text-transform: uppercase;
+}
+
+.parity-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.parity-summary span {
+  padding: 8px 10px;
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-sm);
+  color: var(--grey-d);
+  background: rgba(235, 235, 235, 0.28);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.parity-summary b {
+  color: var(--ink);
+}
+
+.parity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.parity-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-height: 248px;
+  padding: 18px;
+  border: 1px solid var(--grey-line);
+  border-top: 3px solid var(--blue);
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: 0 1px 3px rgba(10, 15, 26, 0.04);
+}
+
+.parity-card.pending {
+  border-top-color: #8a6a00;
+}
+
+.parity-card.blocked {
+  border-top-color: #a83232;
+}
+
+.parity-card.neutral {
+  border-top-color: var(--grey-c);
+}
+
+.parity-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--grey-d);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+
+.parity-card-head span,
+.parity-card-head strong {
+  overflow-wrap: anywhere;
+}
+
+.parity-card h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: var(--t-lg);
+  font-weight: 900;
+  line-height: var(--lh-tight);
+  text-transform: uppercase;
+}
+
+.parity-card p,
+.parity-card li {
+  margin: 0;
+  color: var(--grey-d);
+  font-size: var(--t-sm);
+  line-height: var(--lh-body);
+  overflow-wrap: break-word;
+}
+
+.parity-card ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.parity-cap-list {
+  margin-top: 0;
+}
+
+.cap-chip {
+  display: inline-grid;
+  gap: 2px;
+  min-width: 74px;
+  padding: 6px 8px;
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-sm);
+  color: var(--grey-d);
+  background: rgba(235, 235, 235, 0.3);
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  line-height: 1.2;
+}
+
+.cap-chip b {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: var(--t-micro);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cap-chip.verified {
+  border-color: rgba(0, 132, 201, 0.28);
+  background: rgba(0, 132, 201, 0.08);
+}
+
+.cap-chip.blocked {
+  border-color: rgba(168, 50, 50, 0.28);
+  background: rgba(168, 50, 50, 0.08);
+}
+
+.cap-chip.pending {
+  border-color: rgba(138, 106, 0, 0.28);
+  background: rgba(138, 106, 0, 0.08);
+}
+
+.parity-next {
+  display: grid;
+  gap: 4px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--grey-line);
+  color: var(--grey-d);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+
+.parity-next b {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
 .f-stat-num .u {
   margin-left: 4px;
   color: var(--ink);
@@ -1455,6 +1641,7 @@ button {
 @media (max-width: 980px) {
   .page-head,
   .section-head,
+  .parity-head,
   .target-head {
     align-items: flex-start;
     flex-direction: column;
@@ -1513,6 +1700,7 @@ button {
 	  .evidence-grid,
 	  .system-row,
   .extractor-grid,
+  .parity-grid,
   .director-summary,
   .director-list,
   .target-list {
@@ -1633,6 +1821,7 @@ button {
 
 .extractor-grid,
 .evidence-grid,
+.parity-grid,
 .source-grid,
 .target-list,
 .director-list {
@@ -2539,6 +2728,7 @@ button {
   .source-grid,
   .leader-columns,
   .extractor-grid,
+  .parity-grid,
   .evidence-grid,
   .target-list,
   .director-list {

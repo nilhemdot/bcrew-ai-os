@@ -73,6 +73,7 @@ const els = {
   grid: document.getElementById('source-grid'),
   panel: document.getElementById('target-panel'),
   extractorGrid: document.getElementById('extractor-grid'),
+  godModeParity: document.getElementById('god-mode-parity'),
   evidenceGrid: document.getElementById('evidence-grid'),
   approvalReview: document.getElementById('approval-review'),
   sourceLeaderboard: document.getElementById('source-leaderboard'),
@@ -737,6 +738,89 @@ function extractorIcon(item = {}) {
   return byLane[item.laneId] || 'hub'
 }
 
+const GOD_MODE_CAPABILITY_LABELS = {
+  eyes: 'Eyes',
+  ears: 'Ears',
+  hands: 'Hands',
+  reading: 'Read',
+  brain: 'Brain',
+  evidence: 'Evidence',
+  boundaries: 'Boundaries',
+  output: 'Output',
+}
+
+function statusCopy(value = '') {
+  return text(value, 'unknown').replace(/_/g, ' ')
+}
+
+function parityTone(value = '') {
+  const normalized = text(value).toLowerCase()
+  if (normalized === 'working' || normalized.includes('proven') || normalized.includes('ready')) return 'verified'
+  if (normalized.includes('blocked') || normalized.includes('required')) return 'blocked'
+  if (normalized.includes('planned') || normalized.includes('partial') || normalized.includes('queue')) return 'pending'
+  if (normalized.includes('excluded') || normalized.includes('not_applicable')) return 'neutral'
+  return 'pending'
+}
+
+function renderCapabilityChips(family = {}) {
+  const capabilities = family.capabilities || {}
+  return Object.entries(GOD_MODE_CAPABILITY_LABELS)
+    .map(([key, label]) => ({ key, label, value: text(capabilities[key]) }))
+    .filter(item => item.value && item.value !== 'not_applicable')
+    .map(item => `
+      <span class="cap-chip ${escapeHtml(parityTone(item.value))}">
+        <b>${escapeHtml(item.label)}</b>
+        ${escapeHtml(statusCopy(item.value))}
+      </span>
+    `).join('')
+}
+
+function renderGodModeParity(snapshot = {}) {
+  if (!els.godModeParity) return
+  const parity = snapshot.godModeExtractorParity || {}
+  const families = list(parity.families)
+  const summary = parity.summary || {}
+  const evaluation = parity.evaluation || {}
+  const status = evaluation.ok === true ? 'No false God Mode claims' : 'Parity finding'
+  const familyRows = families.map(family => {
+    const blockers = list(family.blockers).slice(0, 2)
+    return `
+      <article class="parity-card ${escapeHtml(parityTone(family.currentLevel))}">
+        <div class="parity-card-head">
+          <span>${escapeHtml(statusCopy(family.currentLevel))}</span>
+          <strong>${escapeHtml(family.familyId || '')}</strong>
+        </div>
+        <h3>${escapeHtml(family.label || family.familyId || 'Source family')}</h3>
+        <p>${escapeHtml(family.accessBoundary || family.modelRoute || '')}</p>
+        <div class="cap-list parity-cap-list">${renderCapabilityChips(family)}</div>
+        <div class="parity-next">
+          <span>Next</span>
+          <b>${escapeHtml(family.nextCard || 'No active card')}</b>
+        </div>
+        ${blockers.length ? `<ul>${blockers.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
+      </article>
+    `
+  }).join('')
+
+  els.godModeParity.innerHTML = `
+    <div class="parity-head">
+      <div>
+        <span>GOD MODE PARITY</span>
+        <h3>${escapeHtml(status)}</h3>
+      </div>
+      <div class="parity-summary" aria-label="God Mode parity summary">
+        <span><b>${escapeHtml(compactNumber(summary.familyCount || families.length))}</b> families</span>
+        <span><b>${escapeHtml(compactNumber(summary.claimsGodModeCount || 0))}</b> full claims</span>
+        <span><b>${escapeHtml(compactNumber(summary.blockedFamilyCount || 0))}</b> blocked</span>
+        <span><b>${escapeHtml(compactNumber(summary.handsNotProvenCount || 0))}</b> hands gaps</span>
+      </div>
+    </div>
+    <div class="parity-grid">
+      ${familyRows || '<article class="loading-card">No parity rows returned from Foundation.</article>'}
+    </div>
+  `
+}
+
 function sourceIcon(source = {}) {
   const bySource = {
     youtube: 'play_circle',
@@ -985,6 +1069,7 @@ function renderSnapshot(snapshot = {}) {
   state.sources = buildLiveSources(snapshot)
   state.selectedSourceId = state.selectedSourceId || state.sources[0]?.id || null
   renderExtractors(snapshot)
+  renderGodModeParity(snapshot)
   renderEvidence(snapshot)
   renderApprovalReview(snapshot)
   renderSourceLeaderboard(snapshot)
@@ -997,6 +1082,7 @@ function renderError(error) {
   const message = error instanceof Error ? error.message : 'Unknown error'
   const html = `<article class="loading-card error">Dev Data Pool failed to load: ${escapeHtml(message)}</article>`
   els.extractorGrid.innerHTML = html
+  if (els.godModeParity) els.godModeParity.innerHTML = html
   if (els.approvalReview) els.approvalReview.innerHTML = html
   if (els.sourceLeaderboard) els.sourceLeaderboard.innerHTML = html
   els.grid.innerHTML = html

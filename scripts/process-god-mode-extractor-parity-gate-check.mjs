@@ -47,6 +47,7 @@ async function main() {
     packageJson,
     moduleSource,
     scriptSource,
+    devHtmlSource,
     devHubSource,
     devJsSource,
     parityPlanSource,
@@ -59,6 +60,7 @@ async function main() {
     readRepoJson('package.json'),
     readRepoFile('lib/god-mode-extractor-parity-gate.js'),
     readRepoFile(GOD_MODE_EXTRACTOR_PARITY_GATE_SCRIPT_PATH),
+    readRepoFile('public/dev.html'),
     readRepoFile('lib/dev-team-hub.js'),
     readRepoFile('public/dev.js'),
     readRepoFile('docs/process/god-mode-extractor-parity-gate-001-plan.md'),
@@ -115,6 +117,19 @@ async function main() {
       devVisibleBundle.includes('YouTube comments are intentionally excluded'),
     'Dev read model uses truthful YouTube video intelligence wording',
     'no public Dev lane claims full God Mode'
+  )
+  addCheck(
+    checks,
+    devHtmlSource.includes('id="god-mode-parity"') &&
+      includesAll(devJsSource, [
+        'renderGodModeParity',
+        'GOD_MODE_CAPABILITY_LABELS',
+        'No false God Mode claims',
+        'hands gaps',
+        'family.nextCard',
+      ]),
+    'Dev UI renders the source-family God Mode parity matrix from Foundation payload',
+    'public/dev.html + public/dev.js'
   )
   addCheck(
     checks,
