@@ -2136,6 +2136,103 @@ button {
   line-height: 1;
 }
 
+.approval-triage {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--grey-line);
+  border-radius: 16px;
+  background: var(--white);
+  padding: 16px;
+}
+
+.approval-triage-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+
+.approval-triage-head span,
+.approval-triage-row span {
+  display: block;
+  color: var(--blue);
+  font-family: var(--display);
+  font-size: var(--t-xs);
+  font-weight: var(--w-black);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+
+.approval-triage-head p,
+.approval-triage-row p {
+  margin: 5px 0 0;
+  color: var(--grey-d);
+  font-size: var(--t-sm);
+  line-height: var(--lh-body);
+}
+
+.approval-triage-head strong {
+  flex: 0 0 auto;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: var(--t-sm);
+  font-weight: var(--w-black);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.approval-triage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.approval-triage-row {
+  display: grid;
+  gap: 8px;
+  min-height: 150px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-left: 3px solid var(--grey-line);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.approval-triage-row.has-count {
+  border-left-color: var(--amber);
+}
+
+.approval-triage-row.empty {
+  opacity: 0.64;
+}
+
+.approval-triage-row div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.approval-triage-row strong {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: var(--t-2xl);
+  font-weight: var(--w-black);
+  line-height: 1;
+}
+
+.approval-triage-row small,
+.approval-triage-row em {
+  color: var(--grey-d);
+  font-size: var(--t-xs);
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.approval-triage-row small {
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .approval-list {
   display: grid;
   gap: 10px;

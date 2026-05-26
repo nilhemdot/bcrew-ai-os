@@ -352,7 +352,16 @@ async function main() {
     'catch-up candidates -> dry-run plan -> Dev evidence card/source detail/SOP steps/filtered reasons',
   )
   addCheck(checks, moduleSource.includes('buildExtractionEconomics') && moduleSource.includes('estimateGeminiStandardTokenCostUsd') && routeSource.includes('listLlmCalls'), 'Dev Hub API exposes extraction economics from LLM call usage', 'llm_calls + shared Gemini pricing tokens')
-  addCheck(checks, moduleSource.includes('buildApprovalReviewQueue') && jsSource.includes('renderApprovalReview'), 'Dev Hub exposes actual approval links instead of a blind count', 'approvalReviewQueue + #approval-review')
+  addCheck(
+    checks,
+    moduleSource.includes('buildApprovalReviewQueue') &&
+      moduleSource.includes('buildApprovalReviewTriage') &&
+      jsSource.includes('renderApprovalReview') &&
+      jsSource.includes('renderApprovalTriage') &&
+      cssSource.includes('approval-triage-grid'),
+    'Dev Hub exposes actual approval links and source-packet triage instead of a blind count',
+    'approvalReviewQueue + approvalReviewTriage + #approval-review',
+  )
   addCheck(checks, moduleSource.includes('buildDevIntelSourceCoverageSnapshot') && jsSource.includes('renderSourceLeaderboard'), 'Dev Hub page exposes source-family leaderboard coverage', 'sourceCoverage + sourceValueGrader')
   addCheck(checks, moduleSource.includes('buildGodModeExtractorParitySnapshot') && moduleSource.includes('evaluateGodModeExtractorParity') && jsSource.includes('renderGodModeParity'), 'Dev Hub API and page render extractor God Mode parity data', 'godModeExtractorParity read model + #god-mode-parity')
   addCheck(
@@ -440,6 +449,22 @@ async function main() {
     'live Dev Hub exposes YouTube SOP source-packet review queue with validated previews',
     `actions=${payload?.youtubeCreatorGodModeCatchup?.summary?.sourcePacketActionCount || 0}; queue=${list(payload?.approvalReviewQueue).length}`,
   )
+  addCheck(
+    checks,
+    list(payload?.approvalReviewQueue).length >= 1 &&
+      payload?.approvalReviewTriage?.totalReviewRows === list(payload?.approvalReviewQueue).length &&
+      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'public_web') &&
+      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'public_repos') &&
+      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'paid_or_auth_gate') &&
+      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'rejected_noise') &&
+      Number(payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0) >= 1 &&
+      Number(payload?.approvalReviewTriage?.summary?.startsImmediatelyCount || 0) === 0 &&
+      Number(payload?.approvalReviewTriage?.summary?.startsFromApprovalActionCount || 0) === 0 &&
+      Number(payload?.approvalReviewTriage?.summary?.externalWriteCount || 0) === 0 &&
+      Number(payload?.approvalReviewTriage?.summary?.backlogWriteCount || 0) === 0,
+    'live Dev Hub groups approval packets by run boundary and proves approval cannot start crawl/write work',
+    `rows=${payload?.approvalReviewTriage?.totalReviewRows || 0}; public=${payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0}; auth=${payload?.approvalReviewTriage?.summary?.requiresAuthCount || 0}`,
+  )
   addCheck(checks, Number(payload?.extractionEconomics?.estimatedSpendUsd || 0) > 0 && Number(payload?.extractionEconomics?.costPerIdeaUsd || 0) > 0, 'live extraction economics calculate API spend and cost per idea', `$${Number(payload?.extractionEconomics?.estimatedSpendUsd || 0).toFixed(2)} / $${Number(payload?.extractionEconomics?.costPerIdeaUsd || 0).toFixed(2)} per idea`)
   addCheck(
     checks,
@@ -513,6 +538,11 @@ async function main() {
       } : null,
       extractionEconomics: payload.extractionEconomics,
       approvalReviewQueue: list(payload.approvalReviewQueue).slice(0, 5),
+      approvalReviewTriage: payload.approvalReviewTriage ? {
+        totalReviewRows: payload.approvalReviewTriage.totalReviewRows,
+        summary: payload.approvalReviewTriage.summary,
+        rows: list(payload.approvalReviewTriage.rows).map(row => ({ bucketId: row.bucketId, count: row.count })).slice(0, 8),
+      } : null,
       sourceCoverage: {
         status: payload.sourceCoverage?.status,
         counts: payload.sourceCoverage?.counts,

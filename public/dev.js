@@ -521,6 +521,39 @@ function approvalReviewTitle(item = {}) {
   return video ? `${host} · ${video}` : host
 }
 
+function renderApprovalTriage(snapshot = {}) {
+  const triage = snapshot.approvalReviewTriage || {}
+  const rows = list(triage.rows)
+  if (!rows.length) return ''
+  const summary = triage.summary || {}
+  const total = Number(triage.totalReviewRows || 0)
+  const unsafeStartCount = Number(summary.startsImmediatelyCount || 0) + Number(summary.startsFromApprovalActionCount || 0)
+  return `
+    <div class="approval-triage">
+      <div class="approval-triage-head">
+        <div>
+          <span>Source-packet triage</span>
+          <p>${escapeHtml(compactNumber(total))} review rows held. ${escapeHtml(compactNumber(summary.runnableAfterPacketCount || 0))} can run after a recorded public packet, ${escapeHtml(compactNumber(summary.sourceSpecificApprovalRequiredCount || 0))} need source-specific scope, ${escapeHtml(compactNumber(summary.requiresAuthCount || 0))} need auth/paid boundaries.</p>
+        </div>
+        <strong>${escapeHtml(unsafeStartCount ? `${unsafeStartCount} unsafe starts` : '0 unsafe starts')}</strong>
+      </div>
+      <div class="approval-triage-grid">
+        ${rows.map(row => `
+          <article class="approval-triage-row ${Number(row.count || 0) ? 'has-count' : 'empty'}">
+            <div>
+              <span>${escapeHtml(row.label || row.bucketId || 'Packet group')}</span>
+              <strong>${escapeHtml(compactNumber(row.count || 0))}</strong>
+            </div>
+            <p>${escapeHtml(row.plainEnglish || '')}</p>
+            <small>${escapeHtml(`${compactNumber(row.runnableAfterPacketCount || 0)} public-after-packet · ${compactNumber(row.sourceSpecificApprovalRequiredCount || 0)} source-specific · ${compactNumber(row.requiresAuthCount || 0)} auth`)}</small>
+            ${list(row.samples).length ? `<em>${escapeHtml(list(row.samples).map(sample => sample.host || sample.sourceFamily || sample.proposedDecision || 'source').filter(Boolean).slice(0, 3).join(' · '))}</em>` : ''}
+          </article>
+        `).join('')}
+      </div>
+    </div>
+  `
+}
+
 function handsQueueStatusCopy(row = {}) {
   if (row.status === 'ready_to_run') return 'Ready for Hands'
   if (row.status === 'already_run') return 'Hands evidence saved'
@@ -592,6 +625,7 @@ function renderApprovalReview(snapshot = {}) {
       </div>
       <strong>${escapeHtml(compactNumber(queue.length))}</strong>
     </div>
+    ${renderApprovalTriage(snapshot)}
     <div class="approval-list">
       ${queue.map((item, index) => `
         <article class="approval-row">
