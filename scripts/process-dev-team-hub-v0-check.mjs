@@ -10,6 +10,7 @@ import {
   getActiveFoundationCurrentSprint,
   getExtractionControlSnapshot,
   getFoundationSnapshot,
+  getIntelligenceAtomSpineSnapshot,
   getIntelligenceReportBundle,
   initFoundationDb,
   listLlmCalls,
@@ -36,6 +37,9 @@ import {
 import {
   MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID,
 } from '../lib/mark-kashef-god-mode-small-batch.js'
+import {
+  MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID,
+} from '../lib/god-mode-youtube-end-to-end-extractor.js'
 import {
   DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID,
 } from '../lib/dev-team-intelligence-director.js'
@@ -166,7 +170,7 @@ function buildVisibleNumbers(payload = {}) {
     { label: 'Approval-required links', value: counts.approvalRequiredLinks, route: 'intelligence_report_artifacts.action_required_items', sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'Review routes', value: counts.reviewRoutes, route: 'intelligence_report_artifacts.structured_output_json.reviewRoutes', sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'Video/audio/visual candidates', value: counts.eyesBuildCandidates, route: `getIntelligenceReportBundle(${GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
-    { label: 'Accepted API watched videos', value: counts.apiFullWatchVideos, route: `youtubeCreatorGodModeCatchup.creators[mark-kashef] + getIntelligenceReportBundle(${MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
+    { label: 'Accepted API watched videos', value: counts.apiFullWatchVideos, route: `youtubeCreatorGodModeCatchup.creators[mark-kashef] + getIntelligenceReportBundle(${MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID}) + getIntelligenceReportBundle(${MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'API full-watch candidates', value: counts.apiFullWatchBuildCandidates, route: `getIntelligenceReportBundle(${MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
     { label: 'Director picks', value: payload.director?.recommendedBuildNow?.length || 0, route: `getIntelligenceReportBundle(${DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID})`, sourceId: 'SRC-YOUTUBE-INTEL-001' },
   ]
@@ -175,6 +179,7 @@ function buildVisibleNumbers(payload = {}) {
 async function loadLiveSnapshot() {
   const [
     foundationSnapshot,
+    fullReportSpine,
     activeFoundationSprint,
     extractionControl,
     items,
@@ -182,11 +187,13 @@ async function loadLiveSnapshot() {
     linkResourceBundle,
     eyesBundle,
     markApiFullWatchBundle,
+    markBaselineApiFullWatchBundle,
     directorBundle,
     sourceValueGraderBundle,
     geminiVideoReviewCalls,
   ] = await Promise.all([
     getFoundationSnapshot(),
+    getIntelligenceAtomSpineSnapshot({ limit: 500 }),
     getActiveFoundationCurrentSprint(),
     getExtractionControlSnapshot({ limit: 200 }),
     listSourceCrawlItems({
@@ -198,6 +205,7 @@ async function loadLiveSnapshot() {
     getIntelligenceReportBundle(YOUTUBE_BUILD_INTEL_LINK_RESOURCE_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID, { atomLimit: 300, hitLimit: 300 }),
+    getIntelligenceReportBundle(MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID, { atomLimit: 300, hitLimit: 300 }),
     getIntelligenceReportBundle(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
     listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 500 }),
@@ -223,9 +231,11 @@ async function loadLiveSnapshot() {
     linkResourceBundle,
     eyesBundle,
     markApiFullWatchBundle,
+    markBaselineApiFullWatchBundle,
     directorBundle,
     sourceValueGraderBundle,
     geminiVideoReviewCalls,
+    youtubeFullWatchReports: fullReportSpine?.recentReports || [],
     actionRouter: foundationSnapshot.intelligenceActionRouter || {},
     currentSprint: activeFoundationSprint,
     extractionControl,
@@ -282,6 +292,14 @@ async function main() {
   addCheck(checks, moduleSource.includes('youtubeCreatorGodModeCatchup') && moduleSource.includes('buildYoutubeCreatorGodModeCatchupSnapshot') && jsSource.includes('youtubeCreatorGodModeCatchup'), 'Dev Hub API/page exposes YouTube creator catch-up baseline readback', 'youtubeCreatorGodModeCatchup')
   addCheck(
     checks,
+    routeSource.includes('getIntelligenceAtomSpineSnapshot({ limit: 500 })') &&
+      moduleSource.includes('youtubeFullWatchReports') &&
+      scriptSource.includes('getIntelligenceAtomSpineSnapshot({ limit: 500 })'),
+    'Dev Hub catch-up readback uses the full YouTube full-watch report set instead of a recent-report slice',
+    '500-report spine readback feeds youtubeCreatorGodModeCatchup',
+  )
+  addCheck(
+    checks,
     routeSource.includes('YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT') &&
       !/targetKey:\s*['"]youtube-creator-daily-watch['"][\s\S]{0,120}limit:\s*200/.test(routeSource),
     'daily watch direct API and Dev Hub use the full creator readback limit',
@@ -318,6 +336,17 @@ async function main() {
       jsSource.includes('Needs source URL'),
     'Dev Hub distinguishes missing metadata from missing creator source URLs',
     'ready-for-metadata is not labeled as source missing',
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildYoutubeGodModeAutopilotPlan') &&
+      moduleSource.includes('buildYoutubeGodModeAutonomousWatchPlan') &&
+      moduleSource.includes('buildYoutubeGodModeCandidateVideosFromCatchupSnapshot') &&
+      moduleSource.includes('startsProviderCall: false') &&
+      jsSource.includes('Next dry-run batch') &&
+      jsSource.includes('youtubeGodModeAutopilotPlan'),
+    'Dev Hub exposes YouTube morning autopilot dry-run without starting a provider run',
+    'catch-up candidates -> dry-run plan -> Dev evidence card',
   )
   addCheck(checks, moduleSource.includes('buildExtractionEconomics') && moduleSource.includes('estimateGeminiStandardTokenCostUsd') && routeSource.includes('listLlmCalls'), 'Dev Hub API exposes extraction economics from LLM call usage', 'llm_calls + shared Gemini pricing tokens')
   addCheck(checks, moduleSource.includes('buildApprovalReviewQueue') && jsSource.includes('renderApprovalReview'), 'Dev Hub exposes actual approval links instead of a blind count', 'approvalReviewQueue + #approval-review')
@@ -365,7 +394,17 @@ async function main() {
   addCheck(checks, payload?.scout?.sourceRoute?.includes('getIntelligenceReportBundle'), 'scout source route is report-bundle backed', payload?.scout?.sourceRoute || 'missing')
   addCheck(checks, payload?.eyesQualityLoop?.sourceRoute?.includes(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID) && list(payload?.eyesQualityLoop?.buildCandidates).length >= 1, 'Video/audio/visual candidates are exposed to Dev Hub', `${list(payload?.eyesQualityLoop?.buildCandidates).length} candidates`)
   const markCatchupRow = list(payload?.youtubeCreatorGodModeCatchup?.creators).find(row => row.creatorId === 'mark-kashef') || null
-  addCheck(checks, payload?.markApiFullWatch?.sourceRoute?.includes(MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID) && list(payload?.markApiFullWatch?.buildCandidates).length >= 1 && Number(payload?.counts?.apiFullWatchVideos || 0) === Number(markCatchupRow?.videoAudioVisualWatchedCount || 0), 'Mark accepted API full-watch count matches catch-up readback', `${payload?.counts?.apiFullWatchVideos || 0} videos / mark row ${markCatchupRow?.videoAudioVisualWatchedCount || 0}`)
+  addCheck(
+    checks,
+    payload?.markApiFullWatch?.sourceRoute?.includes(MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID) &&
+      payload?.markApiFullWatch?.sourceRoute?.includes(MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID) &&
+      list(payload?.markApiFullWatch?.buildCandidates).length >= 1 &&
+      Number(payload?.counts?.apiFullWatchVideos || 0) === list(payload?.markApiFullWatch?.report?.apiWatchedVideoIds).length &&
+      Number(payload?.counts?.apiFullWatchVideos || 0) === 44 &&
+      Number(payload?.counts?.apiFullWatchVideos || 0) <= Number(markCatchupRow?.videoAudioVisualWatchedCount || 0),
+    'Mark accepted API full-watch count does not overclaim represented catch-up evidence',
+    `${payload?.counts?.apiFullWatchVideos || 0} accepted API videos / mark row ${markCatchupRow?.videoAudioVisualWatchedCount || 0} represented`,
+  )
   addCheck(checks, payload?.director?.sourceRoute?.includes(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID) && list(payload?.director?.recommendedBuildNow).length >= 1, 'Dev Intelligence Director recommendations are exposed to Dev Hub', `${list(payload?.director?.recommendedBuildNow).length} recommendations`)
   addCheck(checks, list(payload?.sourceValueGrader?.sourceGrades).length >= 3 && list(payload?.dailyWatch?.creators).length >= 3, 'live source cards can be built from multiple graded creators', `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.dailyWatch?.creators).length} watched`)
   addCheck(
@@ -386,12 +425,28 @@ async function main() {
   )
   addCheck(
     checks,
+    Number(payload?.youtubeCreatorGodModeCatchup?.summary?.fullWatchReportCount || 0) >= 40 &&
+      Number(payload?.youtubeCreatorGodModeCatchup?.summary?.videoAudioVisualWatchedCount || 0) >= 350,
+    'live Dev Hub catch-up numbers are not capped by the short recent-report feed',
+    `reports=${payload?.youtubeCreatorGodModeCatchup?.summary?.fullWatchReportCount || 0}; watched=${payload?.youtubeCreatorGodModeCatchup?.summary?.videoAudioVisualWatchedCount || 0}`,
+  )
+  addCheck(
+    checks,
     Number(payload?.youtubeCreatorGodModeCatchup?.summary?.sourcePacketActionCount || 0) >= list(payload?.approvalReviewQueue).length &&
       list(payload?.approvalReviewQueue).some(item => item.sourcePacketPreview?.sourcePacketId && item.sourcePacketValidation?.ok === true),
     'live Dev Hub exposes YouTube SOP source-packet review queue with validated previews',
     `actions=${payload?.youtubeCreatorGodModeCatchup?.summary?.sourcePacketActionCount || 0}; queue=${list(payload?.approvalReviewQueue).length}`,
   )
   addCheck(checks, Number(payload?.extractionEconomics?.estimatedSpendUsd || 0) > 0 && Number(payload?.extractionEconomics?.costPerIdeaUsd || 0) > 0, 'live extraction economics calculate API spend and cost per idea', `$${Number(payload?.extractionEconomics?.estimatedSpendUsd || 0).toFixed(2)} / $${Number(payload?.extractionEconomics?.costPerIdeaUsd || 0).toFixed(2)} per idea`)
+  addCheck(
+    checks,
+    payload?.youtubeGodModeAutopilotPlan?.reportOnly === true &&
+      payload?.youtubeGodModeAutopilotPlan?.startsProviderCall === false &&
+      payload?.youtubeGodModeAutopilotPlan?.runApprovalRequired === true &&
+      Number(payload?.youtubeGodModeAutopilotPlan?.candidateVideoCount || 0) >= 1,
+    'live Dev Hub exposes YouTube autopilot dry-run plan from catch-up candidates',
+    `${list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).length} selected / ${payload?.youtubeGodModeAutopilotPlan?.candidateVideoCount || 0} candidates / ${payload?.youtubeGodModeAutopilotPlan?.status || 'missing'}`,
+  )
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => /^https?:\/\//i.test(text(item.url)) && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
   addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos'), 'source coverage includes planned GitHub and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)
   addCheck(checks, list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'meetings-transcripts') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'email-missive-comms') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'slack-comms'), 'active extraction lanes expose internal Foundation signals', list(payload?.activeExtractionLanes).map(lane => lane.laneId).join(', ') || 'missing')
@@ -430,6 +485,15 @@ async function main() {
         status: payload.youtubeCreatorGodModeCatchup.status,
         summary: payload.youtubeCreatorGodModeCatchup.summary,
         buildPromotionReadiness: payload.youtubeCreatorGodModeCatchup.buildPromotionReadiness,
+      } : null,
+      youtubeGodModeAutopilotPlan: payload.youtubeGodModeAutopilotPlan ? {
+        status: payload.youtubeGodModeAutopilotPlan.status,
+        selectedVideos: list(payload.youtubeGodModeAutopilotPlan.selectedVideos).length,
+        rejectedVideos: list(payload.youtubeGodModeAutopilotPlan.rejectedVideos).length,
+        candidateVideoCount: payload.youtubeGodModeAutopilotPlan.candidateVideoCount,
+        budget: payload.youtubeGodModeAutopilotPlan.budget,
+        blockers: payload.youtubeGodModeAutopilotPlan.blockers,
+        reportOnly: payload.youtubeGodModeAutopilotPlan.reportOnly,
       } : null,
       extractionEconomics: payload.extractionEconomics,
       approvalReviewQueue: list(payload.approvalReviewQueue).slice(0, 5),

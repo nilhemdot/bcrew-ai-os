@@ -418,6 +418,7 @@ function buildLiveSources(snapshot = {}) {
 function buildEvidenceCards(snapshot = {}) {
   const counts = snapshot.counts || {}
   const catchup = snapshot.youtubeCreatorGodModeCatchup || {}
+  const autopilot = snapshot.youtubeGodModeAutopilotPlan || {}
   const economics = snapshot.extractionEconomics || {}
   const gradedSources = sourceGrades(snapshot)
   const gradedVideos = gradedSources.reduce((sum, source) => sum + Number(source.watchedVideos || 0), 0)
@@ -441,6 +442,13 @@ function buildEvidenceCards(snapshot = {}) {
       tone: 'verified',
       summary: `${compactNumber(fullReviewCount)} videos are represented as video/audio/visual reviews in the current catch-up readback.`,
       meta: snapshot.markApiFullWatch?.model || 'Gemini video route',
+    },
+    {
+      value: list(autopilot.selectedVideos).length,
+      label: 'Next dry-run batch',
+      tone: autopilot.status === 'ready_for_dry_run_report' ? 'pending' : 'blocked',
+      summary: `${compactNumber(list(autopilot.selectedVideos).length)} exact public videos selected by the morning autopilot dry-run. No live Gemini run starts without explicit budget approval.`,
+      meta: `${compactNumber(autopilot.candidateVideoCount || 0)} candidates · ${money(autopilot.budget?.estimatedRunSpendUsd || 0)} est run`,
     },
     {
       value: buildIdeaCount,
