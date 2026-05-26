@@ -25,6 +25,7 @@ The next move is to graduate the proven public/no-auth lane into an autonomous q
   - catch-up batches for S/A sources until each approved source has enough baseline coverage
   - new videos from S/A sources after baseline catch-up
   - limited B-source sampling when source comparison needs more proof
+  - limited ungraded-source sampling when the run has safe remaining capacity, so new approved creators can earn an evidence-based grade
 - The scheduler refuses C/D sources unless Steve explicitly overrides.
 - The scheduler enforces hard controls:
   - max videos per run
@@ -151,7 +152,7 @@ Speed boundary:
 - Risk: scheduler loops forever after provider failures.
   - Repair path: retry cap, failure ledger, and stop/report behavior.
 - Risk: lower-value creators consume the budget.
-  - Repair path: source grades control priority; C/D sources are throttled by default.
+  - Repair path: source grades control priority; C/D sources are throttled by default, and ungraded sources have a small exploratory cap.
 - Risk: automation hides bad output quality.
   - Repair path: morning report includes quality/cost/source-grade changes and Director movement.
 

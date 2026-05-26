@@ -79,7 +79,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     maxEstimatedUsdPerDay: numberArg(argv, '--max-estimated-usd-per-day=', YOUTUBE_GOD_MODE_SCHEDULER_DEFAULT_CONFIG.maxEstimatedUsdPerDay),
     estimatedUsdPerVideo: numberArg(argv, '--estimated-usd-per-video=', YOUTUBE_GOD_MODE_SCHEDULER_DEFAULT_CONFIG.estimatedUsdPerVideo),
     maxBSourceVideosPerRun: numberArg(argv, '--max-b-source-videos-per-run=', YOUTUBE_GOD_MODE_SCHEDULER_DEFAULT_CONFIG.maxBSourceVideosPerRun),
+    maxUngradedSourceVideosPerRun: numberArg(argv, '--max-ungraded-source-videos-per-run=', YOUTUBE_GOD_MODE_SCHEDULER_DEFAULT_CONFIG.maxUngradedSourceVideosPerRun),
     allowBSourceSampling: !flag(argv, '--no-b-source-sampling'),
+    allowUngradedSourceSampling: !flag(argv, '--no-ungraded-source-sampling'),
     retryLimit: numberArg(argv, '--retry-limit=', YOUTUBE_GOD_MODE_SCHEDULER_DEFAULT_CONFIG.retryLimit),
     model: readArgValue(argv, '--model='),
     geminiTimeoutMs: numberArg(argv, '--gemini-timeout-ms=', null),
@@ -313,6 +315,8 @@ function buildSchedulerPlan(args = {}, liveInputs = {}) {
       retryLimit: args.retryLimit,
       allowBSourceSampling: args.allowBSourceSampling,
       maxBSourceVideosPerRun: args.maxBSourceVideosPerRun,
+      allowUngradedSourceSampling: args.allowUngradedSourceSampling,
+      maxUngradedSourceVideosPerRun: args.maxUngradedSourceVideosPerRun,
     },
   })
 }
@@ -422,7 +426,7 @@ async function main() {
     'package exposes focused scheduler proof',
     packageJson.scripts?.['process:youtube-god-mode-autonomous-watch-scheduler-check'] || 'missing',
   )
-  addCheck(checks, dogfood.ok, 'dogfood proves source grades, budgets, retries, long-course routing, and live approval', JSON.stringify(dogfood.cases))
+  addCheck(checks, dogfood.ok, 'dogfood proves source grades, ungraded baseline sampling, budgets, retries, long-course routing, and live approval', JSON.stringify(dogfood.cases))
   addCheck(
     checks,
     dryRun.status === 'ready_for_dry_run_report' &&
