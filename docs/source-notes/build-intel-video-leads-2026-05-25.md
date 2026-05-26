@@ -2,7 +2,7 @@
 
 Source IDs: `SRC-CREATOR-WATCHLIST-001`, `SRC-YOUTUBE-INTEL-001`
 
-Status: pending God Mode extraction. These are source leads only; no extraction run was started from this note.
+Status: source leads plus post-check extraction status. These notes do not start extraction; they record what the governed system already knows.
 
 ## Operator Context
 
@@ -16,7 +16,10 @@ Steve supplied more public YouTube Build Intel leads while the God Mode extracto
 - Video: `https://www.youtube.com/watch?v=QZMljuD10sU`
 - Title resolved by YouTube oEmbed: `My Claude Code Can INSTANTLY Watch Any Video (Here's How)`
 - Why it matters: directly compares against BCrew's God Mode video route. Extract and review for useful `/watch`-style ideas, but do not assume it beats our source-packet, visual evidence, link approval, and Director pipeline until extraction proves it.
-- Status: watchlist source ref added; pending God Mode extraction.
+- Status: already God Mode full-watched in report artifact `batch:youtube-latest-20:api-full-watch-v1:20260525185845` at `2026-05-25T18:58:45.431Z` using `gemini-3.5-flash`.
+- Extracted ideas: `Multimodal Video Ingestion Tool` and `Adaptive Frame-Capping Token Optimizer`.
+- Resolved public resource: `https://github.com/bradautomates/claude-video`.
+- Approval-required links: Google sign-in, Cal.com, LinkedIn, Kit signup, and YouTube support. These require exact source-packet decisions before deeper follow-up.
 
 ## Case-Sensitivity Note
 
@@ -24,6 +27,6 @@ Steve's pasted YouTube short link arrived lowercased as `qzmljud10su`. YouTube v
 
 ## Not Next
 
-- Do not run extraction from this note.
-- Do not treat the video claims as true until God Mode extraction and Director review.
+- Do not rerun duplicate extraction just because the lead was mentioned again; use the existing full-watch report unless a new model comparison or source-packet follow-up is explicitly approved.
+- Do not treat the video claims as implementation-ready until Director/Scoper review compares them against BCrew's existing Gemini video route, source-packet approvals, and hands/navigation gap.
 - Do not replace BCrew's extractor design from a title or sales claim.
