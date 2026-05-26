@@ -233,18 +233,52 @@ async function main() {
   addCheck(checks, packageJson.scripts?.['process:youtube-creator-god-mode-catchup-check'] === `node --env-file-if-exists=.env ${YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_SCRIPT_PATH}`, 'package exposes focused catch-up readback proof', packageJson.scripts?.['process:youtube-creator-god-mode-catchup-check'] || 'missing')
   addCheck(checks, parentPlanSource.includes('The watchlist coverage report shows every approved public creator') && parentPlanSource.includes('comment status as `operator_excluded`'), 'parent catch-up plan requires all-creator coverage and comment exclusion', YOUTUBE_CREATOR_GOD_MODE_CATCHUP_CARD_ID)
   addCheck(checks, planSource.includes('baseline is incomplete') && planSource.includes('no live Gemini spend'), 'readback plan is no-spend and honest about incomplete baseline', YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_PLAN_PATH)
-  addCheck(checks, moduleSource.includes('approvedResourceFollowStatus') && moduleSource.includes('sourcePacketWorkerStatus') && moduleSource.includes('browserHandsStatus'), 'module reports resource, source-packet worker, and browser Hands status per creator', 'lib/youtube-creator-god-mode-catchup.js')
-  addCheck(checks, moduleSource.includes('majorBuildPromotionAllowed') && moduleSource.includes('blocked_source_baseline_incomplete'), 'module exposes Scoper/build-promotion baseline gate', 'buildPromotionReadiness')
+  addCheck(
+    checks,
+    moduleSource.includes('approvedResourceFollowStatus') &&
+      moduleSource.includes('sourcePacketWorkerStatus') &&
+      moduleSource.includes('browserHandsStatus') &&
+      moduleSource.includes('fullPageExtractionStatus') &&
+      moduleSource.includes('freeResourceCaptureStatus') &&
+      moduleSource.includes('paidGateEvaluationStatus') &&
+      moduleSource.includes('youtubeSopStatus'),
+    'module reports full YouTube source SOP status per creator',
+    'lib/youtube-creator-god-mode-catchup.js',
+  )
+  addCheck(checks, moduleSource.includes('majorBuildPromotionAllowed') && moduleSource.includes('blocked_source_sop_incomplete'), 'module exposes Scoper/build-promotion baseline plus SOP gate', 'buildPromotionReadiness')
   addCheck(checks, devHubSource.includes('youtubeCreatorGodModeCatchup') && devHubSource.includes('buildYoutubeCreatorGodModeCatchupSnapshot'), 'Dev Hub API consumes catch-up readback payload', 'lib/dev-team-hub.js')
   addCheck(checks, devHubProofSource.includes('youtubeCreatorGodModeCatchup'), 'Dev Hub focused proof checks catch-up readback visibility', 'scripts/process-dev-team-hub-v0-check.mjs')
   addCheck(checks, publicDevSource.includes('youtubeCreatorGodModeCatchup') && publicDevSource.includes('baseline'), 'Dev page can render catch-up baseline state in the source leaderboard/card', 'public/dev.js')
+  addCheck(
+    checks,
+    publicDevSource.includes('SOP incomplete') &&
+      publicDevSource.includes('freeResourceCaptureStatus') &&
+      publicDevSource.includes('paidGateEvaluationStatus'),
+    'Dev page distinguishes video baseline from full YouTube source SOP completion',
+    'public/dev.js',
+  )
   addCheck(checks, sourceDoesNotWriteOrExtract(`${moduleSource}\n${scriptSource}`), 'catch-up readback proof has no write, live extraction, or provider-call path', YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_SCRIPT_PATH)
   addCheck(checks, dogfood.ok === true, 'dogfood proves comments excluded, blocked creator reason, S/A deep target, C/D throttle, long-course routing, and promotion block', JSON.stringify(dogfood.cases))
   addCheck(checks, snapshot.ok === true, 'live catch-up snapshot is healthy', snapshot.failed.map(item => item.check).join(', ') || snapshot.status)
   addCheck(checks, list(snapshot.creators).length >= 3, 'live snapshot covers multiple approved public creators', `${list(snapshot.creators).length}`)
   addCheck(checks, representedOrBlocked.length === list(snapshot.creators).length, 'all approved public creators are represented or have a blocked reason', `${representedOrBlocked.length}/${list(snapshot.creators).length}`)
   addCheck(checks, list(snapshot.creators).every(row => row.commentStatus === 'operator_excluded'), 'comments are operator-excluded, not parked', 'operator_excluded')
-  addCheck(checks, list(snapshot.creators).every(row => row.approvedResourceFollowStatus && row.sourcePacketWorkerStatus && row.browserHandsStatus), 'every creator exposes resource-follow, worker, and Hands status', 'all rows explicit')
+  addCheck(
+    checks,
+    list(snapshot.creators).every(row =>
+      row.fullPageExtractionStatus &&
+      row.approvedResourceFollowStatus &&
+      row.sourcePacketWorkerStatus &&
+      row.browserHandsStatus &&
+      row.freeResourceCaptureStatus &&
+      row.freeCommunityPacketStatus &&
+      row.paidGateEvaluationStatus &&
+      row.autopilotDispositionStatus &&
+      row.youtubeSopStatus
+    ),
+    'every creator exposes full source SOP status',
+    'page/resource/worker/Hands/free-resource/community/paid-gate/autopilot explicit',
+  )
   addCheck(checks, Number(snapshot.summary?.trackedMetadataCount || 0) >= list(snapshot.creators).length, 'tracked YouTube metadata is visible for catch-up planning', `${snapshot.summary?.trackedMetadataCount || 0} rows`)
   addCheck(
     checks,
@@ -267,7 +301,16 @@ async function main() {
     `targetRows=${targetItemCount}; trackedMetadata=${snapshot.summary?.trackedMetadataCount || 0}`,
   )
   addCheck(checks, Number(snapshot.summary?.videoAudioVisualWatchedCount || 0) >= 1, 'video/audio/visual watched count is visible', `${snapshot.summary?.videoAudioVisualWatchedCount || 0}`)
-  addCheck(checks, snapshot.buildPromotionReadiness?.visibleToScoper === true && snapshot.buildPromotionReadiness?.majorBuildPromotionAllowed === (Number(snapshot.summary?.baselineIncompleteCount || 0) === 0), 'Scoper/build-promotion gate reflects baseline completion', snapshot.buildPromotionReadiness?.status || 'missing')
+  addCheck(
+    checks,
+    snapshot.buildPromotionReadiness?.visibleToScoper === true &&
+      snapshot.buildPromotionReadiness?.majorBuildPromotionAllowed === (
+        Number(snapshot.summary?.baselineIncompleteCount || 0) === 0 &&
+        Number(snapshot.summary?.sourceSopIncompleteCount || 0) === 0
+      ),
+    'Scoper/build-promotion gate reflects baseline and source SOP completion',
+    snapshot.buildPromotionReadiness?.status || 'missing',
+  )
   addCheck(checks, snapshot.reportOnly === true && snapshot.liveExtractionStarted === false && snapshot.writesBacklog === false && snapshot.writesExternalSystems === false, 'live proof is report-only and no-spend', `${snapshot.reportOnly}/${snapshot.liveExtractionStarted}/${snapshot.writesBacklog}/${snapshot.writesExternalSystems}`)
   addCheck(checks, list(snapshot.sourceIds).includes(YOUTUBE_CREATOR_DAILY_WATCH_SOURCE_ID), 'snapshot keeps YouTube source ID lineage', list(snapshot.sourceIds).join(', ') || 'missing')
 

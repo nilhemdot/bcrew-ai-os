@@ -296,10 +296,15 @@ function creatorTargetFromCatchup(row = {}) {
   const gap = Number(row.baselineGap || 0)
   const status = gap > 0 ? 'Needs watch' : 'Baseline met'
   const longCourseCopy = longCourse ? ` · ${compactNumber(longCourse)} long-course pending` : ''
+  const sopCopy = row.youtubeSopStatus === 'source_sop_complete'
+    ? 'SOP complete'
+    : 'SOP incomplete'
+  const resourceCopy = statusCopy(row.freeResourceCaptureStatus || row.approvedResourceFollowStatus || '')
+  const gateCopy = statusCopy(row.paidGateEvaluationStatus || '')
   return [
     text(row.creator || creatorNameFromId(row.creatorId), 'Unknown creator'),
-    `${grade} Dev build · ${status}`,
-    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. ${statusCopy(row.nextWatchAction || '')}`,
+    `${grade} Dev build · ${status} · ${sopCopy}`,
+    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}. ${statusCopy(row.nextWatchAction || '')}`,
     row.representationStatus === 'represented' ? 'Live' : 'Needs source',
   ]
 }
