@@ -56,12 +56,14 @@ V1 registry proof:
 - `lib/nightly-audit-fleet.js` defines the deterministic report-only audit fleet registry.
 - `scripts/process-nightly-audit-fleet-check.mjs` proves the required specialist lanes exist, including the hardcoded truth/runtime config auditor Steve called out.
 - The proof dogfoods failure for a missing hardcoded-truth lane, auto-fix, auto-created backlog mutation, unsafe LLM review without router/budget, and reintroducing operator-excluded comments as active extractor work.
-- Current gap: the registry is not yet wired into the 3 AM/morning audit rollup.
+- The registry is wired into a scheduled 03:05 America/Toronto read-only Foundation job, after `nightly-deep-audit` and before the 05:15 `system-health-nightly-audit` morning rollup.
+- System Health now includes an `auditFleet` rollup in JSON/markdown with lane count, job key, schedule, hardcoded-truth lane presence, latest run status, and fail-closed wiring failures.
 
 Proof:
 
 ```bash
 npm run process:nightly-audit-fleet-check -- --json
+npm run process:system-health-nightly-audit-check -- --json
 ```
 
 ## Not Next

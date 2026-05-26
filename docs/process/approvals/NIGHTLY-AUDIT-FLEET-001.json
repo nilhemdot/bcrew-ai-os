@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "NIGHTLY-AUDIT-FLEET-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T04:30:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/nightly-audit-fleet-001-plan.md",
+  "approvedPlanSha256": "ebcdee73cceca7371b1e165e5fc4682d19d845b636809966feadba40a8e0a4dc",
+  "approvedRepoHead": "c70a91fcf6cbbd0c485f5da63b647152f444e30c",
+  "approvalSource": "Steve May 25-26 overnight audit-fleet correction: build the multi-auditor hardcoded-truth/system-foundation guard into the 3 AM/morning rollup, keep it report-only/no-auto, and continue to the next card if blocked.",
+  "approvalDigest": "da3ac2074de8381bd817473051afc9dc84014bd738fa80515535980847ce6431"
+}

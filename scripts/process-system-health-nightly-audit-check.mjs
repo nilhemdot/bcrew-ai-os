@@ -44,6 +44,10 @@ import {
 } from '../lib/process-write-guard.js'
 import { buildDocArtifactBloatSnapshot } from '../lib/doc-artifact-bloat-guard.js'
 import { runSerializedFoundationGateCheck } from '../lib/foundation-gate-check-serialization.js'
+import {
+  NIGHTLY_AUDIT_FLEET_JOB_KEY,
+  NIGHTLY_AUDIT_FLEET_SCHEDULE_LOCAL_TIME,
+} from '../lib/nightly-audit-fleet.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -119,6 +123,20 @@ function buildSystemHealthReportJson(snapshot = {}) {
         'plainEnglish',
         'nextAction',
       ]),
+    } : null,
+    auditFleet: snapshot.auditFleet ? {
+      status: snapshot.auditFleet.status,
+      jobKey: snapshot.auditFleet.jobKey,
+      scheduleLocalTime: snapshot.auditFleet.scheduleLocalTime,
+      scheduleTimezone: snapshot.auditFleet.scheduleTimezone,
+      laneCount: snapshot.auditFleet.laneCount,
+      laneIds: snapshot.auditFleet.laneIds,
+      hardcodedTruthLanePresent: snapshot.auditFleet.hardcodedTruthLanePresent,
+      reportOnly: snapshot.auditFleet.reportOnly,
+      latestRunStatus: snapshot.auditFleet.latestRunStatus,
+      latestRunAt: snapshot.auditFleet.latestRunAt,
+      scheduledJobStatus: snapshot.auditFleet.scheduledJobStatus,
+      failures: snapshot.auditFleet.failures || [],
     } : null,
     operatingReliability: snapshot.operatingReliability ? {
       status: snapshot.operatingReliability.status,
@@ -286,8 +304,25 @@ async function main() {
   )
   addCheck(checks, systemHealth.docArtifactBloat?.summary?.artifactCount > 0 && Number.isFinite(systemHealth.summary?.docArtifactRiskCount), 'system-health snapshot includes doc/report bloat rollup', `artifacts=${systemHealth.docArtifactBloat?.summary?.artifactCount || 0} risk=${systemHealth.summary?.docArtifactRiskCount || 0}`)
   addCheck(checks, systemHealth.fileSizeStandard?.summary?.fileCount > 0 && Number.isFinite(systemHealth.summary?.fileSizeWatchCount), 'system-health snapshot includes file-size standard rollup', `files=${systemHealth.fileSizeStandard?.summary?.fileCount || 0} watch=${systemHealth.summary?.fileSizeWatchCount || 0}`)
-  addCheck(checks, scheduledJobs.rows.some(row => row.key === 'foundation-verify') && scheduledJobs.rows.some(row => row.key === 'nightly-deep-audit'), 'scheduled-job snapshot includes verifier and nightly auditor rows', scheduledJobs.rows.slice(0, 8).map(row => row.key).join(', '))
-  addCheck(checks, moduleSource.includes('buildFoundationSystemHealthSnapshot') && moduleSource.includes('buildScheduledJobStalenessSnapshot') && moduleSource.includes('buildFoundationSystemHealthReportMarkdown'), 'system-health module owns snapshot, staleness, and report behavior', 'lib/foundation-system-health.js')
+  addCheck(
+    checks,
+    scheduledJobs.rows.some(row => row.key === 'foundation-verify') &&
+      scheduledJobs.rows.some(row => row.key === 'nightly-deep-audit') &&
+      scheduledJobs.rows.some(row => row.key === NIGHTLY_AUDIT_FLEET_JOB_KEY),
+    'scheduled-job snapshot includes verifier, nightly auditor, and audit-fleet rows',
+    scheduledJobs.rows.slice(0, 12).map(row => row.key).join(', '),
+  )
+  addCheck(
+    checks,
+    systemHealth.auditFleet?.jobKey === NIGHTLY_AUDIT_FLEET_JOB_KEY &&
+      systemHealth.auditFleet?.scheduleLocalTime === NIGHTLY_AUDIT_FLEET_SCHEDULE_LOCAL_TIME &&
+      systemHealth.auditFleet?.laneCount >= 8 &&
+      systemHealth.auditFleet?.hardcodedTruthLanePresent === true &&
+      systemHealth.auditFleet?.reportOnly === true,
+    'system-health snapshot rolls up the specialist audit fleet and hardcoded-truth lane',
+    systemHealth.auditFleet ? `${systemHealth.auditFleet.status}/${systemHealth.auditFleet.laneCount}/${systemHealth.auditFleet.scheduledJobStatus || 'no scheduled row'}` : 'missing auditFleet',
+  )
+  addCheck(checks, moduleSource.includes('buildFoundationSystemHealthSnapshot') && moduleSource.includes('buildScheduledJobStalenessSnapshot') && moduleSource.includes('buildFoundationSystemHealthReportMarkdown') && moduleSource.includes('buildNightlyAuditFleetRollupStatus'), 'system-health module owns snapshot, staleness, audit-fleet, and report behavior', 'lib/foundation-system-health.js')
   addCheck(checks, hubReadRoutesSource.includes('foundationSystemHealth'), 'Foundation full hub payload includes foundationSystemHealth', 'lib/hub-read-routes.js')
   addCheck(checks, runtimeRendererSource.includes('renderFoundationSystemHealthPanel') && runtimeRendererSource.includes('foundationSystemHealth'), 'Runtime renderer includes system-health panel behavior', 'public/foundation-runtime-renderers.js')
   addCheck(checks, operationsRendererSource.includes('renderFoundationSystemHealthPanel') && operationsRendererSource.includes('runtime-diagnostic-system-health-rollup'), 'Operations renderer places system-health rollup in Runtime Health diagnostics', 'public/foundation-operations-renderers.js')

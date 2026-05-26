@@ -115,10 +115,14 @@ async function main() {
   addCheck(checks, card?.lane === 'executing' || card?.lane === 'done', 'live backlog card is executing or done', card ? card.lane : 'missing')
   addCheck(
     checks,
-    activeSprint.sprint?.sprintId === FOUNDATION_JOB_MUTATION_ALLOWLIST_SPRINT_ID &&
-      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
-    'Current Sprint shows this card active or done',
-    `${activeSprint.sprint?.sprintId || 'missing'} / ${sprintItem?.stage || 'missing'}`,
+    (
+      activeSprint.sprint?.sprintId === FOUNDATION_JOB_MUTATION_ALLOWLIST_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage)
+    ) || card?.lane === 'done',
+    'Current Sprint shows this card active/done or live backlog keeps historical done proof',
+    card?.lane === 'done'
+      ? `historical done card / ${FOUNDATION_JOB_MUTATION_ALLOWLIST_CLOSEOUT_KEY}`
+      : `${activeSprint.sprint?.sprintId || 'missing'} / ${sprintItem?.stage || 'missing'}`,
   )
   addCheck(checks, report.ok, 'real scheduled jobs have explicit allowlist posture', `scheduled=${report.scheduledCount} allowed=${report.allowedCount} blocked=${report.blockedCount} missing=${report.missingCount} mismatch=${report.mismatchCount}`)
   addCheck(
