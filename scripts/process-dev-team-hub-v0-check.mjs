@@ -348,6 +348,14 @@ async function main() {
     `${list(payload?.youtubeCreatorGodModeCatchup?.creators).length}/${payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0} creators`
   )
   addCheck(checks, payload?.youtubeCreatorGodModeCatchup?.buildPromotionReadiness?.visibleToScoper === true && Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0) >= 3, 'live Dev Hub exposes catch-up baseline gate for Scoper/build promotion', `${payload?.youtubeCreatorGodModeCatchup?.buildPromotionReadiness?.status || 'missing'} / ${payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0} creators`)
+  addCheck(
+    checks,
+    Number(payload?.youtubeCreatorGodModeCatchup?.summary?.fullWatchReportCount || 0) >= 1 &&
+      Number(payload?.youtubeCreatorGodModeCatchup?.summary?.sourceSopEvidenceVideoCount || 0) >= 1 &&
+      list(payload?.youtubeCreatorGodModeCatchup?.creators).some(row => Number(row.sourceSopEvidence?.evidenceVideoCount || 0) >= 1),
+    'live Dev Hub exposes evidence-backed YouTube SOP progress',
+    `reports=${payload?.youtubeCreatorGodModeCatchup?.summary?.fullWatchReportCount || 0}; videos=${payload?.youtubeCreatorGodModeCatchup?.summary?.sourceSopEvidenceVideoCount || 0}`,
+  )
   addCheck(checks, Number(payload?.extractionEconomics?.estimatedSpendUsd || 0) > 0 && Number(payload?.extractionEconomics?.costPerIdeaUsd || 0) > 0, 'live extraction economics calculate API spend and cost per idea', `$${Number(payload?.extractionEconomics?.estimatedSpendUsd || 0).toFixed(2)} / $${Number(payload?.extractionEconomics?.costPerIdeaUsd || 0).toFixed(2)} per idea`)
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => item.url && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
   addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos'), 'source coverage includes planned GitHub and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)

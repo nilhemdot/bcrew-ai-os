@@ -29,6 +29,9 @@ import {
   buildYoutubeCreatorGodModeCatchupDogfoodProof,
   buildYoutubeCreatorGodModeCatchupSnapshot,
 } from '../lib/youtube-creator-god-mode-catchup.js'
+import {
+  SOURCE_PACKET_WORKER_RUNNER_TARGET_KEY,
+} from '../lib/source-packet-worker-runner.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -139,6 +142,32 @@ async function countSourceCrawlItemsForTarget(targetKey) {
   }
 }
 
+async function loadYoutubeFullWatchReports() {
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT report_artifact_id AS "reportArtifactId",
+               report_type AS "reportType",
+               status,
+               source_ids AS "sourceIds",
+               structured_output_json AS "structuredOutputJson",
+               metadata,
+               created_at AS "createdAt",
+               updated_at AS "updatedAt"
+        FROM intelligence_report_artifacts
+        WHERE metadata->>'fullWatchRoute' = 'gemini_api_youtube_url_video_understanding'
+           OR metadata->>'proofMode' = 'youtube_latest_20_god_mode_api_full_watch'
+        ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+        LIMIT 500
+      `,
+    )
+    return result.rows
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
 function normalizeSourceValueGraderReport(bundle = {}) {
   const report = bundle.report || null
   const structured = report?.structuredOutputJson || report?.structured_output_json || {}
@@ -172,7 +201,7 @@ function sourceDoesNotWriteOrExtract(source = '') {
 }
 
 async function loadLiveSnapshot() {
-  const [poolItems, fullWatchedVideoIds, sourceValueGraderBundle] = await Promise.all([
+  const [poolItems, fullWatchedVideoIds, sourceValueGraderBundle, youtubeFullWatchReports, sourcePacketWorkerRuns] = await Promise.all([
     listSourceCrawlItems({
       targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
       limit: YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
@@ -180,12 +209,20 @@ async function loadLiveSnapshot() {
     }),
     loadAlreadyFullWatchedVideoIds(),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
+    loadYoutubeFullWatchReports(),
+    listSourceCrawlItems({
+      targetKey: SOURCE_PACKET_WORKER_RUNNER_TARGET_KEY,
+      limit: 500,
+      order: 'desc',
+    }),
   ])
   return buildYoutubeCreatorGodModeCatchupSnapshot({
     watchPlan: buildYoutubeCreatorDailyWatchPlan(),
     poolItems,
     fullWatchedVideoIds,
     sourceValueGrader: normalizeSourceValueGraderReport(sourceValueGraderBundle),
+    youtubeFullWatchReports,
+    sourcePacketWorkerRuns,
   })
 }
 
@@ -241,7 +278,8 @@ async function main() {
       moduleSource.includes('fullPageExtractionStatus') &&
       moduleSource.includes('freeResourceCaptureStatus') &&
       moduleSource.includes('paidGateEvaluationStatus') &&
-      moduleSource.includes('youtubeSopStatus'),
+      moduleSource.includes('youtubeSopStatus') &&
+      moduleSource.includes('buildYoutubeCreatorSourceSopEvidence'),
     'module reports full YouTube source SOP status per creator',
     'lib/youtube-creator-god-mode-catchup.js',
   )
@@ -253,7 +291,8 @@ async function main() {
     checks,
     publicDevSource.includes('SOP incomplete') &&
       publicDevSource.includes('freeResourceCaptureStatus') &&
-      publicDevSource.includes('paidGateEvaluationStatus'),
+      publicDevSource.includes('paidGateEvaluationStatus') &&
+      publicDevSource.includes('sourceSopEvidence'),
     'Dev page distinguishes video baseline from full YouTube source SOP completion',
     'public/dev.js',
   )
@@ -301,6 +340,21 @@ async function main() {
     `targetRows=${targetItemCount}; trackedMetadata=${snapshot.summary?.trackedMetadataCount || 0}`,
   )
   addCheck(checks, Number(snapshot.summary?.videoAudioVisualWatchedCount || 0) >= 1, 'video/audio/visual watched count is visible', `${snapshot.summary?.videoAudioVisualWatchedCount || 0}`)
+  addCheck(
+    checks,
+    Number(snapshot.summary?.fullWatchReportCount || 0) >= 1 &&
+      Number(snapshot.summary?.sourceSopEvidenceVideoCount || 0) >= 1 &&
+      Number(snapshot.summary?.fullPageEvidenceCount || 0) >= 1,
+    'catch-up source SOP status reads real full-watch/page-evidence reports',
+    `reports=${snapshot.summary?.fullWatchReportCount || 0}; videos=${snapshot.summary?.sourceSopEvidenceVideoCount || 0}; pages=${snapshot.summary?.fullPageEvidenceCount || 0}`,
+  )
+  addCheck(
+    checks,
+    list(snapshot.creators).some(row => Number(row.sourceSopEvidence?.evidenceVideoCount || 0) >= 1) &&
+      list(snapshot.creators).some(row => String(row.fullPageExtractionStatus || '').startsWith('partial_') || row.fullPageExtractionStatus === 'complete'),
+    'creator rows expose evidence-backed SOP progress instead of watched-count placeholders',
+    'sourceSopEvidence + fullPageExtractionStatus',
+  )
   addCheck(
     checks,
     snapshot.buildPromotionReadiness?.visibleToScoper === true &&

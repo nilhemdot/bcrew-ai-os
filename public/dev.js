@@ -301,10 +301,14 @@ function creatorTargetFromCatchup(row = {}) {
     : 'SOP incomplete'
   const resourceCopy = statusCopy(row.freeResourceCaptureStatus || row.approvedResourceFollowStatus || '')
   const gateCopy = statusCopy(row.paidGateEvaluationStatus || '')
+  const evidence = row.sourceSopEvidence || {}
+  const evidenceCopy = Number(evidence.evidenceVideoCount || 0)
+    ? ` Evidence: ${compactNumber(evidence.evidenceVideoCount)} videos, ${compactNumber(evidence.fullPageComplete || 0)} pages.`
+    : ''
   return [
     text(row.creator || creatorNameFromId(row.creatorId), 'Unknown creator'),
     `${grade} Dev build · ${status} · ${sopCopy}`,
-    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}. ${statusCopy(row.nextWatchAction || '')}`,
+    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}.${evidenceCopy} ${statusCopy(row.nextWatchAction || '')}`,
     row.representationStatus === 'represented' ? 'Live' : 'Needs source',
   ]
 }
