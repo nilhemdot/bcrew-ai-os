@@ -1,5 +1,9 @@
 # YOUTUBE-GOD-MODE-AUTONOMOUS-WATCH-SCHEDULER-001 Plan
 
+Status: Closed under `youtube-god-mode-autonomous-watch-scheduler-v1`
+
+Last updated: 2026-05-26
+
 ## What
 
 Build the autonomous scheduler for the public YouTube God Mode full-watch lane.
@@ -180,3 +184,5 @@ npm run process:youtube-god-mode-autonomous-watch-scheduler-check -- --json
 - Do not bypass the existing guarded full-watch runner.
 - Do not run unbounded long courses in the standard lane.
 - Do not remove manual controls until dry-run and live-bounded proofs are green.
+
+Closeout proof lives in `docs/handoffs/2026-05-26-youtube-god-mode-autonomous-watch-scheduler-v1-closeout.md`. V1 is approval/budget-gated: dry-run is safe by default, live-bounded runs require explicit budget approval, and the scheduled job row remains disabled/manual until Steve approves the operating posture.
