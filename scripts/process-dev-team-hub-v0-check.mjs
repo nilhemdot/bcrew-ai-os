@@ -358,9 +358,10 @@ async function main() {
       moduleSource.includes('buildApprovalReviewTriage') &&
       jsSource.includes('renderApprovalReview') &&
       jsSource.includes('renderApprovalTriage') &&
+      jsSource.includes('renderWorkerQueue') &&
       cssSource.includes('approval-triage-grid'),
     'Dev Hub exposes actual approval links and source-packet triage instead of a blind count',
-    'approvalReviewQueue + approvalReviewTriage + #approval-review',
+    'approvalReviewQueue + approvalReviewTriage + worker/Hands queue readback + #approval-review',
   )
   addCheck(checks, moduleSource.includes('buildDevIntelSourceCoverageSnapshot') && jsSource.includes('renderSourceLeaderboard'), 'Dev Hub page exposes source-family leaderboard coverage', 'sourceCoverage + sourceValueGrader')
   addCheck(checks, moduleSource.includes('buildGodModeExtractorParitySnapshot') && moduleSource.includes('evaluateGodModeExtractorParity') && jsSource.includes('renderGodModeParity'), 'Dev Hub API and page render extractor God Mode parity data', 'godModeExtractorParity read model + #god-mode-parity')
@@ -464,6 +465,17 @@ async function main() {
       Number(payload?.approvalReviewTriage?.summary?.backlogWriteCount || 0) === 0,
     'live Dev Hub groups approval packets by run boundary and proves approval cannot start crawl/write work',
     `rows=${payload?.approvalReviewTriage?.totalReviewRows || 0}; public=${payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0}; auth=${payload?.approvalReviewTriage?.summary?.requiresAuthCount || 0}`,
+  )
+  addCheck(
+    checks,
+    ['ready', 'not_loaded'].includes(text(payload?.sourcePacketWorkerQueue?.status)) &&
+      ['ready', 'not_loaded'].includes(text(payload?.sourcePacketHandsQueue?.status)) &&
+      payload?.sourcePacketWorkerQueue?.counts &&
+      payload?.sourcePacketHandsQueue?.counts &&
+      jsSource.includes('No approved source-packet rows are waiting for the exact public page worker') &&
+      jsSource.includes('No approved source-packet rows are waiting for bounded browser Hands'),
+    'live Dev Hub exposes empty worker/Hands queues as approval-state readback instead of missing runtime',
+    `worker=${payload?.sourcePacketWorkerQueue?.counts?.ready || 0}/${payload?.sourcePacketWorkerQueue?.counts?.total || 0}; hands=${payload?.sourcePacketHandsQueue?.counts?.ready || 0}/${payload?.sourcePacketHandsQueue?.counts?.total || 0}`,
   )
   addCheck(checks, Number(payload?.extractionEconomics?.estimatedSpendUsd || 0) > 0 && Number(payload?.extractionEconomics?.costPerIdeaUsd || 0) > 0, 'live extraction economics calculate API spend and cost per idea', `$${Number(payload?.extractionEconomics?.estimatedSpendUsd || 0).toFixed(2)} / $${Number(payload?.extractionEconomics?.costPerIdeaUsd || 0).toFixed(2)} per idea`)
   addCheck(

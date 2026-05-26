@@ -1,6 +1,7 @@
 const API_ROUTE = '/api/foundation/dev-team-hub'
 const LINK_PACKET_PREVIEW_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-preview'
 const LINK_PACKET_DECISION_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-decision'
+const SOURCE_PACKET_WORKER_QUEUE_ROUTE = '/api/foundation/dev-team-hub/source-packet-worker-queue'
 const EXTRACTOR_HANDS_PRODUCTION_QUEUE_ROUTE = '/api/foundation/dev-team-hub/source-packet-hands-queue'
 const YOUTUBE_CREATOR_TARGET_FALLBACK_LIMIT = 10
 const SOURCE_LEADERBOARD_LIMIT = 10
@@ -554,6 +555,55 @@ function renderApprovalTriage(snapshot = {}) {
   `
 }
 
+function workerQueueStatusCopy(row = {}) {
+  if (row.status === 'ready_to_run') return 'Ready for exact-page worker'
+  if (row.status === 'already_run') return 'Worker evidence saved'
+  if (row.status === 'ready_to_run_exact_public_worker') return 'Ready for exact-page worker'
+  if (row.status === 'blocked_before_worker_run') return 'Packet boundary blocked'
+  if (row.status === 'not_ready_for_worker') return 'Not approved for worker'
+  return text(row.status, 'Worker blocked')
+}
+
+function renderWorkerQueue(snapshot = {}) {
+  const queue = snapshot.sourcePacketWorkerQueue || {}
+  const rows = list(queue.rows).slice(0, 5)
+  const counts = queue.counts || {}
+  const pendingApprovalCount = list(snapshot.approvalReviewQueue).length
+  if (!rows.length) {
+    return `
+      <article class="approval-empty">
+        <span>Exact-page worker status</span>
+        <p>No approved source-packet rows are waiting for the exact public page worker. ${pendingApprovalCount ? `${escapeHtml(compactNumber(pendingApprovalCount))} links are still in review above; recording an approval creates queue visibility but does not start the worker.` : `Queue route: ${escapeHtml(SOURCE_PACKET_WORKER_QUEUE_ROUTE)}.`}</p>
+      </article>
+    `
+  }
+  return `
+    <div class="approval-head">
+      <div>
+        <span>Exact-page worker status</span>
+        <p>Approved public packets can run through the separate exact-page worker. The worker captures the approved URL only and turns discovered links into new source-packet candidates.</p>
+      </div>
+      <strong>${escapeHtml(compactNumber(counts.ready || 0))}/${escapeHtml(compactNumber(counts.total || rows.length))}</strong>
+    </div>
+    <div class="approval-list">
+      ${rows.map(row => `
+        <article class="approval-row">
+          <div>
+            <span>${escapeHtml(workerQueueStatusCopy(row))}</span>
+            <h3>${escapeHtml(row.host || row.exactUrl || 'Source packet')}</h3>
+            <p>${escapeHtml(row.workerStatus?.plainEnglish || 'Exact public page worker queue row.')}</p>
+            <a href="${escapeHtml(row.exactUrl)}" target="_blank" rel="noreferrer">${escapeHtml(row.exactUrl)}</a>
+          </div>
+          <aside>
+            <small>${escapeHtml(row.ready ? 'Separate worker run route is available for this exact approved packet.' : 'No worker starts from approval or from this status view.')}</small>
+            ${row.existingRunArtifactId ? `<em>${escapeHtml(row.existingRunArtifactId)}</em>` : ''}
+          </aside>
+        </article>
+      `).join('')}
+    </div>
+  `
+}
+
 function handsQueueStatusCopy(row = {}) {
   if (row.status === 'ready_to_run') return 'Ready for Hands'
   if (row.status === 'already_run') return 'Hands evidence saved'
@@ -569,11 +619,12 @@ function renderHandsQueue(snapshot = {}) {
   const queue = snapshot.sourcePacketHandsQueue || {}
   const rows = list(queue.rows).slice(0, 5)
   const counts = queue.counts || {}
+  const pendingApprovalCount = list(snapshot.approvalReviewQueue).length
   if (!rows.length) {
     return `
       <article class="approval-empty">
         <span>Hands runner status</span>
-        <p>No approved source-packet rows are waiting for bounded browser Hands. Queue route: ${escapeHtml(EXTRACTOR_HANDS_PRODUCTION_QUEUE_ROUTE)}.</p>
+        <p>No approved source-packet rows are waiting for bounded browser Hands. ${pendingApprovalCount ? `${escapeHtml(compactNumber(pendingApprovalCount))} links are still in review above; Hands also needs approved selector/action policy before it can run.` : `Queue route: ${escapeHtml(EXTRACTOR_HANDS_PRODUCTION_QUEUE_ROUTE)}.`}</p>
       </article>
     `
   }
@@ -613,6 +664,7 @@ function renderApprovalReview(snapshot = {}) {
         <span>No link approvals waiting</span>
         <p>The extractor did not return useful external links that need Steve review right now.</p>
       </article>
+      ${renderWorkerQueue(snapshot)}
       ${renderHandsQueue(snapshot)}
     `
     return
@@ -659,6 +711,7 @@ function renderApprovalReview(snapshot = {}) {
         </article>
       `).join('')}
     </div>
+    ${renderWorkerQueue(snapshot)}
     ${renderHandsQueue(snapshot)}
   `
   bindApprovalReviewControls(queue)
