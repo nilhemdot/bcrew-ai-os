@@ -271,6 +271,14 @@ async function main() {
   addCheck(checks, jsSource.includes('YouTube Creators') && jsSource.includes('Skool / Paid Courses') && jsSource.includes('GitHub / Repos') && jsSource.includes('Gmail / Missive / Slack') && jsSource.includes('Meetings / Transcripts') && jsSource.includes("label: 'Visual evidence'") && jsSource.includes("label: 'Links to review'") && !jsSource.includes("name: 'Video Artifacts'") && !jsSource.includes("name: 'Dev Director'") && !jsSource.includes("name: 'God Mode Eyes'"), 'source cards are actual source inputs and evidence is separate output', 'sources: YouTube/Skool/GitHub/internal/meetings; evidence cards carry output counts')
   addCheck(checks, moduleSource.includes('sourceValueGrader') && routeSource.includes('BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID'), 'Dev Hub API exposes source-value grader data to avoid hardcoded creator cards', BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID)
   addCheck(checks, moduleSource.includes('youtubeCreatorGodModeCatchup') && moduleSource.includes('buildYoutubeCreatorGodModeCatchupSnapshot') && jsSource.includes('youtubeCreatorGodModeCatchup'), 'Dev Hub API/page exposes YouTube creator catch-up baseline readback', 'youtubeCreatorGodModeCatchup')
+  addCheck(
+    checks,
+    jsSource.includes('YOUTUBE_CREATOR_TARGET_FALLBACK_LIMIT') &&
+      jsSource.includes('.map(creatorTargetFromCatchup)') &&
+      !/catchupRows\(snapshot\)[\s\S]{0,600}\.slice\(0,\s*10\)[\s\S]{0,220}\.map\(creatorTargetFromCatchup\)/.test(jsSource),
+    'Dev Hub YouTube source detail does not cap catch-up creators at 10',
+    'catch-up rows render all approved creators; fallback graded/daily views keep the compact limit'
+  )
   addCheck(checks, moduleSource.includes('buildExtractionEconomics') && moduleSource.includes('estimateGeminiStandardTokenCostUsd') && routeSource.includes('listLlmCalls'), 'Dev Hub API exposes extraction economics from LLM call usage', 'llm_calls + shared Gemini pricing tokens')
   addCheck(checks, moduleSource.includes('buildApprovalReviewQueue') && jsSource.includes('renderApprovalReview'), 'Dev Hub exposes actual approval links instead of a blind count', 'approvalReviewQueue + #approval-review')
   addCheck(checks, moduleSource.includes('buildDevIntelSourceCoverageSnapshot') && jsSource.includes('renderSourceLeaderboard'), 'Dev Hub page exposes source-family leaderboard coverage', 'sourceCoverage + sourceValueGrader')
@@ -320,6 +328,13 @@ async function main() {
   addCheck(checks, payload?.markApiFullWatch?.sourceRoute?.includes(MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID) && list(payload?.markApiFullWatch?.buildCandidates).length >= 1 && Number(payload?.counts?.apiFullWatchVideos || 0) === Number(markCatchupRow?.videoAudioVisualWatchedCount || 0), 'Mark accepted API full-watch count matches catch-up readback', `${payload?.counts?.apiFullWatchVideos || 0} videos / mark row ${markCatchupRow?.videoAudioVisualWatchedCount || 0}`)
   addCheck(checks, payload?.director?.sourceRoute?.includes(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID) && list(payload?.director?.recommendedBuildNow).length >= 1, 'Dev Intelligence Director recommendations are exposed to Dev Hub', `${list(payload?.director?.recommendedBuildNow).length} recommendations`)
   addCheck(checks, list(payload?.sourceValueGrader?.sourceGrades).length >= 3 && list(payload?.dailyWatch?.creators).length >= 3, 'live source cards can be built from multiple graded creators', `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.dailyWatch?.creators).length} watched`)
+  addCheck(
+    checks,
+    Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0) === list(payload?.youtubeCreatorGodModeCatchup?.creators).length &&
+      Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0) >= 30,
+    'live YouTube catch-up payload includes all approved creators',
+    `${list(payload?.youtubeCreatorGodModeCatchup?.creators).length}/${payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0} creators`
+  )
   addCheck(checks, payload?.youtubeCreatorGodModeCatchup?.buildPromotionReadiness?.visibleToScoper === true && Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0) >= 3, 'live Dev Hub exposes catch-up baseline gate for Scoper/build promotion', `${payload?.youtubeCreatorGodModeCatchup?.buildPromotionReadiness?.status || 'missing'} / ${payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0} creators`)
   addCheck(checks, Number(payload?.extractionEconomics?.estimatedSpendUsd || 0) > 0 && Number(payload?.extractionEconomics?.costPerIdeaUsd || 0) > 0, 'live extraction economics calculate API spend and cost per idea', `$${Number(payload?.extractionEconomics?.estimatedSpendUsd || 0).toFixed(2)} / $${Number(payload?.extractionEconomics?.costPerIdeaUsd || 0).toFixed(2)} per idea`)
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => item.url && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)

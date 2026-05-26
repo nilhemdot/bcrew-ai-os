@@ -2,6 +2,7 @@ const API_ROUTE = '/api/foundation/dev-team-hub'
 const LINK_PACKET_PREVIEW_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-preview'
 const LINK_PACKET_DECISION_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-decision'
 const EXTRACTOR_HANDS_PRODUCTION_QUEUE_ROUTE = '/api/foundation/dev-team-hub/source-packet-hands-queue'
+const YOUTUBE_CREATOR_TARGET_FALLBACK_LIMIT = 10
 
 const plannedSources = [
   {
@@ -311,18 +312,17 @@ function buildYoutubeCreatorTargets(snapshot = {}) {
       Number(right.deepBaselineGap || 0) - Number(left.deepBaselineGap || 0) ||
       text(left.creator).localeCompare(text(right.creator))
     )
-    .slice(0, 10)
     .map(creatorTargetFromCatchup)
   if (catchup.length) return catchup
 
   const graded = topDevSources(snapshot)
     .filter(source => source.creatorId || source.creator)
-    .slice(0, 10)
+    .slice(0, YOUTUBE_CREATOR_TARGET_FALLBACK_LIMIT)
     .map(source => creatorTargetFromGrade(snapshot, source))
   if (graded.length) return graded
 
   return dailyCreators(snapshot)
-    .slice(0, 10)
+    .slice(0, YOUTUBE_CREATOR_TARGET_FALLBACK_LIMIT)
     .map(creator => creatorTargetFromDaily(snapshot, creator))
 }
 
@@ -349,7 +349,7 @@ function buildLiveSources(snapshot = {}) {
       summary: `${compactNumber(creatorCount)} public creator channels feed Foundation. ${compactNumber(baselineComplete)} baseline met; ${compactNumber(baselineIncomplete)} still need watch.`,
       tags: ['public', 'daily', gradedCount ? 'graded' : 'needs grade', baselineIncomplete ? 'baseline gap' : 'baseline met'],
       targets: youtubeTargets,
-      targetNoun: 'graded source',
+      targetNoun: 'public creator',
       statusLine: `Running · ${catchupStatus}`,
       sourceRoute: daily.sourceRoute || '/api/foundation/build-intel/youtube-creator-daily-watch',
     },
