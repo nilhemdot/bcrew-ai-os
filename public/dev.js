@@ -305,10 +305,14 @@ function creatorTargetFromCatchup(row = {}) {
   const evidenceCopy = Number(evidence.evidenceVideoCount || 0)
     ? ` Evidence: ${compactNumber(evidence.evidenceVideoCount)} videos, ${compactNumber(evidence.fullPageComplete || 0)} pages.`
     : ''
+  const packetCount = Number(evidence.sourcePacketActionCount || 0)
+  const packetCopy = packetCount
+    ? ` Packets: ${compactNumber(packetCount)} review, ${compactNumber(evidence.runnablePublicSourcePacketCount || 0)} public, ${compactNumber(evidence.freeCommunityPacketCount || 0)} community, ${compactNumber(evidence.paidGatePacketCount || 0)} paid/gate.`
+    : ''
   return [
     text(row.creator || creatorNameFromId(row.creatorId), 'Unknown creator'),
     `${grade} Dev build · ${status} · ${sopCopy}`,
-    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}.${evidenceCopy} ${statusCopy(row.nextWatchAction || '')}`,
+    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}.${evidenceCopy}${packetCopy} ${statusCopy(row.nextWatchAction || '')}`,
     row.representationStatus === 'represented' ? 'Live' : 'Needs source',
   ]
 }
@@ -372,6 +376,8 @@ function buildEvidenceCards(snapshot = {}) {
   const gradedSources = sourceGrades(snapshot)
   const gradedVideos = gradedSources.reduce((sum, source) => sum + Number(source.watchedVideos || 0), 0)
   const gradedCandidates = gradedSources.reduce((sum, source) => sum + Number(source.buildCandidates || 0), 0)
+  const sourcePacketCount = Number(snapshot.youtubeCreatorGodModeCatchup?.summary?.sourcePacketActionCount || 0)
+  const approvalReviewCount = list(snapshot.approvalReviewQueue).length || sourcePacketCount || counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks
   return [
     {
       value: counts.researchPool,
@@ -395,11 +401,11 @@ function buildEvidenceCards(snapshot = {}) {
       meta: 'Needs Steve before backlog',
     },
     {
-      value: list(snapshot.approvalReviewQueue).length || counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks,
+      value: approvalReviewCount,
       label: 'Links to review',
-      tone: (list(snapshot.approvalReviewQueue).length || counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks) ? 'pending' : 'live',
-      summary: `${compactNumber(list(snapshot.approvalReviewQueue).length || counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks || 0)} useful links are held until Steve approves or rejects the source follow-up.`,
-      meta: 'Visible below',
+      tone: approvalReviewCount ? 'pending' : 'live',
+      summary: `${compactNumber(approvalReviewCount || 0)} source-packet decisions are held until Steve approves, holds, or rejects the exact follow-up.`,
+      meta: `${compactNumber(sourcePacketCount || 0)} from YouTube SOP evidence`,
     },
     {
       value: counts.apiFullWatchTimestampedVisualEvidence || counts.eyesTimestampedVisualEvidence,
@@ -501,6 +507,7 @@ function renderApprovalReview(snapshot = {}) {
           </div>
           <aside>
             <small>${escapeHtml(item.decisionNeeded || 'Approve exact source follow-up or reject.')}</small>
+            ${Number(item.evidenceCount || 0) > 1 ? `<em>${escapeHtml(compactNumber(item.evidenceCount))} video mentions</em>` : ''}
             <button class="approval-ai-btn" type="button" data-approval-action="toggle" data-approval-index="${escapeHtml(String(index))}">Decide with AI</button>
           </aside>
           <div class="approval-ai-panel" data-approval-panel="${escapeHtml(String(index))}" hidden>

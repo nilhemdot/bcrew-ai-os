@@ -66,6 +66,10 @@ function list(value) {
   return Array.isArray(value) ? value : []
 }
 
+function text(value) {
+  return String(value || '').trim()
+}
+
 function addCheck(checks, ok, check, detail = '') {
   checks.push({ ok: Boolean(ok), check, detail })
 }
@@ -356,8 +360,15 @@ async function main() {
     'live Dev Hub exposes evidence-backed YouTube SOP progress',
     `reports=${payload?.youtubeCreatorGodModeCatchup?.summary?.fullWatchReportCount || 0}; videos=${payload?.youtubeCreatorGodModeCatchup?.summary?.sourceSopEvidenceVideoCount || 0}`,
   )
+  addCheck(
+    checks,
+    Number(payload?.youtubeCreatorGodModeCatchup?.summary?.sourcePacketActionCount || 0) >= list(payload?.approvalReviewQueue).length &&
+      list(payload?.approvalReviewQueue).some(item => item.sourcePacketPreview?.sourcePacketId && item.sourcePacketValidation?.ok === true),
+    'live Dev Hub exposes YouTube SOP source-packet review queue with validated previews',
+    `actions=${payload?.youtubeCreatorGodModeCatchup?.summary?.sourcePacketActionCount || 0}; queue=${list(payload?.approvalReviewQueue).length}`,
+  )
   addCheck(checks, Number(payload?.extractionEconomics?.estimatedSpendUsd || 0) > 0 && Number(payload?.extractionEconomics?.costPerIdeaUsd || 0) > 0, 'live extraction economics calculate API spend and cost per idea', `$${Number(payload?.extractionEconomics?.estimatedSpendUsd || 0).toFixed(2)} / $${Number(payload?.extractionEconomics?.costPerIdeaUsd || 0).toFixed(2)} per idea`)
-  addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => item.url && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
+  addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => /^https?:\/\//i.test(text(item.url)) && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
   addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos'), 'source coverage includes planned GitHub and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)
   addCheck(checks, list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'meetings-transcripts') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'email-missive-comms') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'slack-comms'), 'active extraction lanes expose internal Foundation signals', list(payload?.activeExtractionLanes).map(lane => lane.laneId).join(', ') || 'missing')
   addCheck(checks, payload?.godModeExtractorParity?.evaluation?.ok === true && list(payload?.godModeExtractorParity?.families).length >= 13 && Number(payload?.godModeExtractorParity?.summary?.claimsGodModeCount || 0) === 0, 'live snapshot exposes extractor parity without false full-God-Mode claims', `${list(payload?.godModeExtractorParity?.families).length} families / claims=${payload?.godModeExtractorParity?.summary?.claimsGodModeCount ?? 'missing'}`)

@@ -279,7 +279,9 @@ async function main() {
       moduleSource.includes('freeResourceCaptureStatus') &&
       moduleSource.includes('paidGateEvaluationStatus') &&
       moduleSource.includes('youtubeSopStatus') &&
-      moduleSource.includes('buildYoutubeCreatorSourceSopEvidence'),
+      moduleSource.includes('buildYoutubeCreatorSourceSopEvidence') &&
+      moduleSource.includes('buildSourcePacketPreview') &&
+      moduleSource.includes('sourcePacketReviewQueue'),
     'module reports full YouTube source SOP status per creator',
     'lib/youtube-creator-god-mode-catchup.js',
   )
@@ -354,6 +356,35 @@ async function main() {
       list(snapshot.creators).some(row => String(row.fullPageExtractionStatus || '').startsWith('partial_') || row.fullPageExtractionStatus === 'complete'),
     'creator rows expose evidence-backed SOP progress instead of watched-count placeholders',
     'sourceSopEvidence + fullPageExtractionStatus',
+  )
+  addCheck(
+    checks,
+    Number(snapshot.summary?.sourcePacketActionCount || 0) >= 1 &&
+      list(snapshot.sourcePacketReviewQueue).length >= 1,
+    'catch-up source SOP turns watched-page links into source-packet review actions',
+    `actions=${snapshot.summary?.sourcePacketActionCount || 0}; queue=${list(snapshot.sourcePacketReviewQueue).length}`,
+  )
+  addCheck(
+    checks,
+    list(snapshot.sourcePacketReviewQueue).every(item =>
+      /^https?:\/\//i.test(text(item.url)) &&
+      item.sourcePacketPreview?.sourcePacketId &&
+      item.sourcePacketValidation?.ok === true &&
+      item.sourcePacketPreview?.startsCrawler === false &&
+      item.sourcePacketPreview?.externalWrites === false &&
+      item.sourcePacketPreview?.writesBacklog === false &&
+      item.sourcePacketPreview?.runtimePlan?.startsImmediately === false &&
+      item.sourcePacketPreview?.runtimePlan?.startsFromApprovalAction === false
+    ),
+    'source-packet review queue is validated and cannot start crawl/write work from approval',
+    `${list(snapshot.sourcePacketReviewQueue).length} packet previews`,
+  )
+  addCheck(
+    checks,
+    list(snapshot.creators).some(row => Number(row.sourceSopEvidence?.sourcePacketActionCount || 0) >= 1) &&
+      list(snapshot.creators).every(row => row.sourceSopEvidence && Number(row.sourceSopEvidence.sourcePacketActionCount || 0) >= 0),
+    'creator rows expose source-packet counts for YouTube SOP follow-up',
+    'sourcePacketActionCount per creator',
   )
   addCheck(
     checks,
