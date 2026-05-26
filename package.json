@@ -268,6 +268,7 @@
     "process:subscription-brain-extractor-adapter-check": "node --env-file-if-exists=.env scripts/process-subscription-brain-extractor-adapter-check.mjs",
     "credentials:vault": "node --env-file-if-exists=.env scripts/credentials-vault.mjs",
     "process:credential-vault-session-broker-check": "node --env-file-if-exists=.env scripts/process-credential-vault-session-broker-check.mjs",
+    "process:source-session-broker-check": "node --env-file-if-exists=.env scripts/process-source-session-broker-check.mjs",
     "process:gemini-workspace-eyes-route-proof-check": "node --env-file-if-exists=.env scripts/process-gemini-workspace-eyes-route-proof-check.mjs",
     "process:mark-kashef-last-50-baseline-check": "node --env-file-if-exists=.env scripts/process-mark-kashef-last-50-baseline-check.mjs",
     "process:mark-kashef-god-mode-small-batch-check": "node --env-file-if-exists=.env scripts/process-mark-kashef-god-mode-small-batch-check.mjs",

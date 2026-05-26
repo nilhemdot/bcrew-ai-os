@@ -14,8 +14,10 @@ import {
   GEMINI_WORKSPACE_CREDENTIAL_KEY,
   GEMINI_WORKSPACE_ROUTE_KEY,
   GEMINI_WORKSPACE_SOURCE,
+  buildKeychainService,
   buildGeminiWorkspaceCredentialRows,
   buildKeychainSecretRef,
+  deleteKeychainPassword,
   keychainItemExists,
   promptAndStoreKeychainPassword,
 } from '../lib/credential-vault.js'
@@ -29,9 +31,11 @@ function parseArgs(argv = process.argv.slice(2)) {
     apply: rest.includes('--apply'),
     json: rest.includes('--json'),
     account: DEFAULT_GEMINI_WORKSPACE_ACCOUNT,
+    source: '',
   }
   for (const arg of rest) {
     if (arg.startsWith('--account=')) flags.account = arg.slice('--account='.length).trim()
+    if (arg.startsWith('--source=')) flags.source = arg.slice('--source='.length).trim()
   }
   return flags
 }
@@ -46,11 +50,20 @@ function usage() {
     '  npm run credentials:vault -- gemini:add --account=ai@bensoncrew.ca',
     '  npm run credentials:vault -- gemini:status --account=ai@bensoncrew.ca',
     '  npm run credentials:vault -- gemini:register --account=ai@bensoncrew.ca --apply',
+    '  npm run credentials:vault -- source:add --source=myicor --account=steve@example.com',
+    '  npm run credentials:vault -- source:status --source=myicor --account=steve@example.com',
+    '  npm run credentials:vault -- source:delete --source=myicor --account=steve@example.com',
     '',
     'Notes:',
     '- gemini:add prompts in the terminal/macOS Keychain. Do not paste passwords into chat.',
+    '- source:add stores paid-source passwords in macOS Keychain only.',
     '- status/register print metadata only; raw secrets are never printed.',
   ].join('\n')
+}
+
+function requireSourceAccount({ source, account }) {
+  if (!source) throw new Error('--source is required for source vault commands.')
+  if (!account) throw new Error('--account is required for source vault commands.')
 }
 
 async function getRuntimeRows() {
@@ -132,6 +145,78 @@ async function addGemini({ account, json = false } = {}) {
   return result
 }
 
+async function sourceStatus({ source, account, json = false } = {}) {
+  requireSourceAccount({ source, account })
+  const keychainPresent = await keychainItemExists({ source, account })
+  const result = {
+    ok: keychainPresent,
+    source,
+    account,
+    service: buildKeychainService({ source, account }),
+    secretRef: buildKeychainSecretRef({ source, account }),
+    keychainPresent,
+    rawSecretPrinted: false,
+  }
+  if (json) printJson(result)
+  else {
+    console.log(`Source credential vault: ${keychainPresent ? 'present' : 'missing'}`)
+    console.log(`source: ${source}`)
+    console.log(`account: ${account}`)
+    console.log(`secretRef: ${result.secretRef}`)
+    console.log('raw secret: never printed')
+  }
+  return result
+}
+
+async function sourceAdd({ source, account, json = false } = {}) {
+  requireSourceAccount({ source, account })
+  const stored = await promptAndStoreKeychainPassword({
+    source,
+    account,
+    label: `BCrew AI OS ${source} source account`,
+    comment: `Used by the local paid-source session broker for ${source}.`,
+  })
+  const result = {
+    ok: true,
+    source,
+    account,
+    service: stored.service,
+    secretRef: stored.secretRef,
+    rawSecretPrinted: false,
+    next: `Run npm run credentials:vault -- source:status --source=${source} --account=${account}`,
+  }
+  if (json) printJson(result)
+  else {
+    console.log('Source credential stored in macOS Keychain.')
+    console.log(`source: ${source}`)
+    console.log(`account: ${account}`)
+    console.log(`secretRef: ${stored.secretRef}`)
+    console.log('raw secret: never printed')
+    console.log(result.next)
+  }
+  return result
+}
+
+async function sourceDelete({ source, account, json = false } = {}) {
+  requireSourceAccount({ source, account })
+  const deleted = await deleteKeychainPassword({ source, account })
+  const result = {
+    ok: deleted,
+    source,
+    account,
+    keychainPresent: false,
+    rawSecretPrinted: false,
+  }
+  if (json) printJson(result)
+  else {
+    console.log(`Source credential delete: ${deleted ? 'deleted' : 'not found'}`)
+    console.log(`source: ${source}`)
+    console.log(`account: ${account}`)
+    console.log('raw secret: never printed')
+  }
+  return result
+}
+
 async function registerGemini({ account, apply = false, json = false } = {}) {
   const keychainPresent = await keychainItemExists({
     source: GEMINI_WORKSPACE_SOURCE,
@@ -189,6 +274,20 @@ async function main() {
   }
   if (args.command === 'gemini:register') {
     const result = await registerGemini(args)
+    process.exitCode = result.ok ? 0 : 1
+    return
+  }
+  if (args.command === 'source:add') {
+    await sourceAdd(args)
+    return
+  }
+  if (args.command === 'source:status') {
+    const result = await sourceStatus(args)
+    process.exitCode = result.ok ? 0 : 1
+    return
+  }
+  if (args.command === 'source:delete') {
+    const result = await sourceDelete(args)
     process.exitCode = result.ok ? 0 : 1
     return
   }
