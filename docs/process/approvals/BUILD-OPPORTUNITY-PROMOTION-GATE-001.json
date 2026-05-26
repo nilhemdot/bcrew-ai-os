@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-OPPORTUNITY-PROMOTION-GATE-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T03:56:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/build-opportunity-promotion-gate-001-plan.md",
+  "approvedPlanSha256": "9f05391151832aee388d4747b2ce68da00cda46bbb8220805b747ed477d68757",
+  "approvedRepoHead": "dcbb7a6ef6c81b349d7764a379ebd3bef59713b3",
+  "approvalSource": "Steve May 25/26 overnight standing instruction: work all night, park blockers, move to the next sensible card, and avoid work that needs Steve while he is asleep. Codex selected this proposal-only Build Opportunity Promotion Gate preflight because it improves source-to-backlog control without live extraction, provider spend, private/auth navigation, external writes, or backlog mutation.",
+  "notes": "Approval is limited to the proposal-only preflight/gate proof. Live apply/write promotion remains pending Steve review.",
+  "approvalDigest": "53d720da61a1ccdc715d41ee0d5c60e9bbc15b3e0794e53aceeeb1936a1dd697"
+}
