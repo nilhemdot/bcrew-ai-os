@@ -56,7 +56,9 @@ V1 proof note:
 
 - `lib/source-packet-worker-runner.js` now validates an approved source-packet decision, delegates exact public-page extraction to `lib/source-packet-public-web-runtime.js`, emits a worker artifact record, flags synthesis freshness without destination writes, and blocks held/rejected/Skool/follow-link/live-without-allow cases.
 - `scripts/process-source-packet-worker-runner-check.mjs` proves this in synthetic/no-network mode.
-- Live DB artifact persistence and UI status wiring remain next.
+- V1.1 adds the durable persistence contract: completed worker runs write a `source_crawl_items` status row under `source-packet-worker-runs` and a `proof` row in `intelligence_report_artifacts` with exact URL evidence, link classifications, freshness warning, and no-side-effect metadata.
+- The Dev approval route now returns worker readiness/status after a decision is recorded. Approval still does not start the worker; `/api/foundation/dev-team-hub/source-packet-worker-run` is the separate guarded route, and `/api/foundation/dev-team-hub/source-packet-worker-queue` reads approved decision rows plus completed worker runs into ready/already-run/blocked status.
+- Live broad crawling remains blocked. Live exact-URL mode still requires explicit `allowLive=true`; synthetic proof stays no-network.
 
 ## Not Next
 

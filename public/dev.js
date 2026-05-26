@@ -413,7 +413,7 @@ function renderApprovalReview(snapshot = {}) {
               <button type="button" data-approval-action="record" data-approval-decision="approve_packet" data-approval-index="${escapeHtml(String(index))}">Approve packet</button>
               <button type="button" data-approval-action="record" data-approval-decision="hold_packet" data-approval-index="${escapeHtml(String(index))}">Hold</button>
               <button type="button" data-approval-action="record" data-approval-decision="reject_link" data-approval-index="${escapeHtml(String(index))}">Reject</button>
-              <em>Recording saves Steve's decision only. No crawl, login, purchase, form, worker, or backlog write.</em>
+              <em>Recording does not start the worker. Approved public packets show separate runner status.</em>
             </div>
             <div class="approval-ai-result" data-approval-result="${escapeHtml(String(index))}"></div>
           </div>
@@ -465,12 +465,18 @@ function renderPacketPreviewResult(result = {}) {
 function renderPacketDecisionResult(result = {}) {
   const record = result.record || {}
   const item = result.sourceCrawlItem || {}
+  const worker = result.workerStatus || {}
   const blocked = result.status === 'blocked' || result.validation?.ok === false
+  const workerCopy = worker.plainEnglish ||
+    (worker.ready
+      ? 'Ready for the separate exact-page worker.'
+      : 'No worker is ready from this decision.')
   return `
     <article class="approval-packet-preview ${blocked ? 'blocked' : 'recorded'}">
       <span>${escapeHtml(blocked ? 'Needs adjustment' : 'Decision recorded')}</span>
       <h4>${escapeHtml(result.plainEnglish || record.plainEnglish || 'Decision saved.')}</h4>
-      <p>${escapeHtml(blocked ? 'Nothing ran. Adjust the note or hold the link.' : 'This is now saved in the Foundation decision ledger. It did not start a worker.')}</p>
+      <p>${escapeHtml(blocked ? 'Nothing ran. Adjust the note or hold the link.' : 'Saved in the Foundation decision ledger. Approval did not start the worker.')}</p>
+      <p>${escapeHtml(workerCopy)}</p>
       ${item.itemKey ? `<p>${escapeHtml(item.itemKey)}</p>` : ''}
     </article>
   `

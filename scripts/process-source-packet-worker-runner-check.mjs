@@ -46,6 +46,9 @@ async function main() {
     workerPlanSource,
     handsPlanSource,
     backlogSeedSource,
+    routeSource,
+    devUiSource,
+    serverSource,
     dogfood,
   ] = await Promise.all([
     readRepoJson('package.json'),
@@ -54,6 +57,9 @@ async function main() {
     readRepoFile('docs/process/source-packet-worker-runner-001-plan.md'),
     readRepoFile('docs/process/extractor-hands-browser-runtime-001-plan.md'),
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
+    readRepoFile('lib/foundation-build-intel-routes.js'),
+    readRepoFile('public/dev.js'),
+    readRepoFile('server.js'),
     buildSourcePacketWorkerRunnerDogfoodProof(),
   ])
 
@@ -69,6 +75,11 @@ async function main() {
       'validateSourcePacketWorkerRequest',
       'runSourcePacketWorker',
       'buildSourcePacketWorkerArtifactRecord',
+      'persistSourcePacketWorkerRun',
+      'buildSourcePacketWorkerCrawlItemInput',
+      'buildSourcePacketWorkerReportArtifactInput',
+      'buildSourcePacketWorkerDecisionStatus',
+      'buildSourcePacketWorkerQueue',
       'runSourcePacketPublicWebRuntime',
       'freshnessSignal',
       'flag_only_no_auto_destination_write',
@@ -84,12 +95,47 @@ async function main() {
   )
   addCheck(
     checks,
+    includesAll(routeSource, [
+      'SOURCE_PACKET_WORKER_RUNNER_ROUTE',
+      'SOURCE_PACKET_WORKER_QUEUE_ROUTE',
+      'runSourcePacketWorker',
+      'persistSourcePacketWorkerRun',
+      'buildSourcePacketWorkerQueue',
+      'upsertIntelligenceReportArtifact',
+      'completed_evidence_persisted',
+    ]),
+    'Build Intel routes expose guarded source-packet worker run endpoint and queue with persistence',
+    'lib/foundation-build-intel-routes.js',
+  )
+  addCheck(
+    checks,
+    includesAll(serverSource, [
+      'upsertIntelligenceReportArtifact',
+      'registerFoundationBuildIntelRoutes(app',
+    ]),
+    'server passes report-artifact persistence dependency into Build Intel routes',
+    'server.js',
+  )
+  addCheck(
+    checks,
+    includesAll(devUiSource, [
+      'workerStatus',
+      'Approval did not start the worker',
+      'separate runner status',
+    ]),
+    'Dev UI shows worker readiness/status after approval decisions',
+    'public/dev.js',
+  )
+  addCheck(
+    checks,
     includesAll(workerPlanSource, [
       'decision -> runner -> artifact -> freshness/status',
       'lib/source-packet-public-web-runtime.js',
+      'source_crawl_items',
+      'intelligence_report_artifacts',
       'Do not follow links automatically',
     ]),
-    'worker plan names exact decision-to-artifact loop and no-link-following boundary',
+    'worker plan names exact decision-to-artifact loop, persistence, and no-link-following boundary',
     'docs/process/source-packet-worker-runner-001-plan.md',
   )
   addCheck(
@@ -107,10 +153,10 @@ async function main() {
     includesAll(backlogSeedSource, [
       SOURCE_PACKET_WORKER_RUNNER_CARD_ID,
       'EXTRACTOR-HANDS-BROWSER-RUNTIME-001',
-      'decision -> runner -> artifact -> freshness/status loop',
+      'source_crawl_items row -> intelligence_report_artifacts proof row',
       'no link following',
     ]),
-    'backlog seed captures runner and Hands as P0 scoped cards',
+    'backlog seed captures runner closeout and Hands as the next P0 scoped card',
     'lib/foundation-backlog-seed-chunks/chunk-005.js',
   )
   addCheck(
@@ -134,6 +180,30 @@ async function main() {
     'worker proof has no external writes, backlog writes, or link following',
     JSON.stringify(dogfood.run?.sideEffects || {}),
   )
+  addCheck(
+    checks,
+    dogfood.persistence?.ok === true &&
+      dogfood.persistence?.sourceCrawlItemStatus === 'succeeded' &&
+      dogfood.persistence?.reportArtifactId,
+    'dogfood persists source-crawl item and report artifact through injected stores',
+    JSON.stringify(dogfood.persistence || {}),
+  )
+  addCheck(
+    checks,
+    dogfood.persistence?.sideEffects?.externalWrites === false &&
+      dogfood.persistence?.sideEffects?.writesBacklog === false &&
+      dogfood.persistence?.sideEffects?.writesSourceCrawlItems === true,
+    'persistence proof writes governed Foundation stores only',
+    JSON.stringify(dogfood.persistence?.sideEffects || {}),
+  )
+  addCheck(
+    checks,
+    dogfood.queue?.beforeRun?.ready === 1 &&
+      dogfood.queue?.beforeRun?.blocked === 3 &&
+      dogfood.queue?.afterRun?.alreadyRun === 1,
+    'dogfood builds worker queue from decision ledger rows and marks completed runs',
+    JSON.stringify(dogfood.queue || {}),
+  )
 
   const failures = checks.filter(check => !check.ok)
   const output = {
@@ -145,6 +215,8 @@ async function main() {
     externalWrites: false,
     writesBacklog: false,
     followsLinks: false,
+    persistsSourceCrawlItems: dogfood.persistence?.sideEffects?.writesSourceCrawlItems === true,
+    persistsIntelligenceReportArtifact: dogfood.persistence?.sideEffects?.writesIntelligenceReportArtifact === true,
     dogfood,
     checks,
     failures,

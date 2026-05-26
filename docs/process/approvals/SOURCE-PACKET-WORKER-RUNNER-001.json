@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-PACKET-WORKER-RUNNER-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T02:15:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-packet-worker-runner-001-plan.md",
+  "approvedPlanSha256": "635ee5b7e36b6ce7c45f423ce8ab59031bf0cdf161ae3f606c910e6182d4eeca",
+  "approvedRepoHead": "e07b461c1932d93d702b0c5dacb8eb57149a54ea",
+  "approvalSource": "Steve May 25-26 overnight God Mode extractor sprint approval: build the approved source-packet worker runner after the raw conversation reset, keep broad crawling/auth blocked, and move to the next card if blocked.",
+  "approvalDigest": "cc8efb587ba208d0d88f5e7a2660714daec932bac49b43f087469f77b89e0bea"
+}

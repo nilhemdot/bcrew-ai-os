@@ -102,16 +102,22 @@ function sourceDoesNotWriteOrExtract(source = '') {
   return forbidden.every(token => !text.includes(token))
 }
 
-function devHubWriteSurfaceIsOnlySourcePacketDecision(routeSource = '', jsSource = '') {
-  const routePosts = [...String(routeSource || '').matchAll(/app\.post\('([^']+)'/g)].map(match => match[1])
+function devHubWriteSurfaceIsOnlyApprovedSourcePacketWork(routeSource = '', jsSource = '') {
+  const literalPosts = [...String(routeSource || '').matchAll(/app\.post\('([^']+)'/g)].map(match => match[1])
+  const constantPosts = [...String(routeSource || '').matchAll(/app\.post\((SOURCE_PACKET_[A-Z_]+_ROUTE)/g)].map(match => match[1])
   const uiFetches = [...String(jsSource || '').matchAll(/fetch\(([^,\n]+),\s*\{([\s\S]*?)\n\s*\}\)/g)]
     .map(match => ({ route: match[1].trim(), options: match[2] || '' }))
   const uiPostRoutes = uiFetches
     .filter(fetchCall => /method:\s*'POST'/.test(fetchCall.options))
     .map(fetchCall => fetchCall.route)
     .filter(route => route !== "'/api/auth/logout'")
-  return routePosts.length === 1 &&
-    routePosts[0] === '/api/foundation/dev-team-hub/link-source-packet-decision' &&
+  return literalPosts.length === 1 &&
+    literalPosts[0] === '/api/foundation/dev-team-hub/link-source-packet-decision' &&
+    constantPosts.length === 1 &&
+    constantPosts[0] === 'SOURCE_PACKET_WORKER_RUNNER_ROUTE' &&
+    routeSource.includes('SOURCE_PACKET_WORKER_QUEUE_ROUTE') &&
+    routeSource.includes('persistSourcePacketWorkerRun') &&
+    routeSource.includes('upsertIntelligenceReportArtifact') &&
     uiPostRoutes.length === 1 &&
     uiPostRoutes[0] === 'LINK_PACKET_DECISION_ROUTE'
 }
@@ -251,7 +257,7 @@ async function main() {
   }
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
-  const readOnlyBundle = `${routeSource}\n${moduleSource}\n${jsSource}`
+  const readOnlyBundle = `${moduleSource}\n${jsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -291,8 +297,8 @@ async function main() {
     'Dev sidebar uses locked simplified sidebar values',
     'hub name only, 16px top padding, 12px title padding, 8px nav gap'
   )
-  addCheck(checks, devHubWriteSurfaceIsOnlySourcePacketDecision(routeSource, jsSource), 'Dev Hub write surface is only the source-packet decision ledger', 'no crawler/backlog/external write POST routes')
-  addCheck(checks, sourceDoesNotWriteOrExtract(readOnlyBundle), 'Dev Hub code has no extraction runner, external write, broad approval apply, or backlog writer path', 'safe bundle scan')
+  addCheck(checks, devHubWriteSurfaceIsOnlyApprovedSourcePacketWork(routeSource, jsSource), 'Dev Hub write surface is limited to source-packet decision records and the guarded worker route', 'no broad crawler/backlog/external write POST routes')
+  addCheck(checks, sourceDoesNotWriteOrExtract(readOnlyBundle), 'Dev Hub page code has no extraction runner, external write, broad approval apply, or backlog writer path', 'safe frontend bundle scan')
   addCheck(checks, sourceDoesNotWriteOrExtract(scriptSource), 'focused proof stays read-only', SCRIPT_PATH)
   addCheck(checks, dogfood.ok === true, 'dogfood proves source-backed counts and missing-source fallback', JSON.stringify(dogfood.cases))
   addCheck(checks, payload?.cardId === DEV_TEAM_HUB_V0_CARD_ID && payload?.readOnly === true, 'live snapshot identifies read-only active card', payload?.cardId || 'missing')
