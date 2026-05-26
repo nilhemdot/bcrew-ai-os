@@ -121,8 +121,20 @@ async function main() {
   addCheck(checks, audit.autonomousDev === false && audit.llmDetectionUsed === false, 'audit does not enable autonomous dev or LLM detection', `autonomousDev=${audit.autonomousDev} llmDetectionUsed=${audit.llmDetectionUsed}`)
   addCheck(checks, audit.syntheticProof?.ok === true, 'synthetic detector proof passes', JSON.stringify(audit.syntheticProof || {}))
   addCheck(checks, CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS.every(endpoint => endpointSet.has(endpoint)), 'endpoint coverage includes all required Foundation routes', Array.from(endpointSet).join(', '))
-  addCheck(checks, (audit.findings || []).length >= CODE_QUALITY_NIGHTLY_AUDIT_MIN_FINDING_COUNT, 'deterministic audit reports the remaining material finding set as routed audit debt burns down', String((audit.findings || []).length))
-  addCheck(checks, (audit.proposedCards || []).length >= 5, 'audit proposes multiple backlog follow-up fixes without creating them', String((audit.proposedCards || []).length))
+  const reconciliationSummary = audit.findingReconciliation?.summary || {}
+  addCheck(checks, Number(reconciliationSummary.rawFindingCount || 0) >= CODE_QUALITY_NIGHTLY_AUDIT_MIN_FINDING_COUNT, 'deterministic audit still records raw detector signals before reconciliation', String(reconciliationSummary.rawFindingCount || 0))
+  addCheck(
+    checks,
+    Number(reconciliationSummary.activeFindingCount || 0) + Number(reconciliationSummary.reconciledClosedFindingCount || 0) === Number(reconciliationSummary.rawFindingCount || 0),
+    'audit reconciles closed detector signals before active proposed-card output',
+    JSON.stringify(reconciliationSummary),
+  )
+  addCheck(
+    checks,
+    (audit.proposedCards || []).length === Number(audit.summary?.proposedCardCount || 0),
+    'audit proposed cards reflect active findings only',
+    `${(audit.proposedCards || []).length}/${audit.summary?.proposedCardCount || 0}`,
+  )
   addCheck(checks, sameCounts(beforeCounts, afterCounts), 'backlog lane counts unchanged by audit command', `before=${JSON.stringify(beforeCounts)} after=${JSON.stringify(afterCounts)}`)
   const activeSprintId = activeSprint.sprint?.sprintId || ''
   addCheck(checks, [CODE_QUALITY_NIGHTLY_AUDIT_SPRINT_ID].includes(activeSprintId) || CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.every(cardId => (before.backlogItems || []).some(item => item.id === cardId)), 'sprint cards exist in live backlog/current sprint context', activeSprintId || 'no active sprint')
@@ -140,6 +152,12 @@ async function main() {
     scriptPath: CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH,
     reportPath: args.writeReport ? args.reportPath : null,
     summary: audit.summary,
+    findingReconciliation: audit.findingReconciliation ? {
+      status: audit.findingReconciliation.status,
+      summary: audit.findingReconciliation.summary,
+      reconciledFindingIds: (audit.findingReconciliation.reconciledFindings || []).map(finding => finding.id),
+      activeFindingIds: (audit.findingReconciliation.activeFindings || []).map(finding => finding.id),
+    } : null,
     endpointMetrics: audit.endpointMetrics,
     proposedCards: audit.proposedCards,
     findings: failures,
