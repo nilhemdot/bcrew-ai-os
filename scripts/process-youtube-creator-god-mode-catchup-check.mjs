@@ -121,6 +121,23 @@ async function loadAlreadyFullWatchedVideoIds() {
   }
 }
 
+async function countSourceCrawlItemsForTarget(targetKey) {
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT COUNT(*)::int AS count
+        FROM source_crawl_items
+        WHERE target_key = $1
+      `,
+      [targetKey],
+    )
+    return Number(result.rows[0]?.count || 0)
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
 function normalizeSourceValueGraderReport(bundle = {}) {
   const report = bundle.report || null
   const structured = report?.structuredOutputJson || report?.structured_output_json || {}
@@ -177,6 +194,7 @@ async function main() {
     planSource,
     moduleSource,
     scriptSource,
+    sourceCrawlStoreSource,
     devHubSource,
     devHubProofSource,
     publicDevSource,
@@ -186,6 +204,7 @@ async function main() {
     readRepoFile(YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_PLAN_PATH),
     readRepoFile('lib/youtube-creator-god-mode-catchup.js'),
     readRepoFile(YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_SCRIPT_PATH),
+    readRepoFile('lib/foundation-source-crawl-store.js'),
     readRepoFile('lib/dev-team-hub.js'),
     readRepoFile('scripts/process-dev-team-hub-v0-check.mjs'),
     readRepoFile('public/dev.js'),
@@ -200,6 +219,7 @@ async function main() {
   }
 
   const dogfood = buildYoutubeCreatorGodModeCatchupDogfoodProof()
+  const targetItemCount = await countSourceCrawlItemsForTarget(YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY)
   const representedOrBlocked = list(snapshot.creators)
     .filter(row => row.representationStatus === 'represented' || row.blockedReason)
 
@@ -219,6 +239,19 @@ async function main() {
   addCheck(checks, list(snapshot.creators).every(row => row.commentStatus === 'operator_excluded'), 'comments are operator-excluded, not parked', 'operator_excluded')
   addCheck(checks, list(snapshot.creators).every(row => row.approvedResourceFollowStatus && row.sourcePacketWorkerStatus && row.browserHandsStatus), 'every creator exposes resource-follow, worker, and Hands status', 'all rows explicit')
   addCheck(checks, Number(snapshot.summary?.trackedMetadataCount || 0) >= list(snapshot.creators).length, 'tracked YouTube metadata is visible for catch-up planning', `${snapshot.summary?.trackedMetadataCount || 0} rows`)
+  addCheck(
+    checks,
+    sourceCrawlStoreSource.includes('async function listSourceCrawlItems') &&
+      sourceCrawlStoreSource.includes('const normalizedLimit = Math.min(1000, Math.max(1, Number(limit) || 50))'),
+    'source crawl item readback supports 1000-row daily watch baselines',
+    'lib/foundation-source-crawl-store.js',
+  )
+  addCheck(
+    checks,
+    targetItemCount <= 200 || Number(snapshot.summary?.trackedMetadataCount || 0) > 200,
+    'catch-up readback is not capped at the old 200-row source-crawl limit',
+    `targetRows=${targetItemCount}; trackedMetadata=${snapshot.summary?.trackedMetadataCount || 0}`,
+  )
   addCheck(checks, Number(snapshot.summary?.videoAudioVisualWatchedCount || 0) >= 1, 'video/audio/visual watched count is visible', `${snapshot.summary?.videoAudioVisualWatchedCount || 0}`)
   addCheck(checks, snapshot.buildPromotionReadiness?.visibleToScoper === true && snapshot.buildPromotionReadiness?.majorBuildPromotionAllowed === (Number(snapshot.summary?.baselineIncompleteCount || 0) === 0), 'Scoper/build-promotion gate reflects baseline completion', snapshot.buildPromotionReadiness?.status || 'missing')
   addCheck(checks, snapshot.reportOnly === true && snapshot.liveExtractionStarted === false && snapshot.writesBacklog === false && snapshot.writesExternalSystems === false, 'live proof is report-only and no-spend', `${snapshot.reportOnly}/${snapshot.liveExtractionStarted}/${snapshot.writesBacklog}/${snapshot.writesExternalSystems}`)
@@ -237,6 +270,7 @@ async function main() {
     snapshot: {
       status: snapshot.status,
       summary: snapshot.summary,
+      targetItemCount,
       buildPromotionReadiness: snapshot.buildPromotionReadiness,
       nextWatchRows: list(snapshot.creators)
         .filter(row => row.baselineGap > 0 || row.deepBaselineGap > 0 || row.pendingStandardVideoCount > 0)

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-CREATOR-CATCHUP-READBACK-LIMIT-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T10:38:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-creator-catchup-readback-limit-001-plan.md",
+  "approvedPlanSha256": "15813ec8049704c081f900ac08061c84c3f2e57eef0d1c54171a9fa1731afb43",
+  "approvedRepoHead": "556dd11e90932dffcfdf15d6aa2c8a99d0cd7d59",
+  "approvalSource": "Steve May 25-26 overnight God Mode extractor sprint approval plus live post-metadata-job bug: continue safe no-spend Foundation repair work, keep public YouTube catch-up truth honest, and fix the source-crawl readback cap after the governed public metadata job saved more than 200 rows.",
+  "approvalDigest": "3bbad2bd2203c5495b778b5b9db62fc9dce517eab584f1fb1d6a0e03c5045813"
+}

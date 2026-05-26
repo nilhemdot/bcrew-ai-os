@@ -6,7 +6,7 @@ Purpose: one short answer to "what is actually closed, what is still partial, an
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
 
-Current YouTube catch-up readback: `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-READBACK-001` is closed under `youtube-creator-god-mode-catchup-readback-v1`; parent `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` remains open. Dev Hub/Scoper can see baseline gaps and blocks major build promotion while approved public creator catch-up is incomplete. `BUILD-INTEL-LINK-APPROVAL-SOURCE-PACKETS-001` is closed under `build-intel-link-approval-source-packets-v1-2`, and the later source-packet worker plus Hands production runner close the public worker gap that old backlog text still described as missing. This readback spent no live Gemini budget.
+Current YouTube catch-up readback: `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-READBACK-001` is closed under `youtube-creator-god-mode-catchup-readback-v1`; parent `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` remains open. Dev Hub/Scoper can see baseline gaps and blocks major build promotion while approved public creator catch-up is incomplete. `YOUTUBE-CREATOR-CATCHUP-READBACK-LIMIT-001` is closed under `youtube-creator-catchup-readback-limit-v1`; the readback now sees public YouTube daily-watch metadata baselines above the old 200-row cap. `BUILD-INTEL-LINK-APPROVAL-SOURCE-PACKETS-001` is closed under `build-intel-link-approval-source-packets-v1-2`, and the later source-packet worker plus Hands production runner close the public worker gap that old backlog text still described as missing. This readback spent no live Gemini budget.
 
 ## Level Guide
 

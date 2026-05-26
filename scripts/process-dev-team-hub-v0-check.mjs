@@ -306,7 +306,14 @@ async function main() {
   addCheck(checks, payload?.cardId === DEV_TEAM_HUB_V0_CARD_ID && payload?.readOnly === true, 'live snapshot identifies read-only active card', payload?.cardId || 'missing')
   addCheck(checks, DEV_TEAM_HUB_V0_SOURCE_IDS.every(sourceId => list(payload?.sourceIds).includes(sourceId)), 'live snapshot includes required source IDs', list(payload?.sourceIds).join(', ') || 'missing')
   addCheck(checks, payload?.dailyWatch?.sourceRoute === '/api/foundation/build-intel/youtube-creator-daily-watch', 'daily watch source route is preserved', payload?.dailyWatch?.sourceRoute || 'missing')
-  addCheck(checks, payload?.markYoutube?.latestVideoId === 'tjjX43FoAUg' && Number(payload?.markYoutube?.markResearchPoolCount) >= 50, 'Mark latest video/count are mapped from Foundation daily watch', `${payload?.markYoutube?.latestVideoId || 'missing'} / ${payload?.markYoutube?.markResearchPoolCount ?? 'missing'}`)
+  addCheck(
+    checks,
+    Boolean(payload?.markYoutube?.latestVideoId) &&
+      Number(payload?.markYoutube?.markResearchPoolCount || 0) >= 50 &&
+      Number(payload?.markYoutube?.researchPoolCount || 0) >= Number(payload?.markYoutube?.markResearchPoolCount || 0),
+    'Mark latest video/count are mapped from Foundation daily watch',
+    `${payload?.markYoutube?.latestVideoId || 'missing'} / ${payload?.markYoutube?.markResearchPoolCount ?? 'missing'} of ${payload?.markYoutube?.researchPoolCount ?? 'missing'}`,
+  )
   addCheck(checks, payload?.scout?.sourceRoute?.includes('getIntelligenceReportBundle'), 'scout source route is report-bundle backed', payload?.scout?.sourceRoute || 'missing')
   addCheck(checks, payload?.eyesQualityLoop?.sourceRoute?.includes(GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID) && list(payload?.eyesQualityLoop?.buildCandidates).length >= 1, 'Video/audio/visual candidates are exposed to Dev Hub', `${list(payload?.eyesQualityLoop?.buildCandidates).length} candidates`)
   addCheck(checks, payload?.markApiFullWatch?.sourceRoute?.includes(MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID) && list(payload?.markApiFullWatch?.buildCandidates).length >= 1 && Number(payload?.counts?.apiFullWatchVideos || 0) >= 3, 'Mark API full-watch small batch is exposed to Dev Hub', `${payload?.counts?.apiFullWatchVideos || 0} videos / ${payload?.counts?.apiFullWatchBuildCandidates || 0} candidates`)
