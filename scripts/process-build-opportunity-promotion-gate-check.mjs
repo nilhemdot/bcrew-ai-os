@@ -6,6 +6,9 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import {
+  closeFoundationDb,
+} from '../lib/foundation-db.js'
+import {
   BUILD_OPPORTUNITY_PROMOTION_GATE_CARD_ID,
   BUILD_OPPORTUNITY_PROMOTION_GATE_APPROVAL_PATH,
   BUILD_OPPORTUNITY_PROMOTION_GATE_PLAN_PATH,
@@ -15,8 +18,11 @@ import {
   evaluateBuildOpportunityPromotionGate,
 } from '../lib/build-opportunity-promotion-gate.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
-import { buildPortfolioDogfoodProof } from '../lib/build-portfolio-scrum-master.js'
-import { buildDevBuildOpportunityScoperDogfoodProof } from '../lib/dev-build-opportunity-scoper.js'
+import { buildPortfolioDogfoodProof, buildPortfolioReview } from '../lib/build-portfolio-scrum-master.js'
+import { DEV_BUILD_SCOPER_STATUS, buildDevBuildOpportunityScoperDogfoodProof } from '../lib/dev-build-opportunity-scoper.js'
+import {
+  buildDevBuildOpportunityEvidenceTrace,
+} from '../lib/dev-build-opportunity-evidence-trace.js'
 import { buildDevTeamDirectorOperatorDogfood } from '../lib/dev-team-intelligence-director.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -53,6 +59,81 @@ function blockedSourceHits(source = '') {
   return patterns.filter(pattern => pattern.test(source)).map(pattern => String(pattern))
 }
 
+function text(value) {
+  return String(value || '').trim()
+}
+
+function list(value) {
+  return Array.isArray(value) ? value.map(item => text(item)).filter(Boolean) : []
+}
+
+function unique(values = []) {
+  return [...new Set(values.map(item => text(item)).filter(Boolean))]
+}
+
+function firstReportRef(sourceRefs = []) {
+  return list(sourceRefs).find(ref => /^(batch|proof|report-artifact|director|slice|scout|research|extraction|grader):/i.test(ref)) || ''
+}
+
+function firstVideoId(sourceRefs = []) {
+  const youtubeRef = list(sourceRefs).find(ref => /^youtube:/i.test(ref))
+  if (youtubeRef) return youtubeRef.replace(/^youtube:/i, '')
+  const youtubeUrl = list(sourceRefs).find(ref => /youtube\.com\/watch\?v=/i.test(ref))
+  return youtubeUrl?.match(/[?&]v=([^&]+)/i)?.[1] || ''
+}
+
+function buildLivePromotionCandidateFromPortfolioGroup(group = {}, portfolioCandidatesById = new Map(), now = new Date().toISOString()) {
+  const candidates = list(group.candidateIds).map(id => portfolioCandidatesById.get(id)).filter(Boolean)
+  const primary = candidates[0] || {}
+  const sourceRefs = unique([
+    ...list(group.sourceLineage),
+    ...candidates.flatMap(candidate => list(candidate.sourceRefs)),
+    ...candidates.flatMap(candidate => list(candidate.sourceIds)),
+  ])
+  const acceptanceCriteria = unique(candidates.flatMap(candidate => list(candidate.scope?.acceptanceCriteria)))
+  const definitionOfDone = unique(candidates.flatMap(candidate => list(candidate.scope?.definitionOfDone)))
+  const proofCommands = unique([
+    ...candidates.flatMap(candidate => [
+      ...list(candidate.scope?.proofPlan),
+      ...list(candidate.scope?.tests),
+    ]),
+    'npm run process:dev-build-scoper-evidence-trace-check -- --json',
+    'npm run process:build-portfolio-scrum-master-check -- --json',
+    'npm run process:build-opportunity-promotion-gate-check -- --json',
+  ])
+  const risks = unique(candidates.flatMap(candidate => list(candidate.scope?.risks)))
+  const notNext = unique([
+    ...candidates.flatMap(candidate => list(candidate.scope?.notNext)),
+    'Do not create or mutate backlog cards from this preflight.',
+    'Do not treat approval-required packet output as Steve approval.',
+  ])
+
+  return {
+    candidateKey: group.groupId,
+    title: group.title,
+    summary: group.reason || primary.summary || 'Portfolio-reviewed Build Intel opportunity.',
+    recommendedNextStep: primary.recommendedNextStep ||
+      primary.scope?.details ||
+      `Review Portfolio group #${group.portfolioRank} for Steve approval before any backlog promotion.`,
+    lane: group.lane,
+    priority: Number(group.portfolioRank) <= 2 ? 'P0' : 'P1',
+    rank: group.portfolioRank,
+    sourceIds: unique(candidates.flatMap(candidate => list(candidate.sourceIds))),
+    sourceRefs,
+    sourceReportArtifactId: firstReportRef(sourceRefs),
+    sourceVideoId: firstVideoId(sourceRefs),
+    sourceTrustLabel: primary.director?.sourceTrustLabel || 'portfolio_scoper_ready',
+    portfolioDecision: group.decision,
+    portfolioScore: group.portfolioScore,
+    latestEvidenceAt: now,
+    acceptanceCriteria,
+    definitionOfDone,
+    proofCommands,
+    risks,
+    notNext,
+  }
+}
+
 async function main() {
   const args = parseArgs()
   const checks = []
@@ -76,6 +157,23 @@ async function main() {
   const scoperDogfood = buildDevBuildOpportunityScoperDogfoodProof()
   const portfolioDogfood = buildPortfolioDogfoodProof()
   const directorDogfood = buildDevTeamDirectorOperatorDogfood()
+  const now = new Date().toISOString()
+  const liveTrace = await buildDevBuildOpportunityEvidenceTrace({ candidateLimit: 5 })
+  const liveReadyScopedCandidates = liveTrace.scopedCandidates
+    .filter(candidate =>
+      candidate.scoperStatus === DEV_BUILD_SCOPER_STATUS.readyForPortfolio &&
+        candidate.sourceTraceStatus === 'source_trace_ready' &&
+        candidate.portfolioCandidate
+    )
+  const livePortfolioCandidates = liveReadyScopedCandidates.map(candidate => candidate.portfolioCandidate)
+  const livePortfolio = buildPortfolioReview({ candidates: livePortfolioCandidates })
+  const livePortfolioCandidatesById = new Map(livePortfolioCandidates.map(candidate => [candidate.id, candidate]))
+  const livePromotionCandidates = livePortfolio.groups.map(group =>
+    buildLivePromotionCandidateFromPortfolioGroup(group, livePortfolioCandidatesById, now)
+  )
+  const livePromotionGateResults = livePromotionCandidates.map(candidate =>
+    evaluateBuildOpportunityPromotionGate({ candidate, now })
+  )
   const [rawDirectorCandidate] = directorDogfood.snapshot?.recommendedBuildNow || []
   const rawDirectorGate = evaluateBuildOpportunityPromotionGate({
     candidate: {
@@ -202,6 +300,40 @@ async function main() {
     'all gate outcomes remain proposal-only with no backlog or external writes',
     'proposal-only'
   )
+  addCheck(
+    checks,
+    liveTrace.ok && livePortfolio.groups.length >= 1,
+    'live Promotion Gate preflight reads current Portfolio groups',
+    `trace=${liveTrace.reviewedCount}; groups=${livePortfolio.groups.length}`
+  )
+  addCheck(
+    checks,
+    livePromotionGateResults.length === livePortfolio.groups.length &&
+      livePromotionGateResults.every(result => result.status === BUILD_OPPORTUNITY_PROMOTION_STATUS.approvalRequired),
+    'live Portfolio groups become approval-required evidence packets',
+    livePromotionGateResults.map(result => `${result.evidencePacket.title}:${result.status}`).join(' | ')
+  )
+  addCheck(
+    checks,
+    livePromotionGateResults.every(result =>
+      result.proposalOnly === true &&
+        result.writesBacklog === false &&
+        result.externalWrites === false &&
+        result.evidencePacket.rawEvidenceRefs.length >= 1 &&
+        result.evidencePacket.sourceRefs.length >= 2
+    ),
+    'live evidence packets preserve raw evidence and remain no-write',
+    livePromotionGateResults.map(result => `${result.evidencePacket.rawEvidenceRefs.length}/${result.evidencePacket.sourceRefs.length}`).join(', ')
+  )
+  addCheck(
+    checks,
+    livePromotionGateResults.every(result =>
+      result.evidencePacket.proofCommands.includes('npm run process:build-portfolio-scrum-master-check -- --json') &&
+        result.evidencePacket.notNext.some(item => /Do not create or mutate backlog cards/i.test(item))
+    ),
+    'live packets carry proof commands and not-next promotion boundaries',
+    livePromotionGateResults.map(result => result.evidencePacket.packetId).join(' | ')
+  )
 
   const failures = checks.filter(check => !check.ok)
   const output = {
@@ -216,6 +348,17 @@ async function main() {
       rawDirectorFailures: rawDirectorGate.failures,
       scoperOk: scoperDogfood.ok,
       portfolioOk: portfolioDogfood.ok,
+      livePortfolioGroups: livePortfolio.groups.map(group => ({
+        rank: group.portfolioRank,
+        title: group.title,
+        decision: group.decision,
+        score: group.portfolioScore,
+      })),
+      livePromotionStatuses: livePromotionGateResults.map(result => ({
+        title: result.evidencePacket.title,
+        status: result.status,
+        packetId: result.evidencePacket.packetId,
+      })),
     },
   }
 
@@ -232,7 +375,11 @@ async function main() {
   if (failures.length) process.exitCode = 1
 }
 
-main().catch(error => {
-  console.error(error instanceof Error ? error.stack : String(error))
-  process.exitCode = 1
-})
+main()
+  .catch(error => {
+    console.error(error instanceof Error ? error.stack : String(error))
+    process.exitCode = 1
+  })
+  .finally(async () => {
+    await closeFoundationDb().catch(() => {})
+  })

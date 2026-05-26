@@ -124,7 +124,7 @@ Sprint order:
 16. `DEV-TEAM-INTELLIGENCE-DIRECTOR-001` - report refreshed to 414 ranked candidates; use as review input, not auto-build approval
 17. `DEV-BUILD-OPPORTUNITY-SCOPER-001` - done under `dev-build-scoper-live-evidence-trace-v1`; current Director top 5 now trace to raw atom/hit evidence and Portfolio proposal decisions, with no build promotion or write path
 18. `BUILD-PORTFOLIO-SCRUM-MASTER-001` - done under `build-portfolio-scrum-master-live-review-v1`; current Director top 5 become 3 proposal-only Portfolio groups with source lineage preserved and no promotion/write path
-19. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - promote only after Scoper and Portfolio produce enough implementation detail for Steve to approve priority
+19. `BUILD-OPPORTUNITY-PROMOTION-GATE-001` - blocked-preflight under `build-opportunity-promotion-gate-live-packet-preflight-v2`; current Portfolio groups become approval-required evidence packets, but live apply/write still requires Steve approval
 20. `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
 
 Parked outside this sprint, not deleted: `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`, `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`, `STRATEGY-003`, `AGENT-BRAIN-FOUNDATION-SEPARATION-001`, `MULTIMODAL-EXTRACTOR-IMPLEMENTATION-002`, `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`, `DEV-TEAM-HUB-TWO-VIEW-INTEL-PROOF-001`, `MARK-CLAUDE-CLAW-CODE-PACKAGE-REVIEW-001`, and `BUILD-INTEL-SOURCE-VALUE-LEADERBOARD-001-001`.
