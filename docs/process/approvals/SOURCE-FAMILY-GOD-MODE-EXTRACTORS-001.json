@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-FAMILY-GOD-MODE-EXTRACTORS-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T01:55:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-family-god-mode-extractors-001-plan.md",
+  "approvedPlanSha256": "697a339cdb7503eeef35060e20d4761e91023c1e31398ecaa9217e5b8eb1b662",
+  "approvedRepoHead": "2165d222e1840745908519ce44c6eeb982da1698",
+  "approvalSource": "Steve May 25-26 overnight God Mode extractor sprint approval: continue source-family hardening after parity, Hands, scheduler, and freshness work; keep paid/private/auth work blocked until Steve is awake; move to the next best card if blocked.",
+  "approvalDigest": "79b086e12e2a5b2550165931904ac53ccb61192015ae21c859e32077a947768c"
+}

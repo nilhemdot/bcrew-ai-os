@@ -778,12 +778,18 @@ function renderCapabilityChips(family = {}) {
 function renderGodModeParity(snapshot = {}) {
   if (!els.godModeParity) return
   const parity = snapshot.godModeExtractorParity || {}
+  const maturity = snapshot.sourceFamilyGodModeMaturity || {}
   const families = list(parity.families)
-  const summary = parity.summary || {}
-  const evaluation = parity.evaluation || {}
+  const maturityByFamilyId = new Map(list(maturity.families).map(family => [family.familyId, family]))
+  const summary = maturity.summary || parity.summary || {}
+  const evaluation = maturity.evaluation || parity.evaluation || {}
   const status = evaluation.ok === true ? 'No false God Mode claims' : 'Parity finding'
   const familyRows = families.map(family => {
+    const maturityRow = maturityByFamilyId.get(family.familyId) || {}
     const blockers = list(family.blockers).slice(0, 2)
+    const freshnessStatus = statusCopy(maturityRow.freshnessStatus || 'not tracked')
+    const latestSuccess = maturityRow.latestSuccessfulRunAt ? shortDate(maturityRow.latestSuccessfulRunAt) : 'No live success'
+    const nextAction = maturityRow.nextBestAction || family.nextCard || 'Needs source-family review.'
     return `
       <article class="parity-card ${escapeHtml(parityTone(family.currentLevel))}">
         <div class="parity-card-head">
@@ -792,10 +798,15 @@ function renderGodModeParity(snapshot = {}) {
         </div>
         <h3>${escapeHtml(family.label || family.familyId || 'Source family')}</h3>
         <p>${escapeHtml(family.accessBoundary || family.modelRoute || '')}</p>
+        <div class="parity-meta">
+          <span><b>Freshness</b>${escapeHtml(freshnessStatus)}</span>
+          <span><b>Latest success</b>${escapeHtml(latestSuccess)}</span>
+        </div>
         <div class="cap-list parity-cap-list">${renderCapabilityChips(family)}</div>
         <div class="parity-next">
           <span>Next</span>
           <b>${escapeHtml(family.nextCard || 'No active card')}</b>
+          <p>${escapeHtml(nextAction)}</p>
         </div>
         ${blockers.length ? `<ul>${blockers.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
       </article>
@@ -810,9 +821,9 @@ function renderGodModeParity(snapshot = {}) {
       </div>
       <div class="parity-summary" aria-label="God Mode parity summary">
         <span><b>${escapeHtml(compactNumber(summary.familyCount || families.length))}</b> families</span>
-        <span><b>${escapeHtml(compactNumber(summary.claimsGodModeCount || 0))}</b> full claims</span>
-        <span><b>${escapeHtml(compactNumber(summary.blockedFamilyCount || 0))}</b> blocked</span>
-        <span><b>${escapeHtml(compactNumber(summary.handsNotProvenCount || 0))}</b> hands gaps</span>
+        <span><b>${escapeHtml(compactNumber(summary.godModeReadyCount || summary.claimsGodModeCount || 0))}</b> God ready</span>
+        <span><b>${escapeHtml(compactNumber(summary.blockedCount || summary.blockedFamilyCount || 0))}</b> blocked</span>
+        <span><b>${escapeHtml(compactNumber(summary.handsGapCount || summary.handsNotProvenCount || 0))}</b> hands gaps</span>
       </div>
     </div>
     <div class="parity-grid">
