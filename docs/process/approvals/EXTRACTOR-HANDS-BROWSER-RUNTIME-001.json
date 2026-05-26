@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACTOR-HANDS-BROWSER-RUNTIME-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T03:20:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/extractor-hands-browser-runtime-001-plan.md",
+  "approvedPlanSha256": "6d37758cffd895ad1a61b7869132fb0aeca287cb0f82c9dadcc3e948e2327d62",
+  "approvedRepoHead": "b7607495d7764c6b2deb2167ea538c2ed8ea40ba",
+  "approvalSource": "Steve May 25-26 overnight God Mode extractor sprint approval: build the actual browser Hands layer for approved source-packet extractors, keep broad crawling/auth/forms/downloads/purchases/external writes blocked, and continue to the next card if blocked.",
+  "approvalDigest": "c3303f3207f18d774eea38c831c4cb4e8bc4c87f7eb24de7cb173aa5886fb804"
+}

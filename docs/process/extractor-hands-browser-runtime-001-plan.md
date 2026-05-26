@@ -33,11 +33,18 @@ V1 may open and read an exact approved URL. It may collect visible text, title/m
 
 Clicks/navigation are part of the full Hands contract, but V1 only enables them when a packet explicitly names the selector/action, allowed next URL pattern, stop condition, and evidence target. Otherwise V1 is exact URL only.
 
+## V1 Closeout Scope
+
+`extractor-hands-browser-runtime-v1` closes the governed public/free Hands contract and proof path only. It proves the source-packet-bounded policy, status map, evidence artifact, synthetic click/navigation runner, local Playwright live mode guard, and fail-closed unsafe cases.
+
+The remaining production work moves to `EXTRACTOR-HANDS-PRODUCTION-RUNNER-001`: wire approved source-packet worker queue rows to a production-safe Hands run/status surface, then extend to source-specific Skool/MyICOR/private/auth session packets only after Steve approves exact boundaries.
+
 ## Acceptance Criteria
 
 - A Hands runtime contract exists with allowed actions, forbidden actions, source-packet preconditions, stop reasons, artifact schema, and proof rules.
 - The system can explain whether a source packet is:
   - `exact_public_read_ready`
+  - `click_navigation_ready`
   - `click_navigation_requires_packet_detail`
   - `auth_session_required`
   - `paid_or_private_blocked`
@@ -55,6 +62,7 @@ Clicks/navigation are part of the full Hands contract, but V1 only enables them 
 - Persist worker evidence into Foundation artifact/report truth.
 - Surface Hands status in Dev/Foundation source views.
 - Update God Mode parity proof so false Hands claims fail closed.
+- Leave production queue/run integration and logged-in source-family Hands in the continuation card, not hidden in this V1 closeout.
 
 ## Proof
 
@@ -69,6 +77,19 @@ Existing exact-public runtime proof:
 ```bash
 npm run process:source-packet-public-web-runtime-check -- --json
 ```
+
+V1 bounded browser Hands proof:
+
+```bash
+npm run process:extractor-hands-browser-runtime-check -- --json
+```
+
+V1 proof note:
+
+- `lib/extractor-hands-browser-runtime.js` defines the source-packet-bounded Hands policy, status map, validator, synthetic proof runner, and local Playwright live mode.
+- Public/free Hands V1 allows one explicitly approved click/navigation action only when the packet names the selector/action, exact allowed next URL pattern, stop condition, and evidence target.
+- The focused proof dogfoods a synthetic public page click and blocks missing packet detail, broad patterns, auth sessions, form selectors, downloads, purchase/checkout links, Skool/auth sources, external writes, and backlog writes.
+- This proves source-appropriate Hands contract and public/free click navigation readiness. It does not approve Skool/MyICOR/private/auth sessions.
 
 ## Not Next
 

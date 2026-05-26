@@ -53,6 +53,7 @@ async function main() {
     sourceFamilyPlanSource,
     handsPlanSource,
     workerPlanSource,
+    handsScriptSource,
     backlogSeedSource,
   ] = await Promise.all([
     readRepoJson('package.json'),
@@ -64,6 +65,7 @@ async function main() {
     readRepoFile('docs/process/source-family-god-mode-extractors-001-plan.md'),
     readRepoFile('docs/process/extractor-hands-browser-runtime-001-plan.md'),
     readRepoFile('docs/process/source-packet-worker-runner-001-plan.md'),
+    readRepoFile('scripts/process-extractor-hands-browser-runtime-check.mjs'),
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
   ])
 
@@ -109,7 +111,7 @@ async function main() {
       !devVisibleBundle.includes('YouTube / God Mode Pipeline') &&
       !devVisibleBundle.includes("visibleValue: 'God Mode") &&
       devVisibleBundle.includes('youtube-video-intelligence-pipeline') &&
-      devVisibleBundle.includes('not full God Mode until approved resource follow-up, source-packet worker execution, and browser hands are proven') &&
+      devVisibleBundle.includes('not full source-family God Mode until production-safe approved resource follow-up and source-specific auth/community/course Hands are proven') &&
       devVisibleBundle.includes('YouTube comments are intentionally excluded'),
     'Dev read model uses truthful YouTube video intelligence wording',
     'no public Dev lane claims full God Mode'
@@ -142,7 +144,8 @@ async function main() {
       'Raw Codex session 019e46b1',
       'Playwright-first',
     ]) &&
-      includesAll(handsPlanSource, ['Local Playwright first', 'source-packet boundaries', 'Skool/MyICOR remain blocked']) &&
+      includesAll(handsPlanSource, ['Local Playwright first', 'source-packet boundaries', 'Skool/MyICOR remain blocked', 'process:extractor-hands-browser-runtime-check']) &&
+      includesAll(handsScriptSource, ['buildExtractorHandsBrowserRuntimeDogfoodProof', 'click_navigation_ready', 'auth_session_required']) &&
       includesAll(workerPlanSource, ['decision -> runner -> artifact -> freshness/status', 'lib/source-packet-public-web-runtime.js', 'Do not follow links automatically']),
     'raw God Mode Hands correction is promoted to backlog cards and process plans',
     'EXTRACTOR-HANDS-BROWSER-RUNTIME-001 + SOURCE-PACKET-WORKER-RUNNER-001'
