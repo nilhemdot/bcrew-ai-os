@@ -203,6 +203,10 @@ function topDevSources(snapshot = {}) {
     : sourceGrades(snapshot)
 }
 
+function catchupRows(snapshot = {}) {
+  return list(snapshot.youtubeCreatorGodModeCatchup?.creators)
+}
+
 function dailyCreators(snapshot = {}) {
   return list(snapshot.dailyWatch?.creators)
 }
@@ -282,7 +286,35 @@ function creatorTargetFromDaily(snapshot = {}, creator = {}) {
   ]
 }
 
+function creatorTargetFromCatchup(row = {}) {
+  const grade = text(row.devBuildGrade, 'ungraded')
+  const watched = compactNumber(row.videoAudioVisualWatchedCount || 0)
+  const baseline = compactNumber(row.baselineTargetVideos || 10)
+  const tracked = compactNumber(row.trackedMetadataCount || 0)
+  const longCourse = Number(row.longCoursePendingCount || 0)
+  const gap = Number(row.baselineGap || 0)
+  const status = gap > 0 ? 'Needs watch' : 'Baseline met'
+  const longCourseCopy = longCourse ? ` · ${compactNumber(longCourse)} long-course pending` : ''
+  return [
+    text(row.creator || creatorNameFromId(row.creatorId), 'Unknown creator'),
+    `${grade} Dev build · ${status}`,
+    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. ${statusCopy(row.nextWatchAction || '')}`,
+    row.representationStatus === 'represented' ? 'Live' : 'Needs source',
+  ]
+}
+
 function buildYoutubeCreatorTargets(snapshot = {}) {
+  const catchup = catchupRows(snapshot)
+    .filter(row => row.creatorId || row.creator)
+    .sort((left, right) =>
+      Number(right.baselineGap || 0) - Number(left.baselineGap || 0) ||
+      Number(right.deepBaselineGap || 0) - Number(left.deepBaselineGap || 0) ||
+      text(left.creator).localeCompare(text(right.creator))
+    )
+    .slice(0, 10)
+    .map(creatorTargetFromCatchup)
+  if (catchup.length) return catchup
+
   const graded = topDevSources(snapshot)
     .filter(source => source.creatorId || source.creator)
     .slice(0, 10)
@@ -296,10 +328,16 @@ function buildYoutubeCreatorTargets(snapshot = {}) {
 
 function buildLiveSources(snapshot = {}) {
   const daily = snapshot.dailyWatch || {}
+  const catchup = snapshot.youtubeCreatorGodModeCatchup || {}
   const youtubeContract = sourceContract(snapshot, 'SRC-YOUTUBE-INTEL-001')
   const youtubeTargets = buildYoutubeCreatorTargets(snapshot)
   const gradedCount = sourceGrades(snapshot).length
   const creatorCount = Number(daily.summary?.creatorCount || dailyCreators(snapshot).length || 0)
+  const baselineComplete = Number(catchup.summary?.baselineCompleteCount || 0)
+  const baselineIncomplete = Number(catchup.summary?.baselineIncompleteCount || 0)
+  const catchupStatus = catchup.buildPromotionReadiness?.status
+    ? statusCopy(catchup.buildPromotionReadiness.status)
+    : `${compactNumber(gradedCount)} sources graded`
 
   const live = [
     {
@@ -308,11 +346,11 @@ function buildLiveSources(snapshot = {}) {
       label: 'Public creators',
       badge: statusBadge(daily.status),
       status: text(youtubeContract?.status, 'Needs source'),
-      summary: `${compactNumber(creatorCount)} public creator channels feed Foundation. ${compactNumber(gradedCount)} sources are currently graded for Dev value.`,
-      tags: ['public', 'daily', gradedCount ? 'graded' : 'needs grade'],
+      summary: `${compactNumber(creatorCount)} public creator channels feed Foundation. ${compactNumber(baselineComplete)} baseline met; ${compactNumber(baselineIncomplete)} still need watch.`,
+      tags: ['public', 'daily', gradedCount ? 'graded' : 'needs grade', baselineIncomplete ? 'baseline gap' : 'baseline met'],
       targets: youtubeTargets,
       targetNoun: 'graded source',
-      statusLine: `Running · ${compactNumber(gradedCount || youtubeTargets.length)} graded sources`,
+      statusLine: `Running · ${catchupStatus}`,
       sourceRoute: daily.sourceRoute || '/api/foundation/build-intel/youtube-creator-daily-watch',
     },
   ]

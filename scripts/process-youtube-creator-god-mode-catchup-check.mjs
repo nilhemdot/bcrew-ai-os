@@ -1,0 +1,275 @@
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+import { Pool } from 'pg'
+
+import {
+  closeFoundationDb,
+  getIntelligenceReportBundle,
+  initFoundationDb,
+  listSourceCrawlItems,
+} from '../lib/foundation-db.js'
+import {
+  BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
+} from '../lib/build-intel-source-value-grader.js'
+import {
+  YOUTUBE_CREATOR_DAILY_WATCH_SOURCE_ID,
+  YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
+  buildYoutubeCreatorDailyWatchPlan,
+} from '../lib/youtube-creator-daily-watch.js'
+import {
+  YOUTUBE_CREATOR_GOD_MODE_CATCHUP_CARD_ID,
+  YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_CARD_ID,
+  YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_PLAN_PATH,
+  YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_SCRIPT_PATH,
+  buildYoutubeCreatorGodModeCatchupDogfoodProof,
+  buildYoutubeCreatorGodModeCatchupSnapshot,
+} from '../lib/youtube-creator-god-mode-catchup.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const repoRoot = path.resolve(__dirname, '..')
+
+function parseArgs(argv = process.argv.slice(2)) {
+  return {
+    json: argv.includes('--json') || argv.includes('--json=true'),
+  }
+}
+
+function text(value) {
+  return String(value || '').trim()
+}
+
+function list(value) {
+  return Array.isArray(value) ? value : []
+}
+
+function addCheck(checks, ok, check, detail = '') {
+  checks.push({ ok: Boolean(ok), check, detail })
+}
+
+async function readRepoFile(relativePath) {
+  return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
+}
+
+async function readRepoJson(relativePath) {
+  return JSON.parse(await readRepoFile(relativePath))
+}
+
+function createPool() {
+  return new Pool({
+    host: process.env.BCREW_DB_HOST || '/tmp',
+    database: process.env.BCREW_DB_NAME || 'bcrew_ai_os',
+    user: process.env.BCREW_DB_USER || process.env.USER,
+  })
+}
+
+function youtubeVideoIdFromUrl(value = '') {
+  const input = text(value)
+  const patterns = [
+    /[?&]v=([A-Za-z0-9_-]{6,})/,
+    /youtu\.be\/([A-Za-z0-9_-]{6,})/,
+    /youtube\.com\/embed\/([A-Za-z0-9_-]{6,})/,
+  ]
+  for (const pattern of patterns) {
+    const match = input.match(pattern)
+    if (match?.[1]) return match[1]
+  }
+  return ''
+}
+
+function videoIdsFromMetadataRow(row = {}) {
+  const metadata = row.metadata || {}
+  return [
+    metadata.sourceVideoId,
+    metadata.videoId,
+    ...(list(metadata.videoIds)),
+    youtubeVideoIdFromUrl(row.anchor_value || row.anchorValue),
+    youtubeVideoIdFromUrl(metadata.sourceUrl),
+    youtubeVideoIdFromUrl(metadata.url),
+  ].map(text).filter(Boolean)
+}
+
+async function loadAlreadyFullWatchedVideoIds() {
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT metadata, NULL::text AS anchor_value
+        FROM intelligence_report_artifacts
+        WHERE metadata->>'fullWatchRoute' = 'gemini_api_youtube_url_video_understanding'
+        UNION ALL
+        SELECT metadata, anchor_value
+        FROM intelligence_atoms
+        WHERE metadata->>'sourceVideoId' IS NOT NULL
+        UNION ALL
+        SELECT metadata, anchor_value
+        FROM intelligence_atom_hits
+        WHERE metadata->>'sourceVideoId' IS NOT NULL
+      `,
+    )
+    const ids = new Set()
+    for (const row of result.rows) {
+      for (const id of videoIdsFromMetadataRow(row)) ids.add(id)
+    }
+    return Array.from(ids).filter(Boolean)
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
+function normalizeSourceValueGraderReport(bundle = {}) {
+  const report = bundle.report || null
+  const structured = report?.structuredOutputJson || report?.structured_output_json || {}
+  return {
+    status: report?.status || structured.status || 'Needs source',
+    sourceGrades: list(structured.sourceGrades),
+    topDevBuildSources: list(structured.topDevBuildSources),
+    topByLane: list(structured.topByLane),
+    noAutoBacklogPromotion: structured.noAutoBacklogPromotion !== false,
+    externalWrites: structured.externalWrites === true,
+    reportArtifactId: report?.reportArtifactId || report?.report_artifact_id || BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
+  }
+}
+
+function sourceDoesNotWriteOrExtract(source = '') {
+  const haystack = String(source || '')
+  const forbidden = [
+    'update' + 'BacklogItem',
+    'create' + 'BacklogItem',
+    'upsert' + 'FoundationCurrentSprintOverlay',
+    'INSERT' + ' INTO',
+    'UPDATE' + ' ',
+    'DELETE' + ' FROM',
+    'fs.' + 'writeFile',
+    'write' + 'File(',
+    'run' + 'LiveBatch',
+    '--' + 'apply',
+    'live-' + 'gemini-api',
+  ]
+  return forbidden.every(token => !haystack.includes(token))
+}
+
+async function loadLiveSnapshot() {
+  const [poolItems, fullWatchedVideoIds, sourceValueGraderBundle] = await Promise.all([
+    listSourceCrawlItems({ targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY, limit: 1000, order: 'desc' }),
+    loadAlreadyFullWatchedVideoIds(),
+    getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
+  ])
+  return buildYoutubeCreatorGodModeCatchupSnapshot({
+    watchPlan: buildYoutubeCreatorDailyWatchPlan(),
+    poolItems,
+    fullWatchedVideoIds,
+    sourceValueGrader: normalizeSourceValueGraderReport(sourceValueGraderBundle),
+  })
+}
+
+async function main() {
+  const args = parseArgs()
+  const checks = []
+
+  const [
+    packageJson,
+    parentPlanSource,
+    planSource,
+    moduleSource,
+    scriptSource,
+    devHubSource,
+    devHubProofSource,
+    publicDevSource,
+  ] = await Promise.all([
+    readRepoJson('package.json'),
+    readRepoFile('docs/process/youtube-creator-god-mode-catchup-001-plan.md'),
+    readRepoFile(YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_PLAN_PATH),
+    readRepoFile('lib/youtube-creator-god-mode-catchup.js'),
+    readRepoFile(YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_SCRIPT_PATH),
+    readRepoFile('lib/dev-team-hub.js'),
+    readRepoFile('scripts/process-dev-team-hub-v0-check.mjs'),
+    readRepoFile('public/dev.js'),
+  ])
+
+  await initFoundationDb()
+  let snapshot = null
+  try {
+    snapshot = await loadLiveSnapshot()
+  } finally {
+    await closeFoundationDb()
+  }
+
+  const dogfood = buildYoutubeCreatorGodModeCatchupDogfoodProof()
+  const representedOrBlocked = list(snapshot.creators)
+    .filter(row => row.representationStatus === 'represented' || row.blockedReason)
+
+  addCheck(checks, packageJson.scripts?.['process:youtube-creator-god-mode-catchup-check'] === `node --env-file-if-exists=.env ${YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_SCRIPT_PATH}`, 'package exposes focused catch-up readback proof', packageJson.scripts?.['process:youtube-creator-god-mode-catchup-check'] || 'missing')
+  addCheck(checks, parentPlanSource.includes('The watchlist coverage report shows every approved public creator') && parentPlanSource.includes('comment status as `operator_excluded`'), 'parent catch-up plan requires all-creator coverage and comment exclusion', YOUTUBE_CREATOR_GOD_MODE_CATCHUP_CARD_ID)
+  addCheck(checks, planSource.includes('baseline is incomplete') && planSource.includes('no live Gemini spend'), 'readback plan is no-spend and honest about incomplete baseline', YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_PLAN_PATH)
+  addCheck(checks, moduleSource.includes('approvedResourceFollowStatus') && moduleSource.includes('sourcePacketWorkerStatus') && moduleSource.includes('browserHandsStatus'), 'module reports resource, source-packet worker, and browser Hands status per creator', 'lib/youtube-creator-god-mode-catchup.js')
+  addCheck(checks, moduleSource.includes('majorBuildPromotionAllowed') && moduleSource.includes('blocked_source_baseline_incomplete'), 'module exposes Scoper/build-promotion baseline gate', 'buildPromotionReadiness')
+  addCheck(checks, devHubSource.includes('youtubeCreatorGodModeCatchup') && devHubSource.includes('buildYoutubeCreatorGodModeCatchupSnapshot'), 'Dev Hub API consumes catch-up readback payload', 'lib/dev-team-hub.js')
+  addCheck(checks, devHubProofSource.includes('youtubeCreatorGodModeCatchup'), 'Dev Hub focused proof checks catch-up readback visibility', 'scripts/process-dev-team-hub-v0-check.mjs')
+  addCheck(checks, publicDevSource.includes('youtubeCreatorGodModeCatchup') && publicDevSource.includes('baseline'), 'Dev page can render catch-up baseline state in the source leaderboard/card', 'public/dev.js')
+  addCheck(checks, sourceDoesNotWriteOrExtract(`${moduleSource}\n${scriptSource}`), 'catch-up readback proof has no write, live extraction, or provider-call path', YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_SCRIPT_PATH)
+  addCheck(checks, dogfood.ok === true, 'dogfood proves comments excluded, blocked creator reason, S/A deep target, C/D throttle, long-course routing, and promotion block', JSON.stringify(dogfood.cases))
+  addCheck(checks, snapshot.ok === true, 'live catch-up snapshot is healthy', snapshot.failed.map(item => item.check).join(', ') || snapshot.status)
+  addCheck(checks, list(snapshot.creators).length >= 3, 'live snapshot covers multiple approved public creators', `${list(snapshot.creators).length}`)
+  addCheck(checks, representedOrBlocked.length === list(snapshot.creators).length, 'all approved public creators are represented or have a blocked reason', `${representedOrBlocked.length}/${list(snapshot.creators).length}`)
+  addCheck(checks, list(snapshot.creators).every(row => row.commentStatus === 'operator_excluded'), 'comments are operator-excluded, not parked', 'operator_excluded')
+  addCheck(checks, list(snapshot.creators).every(row => row.approvedResourceFollowStatus && row.sourcePacketWorkerStatus && row.browserHandsStatus), 'every creator exposes resource-follow, worker, and Hands status', 'all rows explicit')
+  addCheck(checks, Number(snapshot.summary?.trackedMetadataCount || 0) >= list(snapshot.creators).length, 'tracked YouTube metadata is visible for catch-up planning', `${snapshot.summary?.trackedMetadataCount || 0} rows`)
+  addCheck(checks, Number(snapshot.summary?.videoAudioVisualWatchedCount || 0) >= 1, 'video/audio/visual watched count is visible', `${snapshot.summary?.videoAudioVisualWatchedCount || 0}`)
+  addCheck(checks, snapshot.buildPromotionReadiness?.visibleToScoper === true && snapshot.buildPromotionReadiness?.majorBuildPromotionAllowed === (Number(snapshot.summary?.baselineIncompleteCount || 0) === 0), 'Scoper/build-promotion gate reflects baseline completion', snapshot.buildPromotionReadiness?.status || 'missing')
+  addCheck(checks, snapshot.reportOnly === true && snapshot.liveExtractionStarted === false && snapshot.writesBacklog === false && snapshot.writesExternalSystems === false, 'live proof is report-only and no-spend', `${snapshot.reportOnly}/${snapshot.liveExtractionStarted}/${snapshot.writesBacklog}/${snapshot.writesExternalSystems}`)
+  addCheck(checks, list(snapshot.sourceIds).includes(YOUTUBE_CREATOR_DAILY_WATCH_SOURCE_ID), 'snapshot keeps YouTube source ID lineage', list(snapshot.sourceIds).join(', ') || 'missing')
+
+  const failed = checks.filter(check => !check.ok)
+  const result = {
+    ok: failed.length === 0,
+    status: failed.length ? 'blocked' : snapshot.status,
+    cardId: YOUTUBE_CREATOR_GOD_MODE_CATCHUP_READBACK_CARD_ID,
+    parentCardId: YOUTUBE_CREATOR_GOD_MODE_CATCHUP_CARD_ID,
+    sourceId: YOUTUBE_CREATOR_DAILY_WATCH_SOURCE_ID,
+    targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
+    checks,
+    failed,
+    snapshot: {
+      status: snapshot.status,
+      summary: snapshot.summary,
+      buildPromotionReadiness: snapshot.buildPromotionReadiness,
+      nextWatchRows: list(snapshot.creators)
+        .filter(row => row.baselineGap > 0 || row.deepBaselineGap > 0 || row.pendingStandardVideoCount > 0)
+        .slice(0, 12)
+        .map(row => ({
+          creatorId: row.creatorId,
+          creator: row.creator,
+          devBuildGrade: row.devBuildGrade,
+          trackedMetadataCount: row.trackedMetadataCount,
+          videoAudioVisualWatchedCount: row.videoAudioVisualWatchedCount,
+          baselineGap: row.baselineGap,
+          deepBaselineGap: row.deepBaselineGap,
+          pendingStandardVideoCount: row.pendingStandardVideoCount,
+          longCoursePendingCount: row.longCoursePendingCount,
+          nextWatchAction: row.nextWatchAction,
+        })),
+    },
+  }
+
+  if (args.json) {
+    console.log(JSON.stringify(result, null, 2))
+  } else {
+    console.log(`YouTube Creator God Mode Catch-Up Readback: ${result.status}`)
+    for (const check of checks) {
+      console.log(`${check.ok ? 'PASS' : 'FAIL'} ${check.check}${check.detail ? ` -> ${check.detail}` : ''}`)
+    }
+    console.log(`Summary: ${checks.length - failed.length}/${checks.length} checks passed`)
+  }
+
+  process.exitCode = failed.length ? 1 : 0
+}
+
+main().catch(error => {
+  console.error(error instanceof Error ? error.stack || error.message : String(error))
+  process.exitCode = 1
+})
