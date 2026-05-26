@@ -2,7 +2,7 @@
 
 ## What
 
-Add a shared classifier and focused proof for process-check scripts that write repo report artifacts.
+Add a shared classifier, focused proof, and cleanup migration for process-check scripts that write repo report artifacts.
 
 ## Why
 
@@ -11,9 +11,10 @@ The code-quality audit was correctly looking for report-output/write-boundary dr
 ## Acceptance Criteria
 
 - Guarded report writers using `isProcessReportWriteRequested`, `PROCESS_CHECK_WRITE_FLAGS.writeReport`, or the shared process-check write guard do not produce report-output policy findings.
-- Default-write scripts that rely on `--no-write`, unguarded report writers, and legacy apply-gated report writers without the shared guard remain red.
+- Default-write scripts that rely on `--no-write`, unguarded report writers, and legacy apply-gated report writers without the shared guard fail the synthetic dogfood fixture.
+- The real process-check script surface has zero remaining report-output policy risk rows.
 - The existing Code Quality Nightly Audit consumes the shared classifier instead of owning a separate regex.
-- A focused proof scans the real process-check script surface and proves known guarded writers stay green while known risky writers stay red.
+- A focused proof scans the real process-check script surface and proves all file-writing process checks are behind `--write-report` or the shared process-check write guard.
 - No live extraction, paid/auth source access, provider probes, or auto-fixes run for this card.
 
 ## Proof
@@ -30,7 +31,7 @@ npm run foundation:verify -- --json-summary
 
 ## Not Next
 
-- Do not auto-fix the risky report writers in this card.
 - Do not convert markdown reports into operational truth.
 - Do not weaken process-check read-only/default-fail-closed behavior.
+- Do not change report content semantics beyond explicit output-write posture.
 - Do not run Skool, MyICOR, private/auth, form, download, or purchase workflows while Steve is asleep.

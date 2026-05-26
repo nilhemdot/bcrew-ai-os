@@ -17,7 +17,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 
-const EXPECTED_RISK_PATHS = [
+const EXPECTED_REPAIRED_PATHS = [
   'scripts/process-build-intel-extraction-check.mjs',
   'scripts/process-code-quality-nightly-audit-check.mjs',
   'scripts/process-foundation-deep-merge-audit-check.mjs',
@@ -75,7 +75,7 @@ async function main() {
     (finding.refs || []).some(ref => protectedPathSet.has(ref.path))
   )
   const riskPathSet = new Set((scan.riskRows || []).map(row => row.relativePath))
-  const missingExpectedRiskPaths = EXPECTED_RISK_PATHS.filter(relativePath => !riskPathSet.has(relativePath))
+  const missingExpectedRepairedPaths = EXPECTED_REPAIRED_PATHS.filter(relativePath => !protectedPathSet.has(relativePath))
   const missingExpectedProtectedPaths = EXPECTED_PROTECTED_PATHS.filter(relativePath => !protectedPathSet.has(relativePath))
   const missingAuditRiskRows = (scan.riskRows || []).filter(row => !reportPolicyFindingPaths.has(row.relativePath))
 
@@ -90,8 +90,8 @@ async function main() {
   addCheck(checks, auditSource.includes('buildProcessCheckReportOutputPolicyFindingInput') && auditSource.includes('PROCESS_CHECK_REPORT_OUTPUT_POLICY_CARD_ID'), 'code-quality audit delegates report-output classification to shared policy module', 'lib/code-quality-nightly-audit.js')
   addCheck(checks, scan.fileWriterCount >= 70, 'scanner covers the broad process-check report writer surface', `${scan.fileWriterCount} file-writing process checks`)
   addCheck(checks, scan.protectedWriterCount >= 50, 'classifier preserves already-guarded process-check writers', `${scan.protectedWriterCount} protected writers`)
-  addCheck(checks, scan.riskCount >= EXPECTED_RISK_PATHS.length && scan.riskCount <= 12, 'classifier reduces report-output risk list to a focused actionable set', `${scan.riskCount} risk rows`)
-  addCheck(checks, missingExpectedRiskPaths.length === 0, 'known risky report writers remain red', missingExpectedRiskPaths.join(', ') || 'all expected risky writers red')
+  addCheck(checks, scan.riskCount === 0, 'classifier reports zero remaining report-output policy risks', `${scan.riskCount} risk rows`)
+  addCheck(checks, missingExpectedRepairedPaths.length === 0, 'previously risky report writers are now explicitly guarded', missingExpectedRepairedPaths.join(', ') || 'all expected writers repaired')
   addCheck(checks, missingExpectedProtectedPaths.length === 0, 'known guarded writers stay green', missingExpectedProtectedPaths.join(', ') || 'all expected protected writers green')
   addCheck(checks, protectedFalsePositives.length === 0, 'code-quality audit does not flag protected report writers', protectedFalsePositives.map(finding => finding.refs?.[0]?.path).join(', ') || 'none')
   addCheck(checks, missingAuditRiskRows.length === 0, 'code-quality audit reports every classifier risk row', missingAuditRiskRows.map(row => row.relativePath).join(', ') || 'all risk rows surfaced')

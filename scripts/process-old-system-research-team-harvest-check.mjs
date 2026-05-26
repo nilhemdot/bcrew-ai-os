@@ -12,6 +12,10 @@ import {
   closeFoundationDb,
   getBacklogItemsByIds,
 } from '../lib/foundation-db.js'
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  assertProcessCheckWriteAllowed,
+} from '../lib/process-write-guard.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -332,6 +336,12 @@ async function main() {
 
   let artifact = null
   if (args.apply) {
+    assertProcessCheckWriteAllowed({
+      argv: process.argv.slice(2),
+      scriptPath: 'scripts/process-old-system-research-team-harvest-check.mjs',
+      operation: 'write old-system research harvest report artifacts',
+      allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply],
+    })
     const harvest = await buildHarvest({ oldRepo })
     artifact = await writeHarvestArtifacts({ harvest, cards })
   } else if (await exists(path.join(repoRoot, JSON_PATH))) {

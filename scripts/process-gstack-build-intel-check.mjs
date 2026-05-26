@@ -24,6 +24,9 @@ import {
   getFoundationSnapshot,
 } from '../lib/foundation-db.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  isProcessReportWriteRequested,
+} from '../lib/process-write-guard.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -35,6 +38,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     else if (arg === '--no-write') args.noWrite = true
     else if (arg.startsWith('--card=')) args.card = arg.slice('--card='.length)
   }
+  args.writeReport = isProcessReportWriteRequested(argv) && !args.noWrite
   return args
 }
 
@@ -89,7 +93,7 @@ async function main() {
     repoRoot: GSTACK_BUILD_INTEL_LOCAL_MIRROR,
   })
   const report = renderGStackBuildIntelReport(snapshot)
-  if (!args.noWrite) {
+  if (args.writeReport) {
     await fs.writeFile(path.join(repoRoot, GSTACK_BUILD_INTEL_REPORT_PATH), report)
   }
   const after = await getFoundationSnapshot()
@@ -127,8 +131,8 @@ async function main() {
   addFinding(findings, snapshot.browserQaProof?.minimumProof?.length >= 4 && snapshot.browserQaProof?.notRequiredWhen?.length >= 2, 'browser QA proof standard is scoped to frontend work', snapshot.browserQaProof?.cardId || 'missing')
   addFinding(findings, snapshot.codeImported === false && snapshot.installStarted === false && snapshot.privateScrapeStarted === false && snapshot.paidAuthUsed === false && snapshot.autonomousDevEnabled === false, 'no code import, install, private scraping, paid auth, or autonomous dev side effects', `import=${snapshot.codeImported} install=${snapshot.installStarted}`)
   addFinding(findings, sameJson(beforeCounts, afterCounts), 'backlog lane counts unchanged by GStack proposal generation', `before=${JSON.stringify(beforeCounts)} after=${JSON.stringify(afterCounts)}`)
-  addFinding(findings, args.noWrite || report.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY), 'generated report includes closeout key', GSTACK_BUILD_INTEL_REPORT_PATH)
-  addFinding(findings, args.noWrite || report.includes('Do not copy GStack skills wholesale'), 'generated report names rejected patterns', GSTACK_BUILD_INTEL_REPORT_PATH)
+  addFinding(findings, !args.writeReport || report.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY), 'generated report includes closeout key', GSTACK_BUILD_INTEL_REPORT_PATH)
+  addFinding(findings, !args.writeReport || report.includes('Do not copy GStack skills wholesale'), 'generated report names rejected patterns', GSTACK_BUILD_INTEL_REPORT_PATH)
 
   const failures = findings.filter(finding => !finding.ok)
   const result = {
@@ -136,7 +140,7 @@ async function main() {
     status: failures.length ? 'unhealthy' : 'healthy',
     closeoutKey: GSTACK_BUILD_INTEL_CLOSEOUT_KEY,
     scriptPath: GSTACK_BUILD_INTEL_SCRIPT_PATH,
-    reportPath: args.noWrite ? null : GSTACK_BUILD_INTEL_REPORT_PATH,
+    reportPath: args.writeReport ? GSTACK_BUILD_INTEL_REPORT_PATH : null,
     requestedCards: cardIds,
     summary: {
       sourceCommit: snapshot.sourceCommit,

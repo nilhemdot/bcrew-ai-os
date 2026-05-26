@@ -19,10 +19,14 @@ import {
 import {
   validatePlanApprovalFile,
 } from '../lib/approval-integrity.js'
+import {
+  isProcessReportWriteRequested,
+} from '../lib/process-write-guard.js'
 
 const args = new Set(process.argv.slice(2))
 const json = args.has('--json')
 const noWrite = args.has('--no-write')
+const writeReport = isProcessReportWriteRequested(process.argv.slice(2)) && !noWrite
 
 function laneCounts(backlogItems = []) {
   return backlogItems.reduce((acc, item) => {
@@ -56,7 +60,7 @@ async function main() {
     currentSprint: activeSprint,
   })
   const report = renderBuildIntelExtractionReport(snapshot)
-  if (!noWrite) {
+  if (writeReport) {
     await fs.writeFile(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH, report)
   }
   const after = await getFoundationSnapshot()
@@ -150,7 +154,7 @@ async function main() {
       `before=${JSON.stringify(beforeCounts)} after=${JSON.stringify(afterCounts)}`,
     ),
     check(
-      noWrite || report.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY),
+      !writeReport || report.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY),
       'generated report includes closeout key',
       BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH,
     ),
@@ -166,7 +170,7 @@ async function main() {
     ok,
     status: ok ? 'healthy' : 'failed',
     closeoutKey: BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY,
-    reportPath: noWrite ? null : BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH,
+    reportPath: writeReport ? BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH : null,
     selectedTranscriptArtifacts: snapshot.selectedTranscriptArtifacts,
     observations: snapshot.observations.length,
     proposalRows: snapshot.researchInboxRows.length,

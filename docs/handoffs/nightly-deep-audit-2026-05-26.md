@@ -1,16 +1,16 @@
 # Nightly Deep Audit Report - 2026-05-26
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
-Generated at: `2026-05-26T07:19:36.624Z`
+Generated at: `2026-05-26T07:26:12.352Z`
 Report path: `docs/handoffs/nightly-deep-audit-2026-05-26.md`
 
 ## Morning Read
 
 - Status: `deep_review_degraded`
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev.
-- Active deterministic findings: 21 total (0 P0, 7 P1, 14 P2, 0 P3)
-- Closed detector signals reconciled out of active audit: 7 of 28
-- Changed files selected: 21
+- Active deterministic findings: 14 total (0 P0, 0 P1, 14 P2, 0 P3)
+- Closed detector signals reconciled out of active audit: 7 of 21
+- Changed files selected: 5
 - High-risk review targets: 18
 - LLM review mode: `packet_only_explicitly_degraded`
 - Deep senior review rollup: `degraded` (Deep senior review did not execute. This run produced review packets only; do not present it as a completed deep code review.)
@@ -20,10 +20,10 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-26.md`
 ## Diff Summary
 
 - Previous report: `docs/handoffs/nightly-deep-audit-2026-05-25.json`
-- New findings: 2
+- New findings: 1
 - Still open: 0
 - Resolved: 0
-- Finding delta: 2
+- Finding delta: 1
 
 ## LLM Review Boundary
 
@@ -55,11 +55,11 @@ Deep senior review did not execute. Packet-only output is degraded and must not 
 
 ## Endpoint And Payload Trend
 
-- /api/foundation-hub: 110ms, 575833B, risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: 29ms, 199966B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: 441ms, 629490B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: 153ms, 256929B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: 32ms, 33222B, risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: 153ms, 575831B, risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: 34ms, 199966B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: 467ms, 629491B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: 133ms, 253917B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: 39ms, 33222B, risk=healthy (Within V1 audit budget.)
 
 ## Largest Files
 
@@ -235,56 +235,6 @@ function renderBacklog() {
       var count = (hub.backlogItems || []).filter(function(item) { return item.scope === scope.key }).length
 ```
 
-### P1 lib/foundation-build-closeout-intelligence-records.js
-
-- Lines: 2687
-- Bytes: 202181
-- Reasons: changed_since_baseline
-
-```
-export const intelligenceCloseoutRecords = [
-  {
-    key: 'strategy-001-business-atoms-framework-v1',
-    backlogIds: [
-      'STRATEGY-001',
-    ],
-    match: {
-      subjectIncludes: [
-        'STRATEGY-001',
-        'business atoms',
-        'strategy-001-business-atoms-framework-v1',
-      ],
-    },
-    operatorCloseout: true,
-    mentionedBacklogIds: [
-      'GOV-001',
-      'DATA-003',
-    ],
-    systemArea: 'Strategy / business atoms',
-    status: 'accepted',
-    acceptanceState: 'Verified',
-    whatChanged: 'Added a DB-backed Business Atoms layer with atom hits, temporal current-state semantics, and a read-only Strategy Hub Business Atoms view.',
-    whatItDoes: 'Seeds source-backed planning signals from existing intelligence atoms and synthesis facts, groups them for weekly/monthly/quarterly/annual review, and keeps owner/threshold/next-trigger accountability on each atom.',
-    whyItMatters: 'Strategy and governance need small reusable source-backed business signals before they can drive accountability loops, morning surfaces, or director workflows.',
-    whereItLives: [
-      'lib/strategy-001-business-atoms.js schema, seeding, evaluator, dashboard snapshot, dogfood proof, and closeout renderer',
-      'scripts/process-strategy-001-check.mjs focused process proof and Current Sprint closeout',
-      'lib/foundation-db-schema-seed-store.js business atom schema initialization',
-      'lib/foundation-db.js business atom dashboard read API and source constraint audit coverage',
-      'lib/source-id-constraint-contract.js source_id contract coverage for business_atoms and atom_hits',
-      'lib/strategy-shared-comms-routes.js Strategy Hub v2 businessAtoms payload',
-      'public/strategic-execution.js read-only Business Atoms UI view',
-      'docs/process/strategy-001-business-atoms-framework-plan.md',
-      'docs/process/approvals/STRATEGY-001.json',
-      'docs/handoffs/2026-05-20-strategy-001-business-atoms-framework-closeout.md',
-      'package.json script process:strategy-001-check',
-      'scripts/process-system-health-nightly-audit-check.mjs support repair for compact report JSON and self-audit run handling',
-      'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/system-health-2026-05-20.md/json latest compact healthy system-health report artifacts',
-    ],
-    proofCommands: [
-      'node --check lib/strategy-001-business-atoms.js scripts/proc
-```
-
 ### P1 lib/foundation-db.js
 
 - Lines: 2292
@@ -365,54 +315,118 @@ function isLocalRequest(req) {
   ) {
 ```
 
-### P1 lib/claude-code-review-brain-route.js
+### P1 lib/code-quality-nightly-audit.js
 
-- Lines: 1105
-- Bytes: 42958
+- Lines: 1295
+- Bytes: 59217
 - Reasons: changed_since_baseline
 
 ```
-import crypto from 'node:crypto'
-import { spawn } from 'node:child_process'
-import fs from 'node:fs/promises'
-import os from 'node:os'
-import path from 'node:path'
+  })
+  const timeoutEndpoint = classifyEndpointMetric({
+    ok: false,
+    timeout: true,
+    timeoutMs: 5000,
+  })
+  const mutator = detectMutationPatternsInText({
+    relativePath: 'synthetic/process-check.mjs',
+    text: `await updateBacklogItem('CARD-001', { lane: 'done' })`,
+  })
+  const guardedMutator = detectMutationPatternsInText({
+    relativePath: 'scripts/process-safe-check.mjs',
+    text: `
+      import { PROCESS_CHECK_WRITE_FLAGS, assertProcessCheckWriteAllowed, isProcessCheckWriteRequested } from '../lib/process-write-guard.js'
+      assertProcessCheckWriteAllowed({ argv: process.argv.slice(2), scriptPath: 'scripts/process-safe-check.mjs', operation: 'synthetic update', allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] })
+      if (isProcessCheckWriteRequested({ argv: process.argv.slice(2), allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] })) await updateBacklogItem('CARD-001', { lane: 'done' })
+    `,
+  })
+  const unguardedReportWriter = detectProcessReportWritePolicyInText({
+    relativePath: 'scripts/process-report-check.mjs',
+    text: `
+      import fs from 'node:fs/promises'
+      await fs.writeFile('docs/source-notes/run.md', '# generated')
+    `,
+  })
+  const guardedReportWriter = detectProcessReportWritePolicyInText({
+    relativePath: 'scripts/process-report-check.mjs',
+    text: `
+      import fs from 'node:fs/promises'
+      import { isProcessReportWriteRequested } from '../lib/process-write-guard.js'
+      const args = { writeReport: isProcessReportWriteRequested(process.argv.slice(2)) }
+      if (args.writeReport) await fs.writeFile('docs/source-notes/run.md', '# generated')
+    `,
+  })
+  return {
+    ok: hardcoded.length >= 2 &&
+      activeCurrentSprint.some(finding => finding.id === 'hardcoded-current-sprint-truth' && finding.severity === 'P0') &&
+      historicalCurrentSprint.every(finding => finding.id !== 'hardcoded-current-sprint-truth') &&
+      bootstrapCurrentSprint.every(finding => finding.id !== 'hardcoded-current-sprint-truth') &&
+      slowEndpoint.status === 'risk' &&
+      timeoutEndpoint.severity === 'P0' &&
+      mutator.length === 1 &&
+      guardedMutator.length === 0 &&
+      unguardedReportWriter.length === 1 &&
+      guardedReportWriter.length === 0,
+    hardcodedCount: hardcoded.length,
+    activeCurrentSprintCount: activeCurrentSprint.length,
+    historicalCurrentSprintCount: historicalCurrentSprint.length,
+```
 
-import {
-  BRAIN_FLEET_QUOTA_LEDGER_STOP_CONDITIONS,
-  finishBrainFleetLedgerCall,
-  recordBrainFleetLedgerCall,
-} from './brain-fleet-quota-ledger.js'
-import {
-  buildAuthNeededEvent,
-  runHarlanAuthEscalationScenario,
-} from './harlan-auth-escalation-loop.js'
-import { LLM_AUTH_PATHS, LLM_WORKLOADS } from './llm-router.js'
+### P1 lib/nightly-deep-audit-upgrade.js
 
-export const CLAUDE_CODE_REVIEW_BRAIN_ROUTE_CARD_ID = 'CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001'
-export const CLAUDE_CODE_REVIEW_BRAIN_ROUTE_SPRINT_ID = 'FOUNDATION-CONTROL-PLANE-AND-BRAIN-FLEET-READINESS-2026-05-20'
-export const CLAUDE_CODE_REVIEW_BRAIN_ROUTE_CLOSEOUT_KEY = 'claude-code-review-brain-route-v1'
-export const CLAUDE_CODE_REVIEW_BRAIN_ROUTE_PLAN_PATH = 'docs/process/claude-code-review-brain-route-001-plan.md'
-export const CLAUDE_CODE_REVIEW_BRAIN_ROUTE_APPROVAL_PATH = 'docs/process/approvals/CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001.json'
-export const CLAUDE_CODE_REVIEW_BRAIN_ROUTE_SCRIPT_PATH = 'scripts/process-claude-code-review-brain-route-check.mjs'
-export const CLAUDE_CODE_REVIEW_BRAIN_ROUTE_CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-claude-code-review-brain-route-closeout.md'
-export const CLAUDE_CODE_REVIEW_BRAIN_ROUTE_NEXT_CARD_ID = 'OPENCLAW-ADAPTER-BOUNDARY-001'
+- Lines: 1187
+- Bytes: 47750
+- Reasons: changed_since_baseline
 
-export const CLAUDE_CODE_REVIEW_CREDENTIAL_KEY = 'claude-code-local-max'
-export const CLAUDE_CODE_REVIEW_ROUTE_KEY = 'foundation-agent-claude-code'
-export const CLAUDE_CODE_REVIEW_MODEL = process.env.LLM_CLAUDE_CODE_REVIEW_MODEL || process.env.LLM_AGENT_MODEL || 'default-claude-code-model'
-export const CLAUDE_CODE_REVIEW_PROBE_TOKEN = 'CLAUDE_CODE_REVIEW_BRAIN_ROUTE_OK'
-export const CLAUDE_CODE_REVIEW_PROBE_TYPE = 'bounded_claude_code_review_route_probe'
+```
+    timeoutMs: 90_000,
+  })
+  const selfRepair = detectVerifierSelfRepairRiskInText({
+    relativePath: 'synthetic/foundation-verify.mjs',
+    text: `async function verify() { await resetFoundationDb(); await bootstrapFoundationDb({ includeBootstrapSeed: true }); await repairLiveState(); return { ok: true } }`,
+  })
+  const writeCapableCheck = detectMutationPatternsInText({
+    relativePath: 'synthetic/process-danger-check.mjs',
+    text: `await updateBacklogItem('CARD-001', { lane: 'done' }); await upsertFoundationCurrentSprintOverlay({ sprint: { status: 'active' } })`,
+  })
+  const hardcodedTruth = detectHardcodedLiveTruthInText({
+    relativePath: 'synthetic/live-truth.js',
+    text: `const EXPECTED_SOURCE_COUNT = 35; const currentSummary = 'Latest live checkpoint: 14/14 tables and 5/5 RPCs are passing.'`,
+  })
+  const monolith = classifyFileRisk({ file: 'lib/foundation-db.js', lines: 19_494, changed: false })
 
-export const CLAUDE_CODE_REVIEW_DOCS = Object.freeze({
-  cliReference: 'https://docs.anthropic.com/en/docs/claude-code/cli-usage',
-  sdk: 'https://docs.anthropic.com/s/claude-code-sdk',
-})
+  return {
+    ok: slowEndpoint.status === 'risk' &&
+      selfRepair.length === 1 &&
+      writeCapableCheck.length >= 1 &&
+      hardcodedTruth.length >= 2 &&
+      monolith.reasons.includes('actively_dangerous_10k_plus_file'),
+    slowEndpoint,
+    selfRepairCount: selfRepair.length,
+    writeCapableCheckCount: writeCapableCheck.length,
+    hardcodedTruthCount: hardcodedTruth.length,
+    monolith,
+  }
+}
 
-export const CLAUDE_CODE_REVIEW_BRAIN_ROUTE_NOT_NEXT = [
-  'Do not use Claude Code as a generic backend API or scheduled extractor route from this card.',
-  'Do not run extractor proof, broad source crawls, Skool, MyICOR, Loom, or YouTube runtime work from this card.',
-  'Do not run Claude ultrareview, cloud review, background agents, b
+async function resolveLlmReviewRoute() {
+  try {
+    const plan = await planLlmRoute({ workload: LLM_WORKLOADS.DEEP_AUDIT_SENIOR_REVIEW, hubKey: 'foundation' })
+    return {
+      runnable: plan.runnable,
+      selectedRoute: plan.selectedRoute?.routeKey || null,
+      provider: plan.selectedRoute?.provider || null,
+      model: plan.selectedRoute?.model || null,
+      blockReason: plan.blockReason || null,
+      routeReadiness: plan.routeReadiness || [],
+    }
+  } catch (error) {
+    return {
+      runnable: false,
+      selectedRoute: null,
+      provider: null,
+      model: null,
+      blockReason: error instanceof Error ? error.message : String(error),
 ```
 
 ### P1 lib/connector-uptime-monitor.js
@@ -529,54 +543,6 @@ export const SOURCE_LIFECYCLE_EXCLUDED_LANES = [
   'Missive attachment implementation',
 ```
 
-### P1 lib/codex-direct-subscription-route.js
-
-- Lines: 969
-- Bytes: 39368
-- Reasons: changed_since_baseline
-
-```
-import crypto from 'node:crypto'
-import { spawn } from 'node:child_process'
-import fs from 'node:fs/promises'
-import os from 'node:os'
-import path from 'node:path'
-
-import {
-  BRAIN_FLEET_QUOTA_LEDGER_STOP_CONDITIONS,
-  finishBrainFleetLedgerCall,
-  recordBrainFleetLedgerCall,
-} from './brain-fleet-quota-ledger.js'
-import {
-  buildAuthNeededEvent,
-  runHarlanAuthEscalationScenario,
-} from './harlan-auth-escalation-loop.js'
-import { LLM_AUTH_PATHS, LLM_WORKLOADS } from './llm-router.js'
-
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_CARD_ID = 'CODEX-DIRECT-SUBSCRIPTION-ROUTE-001'
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_SPRINT_ID = 'FOUNDATION-CONTROL-PLANE-AND-BRAIN-FLEET-READINESS-2026-05-20'
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_CLOSEOUT_KEY = 'codex-direct-subscription-route-v1'
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_PLAN_PATH = 'docs/process/codex-direct-subscription-route-001-plan.md'
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_APPROVAL_PATH = 'docs/process/approvals/CODEX-DIRECT-SUBSCRIPTION-ROUTE-001.json'
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_SCRIPT_PATH = 'scripts/process-codex-direct-subscription-route-check.mjs'
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-codex-direct-subscription-route-closeout.md'
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_NEXT_CARD_ID = 'GEMINI-VIDEO-BRAIN-ROUTE-001'
-
-export const CODEX_DIRECT_SUBSCRIPTION_CREDENTIAL_KEY = 'codex-direct-chatgpt-local'
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_KEY = 'foundation-agent-codex-direct'
-export const CODEX_DIRECT_SUBSCRIPTION_PRIMARY_MODEL = process.env.LLM_CODEX_DIRECT_MODEL || 'gpt-5.5'
-export const CODEX_DIRECT_SUBSCRIPTION_FALLBACK_MODEL = process.env.LLM_CODEX_DIRECT_FALLBACK_MODEL || 'gpt-5.4-mini'
-export const CODEX_DIRECT_SUBSCRIPTION_PROBE_TOKEN = 'CODEX_DIRECT_SUBSCRIPTION_ROUTE_OK'
-export const CODEX_DIRECT_SUBSCRIPTION_PROBE_TYPE = 'bounded_local_cli_probe'
-
-export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_NOT_NEXT = [
-  'Do not use direct Codex subscription as a generic backend API.',
-  'Do not run extraction, broad source crawls, Skool, MyICOR, Loom, or YouTube runtime work from this card.',
-  'Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup from this card.',
-  'Do not mutate Google Drive permissions.',
-  'Do not send emails, Telegram, Slac
-```
-
 ### P1 scripts/process-subscription-brain-extractor-adapter-check.mjs
 
 - Lines: 749
@@ -634,393 +600,438 @@ export const CODEX_DIRECT_SUBSCRIPTION_ROUTE_NOT_NEXT = [
 
 ```
 
-### P1 lib/foundation-build-closeout-model-records.js
+### P1 scripts/process-extract-current-check.mjs
 
-- Lines: 741
-- Bytes: 55378
-- Reasons: changed_since_baseline
-
-```
-export const modelCloseoutRecords = [
-  {
-    key: 'brain-fleet-foundation-v1',
-    backlogIds: [
-      'BRAIN-FLEET-FOUNDATION-001',
-    ],
-    match: {
-      subjectIncludes: [
-        'BRAIN-FLEET-FOUNDATION-001',
-        'brain-fleet-foundation-v1',
-        'Brain Fleet foundation',
-      ],
-    },
-    operatorCloseout: true,
-    mentionedBacklogIds: [
-      'HARLAN-AUTH-ESCALATION-LOOP-001',
-      'BRAIN-FLEET-QUOTA-LEDGER-001',
-      'BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001',
-      'EXTRACTOR-BRAIN-FLEET-PROOF-001',
-    ],
-    systemArea: 'Brain Fleet / LLM route contract',
-    status: 'shipped',
-    acceptanceState: 'Verified',
-    whatChanged: 'Added the no-auth Brain Fleet foundation contract over existing LLM runtime truth. The contract maps `llm_credentials` and `llm_routes` into provider-agnostic route contracts, reuses the existing LLM router planner and credential registry, rejects raw prompt/content payloads, and keeps provider execution disabled until auth escalation, quota ledger, and capability registry cards ship.',
-    whatItDoes: 'Lets extractor and future agent work ask which route/model/account-label would be selected without running provider probes, mutating credentials, creating a second router, or pretending quota/auth/capability controls are ready.',
-    whyItMatters: 'Brain Fleet needs to become a governed routing layer, not a hidden subscription farm. This gives Steve a visible contract before live provider work starts and keeps Foundation health clean while Build Intel extraction readiness advances.',
-    whereItLives: [
-      'lib/brain-fleet-foundation.js',
-      'scripts/process-brain-fleet-foundation-check.mjs',
-      'docs/process/brain-fleet-foundation-001-plan.md',
-      'docs/process/approvals/BRAIN-FLEET-FOUNDATION-001.json',
-      'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-foundation-closeout.md',
-      'docs/rebuild/current-plan.md',
-      'docs/rebuild/current-state.md',
-      'lib/foundation-build-closeout-model-records.js',
-      'lib/foundation-verify-coverage-card-ids.js',
-      'lib/foundation-verify-live-api-snapshot.js',
-      'scripts/foundation-verify.mjs',
-      'package.json',
-    ],
-    proofCommands: [
-      'node --check lib/brain-fleet-foundation.js scripts/process-brain-fleet-foundation-check.mjs',
-      'npm run process:brain-fleet-foundation-check -- --close-card --j
-```
-
-### P1 lib/foundation-build-closeout-build-lane-records.js
-
-- Lines: 724
-- Bytes: 53222
-- Reasons: changed_since_baseline
+- Lines: 551
+- Bytes: 27615
+- Reasons: process_check_surface
 
 ```
-export const buildLaneCloseoutRecords = [
-  {
-    key: 'build-lane-served-code-fanout-sync-repair-v1',
-    backlogIds: [
-      'BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001',
-    ],
-    match: {
-      subjectIncludes: [
-        'BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001',
-        'Build Lane Served-Code Fanout Sync Repair',
-        'build-lane-served-code-fanout-sync-repair-v1',
-      ],
-    },
-    operatorCloseout: true,
-    mentionedBacklogIds: [
-      'BUILD-LANE-FAILURE-TELEMETRY-001',
-      'SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001',
-      'PARALLEL-BUILDER-OPERATING-SYSTEM-001',
-    ],
-    systemArea: 'Foundation build lane reliability',
-    status: 'accepted',
-    acceptanceState: 'Verified',
-    whatChanged: 'Repaired fanout failure classification for stale served dashboard code.',
-    whatItDoes: 'Keeps stale served code as a hard fanout failure while skipping dependent Recent Builds checks until the dashboard serves repo HEAD, preventing false build-log closeout/proof/where-it-lives telemetry.',
-    whyItMatters: 'Builders should fix the real root cause. Stale served code needs a runtime restart, not a misleading build-log registry repair.',
-    whereItLives: [
-      'scripts/process-fanout-check.mjs SKIP behavior for dependent Recent Builds checks',
-      'scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs focused proof and live card scaffold',
-      'docs/process/build-lane-served-code-fanout-sync-repair-001-plan.md',
-      'docs/process/approvals/BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001.json',
-      'docs/handoffs/2026-05-18-build-lane-served-code-fanout-sync-repair-closeout.md',
-      'lib/foundation-verify-coverage-card-ids.js done-card coverage',
-    ],
-    proofCommands: [
-      'node --check scripts/process-fanout-check.mjs scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs',
-      'npm run process:build-lane-served-code-fanout-sync-repair-check -- --close-card --json',
-      'npm run backlog:hygiene -- --json',
-      'npm run foundation:verify',
-      'npm run process:ship-check -- --card=BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001.json --closeoutKey=build-lane-served-code-fanout-sync-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify',
-      'npm run proces
-```
+    await client.query('ROLLBACK')
+    throw error
+  } finally {
+    client.release()
+    await pool.end()
+  }
 
-### P1 lib/brain-fleet-model-capability-registry.js
-
-- Lines: 700
-- Bytes: 32031
-- Reasons: changed_since_baseline
-
-```
-export const BRAIN_FLEET_MODEL_CAPABILITY_REGISTRY_CARD_ID = 'BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001'
-export const BRAIN_FLEET_MODEL_CAPABILITY_REGISTRY_SPRINT_ID = 'FOUNDATION-CONTROL-PLANE-AND-BRAIN-FLEET-READINESS-2026-05-20'
-export const BRAIN_FLEET_MODEL_CAPABILITY_REGISTRY_CLOSEOUT_KEY = 'brain-fleet-model-capability-registry-v1'
-export const BRAIN_FLEET_MODEL_CAPABILITY_REGISTRY_PLAN_PATH = 'docs/process/brain-fleet-model-capability-registry-001-plan.md'
-export const BRAIN_FLEET_MODEL_CAPABILITY_REGISTRY_APPROVAL_PATH = 'docs/process/approvals/BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001.json'
-export const BRAIN_FLEET_MODEL_CAPABILITY_REGISTRY_SCRIPT_PATH = 'scripts/process-brain-fleet-model-capability-registry-check.mjs'
-export const BRAIN_FLEET_MODEL_CAPABILITY_REGISTRY_CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-model-capability-registry-closeout.md'
-export const BRAIN_FLEET_MODEL_CAPABILITY_REGISTRY_NEXT_CARD_ID = 'CODEX-DIRECT-SUBSCRIPTION-ROUTE-001'
-
-export const BRAIN_FLEET_MODEL_CAPABILITY_REGISTRY_VERSION = 1
-
-export const BRAIN_FLEET_CAPABILITY_SUPPORT = Object.freeze({
-  SUPPORTED: 'supported',
-  UNSUPPORTED: 'unsupported',
-  PROBE_REQUIRED: 'probe_required',
-  UNKNOWN: 'unknown',
-})
-
-export const BRAIN_FLEET_CAPABILITY_SPEED_MODES = Object.freeze([
-  'fast',
-  'standard',
-  'deep',
-  'embedding',
-  'vision',
-  'manual',
-  'unknown',
-])
-
-export const BRAIN_FLEET_CAPABILITY_REASONING_POSTURES = Object.freeze([
-  'none',
-  'standard',
-  'high',
-  'coding_agent',
-  'vision_multimodal',
-  'manual',
-  'unknown',
-])
-
-export const BRAIN_FLEET_AUTH_POSTURES = Object.freeze([
-  'available',
-  'probe_required',
-  'auth_needed',
-  'blocked',
-  'manual_only',
-  'unknown',
-])
-
-export const BRAIN_FLEET_QUOTA_POSTURES = Object.freeze([
-```
-
-### P1 scripts/process-gemini-video-brain-route-check.mjs
-
-- Lines: 644
-- Bytes: 29980
-- Reasons: changed_since_baseline, process_check_surface
-
-```
-  assertProcessCheckWriteAllowed({
-    argv: process.argv.slice(2),
-    scriptPath: SCRIPT_PATH,
-    operation: 'update Gemini route backlog card, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  const currentHead = await git(['rev-parse', 'HEAD'])
-  const previous = await getActiveFoundationCurrentSprint()
-  await updateBacklogItem(CARD_ID, buildBacklogUpdate({ closeCard }), ACTOR)
-  await upsertPlanCriticRun(planReview)
+  const previous = activeSprint || await getActiveFoundationCurrentSprint()
   await upsertFoundationCurrentSprintOverlay(
     {
       sprint: {
         ...(previous.sprint || {}),
-        sprintId: SPRINT_ID,
+        sprintId: previous.sprint?.sprintId || SPRINT_ID,
         status: 'active',
-        goal: previous.sprint?.goal || 'Build Brain Fleet and extractor readiness without breaking Foundation health.',
+        goal: 'Make Foundation raw-green, self-improving, backlog-clean, operationally controlled, and ready to resume source/extract work without rebuilding tech debt.',
         activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
         metadata: {
           ...(previous.sprint?.metadata || {}),
-          currentHead,
-          currentStatus: closeCard ? 'gemini_video_brain_route_closed_claude_next' : 'gemini_video_brain_route_building',
+          currentStatus: closeCard ? 'extract_current_closed' : 'extract_current_active',
           lastClosedCardId: closeCard ? CARD_ID : previous.sprint?.metadata?.lastClosedCardId,
-          nextAction: closeCard
-            ? `${NEXT_CARD_ID}: probe bounded Claude Code / Agent SDK local route; mark experimental if policy/subscription posture is ambiguous.`
-            : `${CARD_ID}: run bounded Gemini video/long-context route proof with ledger, Harlan auth-needed flow, artifact contract, and fallback.`,
-          activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
-          buildLaneCount: 1,
-          strategyPeopleParked: true,
-          geminiRouteKey: GEMINI_VIDEO_ROUTE_KEY,
-          noBroadExtraction: true,
-          noCredentialMutation: true,
-          noExternalWrites: true,
+          nextAction: closeCard ? `Continue ${NEXT_CARD_ID}; EXTRACT-CURRENT is closed.` : `${CARD_ID} is active; prove current-day freshness before backfill.`,
+          extractCurrentSummary: {
+            status: closeCard ? 'healthy' : 'active',
+            closeoutKey: CLOSEOUT_KEY,
+            nextCardId: NEXT_CARD_ID,
+            targetKeys: EXTRACT_CURRENT_TARGETS.map(target => target.targetKey),
+            blockersParkActionsNotSprint: true,
+          },
         },
       },
-      items: buildSprintItems(previous, { closeCard, currentHead }),
+      items: buildSprintItems(previous, { closeCard }),
     },
-    ACTOR,
+    'codex-extract-current',
     {
       apply: true,
       allowItemReplacement: true,
-      expectedPreviousActiveSprintId: previous?.sprint?.sprintId || SPRINT_ID,
-      reason: 'Steve ordered Gemini video/long-context route proof after direct Codex and before Claude, OpenClaw adapter boundary, or extractor proof.',
-    },
-  )
-}
-
-async function main() {
-```
-
-### P1 scripts/process-claude-code-review-brain-route-check.mjs
-
-- Lines: 642
-- Bytes: 29698
-- Reasons: changed_since_baseline, process_check_surface
-
-```
-  assertProcessCheckWriteAllowed({
-    argv: process.argv.slice(2),
-    scriptPath: SCRIPT_PATH,
-    operation: 'update Claude route backlog card, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  const currentHead = await git(['rev-parse', 'HEAD'])
-  const previous = await getActiveFoundationCurrentSprint()
-  await updateBacklogItem(CARD_ID, buildBacklogUpdate({ closeCard }), ACTOR)
-  await upsertPlanCriticRun(planReview)
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        ...(previous.sprint || {}),
-        sprintId: SPRINT_ID,
-        status: 'active',
-        goal: previous.sprint?.goal || 'Build Brain Fleet and extractor readiness without breaking Foundation health.',
-        activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
-        metadata: {
-          ...(previous.sprint?.metadata || {}),
-          currentHead,
-          currentStatus: closeCard ? 'claude_code_review_brain_route_closed_openclaw_next' : 'claude_code_review_brain_route_building',
-          lastClosedCardId: closeCard ? CARD_ID : previous.sprint?.metadata?.lastClosedCardId,
-          nextAction: closeCard
-            ? `${NEXT_CARD_ID}: demote OpenClaw to adapter status and keep Foundation architecture provider-agnostic.`
-            : `${CARD_ID}: run bounded Claude Code review route proof with ledger, Harlan auth-needed flow, SDK posture, and experimental policy classification.`,
-          activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
-          buildLaneCount: 1,
-          strategyPeopleParked: true,
-          claudeRouteKey: CLAUDE_CODE_REVIEW_ROUTE_KEY,
-          claudeRoutePolicyPosture: 'experimental',
-          extractorV1BlockedByClaude: false,
-          noBroadExtraction: true,
-          noCredentialMutation: true,
-          noExternalWrites: true,
-        },
-      },
-      items: buildSprintItems(previous, { closeCard, currentHead }),
-    },
-    ACTOR,
-    {
-      apply: true,
-      allowItemReplacement: true,
-      expectedPreviousActiveSprintId: previous?.sprint?.sprintId || SPRINT_ID,
-      reason: 'Steve ordered Claude Code review route after Gemini and before OpenClaw adapter boundary; Claude ambiguity must not block extractor v1.',
-    },
-  )
-}
-```
-
-### P1 scripts/process-codex-direct-subscription-route-check.mjs
-
-- Lines: 629
-- Bytes: 28851
-- Reasons: changed_since_baseline, process_check_surface
-
-```
-  assertProcessCheckWriteAllowed({
-    argv: process.argv.slice(2),
-    scriptPath: SCRIPT_PATH,
-    operation: 'update direct Codex route backlog card, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  const currentHead = await git(['rev-parse', 'HEAD'])
-  const previous = await getActiveFoundationCurrentSprint()
-  await updateBacklogItem(CARD_ID, buildBacklogUpdate({ closeCard }), ACTOR)
-  await upsertPlanCriticRun(planReview)
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        ...(previous.sprint || {}),
-        sprintId: SPRINT_ID,
-        status: 'active',
-        goal: previous.sprint?.goal || 'Build Brain Fleet and extractor readiness without breaking Foundation health.',
-        activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
-        metadata: {
-          ...(previous.sprint?.metadata || {}),
-          currentHead,
-          currentStatus: closeCard ? 'codex_direct_subscription_route_closed_gemini_next' : 'codex_direct_subscription_route_building',
-          lastClosedCardId: closeCard ? CARD_ID : previous.sprint?.metadata?.lastClosedCardId,
-          nextAction: closeCard
-            ? `${NEXT_CARD_ID}: add/probe bounded Gemini video/long-context route with ledger and Harlan auth-needed flow.`
-            : `${CARD_ID}: run bounded direct Codex CLI route proof with ledger and no external writes.`,
-          activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
-          buildLaneCount: 1,
-          strategyPeopleParked: true,
-          directCodexRouteKey: CODEX_DIRECT_SUBSCRIPTION_ROUTE_KEY,
-          noGenericBackendApi: true,
-          noExternalWrites: true,
-        },
-      },
-      items: buildSprintItems(previous, { closeCard, currentHead }),
-    },
-    ACTOR,
-    {
-      apply: true,
-      allowItemReplacement: true,
-      expectedPreviousActiveSprintId: previous?.sprint?.sprintId || SPRINT_ID,
-      reason: 'Steve ordered direct Codex route before Gemini, Claude, OpenClaw adapter boundary, or extractor proof.',
+      expectedPreviousActiveSprintId: previous.sprint?.sprintId || SPRINT_ID,
+      reason: `${CARD_ID} ${closeCard ? 'closes' : 'updates'} current-day freshness proof and ${closeCard ? `advances to ${NEXT_CARD_ID}` : 'owns the active blocker'}.`,
     },
   )
 }
 
 async function main() {
   const args = parseArgs()
+  const checks = []
+  await initFoundationDb()
+
+  const jobKeys = [
 ```
 
-### P1 lib/brain-fleet-quota-ledger.js
+### P1 scripts/process-harlan-auth-escalation-loop-check.mjs
 
-- Lines: 592
-- Bytes: 23687
-- Reasons: changed_since_baseline
+- Lines: 546
+- Bytes: 25981
+- Reasons: process_check_surface
 
 ```
-import { planBrainFleetRoute } from './brain-fleet-foundation.js'
-import { createLlmCall, finishLlmCall } from './foundation-db.js'
+    scriptPath: SCRIPT_PATH,
+    operation: 'update HARLAN-AUTH-ESCALATION-LOOP-001 backlog row, Plan Critic row, and Current Sprint overlay',
+    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
+  })
+  const previous = await getActiveFoundationCurrentSprint()
+  if (!previous?.sprint?.sprintId) throw new Error('No active Current Sprint found for Harlan auth escalation update.')
 
-export const BRAIN_FLEET_QUOTA_LEDGER_CARD_ID = 'BRAIN-FLEET-QUOTA-LEDGER-001'
-export const BRAIN_FLEET_QUOTA_LEDGER_SPRINT_ID = 'FOUNDATION-CONTROL-PLANE-AND-BRAIN-FLEET-READINESS-2026-05-20'
-export const BRAIN_FLEET_QUOTA_LEDGER_CLOSEOUT_KEY = 'brain-fleet-quota-ledger-v1'
-export const BRAIN_FLEET_QUOTA_LEDGER_PLAN_PATH = 'docs/process/brain-fleet-quota-ledger-001-plan.md'
-export const BRAIN_FLEET_QUOTA_LEDGER_APPROVAL_PATH = 'docs/process/approvals/BRAIN-FLEET-QUOTA-LEDGER-001.json'
-export const BRAIN_FLEET_QUOTA_LEDGER_SCRIPT_PATH = 'scripts/process-brain-fleet-quota-ledger-check.mjs'
-export const BRAIN_FLEET_QUOTA_LEDGER_CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-quota-ledger-closeout.md'
-export const BRAIN_FLEET_QUOTA_LEDGER_NEXT_CARD_ID = 'BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001'
+  await upsertPlanCriticRun(planReview)
+  await updateBacklogItem(CARD_ID, buildBacklogUpdate({ closeCard }), ACTOR)
 
-export const BRAIN_FLEET_LEDGER_VERSION = 1
+  const previousItems = previous.items || []
+  const nextItems = previousItems.map(item => {
+    const cardId = item.cardId || item.backlogId
+    if (cardId === CARD_ID) return buildSprintItem(item, { closeCard })
+    if (closeCard && cardId === NEXT_CARD_ID) return buildNextSprintItem(item)
+    return cloneSprintItem(item)
+  })
 
-export const BRAIN_FLEET_QUOTA_LEDGER_STOP_CONDITIONS = Object.freeze({
-  NONE: 'none',
-  AUTH_NEEDED: 'auth_needed',
-  RATE_LIMITED: 'rate_limited',
-  QUOTA_EXHAUSTED: 'quota_exhausted',
-  PROVIDER_FAILURE: 'provider_failure',
-  PROVIDER_EXECUTION_DISABLED: 'provider_execution_disabled_for_proof',
-  ROUTE_NOT_RUNNABLE: 'route_not_runnable',
-  MISSING_LEDGER_TRUTH: 'missing_ledger_truth',
-})
+  await upsertFoundationCurrentSprintOverlay(
+    {
+      sprint: {
+        sprintId: SPRINT_ID,
+        status: 'active',
+        goal: previous.sprint.goal || 'Build Foundation control-plane and Brain Fleet readiness before extractor runtime work.',
+        activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
+        metadata: {
+          ...(previous.sprint.metadata || {}),
+          activeQueue: [
+            CARD_ID,
+            NEXT_CARD_ID,
+            'BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001',
+            'CODEX-DIRECT-SUBSCRIPTION-ROUTE-001',
+            'GEMINI-VIDEO-BRAIN-ROUTE-001',
+            'CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001',
+            'OPENCLAW-ADAPTER-BOUNDARY-001',
+            'EXTRACTOR-BRAIN-FLEET-PROOF-001',
+            'YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001',
+          ],
+          currentStatus: closeCard ? `continue ${NEXT_CARD_ID}` : `building ${CARD_ID}`,
+          closeoutKey: closeCard ? CLOSEOUT_KEY : previous.sprint.metadata?.closeoutKey,
+          notNext: NOT_NEXT,
+        },
+      },
+      items: nextItems.length ? nextItems : [buildSprintItem({}, { closeCard })],
+    },
+    ACTOR,
+    {
+      apply: true,
+```
 
-export const BRAIN_FLEET_QUOTA_LEDGER_NOT_NEXT = [
-  'Do not run live provider probes from the quota ledger card.',
-  'Do not execute OpenClaw, Codex, Gemini, Claude, OpenAI, Anthropic, browser automation, or extractor model calls.',
-  'Do not run MEETING-VAULT-ACL-001 Phase B or mutate Drive permissions.',
-  'Do not mutate credentials, provider config, source systems, Drive permissions, email, Telegram, or public systems.',
-  'Do not start extractor proof, YouTube runtime proof, broad crawl, Strategy, or People work from this card.',
-  'Do not hide auth, quota, rate-limit, provider, or missing-ledger failures as green.',
-]
+### P1 scripts/process-youtube-god-mode-autonomous-watch-scheduler-check.mjs
 
-const TERMINAL_STATUSES = new Set(['succeeded', 'failed', 'skipped'])
-const STOP_REQUIRED_STATUSES = new Set(['failed', 'skipped'])
-const STOP_ON_FAILURE_CONDITIONS = new Set([
-  BRAIN_FLEET_QUOTA_LEDGER_STOP_CONDITIONS.AUTH_NEEDED,
-  BRAIN_FLEET_QUOTA_LEDGER_STOP_CONDITIONS.RATE_LIMITED,
-  BRAIN_FLEET_QUOTA_LEDGER_STOP_CONDITIONS.QUOTA_EXHAUS
+- Lines: 537
+- Bytes: 21656
+- Reasons: process_check_surface
+
+```
+#!/usr/bin/env node
+
+import { spawn } from 'node:child_process'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+import { Pool } from 'pg'
+
+import {
+  YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_CARD_ID,
+  YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_JOB_KEY,
+  YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_PLAN_PATH,
+  YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_SCRIPT_PATH,
+  YOUTUBE_GOD_MODE_SCHEDULER_DEFAULT_CONFIG,
+  buildYoutubeGodModeAutonomousWatchPlan,
+  buildYoutubeGodModeAutonomousWatchSchedulerDogfoodProof,
+} from '../lib/youtube-god-mode-autonomous-watch-scheduler.js'
+import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const repoRoot = path.resolve(__dirname, '..')
+const DEFAULT_COMMAND_TIMEOUT_MS = 60 * 60 * 1000
+const GEMINI_STANDARD_PRICING_BY_MODEL = {
+  'gemini-3.5-flash': { inputPerMillionUsd: 1.50, outputPerMillionUsd: 9.00 },
+  'gemini-2.5-flash': { inputPerMillionUsd: 0.30, outputPerMillionUsd: 2.50 },
+}
+
+function text(value) {
+  return String(value || '').trim()
+}
+
+function readArgValue(argv = [], prefix = '') {
+  const found = argv.find(arg => String(arg || '').startsWith(prefix))
+  return found ? String(found).slice(prefix.length).trim() : ''
+}
+
+function readArgValues(argv = [], prefix = '') {
+  return argv
+    .filter(arg => String(arg || '').startsWith(prefix))
+    .flatMap(arg => String(arg).slice(prefix.length).split(','))
+    .map(text)
+    .filter(Boolean)
+}
+
+function flag(argv = [], name = '') {
+  return argv.includes(name) || argv.includes(`${name}=true`)
+}
+```
+
+### P1 scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs
+
+- Lines: 487
+- Bytes: 23081
+- Reasons: process_check_surface
+
+```
+  const missing = EXPECTED_ACTIVE_IDS.filter(id => !byId.has(id))
+  if (missing.length) {
+    throw new Error(`Cannot clean sprint; missing active sprint item(s): ${missing.join(', ')}`)
+  }
+
+  await upsertCleanupBacklogRow()
+  await upsertPlanCriticRun(planReview)
+
+  await upsertFoundationCurrentSprintOverlay(
+    {
+      sprint: {
+        ...(previous.sprint || {}),
+        sprintId: SPRINT_ID,
+        status: 'active',
+        goal: 'YouTube To Dev Team Intelligence V1: daily public creator watch, Mark last-50 baseline, Dev Team Hub, Director output, and approval-gated build promotion.',
+        activeBlockerCardId: ACTIVE_CARD_ID,
+        metadata: {
+          ...(previous.sprint?.metadata || {}),
+          sprintWorkspaceCleanupCardId: CARD_ID,
+          sprintPlanRef: PRIMARY_SPRINT_PLAN_REF,
+          sprintProcessPlanRef: PROCESS_SPRINT_PLAN_REF,
+          sprintCorrectionPlanRef: DAILY_WATCH_CORRECTION_PLAN_REF,
+          sprintPlanCloseoutKey: 'youtube-dev-team-intelligence-sprint-plan-v1',
+          sprintCorrectionCloseoutKey: 'youtube-creator-daily-watch-sprint-update-v1',
+          currentStatus: 'youtube_sprint_workspace_clean',
+          executiveSummary: 'Current sprint is clean: old shipped cards live in Backlog done and Recent Work; this board shows only the YouTube To Dev Team Intelligence V1 execution cards.',
+          nextAction: `${ACTIVE_CARD_ID}: build scheduled public creator watch with Mark last-50 and other creator last-20 baseline rules.`,
+          activeBlockerCardId: ACTIVE_CARD_ID,
+          runOrder: EXPECTED_ACTIVE_IDS,
+          previousDoneRowsMovedToRecentWork: HISTORICAL_DONE_IDS,
+          parkedOutsideSprint: PARKED_OUTSIDE_SPRINT,
+          exitCriteria: EXIT_CRITERIA,
+          cleanSprintOverlay: true,
+          doneThisSprintClearedForNewSprint: true,
+          oldDoneMovedToRecentWork: true,
+          dailyWatchRequired: true,
+          markKashefBaselineDepth: 50,
+          defaultCreatorBaselineDepth: 20,
+          noBroadExtraction: true,
+          noCredentialMutation: true,
+          noExternalWrites: true,
+          noAutoBacklogCards: true,
+          publicYoutubeFirst: true,
+          strategyPeopleParked: true,
+          approvalPolicy: 'Approval-bound private/external actions park the exact source item and continue safe sprint work; daily watch may inspect public no-auth metadata only; deeper extractio
+```
+
+### P1 scripts/process-foundation-gate-check-serialization-check.mjs
+
+- Lines: 477
+- Bytes: 23619
+- Reasons: process_check_surface
+
+```
+  assertProcessCheckWriteAllowed({
+    argv: process.argv.slice(2),
+    scriptPath: SCRIPT_PATH,
+    operation: `create/update ${CARD_ID} card, Plan Critic row, and Current Sprint overlay`,
+    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
+  })
+  const previous = await getActiveFoundationCurrentSprint()
+  await upsertLiveRows({ closeCard, planReview })
+  await upsertFoundationCurrentSprintOverlay(
+    buildCurrentSprintOverlay(previous, { closeCard, currentHead: gitState.head }),
+    ACTOR,
+    {
+      apply: true,
+      allowItemReplacement: true,
+      expectedPreviousActiveSprintId: previous?.sprint?.sprintId || null,
+      reason: `${CARD_ID} ${closeCard ? 'closed; advance to Brain Fleet contract' : 'is the active serialization blocker'}.`,
+    },
+  )
+}
+
+async function main() {
+  const args = parseArgs()
+  const checks = []
+  await initFoundationDb()
+
+  const [
+    approval,
+    planSource,
+    packageJson,
+    moduleSource,
+    scriptSource,
+    foundationVerifySource,
+    systemHealthScriptSource,
+    repeatedFailureScriptSource,
+    backlogHygieneScriptSource,
+    foundationShipSource,
+    shipGateDoc,
+    currentPlan,
+    currentState,
+    closeoutRegistrySource,
+    coverageSource,
+    closeoutDoc,
+  ] = await Promise.all([
+    validatePlanApprovalFile({ repoRoot, approvalRef: APPROVAL_PATH, cardId: CARD_ID }),
+    readRepoFile(PLAN_PATH),
+    readRepoJson('package.json'),
+    readRepoFile('lib/foundation-gate-check-serialization.js'),
+    readRepoFile(SCRIPT_PATH),
+```
+
+### P1 scripts/process-mark-kashef-goal-build-intel-packet-check.mjs
+
+- Lines: 472
+- Bytes: 26565
+- Reasons: process_check_surface
+
+```
+  assertProcessCheckWriteAllowed({
+    argv: process.argv.slice(2),
+    scriptPath: MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_SCRIPT_PATH,
+    operation: 'create/update Mark Kashef goal Build Intel packet card, Plan Critic row, and Current Sprint overlay',
+    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
+  })
+  const previous = await getActiveFoundationCurrentSprint()
+  await upsertLiveCardAndPlanCritic({ closeCard, stage, planReview })
+  await upsertFoundationCurrentSprintOverlay(
+    {
+      sprint: {
+        sprintId: MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_SPRINT_ID,
+        status: 'active',
+        goal: 'Close Mark Kashef public /goal Build Intel packet without transcript/visual extraction or implementation drift.',
+        activeBlockerCardId: closeCard ? MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_NEXT_CARD_ID : MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CARD_ID,
+        metadata: {
+          stage: closeCard ? 'done_this_sprint' : stage,
+          startedBy: 'codex-mark-kashef-goal-packet',
+          currentStatus: closeCard ? 'next_scoping' : stage,
+          closeoutKey: MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CLOSEOUT_KEY,
+          nextAction: closeCard
+            ? `Continue ${MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_NEXT_CARD_ID} from repo truth.`
+            : 'Write Mark Kashef /goal public metadata packet and keep extraction/implementation blocked.',
+          priorityOrder: [
+            MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CARD_ID,
+            MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_NEXT_CARD_ID,
+          ],
+          notNext: MARK_KASHEF_GOAL_NOT_NEXT_BOUNDARIES,
+          exitCriteria: [
+            'Exact public source metadata is verified without transcript or visual extraction.',
+            'Official /goal docs are linked for mechanics and Mark-specific workflow claims remain unextracted.',
+            'Pattern candidates route to AIOS goal-runner eval rather than direct implementation.',
+            'Dogfood rejects missing source proof, title mismatch, missing official docs, transcript fetch, private Skool access, copied transcript, downstream writes, and direct implementation.',
+            'Focused proof, backlog hygiene, foundation:verify, and process:foundation-ship pass.',
+          ],
+        },
+      },
+      items: closeCard
+        ? [buildSprintItem({ closeCard, stage }), buil
+```
+
+### P1 scripts/process-mark-m-skool-extraction-preflight-check.mjs
+
+- Lines: 468
+- Bytes: 26158
+- Reasons: process_check_surface
+
+```
+  assertProcessCheckWriteAllowed({
+    argv: process.argv.slice(2),
+    scriptPath: MARK_M_SKOOL_EXTRACTION_PREFLIGHT_SCRIPT_PATH,
+    operation: 'create/update Mark M Skool preflight card, Plan Critic row, and Current Sprint overlay',
+    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
+  })
+  const previous = await getActiveFoundationCurrentSprint()
+  await upsertLiveCardAndPlanCritic({ closeCard, stage, planReview })
+  await upsertFoundationCurrentSprintOverlay(
+    {
+      sprint: {
+        sprintId: MARK_M_SKOOL_EXTRACTION_PREFLIGHT_SPRINT_ID,
+        status: 'active',
+        goal: 'Close Mark M Skool private-community source/auth preflight without accessing private content.',
+        activeBlockerCardId: closeCard ? MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NEXT_CARD_ID : MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CARD_ID,
+        metadata: {
+          stage: closeCard ? 'done_this_sprint' : stage,
+          startedBy: 'codex-mark-m-skool-extraction-preflight',
+          currentStatus: closeCard ? 'next_scoping' : stage,
+          closeoutKey: MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CLOSEOUT_KEY,
+          nextAction: closeCard
+            ? `Continue ${MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NEXT_CARD_ID} from repo truth.`
+            : 'Write Skool metadata-only source/auth preflight and keep private access blocked.',
+          priorityOrder: [
+            MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CARD_ID,
+            MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NEXT_CARD_ID,
+            'MATT-POCOCK-CLAUDE-FOLDER-EVAL-001',
+          ],
+          notNext: MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NOT_NEXT_BOUNDARIES,
+          exitCriteria: [
+            'Source contract, connector credential, validation profile, and source-auth row all prove Skool is blocked pending approval.',
+            'Approval packet draft names every required field without granting extraction.',
+            'Dogfood rejects missing source truth, unsafe approval, paid/private auth, live extraction, copied community content, inspected community map, downstream writes, and model calls.',
+            'No Skool private access, posts, comments, member data, lessons, transcripts, screenshots, downloads, model calls, or downstream writes occur.',
+            'Focused proof, backlog hygiene, foundation:verify, and process:foundation-ship pass.',
+          ],
+
+```
+
+### P1 scripts/process-matt-pocock-claude-folder-eval-check.mjs
+
+- Lines: 458
+- Bytes: 24023
+- Reasons: process_check_surface
+
+```
+  assertProcessCheckWriteAllowed({
+    argv: process.argv.slice(2),
+    scriptPath: MATT_POCOCK_CLAUDE_FOLDER_EVAL_SCRIPT_PATH,
+    operation: 'create/update Matt Pocock eval card, Plan Critic row, and Current Sprint overlay',
+    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
+  })
+  const previous = await getActiveFoundationCurrentSprint()
+  await upsertLiveCardAndPlanCritic({ closeCard, planReview })
+  await upsertFoundationCurrentSprintOverlay(
+    {
+      sprint: {
+        sprintId: MATT_POCOCK_CLAUDE_FOLDER_EVAL_SPRINT_ID,
+        status: 'active',
+        goal: 'Close Matt Pocock public Claude folder/source eval without install, extraction, import, or implementation drift.',
+        activeBlockerCardId: closeCard ? MATT_POCOCK_CLAUDE_FOLDER_EVAL_NEXT_CARD_ID : MATT_POCOCK_CLAUDE_FOLDER_EVAL_CARD_ID,
+        metadata: {
+          stage: closeCard ? 'done_this_sprint' : stage,
+          startedBy: 'codex-matt-pocock-claude-folder-eval',
+          currentStatus: closeCard ? 'done_ready_for_next_repo_truth' : stage,
+          closeoutKey: MATT_POCOCK_CLAUDE_FOLDER_EVAL_CLOSEOUT_KEY,
+          nextAction: closeCard
+            ? 'Continue the next safe Foundation-up backlog card from repo truth.'
+            : 'Write Matt Pocock public source eval packet and keep install/extraction/import blocked.',
+          priorityOrder: [
+            MATT_POCOCK_CLAUDE_FOLDER_EVAL_CARD_ID,
+            MATT_POCOCK_CLAUDE_FOLDER_EVAL_NEXT_CARD_ID,
+          ],
+          notNext: MATT_POCOCK_NOT_NEXT_BOUNDARIES,
+          exitCriteria: [
+            'Public GitHub repo metadata, commit, license, and skill catalog shape are recorded.',
+            'Commands/skills/markdown-memory patterns are classified without copying raw skills.',
+            '90-day context handling remains blocked as unverified because the public repo scan did not find it.',
+            'Dogfood rejects install, plugin/symlink writes, raw content copy, extraction, false 90-day claim, and downstream writes.',
+            'Focused proof, backlog hygiene, foundation:verify, and process:foundation-ship pass.',
+          ],
+        },
+      },
+      items: closeCard
+        ? [buildSprintItem({ closeCard, stage }), buildNextSprintItem()]
+        : [buildSprintItem({ closeCard, stage })],
+    },
+    'codex-matt-pocock-claude-folder
 ```
 
 ## Top Deterministic Findings
 
-- P1 process-check-report-write-policy-risk: Process/check path writes repo reports without explicit report-output posture -> PROCESS-CHECK-REPORT-OUTPUT-POLICY-001
-- P1 process-check-report-write-policy-risk: Process/check path writes repo reports without explicit report-output posture -> PROCESS-CHECK-REPORT-OUTPUT-POLICY-001
-- P1 process-check-report-write-policy-risk: Process/check path writes repo reports without explicit report-output posture -> PROCESS-CHECK-REPORT-OUTPUT-POLICY-001
-- P1 process-check-report-write-policy-risk: Process/check path writes repo reports without explicit report-output posture -> PROCESS-CHECK-REPORT-OUTPUT-POLICY-001
-- P1 process-check-report-write-policy-risk: Process/check path writes repo reports without explicit report-output posture -> PROCESS-CHECK-REPORT-OUTPUT-POLICY-001
-- P1 process-check-report-write-policy-risk: Process/check path writes repo reports without explicit report-output posture -> PROCESS-CHECK-REPORT-OUTPUT-POLICY-001
-- P1 process-check-report-write-policy-risk: Process/check path writes repo reports without explicit report-output posture -> PROCESS-CHECK-REPORT-OUTPUT-POLICY-001
+- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
+- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
+- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
 - P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
 - P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
 - P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
@@ -1036,8 +1047,8 @@ const STOP_ON_FAILURE_CONDITIONS = new Set([
 ## Doc / Report Artifact Bloat
 
 - Status: `healthy`
-- Handoff files: 216
-- Handoff hot lines: 17870
+- Handoff files: 217
+- Handoff hot lines: 17930
 - Nightly artifacts: 14
 - Red/yellow findings: 0/0
 
@@ -1066,24 +1077,24 @@ const STOP_ON_FAILURE_CONDITIONS = new Set([
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-26T07:19:37.318Z`
+Generated at: `2026-05-26T07:26:13.055Z`
 
 ## Morning Read
 
 - Status: `report_ready`
-- Findings: 21 total (0 P0, 7 P1, 14 P2, 0 P3)
-- Proposed backlog fixes: 2
+- Findings: 14 total (0 P0, 0 P1, 14 P2, 0 P3)
+- Proposed backlog fixes: 1
 - Detection mode: deterministic code first; no LLM detection used.
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work.
 - Synthetic proof: passed (hardcoded=2, mutator=1, slowEndpoint=risk)
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=110ms payload=575833B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=29ms payload=199966B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=441ms payload=629490B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=153ms payload=256929B risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: status=200 latency=32ms payload=33222B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=153ms payload=575831B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=34ms payload=199966B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=467ms payload=629491B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=133ms payload=253917B risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: status=200 latency=39ms payload=33222B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
 
@@ -1124,69 +1135,6 @@ Largest files:
 - lib/foundation-build-closeout-tightening-records.js: 2599 LOC, 226069B
 
 ## Top Findings
-
-### P1 Process/check path writes repo reports without explicit report-output posture
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-build-intel-extraction-check.mjs:60` (default_write_no_write_optout)
-- Why it matters: Live extraction and synthesis runs should persist operational truth to the Foundation store. Markdown/source-note files are checkpoint artifacts and should require an explicit `--write-report` posture so normal jobs do not dirty Git or turn repo docs into a runtime database.
-- Proposed owner/card: Foundation Process / `PROCESS-CHECK-REPORT-OUTPUT-POLICY-001`
-- Detector: process check report-output policy detector
-- False-positive note: The command writes report artifacts by default and relies on --no-write as an opt-out.
-
-### P1 Process/check path writes repo reports without explicit report-output posture
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-code-quality-nightly-audit-check.mjs:108` (default_write_no_write_optout)
-- Why it matters: Live extraction and synthesis runs should persist operational truth to the Foundation store. Markdown/source-note files are checkpoint artifacts and should require an explicit `--write-report` posture so normal jobs do not dirty Git or turn repo docs into a runtime database.
-- Proposed owner/card: Foundation Process / `PROCESS-CHECK-REPORT-OUTPUT-POLICY-001`
-- Detector: process check report-output policy detector
-- False-positive note: The command writes report artifacts by default and relies on --no-write as an opt-out.
-
-### P1 Process/check path writes repo reports without explicit report-output posture
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-foundation-deep-merge-audit-check.mjs:190` (legacy_apply_gated_without_shared_guard)
-- Why it matters: Live extraction and synthesis runs should persist operational truth to the Foundation store. Markdown/source-note files are checkpoint artifacts and should require an explicit `--write-report` posture so normal jobs do not dirty Git or turn repo docs into a runtime database.
-- Proposed owner/card: Foundation Process / `PROCESS-CHECK-REPORT-OUTPUT-POLICY-001`
-- Detector: process check report-output policy detector
-- False-positive note: The command appears gated by apply/close flags but does not use the shared process-check write guard.
-
-### P1 Process/check path writes repo reports without explicit report-output posture
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-gstack-build-intel-check.mjs:93` (default_write_no_write_optout)
-- Why it matters: Live extraction and synthesis runs should persist operational truth to the Foundation store. Markdown/source-note files are checkpoint artifacts and should require an explicit `--write-report` posture so normal jobs do not dirty Git or turn repo docs into a runtime database.
-- Proposed owner/card: Foundation Process / `PROCESS-CHECK-REPORT-OUTPUT-POLICY-001`
-- Detector: process check report-output policy detector
-- False-positive note: The command writes report artifacts by default and relies on --no-write as an opt-out.
-
-### P1 Process/check path writes repo reports without explicit report-output posture
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-nightly-deep-audit-upgrade-check.mjs:87` (unguarded_report_writer)
-- Why it matters: Live extraction and synthesis runs should persist operational truth to the Foundation store. Markdown/source-note files are checkpoint artifacts and should require an explicit `--write-report` posture so normal jobs do not dirty Git or turn repo docs into a runtime database.
-- Proposed owner/card: Foundation Process / `PROCESS-CHECK-REPORT-OUTPUT-POLICY-001`
-- Detector: process check report-output policy detector
-- False-positive note: The process-check script writes files without an explicit report-output or shared write posture.
-
-### P1 Process/check path writes repo reports without explicit report-output posture
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-old-system-research-team-harvest-check.mjs:319` (legacy_apply_gated_without_shared_guard)
-- Why it matters: Live extraction and synthesis runs should persist operational truth to the Foundation store. Markdown/source-note files are checkpoint artifacts and should require an explicit `--write-report` posture so normal jobs do not dirty Git or turn repo docs into a runtime database.
-- Proposed owner/card: Foundation Process / `PROCESS-CHECK-REPORT-OUTPUT-POLICY-001`
-- Detector: process check report-output policy detector
-- False-positive note: The command appears gated by apply/close flags but does not use the shared process-check write guard.
-
-### P1 Process/check path writes repo reports without explicit report-output posture
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-research-lane-purge-check.mjs:54` (unguarded_report_writer)
-- Why it matters: Live extraction and synthesis runs should persist operational truth to the Foundation store. Markdown/source-note files are checkpoint artifacts and should require an explicit `--write-report` posture so normal jobs do not dirty Git or turn repo docs into a runtime database.
-- Proposed owner/card: Foundation Process / `PROCESS-CHECK-REPORT-OUTPUT-POLICY-001`
-- Detector: process check report-output policy detector
-- False-positive note: The process-check script writes files without an explicit report-output or shared write posture.
 
 ### P2 Runtime model name appears outside router/config ownership
 - Card lane: `CODEBASE-HARDCODE-AUDIT-001`
@@ -1245,7 +1193,7 @@ Largest files:
 ### P2 Runtime model name appears outside router/config ownership
 - Card lane: `CODEBASE-HARDCODE-AUDIT-001`
 - Type: `drift_risk`
-- Evidence: `scripts/process-gstack-build-intel-check.mjs:121`
+- Evidence: `scripts/process-gstack-build-intel-check.mjs:125`
 - Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
 - Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
 - Detector: runtime model literal detector
@@ -1287,9 +1235,36 @@ Largest files:
 - Detector: runtime model literal detector
 - False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
 
+### P2 Runtime model name appears outside router/config ownership
+- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
+- Type: `drift_risk`
+- Evidence: `scripts/process-subscription-brain-extractor-adapter-check.mjs:688`
+- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
+- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
+- Detector: runtime model literal detector
+- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
+
+### P2 Runtime model name appears outside router/config ownership
+- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
+- Type: `drift_risk`
+- Evidence: `scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs:71`
+- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
+- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
+- Detector: runtime model literal detector
+- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
+
+### P2 Runtime model name appears outside router/config ownership
+- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
+- Type: `drift_risk`
+- Evidence: `scripts/process-youtube-god-mode-autonomous-watch-scheduler-check.mjs:25`
+- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
+- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
+- Detector: runtime model literal detector
+- False-positive note: Router defaults, provider docs, historical handoffs, and test fixtures may name exact models; active workload scripts should route through config.
+
 ## Findings By Sprint Card
 
-- `CODEBASE-HARDCODE-AUDIT-001`: 21 findings
+- `CODEBASE-HARDCODE-AUDIT-001`: 14 findings
 - `FOUNDATION-API-PERF-AUDIT-001`: 0 findings
 - `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 0 findings
 - `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 0 findings
@@ -1299,7 +1274,6 @@ Largest files:
 
 ## Proposed Backlog Fixes
 
-- `PROCESS-CHECK-REPORT-OUTPUT-POLICY-001`
 - `LLM-RUNTIME-CONFIG-AUDIT-001`
 
 ## Browser QA Route Matrix Proposal
@@ -1322,4 +1296,3 @@ Largest files:
 ## Not Applied
 
 This report did not edit source files, move backlog cards, open or close sprints, run mutating process checks, apply Action Router routes, schedule jobs, or call any LLM to detect findings.
-

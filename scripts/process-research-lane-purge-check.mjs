@@ -25,6 +25,12 @@ import {
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
 } from '../lib/foundation-db.js'
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  assertProcessCheckWriteAllowed,
+  isProcessCheckWriteRequested,
+  isProcessReportWriteRequested,
+} from '../lib/process-write-guard.js'
 
 const SPRINT_ID = 'source-truth-guardrails-2026-05-13'
 
@@ -102,6 +108,12 @@ async function main() {
   const args = parseArgs()
   const jsonMode = boolArg(args.json)
   const skipClose = boolArg(args.skipClose) || boolArg(args['skip-close'])
+  const argv = process.argv.slice(2)
+  const writeReportRequested = isProcessReportWriteRequested(argv)
+  const closeCardRequested = isProcessCheckWriteRequested({
+    argv,
+    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.closeCard],
+  }) && !skipClose
   const findings = []
 
   await initFoundationDb()
@@ -138,8 +150,10 @@ async function main() {
       backlogItems: beforeBacklogItems,
       generatedAt: new Date().toISOString(),
     })
-    await writeReport(purgeSnapshot)
-    const reportSource = await fs.readFile(RESEARCH_LANE_PURGE_REPORT_PATH, 'utf8')
+    if (writeReportRequested) await writeReport(purgeSnapshot)
+    const reportSource = writeReportRequested
+      ? await fs.readFile(RESEARCH_LANE_PURGE_REPORT_PATH, 'utf8')
+      : renderResearchLanePurgeReport(purgeSnapshot)
     const afterSnapshot = await getFoundationSnapshot()
     const afterResearchSignature = researchLaneSignature(afterSnapshot.backlogItems || [])
     const card = cards.find(item => item.id === RESEARCH_LANE_PURGE_CARD_ID)
@@ -174,7 +188,8 @@ async function main() {
       cardId: RESEARCH_LANE_PURGE_CARD_ID,
       closeoutKey: RESEARCH_LANE_PURGE_CLOSEOUT_KEY,
       planRef: RESEARCH_LANE_PURGE_PLAN_PATH,
-      reportPath: RESEARCH_LANE_PURGE_REPORT_PATH,
+      reportPath: writeReportRequested ? RESEARCH_LANE_PURGE_REPORT_PATH : null,
+      reportWritten: writeReportRequested,
       researchSummary: purgeSnapshot.summary,
       synthetic: syntheticProof,
       mutationGuard: {
@@ -185,7 +200,15 @@ async function main() {
       findings,
     }
 
-    if (summary.status === 'healthy' && !skipClose) await closeSprintCard(purgeSnapshot)
+    if (summary.status === 'healthy' && closeCardRequested) {
+      assertProcessCheckWriteAllowed({
+        argv,
+        scriptPath: RESEARCH_LANE_PURGE_SCRIPT_PATH,
+        operation: 'close research lane purge card and update Current Sprint overlay',
+        allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.closeCard],
+      })
+      await closeSprintCard(purgeSnapshot)
+    }
 
     if (jsonMode) console.log(JSON.stringify(summary, null, 2))
     else {

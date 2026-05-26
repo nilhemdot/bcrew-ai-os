@@ -27,6 +27,9 @@ import {
   APPROVAL_MIN_APPROVED_PLAN_SCORE_LABEL,
   meetsApprovalThreshold,
 } from '../lib/approval-threshold-registry.js'
+import {
+  isProcessReportWriteRequested,
+} from '../lib/process-write-guard.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -49,6 +52,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     else if (arg.startsWith('--endpointTimeoutMs=')) args.timeoutMs = Number(arg.slice('--endpointTimeoutMs='.length))
     else if (arg.startsWith('--reportPath=')) args.reportPath = arg.slice('--reportPath='.length)
   }
+  args.writeReport = isProcessReportWriteRequested(argv) && !args.noWrite
   return args
 }
 
@@ -102,7 +106,7 @@ async function main() {
     skipEndpointFetch: args.skipEndpointFetch,
   })
   const report = renderCodeQualityNightlyAuditReport(audit)
-  if (!args.noWrite) {
+  if (args.writeReport) {
     const reportPath = path.join(repoRoot, args.reportPath)
     await fs.mkdir(path.dirname(reportPath), { recursive: true })
     await fs.writeFile(reportPath, report, 'utf8')
@@ -134,7 +138,7 @@ async function main() {
     status: failures.length ? 'unhealthy' : 'healthy',
     closeoutKey: CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY,
     scriptPath: CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH,
-    reportPath: args.noWrite ? null : args.reportPath,
+    reportPath: args.writeReport ? args.reportPath : null,
     summary: audit.summary,
     endpointMetrics: audit.endpointMetrics,
     proposedCards: audit.proposedCards,

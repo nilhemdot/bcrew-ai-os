@@ -26,6 +26,10 @@ import {
   closeFoundationDb,
   getBacklogItemsByIds,
 } from '../lib/foundation-db.js'
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  assertProcessCheckWriteAllowed,
+} from '../lib/process-write-guard.js'
 
 const execFile = promisify(execFileCallback)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -209,6 +213,12 @@ async function main() {
   let artifact = null
   let routeRows = []
   if (args.apply) {
+    assertProcessCheckWriteAllowed({
+      argv: process.argv.slice(2),
+      scriptPath: FOUNDATION_DEEP_MERGE_AUDIT_SCRIPT_PATH,
+      operation: 'write Foundation deep merge audit report artifacts',
+      allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply],
+    })
     const audit = await buildNightlyDeepAuditUpgrade({
       repoRoot,
       baseUrl: args.baseUrl,

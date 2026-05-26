@@ -30,6 +30,9 @@ import {
   getFoundationSnapshot,
   getPlanCriticRunsByCardIds,
 } from '../lib/foundation-db.js'
+import {
+  isProcessReportWriteRequested,
+} from '../lib/process-write-guard.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -55,6 +58,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     else if (arg === '--runLlmReview' || arg === '--run-llm-review') args.runLlmReview = true
     else if (arg === '--no-runLlmReview' || arg === '--no-run-llm-review') args.runLlmReview = false
   }
+  args.writeReport = isProcessReportWriteRequested(argv) && !args.noWrite
   return args
 }
 
@@ -123,8 +127,9 @@ async function main() {
     changedSinceRef: args.changedSinceRef,
     runLlmReview: args.runLlmReview,
   })
-  const artifacts = args.noWrite
-    ? (() => {
+  const artifacts = args.writeReport
+    ? await writeReportArtifacts(audit)
+    : (() => {
         const json = JSON.stringify(serializeNightlyDeepAuditUpgradeJson(audit))
         return {
           markdown: renderNightlyDeepAuditUpgradeReport(audit),
@@ -135,7 +140,6 @@ async function main() {
           jsonPath: audit.jsonPath,
         }
       })()
-    : await writeReportArtifacts(audit)
 
   const after = await getFoundationSnapshot()
   const afterCounts = laneCounts(after.backlogItems || [])
@@ -183,6 +187,7 @@ async function main() {
     job?.command === 'npm' &&
       (job.args || []).includes('process:nightly-deep-audit-upgrade-check') &&
       (job.args || []).includes('--json') &&
+      (job.args || []).includes('--write-report') &&
       (job.args || []).includes('--endpointTimeoutMs=8000') &&
       (job.args || []).includes('--runLlmReview'),
     'job points to the nightly deep audit proof/report command with bounded deep review enabled',
