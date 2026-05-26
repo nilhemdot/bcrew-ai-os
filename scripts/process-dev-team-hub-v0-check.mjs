@@ -458,13 +458,14 @@ async function main() {
       list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'public_repos') &&
       list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'paid_or_auth_gate') &&
       list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'rejected_noise') &&
-      Number(payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0) >= 1 &&
+      Number(payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0) === 0 &&
+      Number(payload?.approvalReviewTriage?.summary?.requiresAuthCount || 0) >= 1 &&
       Number(payload?.approvalReviewTriage?.summary?.startsImmediatelyCount || 0) === 0 &&
       Number(payload?.approvalReviewTriage?.summary?.startsFromApprovalActionCount || 0) === 0 &&
       Number(payload?.approvalReviewTriage?.summary?.externalWriteCount || 0) === 0 &&
       Number(payload?.approvalReviewTriage?.summary?.backlogWriteCount || 0) === 0,
-    'live Dev Hub groups approval packets by run boundary and proves approval cannot start crawl/write work',
-    `rows=${payload?.approvalReviewTriage?.totalReviewRows || 0}; public=${payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0}; auth=${payload?.approvalReviewTriage?.summary?.requiresAuthCount || 0}`,
+    'live Dev Hub keeps public/free auto-read links out of approval review and proves approval cannot start crawl/write work',
+    `rows=${payload?.approvalReviewTriage?.totalReviewRows || 0}; publicReview=${payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0}; auth=${payload?.approvalReviewTriage?.summary?.requiresAuthCount || 0}`,
   )
   addCheck(
     checks,
