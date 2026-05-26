@@ -19,7 +19,7 @@ V1 baseline:
 - Mark and ICOR remain priority deep baselines.
 - New releases from watched creators continue after catch-up; this is not "latest 10 and done."
 - Long-course videos route to the long-course lane instead of failing the standard lane.
-- Videos already watched under video/audio/visual full-watch are valuable, but they are tagged as not fully source-appropriate God Mode until comments/approved resource follow-up/hands status is resolved.
+- Videos already watched under video/audio/visual full-watch are valuable, but they are tagged as not fully source-appropriate God Mode until approved resource follow-up, source-packet worker status, and browser Hands status are resolved. YouTube comments are operator-excluded.
 
 ## Acceptance Criteria
 
@@ -27,8 +27,10 @@ V1 baseline:
   - channel URL
   - tracked metadata count
   - video/audio/visual watched count
-  - comments status
+  - comment status as `operator_excluded`
   - approved resource-follow status
+  - source-packet worker status
+  - browser Hands status
   - long-course pending count
   - current source grade by lane
   - next watch action
@@ -49,4 +51,4 @@ V1 baseline:
 - Do not run every historical video for every creator by default.
 - Do not watch C/D sources deeply after the baseline without override.
 - Do not use transcript-only results as catch-up completion.
-- Do not treat this as permission to crawl Skool, MyICOR, private communities, paid courses, comments, or external resources without the required source packet.
+- Do not treat this as permission to crawl Skool, MyICOR, private communities, paid courses, operator-excluded comments, or external resources without the required source packet.

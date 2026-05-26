@@ -44,7 +44,7 @@ Foundation stays the shared truth layer. Extractors bring reality in. The synthe
 ### YouTube Video/Audio/Visual Extraction
 
 - Gemini API full video/audio/visual extraction is working.
-- Important correction: this is not final full God Mode yet. It is not transcript-only, but it still lacks integrated public comments, browser hands, and approved follow-on source navigation.
+- Important correction: this is not final full God Mode yet. It is not transcript-only, but it still lacks browser hands and approved follow-on source navigation. Public YouTube comments are intentionally excluded by Steve and are not a God Mode blocker.
 - Standard public YouTube lane has watched 273 videos total from the current ledger.
 - Extraction economics from Dev Hub:
   - 307 Gemini video-review calls
@@ -141,7 +141,7 @@ The main drift risk is UI/style work and manual extraction babysitting taking ov
 ## What Is Not Fully God Mode Yet
 
 - YouTube short-video extraction has eyes/ears/page/transcript/resource classification.
-- YouTube comments had a manual proof on one video/comment, but they are not integrated into the batch pipeline yet.
+- YouTube comments had a manual proof on one video/comment, but Steve has excluded comments from the active lane because they are low-value noise.
 - Browser hands are not fully wired for logged-in communities/courses.
 - Skool/MyICOR paid/private extraction is blocked until source-specific packets are approved.
 - Meeting/Gmail/Missive/Slack extractors feed Foundation, but Dev-specific routing is still early.
@@ -152,45 +152,42 @@ The main drift risk is UI/style work and manual extraction babysitting taking ov
 1. `GOD-MODE-EXTRACTOR-PARITY-GATE-001`
    - Define and enforce what "God Mode" means across extractors so the system stops treating partial extraction as complete.
 
-2. `YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001`
-   - Move comments from one-off proof into the public YouTube batch pipeline.
+2. `BUILD-INTEL-LINK-APPROVAL-SOURCE-PACKETS-001`
+   - Put approval-required links into a reviewable UI/worker flow with source-packet preview, Steve notes, approve/hold/reject, and no crawl-on-approval.
 
-3. `BUILD-INTEL-LINK-APPROVAL-SOURCE-PACKETS-001`
-   - Put approval-required links into a reviewable UI flow with source-packet preview, Steve notes, approve/hold/reject, and no crawl-on-approval.
-
-4. `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001`
+3. `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001`
    - Catch up all approved public creators through the highest available God Mode lane: baseline every creator, deepen S/A sources, and keep new releases current.
 
-5. `SOURCE-FAMILY-GOD-MODE-EXTRACTORS-001`
-   - Show and harden maturity for all extractor families: YouTube, comments, long courses, GitHub, Skool, MyICOR, Drive/Meet training, Gmail/Missive, Slack, meetings, and system signals.
+4. `SOURCE-FAMILY-GOD-MODE-EXTRACTORS-001`
+   - Show and harden maturity for all extractor families: YouTube, operator-excluded comments, long courses, GitHub, Skool, MyICOR, Drive/Meet training, Gmail/Missive, Slack, meetings, and system signals.
 
-6. `YOUTUBE-GOD-MODE-AUTONOMOUS-WATCH-SCHEDULER-001`
+5. `YOUTUBE-GOD-MODE-AUTONOMOUS-WATCH-SCHEDULER-001`
    - Close the scheduler proof and enable bounded automatic catch-up/daily deltas only after parity and budget rules are explicit.
 
-7. `YOUTUBE-LONG-COURSE-FULL-WATCH-LANE-001`
+6. `YOUTUBE-LONG-COURSE-FULL-WATCH-LANE-001`
    - Run one live long-course extraction only after explicit budget/apply confirmation, then compare output quality against short-video lane.
 
-8. `SKOOL-FIRST-SOURCE-PACKET-001`
+7. `SKOOL-FIRST-SOURCE-PACKET-001`
    - Pick one exact free or paid Skool source packet and prove the Skool extractor boundary without roaming.
 
-9. `MYICOR-FIRST-SOURCE-PACKET-001`
+8. `MYICOR-FIRST-SOURCE-PACKET-001`
    - Pick one exact MyICOR source packet and prove paid-source extraction boundary after source approval.
 
-10. `EXTRACTOR-HANDS-BROWSER-RUNTIME-001`
+9. `EXTRACTOR-HANDS-BROWSER-RUNTIME-001`
    - Build the governed browser-hands layer: click, navigate, login/session boundary, capture, stop path, and proof.
 
-11. `FOUNDATION-BRAIN-ROUTE-CONTROL-SURFACE-001`
+10. `FOUNDATION-BRAIN-ROUTE-CONTROL-SURFACE-001`
    - Show each extractor/router/Director/scoper and which model/brain/effort route powers it, with controlled model-route changes.
 
-12. `SOURCE-VALUE-LEADERBOARD-V2-001`
+11. `SOURCE-VALUE-LEADERBOARD-V2-001`
     - Expand leaderboard to source families, not just creators: YouTube, GitHub, Skool, MyICOR, meetings, email, Slack, communities.
 
-13. `DEV-BUILD-OPPORTUNITY-SCOPER-001`
+12. `DEV-BUILD-OPPORTUNITY-SCOPER-001`
     - Take top Director recommendations into build scope only after the extraction/source baseline state is visible, or explicitly mark the scope incomplete because source catch-up is pending.
 
 ## Immediate Recommendation
 
-Do next: `GOD-MODE-EXTRACTOR-PARITY-GATE-001`, then `YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001` and `BUILD-INTEL-LINK-APPROVAL-SOURCE-PACKETS-001`.
+Do next: `GOD-MODE-EXTRACTOR-PARITY-GATE-001`, then `BUILD-INTEL-LINK-APPROVAL-SOURCE-PACKETS-001` / approved source-packet Hands integration.
 
 Reason: the highest-risk problem is calling partial extraction complete. The link queue still matters because we have 157 approval-required links, and many high-value next sources are behind those links.
 

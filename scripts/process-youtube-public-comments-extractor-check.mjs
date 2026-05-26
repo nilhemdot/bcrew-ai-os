@@ -9,8 +9,6 @@ import {
   YOUTUBE_PUBLIC_COMMENTS_EXTRACTOR_CARD_ID,
   YOUTUBE_PUBLIC_COMMENTS_EXTRACTOR_PLAN_PATH,
   YOUTUBE_PUBLIC_COMMENTS_EXTRACTOR_SCRIPT_PATH,
-  buildYoutubePublicCommentsExtractorDogfoodProof,
-  buildYoutubePublicCommentsLiveAdapterDogfoodProof,
 } from '../lib/youtube-public-comments-extractor.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -48,6 +46,7 @@ async function main() {
     planSource,
     backlogSeedSource,
     paritySource,
+    currentPlanSource,
   ] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile('lib/youtube-public-comments-extractor.js'),
@@ -55,18 +54,13 @@ async function main() {
     readRepoFile(YOUTUBE_PUBLIC_COMMENTS_EXTRACTOR_PLAN_PATH),
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
     readRepoFile('lib/god-mode-extractor-parity-gate.js'),
+    readRepoFile('docs/rebuild/current-plan.md'),
   ])
-
-  const dogfood = buildYoutubePublicCommentsExtractorDogfoodProof()
-  const liveAdapterDogfood = await buildYoutubePublicCommentsLiveAdapterDogfoodProof()
-  const validPacket = dogfood.validPacket || {}
-  const packetPreviewFamilies = (validPacket.sourcePacketPreviews || [])
-    .map(packet => `${packet.sourceFamily}:${packet.proposedDecision}`)
 
   addCheck(
     checks,
     packageJson.scripts?.['process:youtube-public-comments-extractor-check'] === `node --env-file-if-exists=.env ${YOUTUBE_PUBLIC_COMMENTS_EXTRACTOR_SCRIPT_PATH}`,
-    'package exposes YouTube public-comments proof',
+    'package exposes YouTube public-comments exclusion proof',
     packageJson.scripts?.['process:youtube-public-comments-extractor-check'] || 'missing',
   )
   addCheck(
@@ -75,73 +69,60 @@ async function main() {
       'validateYoutubePublicCommentsRequest',
       'buildYoutubePublicCommentsPacket',
       'evaluateYoutubePublicCommentsPacket',
-      'buildYoutubePublicCommentsExtractorDogfoodProof',
-      'fetchYoutubePublicCommentsViaDataApi',
-      'buildYoutubePublicCommentsLiveAdapterDogfoodProof',
-      'https://www.googleapis.com/youtube/v3/commentThreads',
-      'sourcePacketRequiredForOutboundLinks',
       'startsCrawler: false',
       'externalWrites: false',
       'writesBacklog: false',
     ]),
-    'module defines bounded public-comments contract and no-crawl/no-write outputs',
+    'historical module remains no-crawl/no-write boundary evidence only',
     'lib/youtube-public-comments-extractor.js',
   )
   addCheck(
     checks,
     includesAll(planSource, [
       'process:youtube-public-comments-extractor-check',
-      'no-auth',
-      'exact-video',
-      'source packets',
-      'commentThreads',
-      'YOUTUBE_DATA_API_KEY',
+      'operator-exclusion',
+      'not active work',
+      'not parked future work',
+      'not a God Mode blocker',
+      'Do not configure YouTube comment API keys',
     ]),
-    'plan names proof command, exact-video/no-auth boundary, source packets, and API-key live adapter limit',
+    'plan records comments as operator-excluded instead of future extractor work',
     YOUTUBE_PUBLIC_COMMENTS_EXTRACTOR_PLAN_PATH,
   )
   addCheck(
     checks,
     backlogSeedSource.includes(YOUTUBE_PUBLIC_COMMENTS_EXTRACTOR_CARD_ID) &&
-      backlogSeedSource.includes('process:youtube-public-comments-extractor-check'),
-    'backlog seed points comment card at real proof',
+      backlogSeedSource.includes("title: 'Document public YouTube comment exclusion'") &&
+      backlogSeedSource.includes("lane: 'done'") &&
+      backlogSeedSource.includes("priority: 'P3'") &&
+      backlogSeedSource.includes('operator-exclusion decision'),
+    'backlog seed closes comment card as operator-exclusion decision',
     'lib/foundation-backlog-seed-chunks/chunk-005.js',
   )
   addCheck(
     checks,
-    paritySource.includes('adapter_ready_missing_api_key_and_runner_integration') &&
-      paritySource.includes('process:youtube-public-comments-extractor-check'),
-    'God Mode parity matrix exposes comments as adapter-ready, not fully working',
+    includesAll(paritySource, [
+      'YouTube public comments (operator excluded)',
+      'operator_excluded_low_value_signal',
+      'NO-ACTIVE-CARD-OPERATOR-EXCLUDED',
+      'comments are not a God Mode blocker or next build',
+    ]),
+    'God Mode parity matrix exposes comments as operator-excluded',
     'lib/god-mode-extractor-parity-gate.js',
   )
   addCheck(
     checks,
-    dogfood.ok === true,
-    'dogfood proves valid capture, auth failure, broad-source failure, missing provenance failure, and link source packets',
-    JSON.stringify(dogfood.cases),
+    currentPlanSource.includes('YouTube comments are operator-excluded') &&
+      currentPlanSource.includes('`YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001` is closed as an operator-exclusion decision') &&
+      !currentPlanSource.includes('Public YouTube comment capture is now a planned P0'),
+    'current plan prevents comments from returning as active or parked P0 work',
+    'docs/rebuild/current-plan.md',
   )
   addCheck(
     checks,
-    liveAdapterDogfood.ok === true,
-    'live adapter dogfood proves YouTube Data API mapping, missing-key block, API-error block, and no downstream writes',
-    JSON.stringify(liveAdapterDogfood.cases),
-  )
-  addCheck(
-    checks,
-    validPacket.reportOnly === true &&
-      validPacket.startsCrawler === false &&
-      validPacket.externalWrites === false &&
-      validPacket.writesBacklog === false,
-    'valid proof packet is report-only and never starts crawlers or writes downstream',
-    `${validPacket.summary?.commentCount || 0} comments`,
-  )
-  addCheck(
-    checks,
-    packetPreviewFamilies.some(item => item.startsWith('github:approve_public_free_read')) &&
-      packetPreviewFamilies.some(item => item.startsWith('skool:manual_source_packet')) &&
-      packetPreviewFamilies.some(item => item.startsWith('skool:hold_paid_private')),
-    'comment outbound links are classified into safe source-packet decisions',
-    packetPreviewFamilies.join(', '),
+    scriptSource.includes('operator-excluded') && scriptSource.includes('not active work'),
+    'this proof guards the exclusion instead of running a comment adapter',
+    YOUTUBE_PUBLIC_COMMENTS_EXTRACTOR_SCRIPT_PATH,
   )
 
   const failures = checks.filter(check => !check.ok)
@@ -150,17 +131,8 @@ async function main() {
     status: failures.length ? 'blocked' : 'healthy',
     cardId: YOUTUBE_PUBLIC_COMMENTS_EXTRACTOR_CARD_ID,
     reportOnly: true,
+    operatorExcluded: true,
     noLiveFetchInProof: true,
-    dogfoodSummary: {
-      commentCount: validPacket.summary?.commentCount || 0,
-      sourcePacketCount: validPacket.summary?.sourcePacketCount || 0,
-      signalRoles: validPacket.summary?.signalRoles || [],
-    },
-    liveAdapterDogfood: {
-      ok: liveAdapterDogfood.ok,
-      commentCount: liveAdapterDogfood.fetched?.packet?.summary?.commentCount || 0,
-      missingKeyBlocks: liveAdapterDogfood.missingKey?.blocker === 'missing_youtube_data_api_key',
-    },
     checks,
     failures,
   }
@@ -168,7 +140,7 @@ async function main() {
   if (args.json) {
     console.log(JSON.stringify(output, null, 2))
   } else {
-    console.log(`YouTube public-comments extractor check: ${output.status}`)
+    console.log(`YouTube public-comments exclusion check: ${output.status}`)
     for (const check of checks) {
       console.log(`${check.ok ? 'PASS' : 'FAIL'} ${check.check}${check.detail ? ` -> ${check.detail}` : ''}`)
     }

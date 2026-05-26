@@ -29,5 +29,5 @@
 
 - Fix `/dev` source cards that still rely on static source definitions before presenting them as live operational truth.
 - Add a real source approval/review surface so Steve can approve, reject, or annotate discovered links without manual chat routing.
-- Continue God Mode extractor parity work: YouTube comments, browser hands, paid/private source boundaries, GitHub/community source workers, and proof-backed scheduler automation.
+- Continue God Mode extractor parity work: browser Hands, approved source-packet worker execution, paid/private source boundaries, GitHub/community source workers, and proof-backed scheduler automation. YouTube comments are operator-excluded and are not a God Mode blocker unless Steve explicitly reverses that decision.
 - Add Samin Yasar or the Hermes content-team video only after the exact YouTube channel/video URL is confirmed.

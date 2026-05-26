@@ -2,69 +2,33 @@
 
 ## What
 
-Integrate public YouTube comment signal into the approved YouTube extractor lane.
+Document that public YouTube comments are excluded from the active God Mode extractor lane.
 
-Plain English: a one-off comment proof is not enough. If comments help validate whether builders care about a workflow, the batch extractor needs a governed comments route that can run on approved public videos.
+Plain English: the repo contains historical proof that public comments could be captured safely, but Steve explicitly rejected spending extractor, LLM, or runtime attention on YouTube comments for this sprint. Comments are not active work, not parked future work, and not a God Mode blocker unless Steve explicitly reverses the decision.
 
 ## Why
 
-Steve expected comments to be part of God Mode. The system has proof that a specific important comment can matter, but the main runner still excludes comments. That creates a quality gap and a naming gap.
+The active God Mode problem is browser Hands, approved source-packet execution, evidence persistence, synthesis freshness, and source-family maturity. Keeping comments framed as a future extractor gap causes builders to waste time and confuses the sprint order.
 
-## Acceptance Criteria
+## Current Decision
 
-- Public/no-auth YouTube comments can be captured for approved videos when allowed by the source route.
-- Comment capture is bounded:
-  - top/relevant comments only
-  - no login
-  - no replies/member/private surfaces unless separately approved
-  - no social crawling beyond the exact video
-- Each captured comment signal stores:
-  - video ID and URL
-  - comment author handle or public display name when visible
-  - comment text hash and safe excerpt
-  - rank/relevance reason
-  - capture timestamp
-  - source artifact/report ID
-  - whether it validates, challenges, or expands the video extraction
-- Comment signal merges with transcript/audio/visual/resource evidence before Director ranking.
-- The Dev page shows whether a video has comment signal, not just visual evidence.
-- Existing one-off David/Ondrej comment proof is marked as `manual proof only`, not pipeline-complete.
+- `YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001` is closed as an operator-exclusion decision.
+- Historical code/proof may remain as boundary evidence.
+- No API key setup, batch runner integration, scheduler work, Director weighting, or LLM analysis should be done for comments.
+- God Mode parity should show comments as `operator_excluded`, not `missing`, `blocked`, `parked`, or `next`.
 
-## Definition Of Done
+## Proof
 
-- Add a public-comment route or extractor module.
-- Add a focused proof with synthetic and live-safe public fixtures.
-- Update the YouTube full-watch runner to optionally include comment capture after the parity gate allows it.
-- Update source notes/reports so comment evidence is visible and source-linked.
-
-## Current V1 Proof
-
-V1 now defines the public-comments evidence contract, safety gate, and a YouTube Data API public-comment adapter. The adapter is dogfooded with a fake fetch and blocks cleanly when no `YOUTUBE_DATA_API_KEY` / `YOUTUBE_API_KEY` is configured.
-
-Run:
+The proof command now exists to prevent regression back into comment work:
 
 ```bash
 npm run process:youtube-public-comments-extractor-check -- --json
 ```
 
-The proof must show:
-
-- exact-video only
-- public/no-auth only
-- no cookies or logged-in browser session
-- no author-profile crawling
-- no automatic outbound-link following
-- comment links become source packets first
-- each comment has video/source provenance, comment ID, safe excerpt, text hash, author hash, capture timestamp, report artifact, signal role, and relevance reason
-- the live adapter uses the public YouTube Data API `commentThreads` endpoint only
-- missing API key, API failure, disabled comments, or quota failure block without downstream writes
-- the proof packet is report-only and does not start crawlers, write backlog cards, or write external systems
-
-Do not call comments “working” in the normal YouTube batch lane until a real API key is configured and the full-watch runner stores comment evidence beside transcript, audio, visual, and resource-link evidence.
-
 ## Not Next
 
-- Do not log in to YouTube.
-- Do not crawl comment author profiles.
-- Do not scrape private/member-only comments.
-- Do not treat comment claims as verified facts without evidence review.
+- Do not configure YouTube comment API keys for this lane.
+- Do not integrate comments into the public YouTube full-watch runner.
+- Do not route comments into Director, Scoper, Portfolio, or source-value grading.
+- Do not call comments a missing God Mode capability.
+- Do not revisit this without an explicit Steve reversal.

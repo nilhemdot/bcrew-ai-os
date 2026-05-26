@@ -51,6 +51,8 @@ async function main() {
     devJsSource,
     parityPlanSource,
     sourceFamilyPlanSource,
+    handsPlanSource,
+    workerPlanSource,
     backlogSeedSource,
   ] = await Promise.all([
     readRepoJson('package.json'),
@@ -60,6 +62,8 @@ async function main() {
     readRepoFile('public/dev.js'),
     readRepoFile('docs/process/god-mode-extractor-parity-gate-001-plan.md'),
     readRepoFile('docs/process/source-family-god-mode-extractors-001-plan.md'),
+    readRepoFile('docs/process/extractor-hands-browser-runtime-001-plan.md'),
+    readRepoFile('docs/process/source-packet-worker-runner-001-plan.md'),
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
   ])
 
@@ -105,20 +109,21 @@ async function main() {
       !devVisibleBundle.includes('YouTube / God Mode Pipeline') &&
       !devVisibleBundle.includes("visibleValue: 'God Mode") &&
       devVisibleBundle.includes('youtube-video-intelligence-pipeline') &&
-      devVisibleBundle.includes('not full God Mode until comments, approved resource follow-up, and browser hands are proven'),
+      devVisibleBundle.includes('not full God Mode until approved resource follow-up, source-packet worker execution, and browser hands are proven') &&
+      devVisibleBundle.includes('YouTube comments are intentionally excluded'),
     'Dev read model uses truthful YouTube video intelligence wording',
     'no public Dev lane claims full God Mode'
   )
   addCheck(
     checks,
-    includesAll(parityPlanSource, ['comments', 'browser navigation', 'Skool/paid courses', 'MyICOR/paid training', 'source packet']) &&
+    includesAll(parityPlanSource, ['comments are intentionally excluded', 'browser navigation', 'Skool/paid courses', 'MyICOR/paid training', 'source packet']) &&
       parityPlanSource.includes('process:god-mode-extractor-parity-gate-check'),
-    'God Mode parity plan names comments, hands, paid sources, and proof command',
+    'God Mode parity plan names comment exclusion, hands, paid sources, and proof command',
     'docs/process/god-mode-extractor-parity-gate-001-plan.md'
   )
   addCheck(
     checks,
-    includesAll(sourceFamilyPlanSource, ['YouTube public comments', 'Skool paid courses/classrooms', 'MyICOR paid training', 'model/brain route', 'process:god-mode-extractor-parity-gate-check']),
+    includesAll(sourceFamilyPlanSource, ['YouTube public comments (operator-excluded)', 'Skool paid courses/classrooms', 'MyICOR paid training', 'model/brain route', 'process:god-mode-extractor-parity-gate-check']),
     'source-family plan routes maturity matrix through the parity proof',
     'docs/process/source-family-god-mode-extractors-001-plan.md'
   )
@@ -128,6 +133,19 @@ async function main() {
       backlogSeedSource.includes('process:god-mode-extractor-parity-gate-check'),
     'backlog seed points the P0 card at the actual parity proof',
     'lib/foundation-backlog-seed-chunks/chunk-005.js'
+  )
+  addCheck(
+    checks,
+    includesAll(backlogSeedSource, [
+      'EXTRACTOR-HANDS-BROWSER-RUNTIME-001',
+      'SOURCE-PACKET-WORKER-RUNNER-001',
+      'Raw Codex session 019e46b1',
+      'Playwright-first',
+    ]) &&
+      includesAll(handsPlanSource, ['Local Playwright first', 'source-packet boundaries', 'Skool/MyICOR remain blocked']) &&
+      includesAll(workerPlanSource, ['decision -> runner -> artifact -> freshness/status', 'lib/source-packet-public-web-runtime.js', 'Do not follow links automatically']),
+    'raw God Mode Hands correction is promoted to backlog cards and process plans',
+    'EXTRACTOR-HANDS-BROWSER-RUNTIME-001 + SOURCE-PACKET-WORKER-RUNNER-001'
   )
 
   const failed = checks.filter(check => !check.ok)

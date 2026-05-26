@@ -647,7 +647,7 @@ function renderSourceLeaderboard(snapshot = {}) {
 function extractorSummary(item = {}) {
   if (item.summary) return text(item.summary)
   const byLane = {
-    'youtube-video-intelligence-pipeline': 'Reads public video/page context, transcripts, audio, and approved visual evidence. Browser hands, comments, and logged-in navigation are next.',
+    'youtube-video-intelligence-pipeline': 'Reads public video/page context, transcripts, audio, and approved visual evidence. Browser hands and approved resource follow-up are next. Comments are excluded.',
     'meetings-transcripts': 'Reads meeting notes and transcripts into Foundation. Dev-specific routing is pending.',
     'email-missive-comms': 'Reads governed email/comms candidates into Foundation. Dev-specific routing is pending.',
     'slack-comms': 'Reads governed Slack threads into Foundation. Dev-specific routing is pending.',

@@ -15,7 +15,7 @@ The whole AIOS intelligence loop depends on extraction quality. If extractors ar
 Track at least these families:
 
 - YouTube public videos
-- YouTube public comments
+- YouTube public comments (operator-excluded)
 - YouTube long courses
 - public web/resource links
 - GitHub/repo intelligence

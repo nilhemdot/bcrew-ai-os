@@ -45,11 +45,11 @@ Steve's plain-English vision:
 - Do not replace high-quality Gemini video/audio/visual extraction with a cheap/local lower-quality video extractor for critical YouTube intelligence.
 - Brad Bonanno's `/watch` video is useful as a reference for local/Loom/MP4/long-course helper ideas, but it does not beat the current core Gemini YouTube route.
 
-### Comments Are Parked
+### Comments Are Excluded
 
-- Steve explicitly deprioritized YouTube comments.
-- Do not put comments back into the active plan unless Steve explicitly re-approves them.
-- Existing `YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001` proof can remain repo truth, but it is not the current next build.
+- Steve explicitly excluded YouTube comments from the active God Mode path.
+- Do not spend LLM/runtime attention reading YouTube comments; Steve considers them low-value noise for this sprint.
+- Existing `YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001` proof can remain historical repo truth, but it is not parked future work and is not a God Mode blocker unless Steve explicitly reverses this decision.
 
 ### Hands Is The Missing God Mode Layer
 
@@ -198,14 +198,18 @@ God Mode extraction:
   - Public web runtime proof exists under same plan.
   - Missing: real worker consumption/persistence/integration.
 
-- `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`
-  - Parked P0 runtime idea for full eyes/hands/brain posture.
-
 - `EXTRACTOR-HANDS-BROWSER-RUNTIME-001`
-  - Mentioned as the likely Hands card.
+  - Promoted to backlog P0 after full raw conversation review.
+  - Owns governed local Playwright-first browser Hands: open, inspect, click/navigate where explicitly allowed, preserve evidence, and stop at source-packet boundaries.
 
 - `SOURCE-PACKET-WORKER-RUNNER-001`
-  - Proposed next direct build name for approved-packet worker runner.
+  - Promoted to backlog P0 after full raw conversation review.
+  - Owns the first build path: approved source-packet decision -> exact public-page worker -> evidence artifact/status -> freshness/status update.
+  - V1 synthetic proof now exists: `npm run process:source-packet-worker-runner-check -- --json`.
+  - Remaining gap: live DB/artifact persistence, UI run status, and later approved click/navigation Hands.
+
+- `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001`
+  - Historical umbrella idea only. Use `EXTRACTOR-HANDS-BROWSER-RUNTIME-001` and `SOURCE-PACKET-WORKER-RUNNER-001` for the active build split.
 
 - `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001`
   - Catch up approved public YouTube creators with Gemini full-watch after Hands/current parity is clarified.
@@ -218,7 +222,7 @@ God Mode extraction:
   - Long-video/course lane. Useful but not the immediate replacement for normal Gemini full-watch.
 
 - `SOURCE-FAMILY-GOD-MODE-EXTRACTORS-001`
-  - Maturity matrix for YouTube, comments, long courses, GitHub, Skool, MyICOR, Drive/Meet, Gmail/Missive, Slack, meetings, system signals.
+  - Maturity matrix for YouTube, operator-excluded comments, long courses, GitHub, Skool, MyICOR, Drive/Meet, Gmail/Missive, Slack, meetings, system signals.
 
 Synthesis/Director:
 
@@ -241,9 +245,12 @@ Audits/foundation:
 
 - `NIGHTLY-AUDIT-FLEET-001`
   - Needs specialist auditors: hardcoded truth, extractor parity, synthesis/director quality, source freshness, UI/style, process/write-boundary, mission/doctrine.
+  - Full raw conversation review confirmed the audit-fleet request was primarily about finding hardcoded runtime/source/model/config truth and other hidden system drift, not just generic code style.
+  - V1 deterministic registry proof now exists: `npm run process:nightly-audit-fleet-check -- --json`.
 
 - `CODEBASE-HARDCODE-AUDIT-001`
   - Hardcoded truth audit exists but Steve remains worried about hardcoding.
+  - Current gap: V1 hardcoded audit and fleet registry exist, but the multi-auditor nightly fleet is not fully wired into the 3 AM/morning rollup path.
 
 UI/control:
 

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T21:55:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-public-comments-extractor-001-plan.md",
+  "approvedPlanSha256": "3271c56adb4aa380d8b2eff209149825ed6b8160ae53858cad6e2820db2fcb66",
+  "approvedRepoHead": "8d256f01364765cda62f41720bbf053e8d5ea459",
+  "approvalSource": "Steve corrected the May 25-26 God Mode reset: public YouTube comments are low-value noise and must be operator-excluded while the active P0 work moves to browser Hands and source-packet worker execution.",
+  "approvalDigest": "b899225aa4aa45ea3a9f6b080bf336cb5944ac01375a84717840c1ee242f4e15"
+}
