@@ -383,6 +383,17 @@ function buildYoutubeCreatorTargets(snapshot = {}) {
     .map(creator => creatorTargetFromDaily(snapshot, creator))
 }
 
+function buildYoutubeAutopilotRows(snapshot = {}) {
+  const autopilot = snapshot.youtubeGodModeAutopilotPlan || {}
+  return list(autopilot.selectedVideos).map(video => ({
+    title: text(video.title, 'Untitled video'),
+    subtitle: `${text(video.creator || creatorDisplayName(snapshot, video.creatorId), 'Unknown creator')} · ${text(video.sourceGrade || video.overallGrade, 'ungraded')} source`,
+    description: `${money(autopilot.budget?.estimatedUsdPerVideo || 0)} est · ${statusCopy(video.nextWatchAction || autopilot.status || 'dry-run')}`,
+    url: text(video.url),
+    status: autopilot.status === 'ready_for_dry_run_report' ? 'Dry-run ready' : 'Blocked',
+  }))
+}
+
 function buildLiveSources(snapshot = {}) {
   const daily = snapshot.dailyWatch || {}
   const catchup = snapshot.youtubeCreatorGodModeCatchup || {}
@@ -406,6 +417,7 @@ function buildLiveSources(snapshot = {}) {
       summary: `${compactNumber(creatorCount)} public creator channels feed Foundation. ${compactNumber(baselineComplete)} baseline met; ${compactNumber(baselineIncomplete)} still need watch.`,
       tags: ['public', 'daily', gradedCount ? 'graded' : 'needs grade', baselineIncomplete ? 'baseline gap' : 'baseline met'],
       targets: youtubeTargets,
+      autopilotRows: buildYoutubeAutopilotRows(snapshot),
       targetNoun: 'public creator',
       statusLine: `Running · ${catchupStatus}`,
       sourceRoute: daily.sourceRoute || '/api/foundation/build-intel/youtube-creator-daily-watch',
@@ -1100,6 +1112,30 @@ function renderSources() {
   `).join('')
 }
 
+function renderAutopilotRows(source = {}) {
+  const rows = list(source.autopilotRows)
+  if (!rows.length) return ''
+  return `
+    <div class="target-list">
+      ${rows.map(row => {
+        const rowStatus = statusLabel(row.status)
+        const needsAttention = !['Live', 'Foundation', 'Verified', 'Source-backed', 'Clear'].includes(rowStatus)
+        return `
+        <div class="target-row">
+          <div class="target-row-head">
+            <div>
+              <strong>${escapeHtml(row.title)}</strong>
+              <small>${escapeHtml(row.subtitle)}</small>
+            </div>
+            ${needsAttention ? `<span class="pill ${pillClass(row.status)}">${escapeHtml(rowStatus)}</span>` : ''}
+          </div>
+          <p>${escapeHtml(row.description)}${row.url ? ` · <a href="${escapeHtml(row.url)}" target="_blank" rel="noreferrer">${escapeHtml(row.url)}</a>` : ''}</p>
+        </div>
+      `}).join('')}
+    </div>
+  `
+}
+
 function renderTargets(sourceId) {
   const source = state.sources.find(item => item.id === sourceId) || state.sources[0]
   if (!source) {
@@ -1107,7 +1143,7 @@ function renderTargets(sourceId) {
     return
   }
   state.selectedSourceId = source.id
-  const targetCount = list(source.targets).length
+  const targetCount = list(source.targets).length + list(source.autopilotRows).length
   const sourceStatus = statusLabel(source.badge || source.label)
   const sourceNeedsAttention = !['Live', 'Foundation', 'Verified', 'Source-backed', 'Clear'].includes(sourceStatus)
   els.panel.innerHTML = `
@@ -1118,6 +1154,7 @@ function renderTargets(sourceId) {
       </div>
       ${sourceNeedsAttention ? `<span class="source-status ${pillClass(source.badge || source.label)}">${escapeHtml(sourceStatus)}</span>` : ''}
     </div>
+    ${renderAutopilotRows(source)}
     <div class="target-list">
       ${list(source.targets).map(target => {
         const targetStatus = statusLabel(target[3])
