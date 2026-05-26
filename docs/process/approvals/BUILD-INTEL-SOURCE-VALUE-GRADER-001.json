@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-INTEL-SOURCE-VALUE-GRADER-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-25T15:10:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/build-intel-source-value-grader-001-plan.md",
+  "approvedPlanSha256": "7b3393a7be4f2956b3cc476e5047d13c8a8d910fcb4bd203564f3f055d041211",
+  "approvedRepoHead": "a010e367f893a21bcdb62e61d641cd078f8f2078",
+  "approvalSource": "Steve May 25 creator source strategy: extract enough recent videos across approved creators, grade sources S/A/B/C/D from real evidence, keep lane-specific value separate, and do not let Mark, ICOR, or any early source dominate the roadmap just because it was processed first.",
+  "notes": "Approved for deterministic report-only source grading from existing full-watch and Director evidence. Not approved: deleting watchlist rows, mutating source systems, automatic backlog creation, sprint promotion, paid/private/auth extraction, model calls from the grader proof, or external writes.",
+  "approvalDigest": "b1939b7662a0303d423c68b273df1f625946b32a59a3d8955312703fcd4a2c16"
+}

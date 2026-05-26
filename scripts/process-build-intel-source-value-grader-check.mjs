@@ -11,6 +11,7 @@ import {
   initFoundationDb,
   upsertIntelligenceReportArtifact,
 } from '../lib/foundation-db.js'
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,
@@ -18,6 +19,7 @@ import {
   isProcessCheckWriteRequested,
 } from '../lib/process-write-guard.js'
 import {
+  BUILD_INTEL_SOURCE_VALUE_GRADER_APPROVAL_PATH,
   BUILD_INTEL_SOURCE_VALUE_GRADER_CARD_ID,
   BUILD_INTEL_SOURCE_VALUE_GRADER_PLAN_PATH,
   BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
@@ -127,6 +129,7 @@ async function main() {
     planSource,
     moduleSource,
     scriptSource,
+    approvalValidation,
     dogfood,
     reports,
     directorReport,
@@ -135,6 +138,11 @@ async function main() {
     readRepoFile(BUILD_INTEL_SOURCE_VALUE_GRADER_PLAN_PATH),
     readRepoFile('lib/build-intel-source-value-grader.js'),
     readRepoFile(BUILD_INTEL_SOURCE_VALUE_GRADER_SCRIPT_PATH),
+    validatePlanApprovalFile({
+      repoRoot,
+      approvalRef: BUILD_INTEL_SOURCE_VALUE_GRADER_APPROVAL_PATH,
+      cardId: BUILD_INTEL_SOURCE_VALUE_GRADER_CARD_ID,
+    }),
     buildBuildIntelSourceValueGraderDogfoodProof(),
     loadFullWatchReports(),
     loadDirectorReport(),
@@ -146,6 +154,7 @@ async function main() {
     persistence = await persistSnapshot(snapshot, { writeReport: args.writeReport })
   }
 
+  addCheck(checks, approvalValidation.ok && approvalValidation.mode === 'v2', 'approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || BUILD_INTEL_SOURCE_VALUE_GRADER_APPROVAL_PATH)
   addCheck(checks, packageJson.scripts?.['process:build-intel-source-value-grader-check'] === 'node --env-file-if-exists=.env scripts/process-build-intel-source-value-grader-check.mjs', 'package exposes focused source-value grader proof', packageJson.scripts?.['process:build-intel-source-value-grader-check'] || 'missing')
   addCheck(checks, /lane-specific grades/i.test(planSource) && /realtor AI coaching\/training value/i.test(planSource), 'plan requires lane-specific source grades', BUILD_INTEL_SOURCE_VALUE_GRADER_PLAN_PATH)
   addCheck(checks, /realtor_ai_training/.test(moduleSource) && /aios_dev_build/.test(moduleSource), 'module separates realtor training from AIOS build grading', 'lib/build-intel-source-value-grader.js')
