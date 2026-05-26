@@ -39,12 +39,14 @@ async function main() {
     packageSource,
     currentPlanSource,
     portfolioPlanSource,
+    evidenceTraceSource,
     approval,
   ] = await Promise.all([
     readRepoFile(DEV_BUILD_OPPORTUNITY_SCOPER_PLAN_PATH),
     readRepoFile('package.json'),
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/process/build-portfolio-scrum-master-001-plan.md'),
+    readRepoFile('scripts/process-dev-build-scoper-evidence-trace-check.mjs'),
     validatePlanApprovalFile({
       repoRoot,
       approvalRef: DEV_BUILD_OPPORTUNITY_SCOPER_APPROVAL_PATH,
@@ -71,6 +73,21 @@ async function main() {
     packageJson.scripts?.['process:dev-build-scoper-evidence-trace-check'] === 'node --env-file-if-exists=.env scripts/process-dev-build-scoper-evidence-trace-check.mjs',
     'package exposes live evidence-trace Scoper proof',
     packageJson.scripts?.['process:dev-build-scoper-evidence-trace-check'] || 'missing'
+  )
+  addCheck(
+    checks,
+    evidenceTraceSource.includes('DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID') &&
+      evidenceTraceSource.includes('getDirectorCandidates') &&
+      evidenceTraceSource.includes('findRawEvidence') &&
+      !/const\s+(TARGET_TITLE|SOURCE_VIDEO_ID|RAW_REPORT_ARTIFACT_ID)\b/.test(evidenceTraceSource),
+    'evidence-trace proof reads live Director candidates instead of hardcoded target constants',
+    'scripts/process-dev-build-scoper-evidence-trace-check.mjs'
+  )
+  addCheck(
+    checks,
+    !/(?:\bfs\.(?:writeFile|appendFile)|\bwriteFile\s*\(|\bappendFile\s*\(|\bupdateBacklogItem\s*\(|\bcreateBacklogItem\s*\(|\bupsertIntelligence\w*\s*\(|globalThis\.fetch|chromium\.launch)/.test(evidenceTraceSource),
+    'evidence-trace proof is read-only and has no writer/browser/provider side effects',
+    'scripts/process-dev-build-scoper-evidence-trace-check.mjs'
   )
   addCheck(
     checks,
