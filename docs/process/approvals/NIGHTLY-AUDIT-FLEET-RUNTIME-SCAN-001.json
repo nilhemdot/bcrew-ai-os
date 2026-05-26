@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T05:58:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/nightly-audit-fleet-runtime-scan-001-plan.md",
+  "approvedPlanSha256": "709318b46cbbf87e02080d736001de872a69b89ee9c07263cc9c434bfc99c376",
+  "approvedRepoHead": "9ef6856a7793998608b74518a7cf13b1308d64c9",
+  "approvalSource": "Steve May 25-26 overnight audit-fleet correction: build multi-auditors that actually find hardcoded truth/system foundation drift, keep report-only/no-auto, park blockers, and continue the sprint.",
+  "approvalDigest": "f78921bc7fd5135e2d1db8887da7f55cabf3c58cfcfc204f6109596a404bc6ad"
+}

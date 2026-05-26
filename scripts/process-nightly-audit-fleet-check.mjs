@@ -18,6 +18,10 @@ import {
 import {
   getFoundationJobDefinition,
 } from '../lib/foundation-jobs.js'
+import {
+  buildNightlyAuditFleetRuntimeScan,
+  buildNightlyAuditFleetRuntimeScanDogfoodProof,
+} from '../lib/nightly-audit-fleet-runtime-scan.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -75,6 +79,8 @@ async function main() {
   const dogfood = buildNightlyAuditFleetDogfoodProof()
   const jobDefinition = getFoundationJobDefinition(NIGHTLY_AUDIT_FLEET_JOB_KEY)
   const rollup = buildNightlyAuditFleetRollupStatus({ registry, job: jobDefinition })
+  const runtimeScan = await buildNightlyAuditFleetRuntimeScan({ repoRoot })
+  const runtimeDogfood = buildNightlyAuditFleetRuntimeScanDogfoodProof()
 
   addCheck(
     checks,
@@ -200,6 +206,22 @@ async function main() {
     'dogfood proves missing hardcoded lane, auto-fix, unsafe LLM, and comment-regression guard failures',
     JSON.stringify(dogfood.cases.map(item => ({ name: item.name, ok: item.ok }))),
   )
+  addCheck(
+    checks,
+    runtimeScan.registryOk === true &&
+      runtimeScan.reportOnly === true &&
+      runtimeScan.readOnly === true &&
+      runtimeScan.summary?.executedLaneCount >= 4 &&
+      runtimeScan.lanePackets?.some(lane => lane.laneId === 'hardcoded_truth_runtime_config'),
+    'hardcoded runtime scan executes deterministically inside the audit fleet',
+    JSON.stringify(runtimeScan.summary || {}),
+  )
+  addCheck(
+    checks,
+    runtimeDogfood.ok === true,
+    'runtime-scan dogfood catches unowned model literal, static UI truth, unguarded writes, and comment regression',
+    JSON.stringify(runtimeDogfood.cases.map(item => ({ name: item.name, ok: item.ok }))),
+  )
 
   const failures = checks.filter(check => !check.ok)
   const output = {
@@ -213,6 +235,13 @@ async function main() {
     writesBacklog: false,
     autoFix: false,
     dogfood,
+    runtimeScan: {
+      status: runtimeScan.status,
+      scanStatus: runtimeScan.scanStatus,
+      summary: runtimeScan.summary,
+      lanePackets: runtimeScan.lanePackets,
+      activeFindings: (runtimeScan.activeFindings || []).slice(0, 20),
+    },
     checks,
     failures,
   }
