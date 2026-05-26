@@ -8,6 +8,8 @@ Rule: if a package depends on open live inputs, open runtime activation, or open
 
 Current YouTube catch-up readback: `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-READBACK-001` is closed under `youtube-creator-god-mode-catchup-readback-v1`; parent `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` remains open. Dev Hub/Scoper can see baseline gaps and blocks major build promotion while approved public creator catch-up is incomplete. `YOUTUBE-CREATOR-CATCHUP-READBACK-LIMIT-001` is closed under `youtube-creator-catchup-readback-limit-v1`; the readback now sees public YouTube daily-watch metadata baselines above the old 200-row cap. `BUILD-INTEL-LINK-APPROVAL-SOURCE-PACKETS-001` is closed under `build-intel-link-approval-source-packets-v1-2`, and the later source-packet worker plus Hands production runner close the public worker gap that old backlog text still described as missing. This readback spent no live Gemini budget.
 
+Current Mark closeout truth: `MARK-KASHEF-LAST-50-API-EVIDENCE-GAP-001` blocks false closeout of `MARK-KASHEF-LAST-50-BASELINE-001`. Exact live proof shows 44/50 current Mark pool videos have accepted Gemini API atom+hit evidence; six videos (`7aQbN543Mec`, `Fu5KIG2Jm1g`, `OMkdlwZxSt8`, `RChO5deJ_fE`, `TJRsTwi1McI`, `rVzGu5OYYS0`) only have older Gemini Workspace/subscription browser-eyes evidence. Mark is parked until Steve approves API rewatch budget or explicitly splits those six videos; active safe work is `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` no-spend readback/scheduler planning.
+
 ## Level Guide
 
 | Level | Name | Meaning |
@@ -100,7 +102,7 @@ Closed setup:
 - `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` shipped the bounded subscription mini-brain adapter under `subscription-brain-extractor-adapter-v1`; it proves the already-authenticated local Claude Code subscription route can reason over exact approved extractor evidence with Brain Fleet ledger proof and unchanged credential fingerprints. It does not replace Gemini/API video eyes or prove logged-in Gemini browser/subscription extraction.
 - `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` shipped the logged-in Gemini Workspace browser proof under `gemini-workspace-eyes-route-proof-v1`; it proves the Gemini web app can return structured scout/reasoning output for one exact approved public video without the Gemini API key. It is not accepted as full YouTube video watching from URL after the May 23 strict retest.
 
-Active card: `MARK-KASHEF-LAST-50-BASELINE-001` for morning review/closeout.
+Active card: `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` for no-spend readback/scheduler planning. `MARK-KASHEF-LAST-50-BASELINE-001` is parked by `MARK-KASHEF-LAST-50-API-EVIDENCE-GAP-001`.
 
 Sprint order:
 
@@ -114,7 +116,7 @@ Sprint order:
 6. `EXTRACTOR-OVERNIGHT-RUN-GUARD-001` - done under `extractor-overnight-run-guard-v1`
 7. `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` - done under `subscription-brain-extractor-adapter-v1`
 8. `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` - done under `gemini-workspace-eyes-route-proof-v1`
-9. `MARK-KASHEF-LAST-50-BASELINE-001` - active card for morning review/closeout; current Mark Foundation pool is 50/50 API full-watch complete
+9. `MARK-KASHEF-LAST-50-BASELINE-001` - parked after `MARK-KASHEF-LAST-50-API-EVIDENCE-GAP-001`; current exact proof is 44/50 accepted API-covered Mark videos, with six workspace/subscription-only videos waiting on Steve-approved API rewatch budget or explicit split
 10. `YOUTUBE-LATEST-20-INTEL-RUN-001` - done under `build-intel-source-pipeline-v1`; V1 manifest/proof selects bounded non-Mark public videos and keeps live extraction as a separate guarded runtime step
 11. `YOUTUBE-LATEST-20-FULL-WATCH-RUNNER-001` - done under `build-intel-source-pipeline-v1`; guarded runner/proof reads persisted full-watch batches and future apply still requires `--apply --live-gemini-api`
 12. `YOUTUBE-RESOURCE-LINK-RESOLVER-001` - done under `build-intel-source-pipeline-v1`; approved public resource links become Scoper-readable dispositions and unsafe/private/paid/login/download/short-link routes stay blocked

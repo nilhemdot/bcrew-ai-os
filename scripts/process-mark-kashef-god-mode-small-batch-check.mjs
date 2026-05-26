@@ -19,6 +19,7 @@ import {
   upsertIntelligenceReportArtifact,
 } from '../lib/foundation-db.js'
 import {
+  MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID,
   MARK_KASHEF_BASELINE_SOURCE_ID,
   MARK_KASHEF_BASELINE_TARGET_KEY,
   MARK_KASHEF_LAST_50_BASELINE_CARD_ID,
@@ -150,17 +151,19 @@ async function loadAlreadyApiWatchedVideoIds() {
         UNION ALL
         SELECT metadata, anchor_value
         FROM intelligence_atoms
-        WHERE report_artifact_id = $2
-          OR metadata->>'cardId' = $1
-          OR metadata->>'sourceVideoId' IS NOT NULL
+        WHERE report_artifact_id = ANY($2::text[])
         UNION ALL
         SELECT metadata, anchor_value
         FROM intelligence_atom_hits
-        WHERE report_artifact_id = $2
-          OR metadata->>'cardId' = $1
-          OR metadata->>'sourceVideoId' IS NOT NULL
+        WHERE report_artifact_id = ANY($2::text[])
       `,
-      [MARK_KASHEF_LAST_50_BASELINE_CARD_ID, MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID],
+      [
+        MARK_KASHEF_LAST_50_BASELINE_CARD_ID,
+        [
+          MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID,
+          MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID,
+        ],
+      ],
     )
     const ids = new Set()
     for (const row of result.rows) {

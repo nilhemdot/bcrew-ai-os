@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MARK-KASHEF-LAST-50-API-EVIDENCE-GAP-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T08:30:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/mark-kashef-last-50-api-evidence-gap-001-plan.md",
+  "approvedPlanSha256": "5721317bfa68546f43e0940f8ee09de352126e1b21fd646f05aa0c814e5284aa",
+  "approvedRepoHead": "7e37b4bbc6a7e59a93c3fd7c8eb05e5e21d11a43",
+  "approvalSource": "Steve May 25-26 standing instruction to work overnight, find the truth, park blockers with context, and continue safe source/God Mode work. Live Mark closeout audit found six current Mark videos only had Gemini Workspace/subscription browser-eyes evidence, not accepted Gemini API full-watch proof.",
+  "notes": "Approved no-spend repair only: add the evidence gap gate, correct live truth, park Mark closeout, and advance safe public YouTube catch-up planning. Not approved: live Gemini spend, Skool/MyICOR/private/auth/community/course crawling, comments, downloads, purchases, opt-ins, form submissions, external writes, credential mutation, or automatic backlog promotion.",
+  "approvalDigest": "4d8b2e1aff6027371bd3c7d5f25c7887d96728f4d991f5fbb50113969b2807af"
+}
