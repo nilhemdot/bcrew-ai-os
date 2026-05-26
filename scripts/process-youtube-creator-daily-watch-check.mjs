@@ -77,6 +77,10 @@ function list(value) {
   return Array.isArray(value) ? value : []
 }
 
+function text(value) {
+  return String(value || '').trim()
+}
+
 function addCheck(checks, ok, check, detail = '') {
   checks.push({ ok: Boolean(ok), check, detail })
 }
@@ -591,6 +595,18 @@ async function main() {
     addCheck(checks, !closeCardExpected || activeItem?.stage === 'done_this_sprint', 'Current Sprint marks daily watch done after close', activeItem?.stage || 'missing')
     addCheck(checks, !closeCardExpected || nextItem?.stage === 'scoping', 'Current Sprint advances to next scoped card after close', nextItem?.stage || 'missing')
     addCheck(checks, snapshot.ok === true, 'daily watch persisted snapshot is healthy', snapshot.failures.map(failure => failure.check).join(', ') || 'healthy')
+    const creatorVideosUrlById = new Map(list(plan.creators).map(creator => [creator.creatorId, text(creator.channelVideosUrl)]))
+    const steveSuppliedVideosUrls = {
+      'everyday-ai-jordan-wilson': 'https://www.youtube.com/@EverydayAI_/videos',
+      'next-gen-ai': 'https://www.youtube.com/@NextGen_IA_YT/videos',
+      'zane-cole': 'https://www.youtube.com/@zanethinks/videos',
+    }
+    addCheck(
+      checks,
+      Object.entries(steveSuppliedVideosUrls).every(([creatorId, expectedUrl]) => creatorVideosUrlById.get(creatorId) === expectedUrl),
+      'Steve-supplied missing-source creator YouTube videos URLs are in the daily watch plan',
+      Object.entries(steveSuppliedVideosUrls).map(([creatorId, expectedUrl]) => `${creatorId}=${creatorVideosUrlById.get(creatorId) || 'missing'} expected ${expectedUrl}`).join('; '),
+    )
     addCheck(checks, dogfood.ok === true, 'dogfood proves dedupe, baseline depth, daily delta, no-auth boundaries, no external writes, and no auto backlog', JSON.stringify(dogfood.cases))
     addCheck(checks, target?.budget?.llmBudget === 'none' && Number(target?.budget?.maxRuntimeSeconds || 0) > 0 && Number(target?.budget?.maxItemsPerRun || 0) === plan.creators.length, 'daily watch target carries explicit no-LLM runtime caps', JSON.stringify(target?.budget || {}))
     addCheck(checks, reportProof.atomCount >= 1 && reportProof.hitCount >= 1 && reportProof.hitCount === reportProof.atomCount, 'report has proposal-only atoms and evidence hits', `${reportProof.atomCount}/${reportProof.hitCount}`)

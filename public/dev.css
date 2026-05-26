@@ -822,6 +822,14 @@ button {
   text-transform: uppercase;
 }
 
+.parity-head p {
+  max-width: 680px;
+  margin: 6px 0 0;
+  color: var(--grey-d);
+  font-size: var(--t-sm);
+  line-height: 1.4;
+}
+
 .parity-summary {
   display: flex;
   flex-wrap: wrap;

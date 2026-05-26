@@ -3,6 +3,7 @@ const LINK_PACKET_PREVIEW_ROUTE = '/api/foundation/dev-team-hub/link-source-pack
 const LINK_PACKET_DECISION_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-decision'
 const EXTRACTOR_HANDS_PRODUCTION_QUEUE_ROUTE = '/api/foundation/dev-team-hub/source-packet-hands-queue'
 const YOUTUBE_CREATOR_TARGET_FALLBACK_LIMIT = 10
+const SOURCE_LEADERBOARD_LIMIT = 10
 
 const plannedSources = [
   {
@@ -222,12 +223,48 @@ function laneScore(source = {}, laneId = 'aios_dev_build') {
   return list(source.laneScores).find(lane => lane.laneId === laneId) || null
 }
 
+function gradeRankValue(grade = '') {
+  const rank = { S: 6, A: 5, B: 4, C: 3, D: 2, F: 1 }
+  return rank[text(grade).toUpperCase()] || 0
+}
+
 function gradeTone(grade = '') {
   const normalized = text(grade).toUpperCase()
   if (normalized === 'S' || normalized === 'A') return 'live'
   if (normalized === 'B') return 'verified'
   if (normalized === 'C' || normalized === 'D') return 'pending'
   return ''
+}
+
+function rankedDevSources(snapshot = {}) {
+  const rows = sourceGrades(snapshot).length ? sourceGrades(snapshot) : topDevSources(snapshot)
+  return [...list(rows)]
+    .filter(source => source.creator || source.creatorId)
+    .sort((left, right) => {
+      const leftLane = laneScore(left)
+      const rightLane = laneScore(right)
+      const leftGrade = text(left.devBuildGrade || leftLane?.grade || left.overallGrade)
+      const rightGrade = text(right.devBuildGrade || rightLane?.grade || right.overallGrade)
+      return gradeRankValue(rightGrade) - gradeRankValue(leftGrade) ||
+        Number(rightLane?.score || 0) - Number(leftLane?.score || 0) ||
+        Number(right.buildCandidates || 0) - Number(left.buildCandidates || 0) ||
+        Number(right.watchedVideos || 0) - Number(left.watchedVideos || 0) ||
+        Number(left.bestDirectorRank || 9999) - Number(right.bestDirectorRank || 9999) ||
+        text(left.creator || left.creatorId).localeCompare(text(right.creator || right.creatorId))
+    })
+}
+
+function gradeBucketSummary(snapshot = {}) {
+  const rows = rankedDevSources(snapshot)
+  const counts = new Map()
+  for (const source of rows) {
+    const devLane = laneScore(source)
+    const grade = text(source.devBuildGrade || devLane?.grade || source.overallGrade, 'ungraded').toUpperCase()
+    counts.set(grade, (counts.get(grade) || 0) + 1)
+  }
+  return ['S', 'A', 'B', 'C', 'D', 'F', 'UNGRADED']
+    .filter(grade => counts.has(grade))
+    .map(grade => `${grade}: ${counts.get(grade)}`)
 }
 
 function familyTone(status = '') {
@@ -287,6 +324,13 @@ function creatorTargetFromDaily(snapshot = {}, creator = {}) {
   ]
 }
 
+function creatorRepresentationLabel(row = {}) {
+  if (row.representationStatus === 'represented') return 'Live'
+  if (row.representationStatus === 'metadata_missing') return 'Ready for metadata'
+  if (row.representationStatus === 'blocked_lookup_required') return 'Needs source URL'
+  return 'Needs source'
+}
+
 function creatorTargetFromCatchup(row = {}) {
   const grade = text(row.devBuildGrade, 'ungraded')
   const watched = compactNumber(row.videoAudioVisualWatchedCount || 0)
@@ -313,7 +357,7 @@ function creatorTargetFromCatchup(row = {}) {
     text(row.creator || creatorNameFromId(row.creatorId), 'Unknown creator'),
     `${grade} Dev build · ${status} · ${sopCopy}`,
     `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}.${evidenceCopy}${packetCopy} ${statusCopy(row.nextWatchAction || '')}`,
-    row.representationStatus === 'represented' ? 'Live' : 'Needs source',
+    creatorRepresentationLabel(row),
   ]
 }
 
@@ -373,32 +417,37 @@ function buildLiveSources(snapshot = {}) {
 
 function buildEvidenceCards(snapshot = {}) {
   const counts = snapshot.counts || {}
+  const catchup = snapshot.youtubeCreatorGodModeCatchup || {}
+  const economics = snapshot.extractionEconomics || {}
   const gradedSources = sourceGrades(snapshot)
   const gradedVideos = gradedSources.reduce((sum, source) => sum + Number(source.watchedVideos || 0), 0)
   const gradedCandidates = gradedSources.reduce((sum, source) => sum + Number(source.buildCandidates || 0), 0)
   const sourcePacketCount = Number(snapshot.youtubeCreatorGodModeCatchup?.summary?.sourcePacketActionCount || 0)
   const approvalReviewCount = list(snapshot.approvalReviewQueue).length || sourcePacketCount || counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks
+  const inventoryCount = Number(catchup.summary?.trackedMetadataCount || counts.researchPool || 0)
+  const fullReviewCount = Number(catchup.summary?.videoAudioVisualWatchedCount || gradedVideos || counts.apiFullWatchVideos || 0)
+  const buildIdeaCount = Number(economics.ideaCount || gradedCandidates || counts.apiFullWatchBuildCandidates || counts.eyesBuildCandidates || 0)
   return [
     {
-      value: counts.researchPool,
-      label: 'Video pool',
+      value: inventoryCount,
+      label: 'Video inventory',
       tone: 'live',
-      summary: 'Videos the system knows about. Some are only saved as video info; approved ones get deeper review.',
-      meta: 'Daily YouTube watch',
+      summary: `${compactNumber(inventoryCount)} public YouTube metadata rows are known. This is inventory, not full video watching.`,
+      meta: `${compactNumber(catchup.summary?.pendingStandardVideoCount || 0)} standard pending · ${compactNumber(catchup.summary?.longCoursePendingCount || 0)} long-course pending`,
     },
     {
-      value: gradedVideos || counts.apiFullWatchVideos || counts.eyesBuildCandidates,
-      label: 'Full watches',
+      value: fullReviewCount,
+      label: 'Full video reviews',
       tone: 'verified',
-      summary: `${compactNumber(gradedVideos || counts.apiFullWatchVideos || 0)} creator videos represented in full video, audio, and screen review.`,
+      summary: `${compactNumber(fullReviewCount)} videos are represented as video/audio/visual reviews in the current catch-up readback.`,
       meta: snapshot.markApiFullWatch?.model || 'Gemini video route',
     },
     {
-      value: gradedCandidates || counts.apiFullWatchBuildCandidates || counts.eyesBuildCandidates,
-      label: 'Build candidates',
+      value: buildIdeaCount,
+      label: 'Build ideas',
       tone: 'verified',
-      summary: `${compactNumber(gradedCandidates || counts.apiFullWatchBuildCandidates || counts.eyesBuildCandidates || 0)} proposal-only build ideas from approved review.`,
-      meta: 'Needs Steve before backlog',
+      summary: `${compactNumber(buildIdeaCount)} proposal-only ideas are counted from the graded source/economics layer; they are not backlog cards yet.`,
+      meta: `${compactNumber(gradedCandidates || 0)} graded · ${compactNumber(counts.apiFullWatchBuildCandidates || 0)} latest API`,
     },
     {
       value: approvalReviewCount,
@@ -705,9 +754,9 @@ function renderEconomics(snapshot = {}) {
 
 function renderSourceLeaderboard(snapshot = {}) {
   if (!els.sourceLeaderboard) return
-  const rankedCreators = topDevSources(snapshot)
-    .filter(source => source.creator || source.creatorId)
-    .slice(0, 8)
+  const rankedCreators = rankedDevSources(snapshot)
+    .slice(0, SOURCE_LEADERBOARD_LIMIT)
+  const gradeFilters = gradeBucketSummary(snapshot)
   const familyRows = buildSourceFamilyRows(snapshot)
 
   els.sourceLeaderboard.innerHTML = `
@@ -716,7 +765,7 @@ function renderSourceLeaderboard(snapshot = {}) {
       <section class="leader-block">
         <div class="leader-block-head">
           <span>Ranked creators</span>
-          <small>${escapeHtml(compactNumber(rankedCreators.length))} showing</small>
+          <small>${escapeHtml(compactNumber(rankedCreators.length))} showing · ${escapeHtml(gradeFilters.join(' · ') || 'no grades yet')}</small>
         </div>
         <div class="leader-list">
           ${rankedCreators.map((source, index) => {
@@ -724,6 +773,7 @@ function renderSourceLeaderboard(snapshot = {}) {
             const grade = text(source.devBuildGrade || devLane?.grade || source.overallGrade, 'Needs grade').toUpperCase()
             const score = devLane?.score == null ? '' : ` · ${compactNumber(devLane.score)} score`
             const rankCopy = source.bestDirectorRank ? `Best idea rank #${compactNumber(source.bestDirectorRank)}` : 'No Director rank yet'
+            const whyRanked = `Why ranked: ${grade} grade; ${compactNumber(source.buildCandidates)} ideas; ${compactNumber(source.watchedVideos)} watched; ${rankCopy.toLowerCase()}.`
             return `
               <article class="leader-card ${escapeHtml(gradeTone(grade))}">
                 <div class="leader-grade">${escapeHtml(grade)}</div>
@@ -731,6 +781,7 @@ function renderSourceLeaderboard(snapshot = {}) {
                   <span>#${escapeHtml(compactNumber(index + 1))} · Dev build${escapeHtml(score)}</span>
                   <h3>${escapeHtml(source.creator || creatorDisplayName(snapshot, source.creatorId))}</h3>
                   <p>${escapeHtml(`${compactNumber(source.buildCandidates)} ideas · ${compactNumber(source.watchedVideos)} watched/represented videos · ${rankCopy}`)}</p>
+                  <p>${escapeHtml(whyRanked)}</p>
                 </div>
               </article>
             `
@@ -870,8 +921,9 @@ function renderGodModeParity(snapshot = {}) {
   els.godModeParity.innerHTML = `
     <div class="parity-head">
       <div>
-        <span>GOD MODE PARITY</span>
+        <span>EXTRACTOR TRUTH GUARD</span>
         <h3>${escapeHtml(status)}</h3>
+        <p>Capability audit for the extraction systems above. These rows show what each source family can actually do and when it last succeeded.</p>
       </div>
       <div class="parity-summary" aria-label="God Mode parity summary">
         <span><b>${escapeHtml(compactNumber(summary.familyCount || families.length))}</b> families</span>

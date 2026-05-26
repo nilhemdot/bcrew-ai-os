@@ -295,6 +295,30 @@ async function main() {
     'Dev Hub YouTube source detail does not cap catch-up creators at 10',
     'catch-up rows render all approved creators; fallback graded/daily views keep the compact limit'
   )
+  addCheck(
+    checks,
+    jsSource.includes('SOURCE_LEADERBOARD_LIMIT = 10') &&
+      jsSource.includes('rankedDevSources(snapshot)') &&
+      jsSource.includes('Why ranked:') &&
+      jsSource.includes('gradeBucketSummary(snapshot)'),
+    'Dev Hub creator ranking shows top 10 with grade filters and why-ranked copy',
+    'top 10 + S/A/B/C/D/ungraded counts + ranking explanation',
+  )
+  addCheck(
+    checks,
+    jsSource.includes('EXTRACTOR TRUTH GUARD') &&
+      jsSource.includes('Capability audit for the extraction systems above'),
+    'Dev Hub separates extraction systems from the false-God-Mode guardrail in plain English',
+    'extractor truth guard copy',
+  )
+  addCheck(
+    checks,
+    jsSource.includes('creatorRepresentationLabel') &&
+      jsSource.includes('Ready for metadata') &&
+      jsSource.includes('Needs source URL'),
+    'Dev Hub distinguishes missing metadata from missing creator source URLs',
+    'ready-for-metadata is not labeled as source missing',
+  )
   addCheck(checks, moduleSource.includes('buildExtractionEconomics') && moduleSource.includes('estimateGeminiStandardTokenCostUsd') && routeSource.includes('listLlmCalls'), 'Dev Hub API exposes extraction economics from LLM call usage', 'llm_calls + shared Gemini pricing tokens')
   addCheck(checks, moduleSource.includes('buildApprovalReviewQueue') && jsSource.includes('renderApprovalReview'), 'Dev Hub exposes actual approval links instead of a blind count', 'approvalReviewQueue + #approval-review')
   addCheck(checks, moduleSource.includes('buildDevIntelSourceCoverageSnapshot') && jsSource.includes('renderSourceLeaderboard'), 'Dev Hub page exposes source-family leaderboard coverage', 'sourceCoverage + sourceValueGrader')
