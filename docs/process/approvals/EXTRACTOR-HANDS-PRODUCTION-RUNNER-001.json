@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACTOR-HANDS-PRODUCTION-RUNNER-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-26T04:10:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/extractor-hands-production-runner-001-plan.md",
+  "approvedPlanSha256": "e3064e56bbcea48d26229c622a39ea358737b2eb490ea7820ebce73eaf44f645",
+  "approvedRepoHead": "d03cc651135eed907b88327ac9ed9d7956f2c909",
+  "approvalSource": "Steve May 25-26 overnight God Mode extractor sprint approval: wire bounded browser Hands into approved source-packet runner, keep Skool/MyICOR/private/auth blocked until exact boundaries, and continue to the next card if blocked.",
+  "approvalDigest": "fbd4cac95f5be5b6fe7c5af2940e1cdd38da4e4daeb8ad7ca0d1d48e6f8c7d52"
+}

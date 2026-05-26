@@ -102,6 +102,7 @@
     "process:source-packet-public-web-runtime-check": "node --env-file-if-exists=.env scripts/process-source-packet-public-web-runtime-check.mjs",
     "process:source-packet-worker-runner-check": "node --env-file-if-exists=.env scripts/process-source-packet-worker-runner-check.mjs",
     "process:extractor-hands-browser-runtime-check": "node --env-file-if-exists=.env scripts/process-extractor-hands-browser-runtime-check.mjs",
+    "process:extractor-hands-production-runner-check": "node --env-file-if-exists=.env scripts/process-extractor-hands-production-runner-check.mjs",
     "process:build-intel-source-value-grader-check": "node --env-file-if-exists=.env scripts/process-build-intel-source-value-grader-check.mjs",
     "process:synthesis-router-freshness-trigger-check": "node --env-file-if-exists=.env scripts/process-synthesis-router-freshness-trigger-check.mjs",
     "process:foundation-data-sources-v2-check": "node --env-file-if-exists=.env scripts/process-foundation-data-sources-v2-check.mjs",

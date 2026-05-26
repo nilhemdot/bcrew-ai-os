@@ -1,6 +1,7 @@
 const API_ROUTE = '/api/foundation/dev-team-hub'
 const LINK_PACKET_PREVIEW_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-preview'
 const LINK_PACKET_DECISION_ROUTE = '/api/foundation/dev-team-hub/link-source-packet-decision'
+const EXTRACTOR_HANDS_PRODUCTION_QUEUE_ROUTE = '/api/foundation/dev-team-hub/source-packet-hands-queue'
 
 const plannedSources = [
   {
@@ -368,6 +369,56 @@ function approvalReviewTitle(item = {}) {
   return video ? `${host} · ${video}` : host
 }
 
+function handsQueueStatusCopy(row = {}) {
+  if (row.status === 'ready_to_run') return 'Ready for Hands'
+  if (row.status === 'already_run') return 'Hands evidence saved'
+  if (row.status === 'exact_public_read_ready') return 'Needs approved selector'
+  if (row.status === 'auth_session_required') return 'Needs source-specific auth'
+  if (row.status === 'paid_or_private_blocked') return 'Paid/private blocked'
+  if (row.status === 'purchase_or_form_blocked') return 'Form/purchase blocked'
+  if (row.status === 'not_ready_for_hands') return 'Not approved'
+  return text(row.status, 'Blocked')
+}
+
+function renderHandsQueue(snapshot = {}) {
+  const queue = snapshot.sourcePacketHandsQueue || {}
+  const rows = list(queue.rows).slice(0, 5)
+  const counts = queue.counts || {}
+  if (!rows.length) {
+    return `
+      <article class="approval-empty">
+        <span>Hands runner status</span>
+        <p>No approved source-packet rows are waiting for bounded browser Hands. Queue route: ${escapeHtml(EXTRACTOR_HANDS_PRODUCTION_QUEUE_ROUTE)}.</p>
+      </article>
+    `
+  }
+  return `
+    <div class="approval-head">
+      <div>
+        <span>Hands runner status</span>
+        <p>Approved packets only run through bounded Hands after an approved selector/action, next URL pattern, stop condition, and evidence target are present.</p>
+      </div>
+      <strong>${escapeHtml(compactNumber(counts.ready || 0))}/${escapeHtml(compactNumber(counts.total || rows.length))}</strong>
+    </div>
+    <div class="approval-list">
+      ${rows.map(row => `
+        <article class="approval-row">
+          <div>
+            <span>${escapeHtml(handsQueueStatusCopy(row))}</span>
+            <h3>${escapeHtml(row.host || row.exactUrl || 'Source packet')}</h3>
+            <p>${escapeHtml(row.handsStatus?.plainEnglish || 'Bounded browser Hands queue row.')}</p>
+            <a href="${escapeHtml(row.exactUrl)}" target="_blank" rel="noreferrer">${escapeHtml(row.exactUrl)}</a>
+          </div>
+          <aside>
+            <small>${escapeHtml(row.ready ? 'Separate run route is available for this exact approved action.' : 'No run starts from approval or from this status view.')}</small>
+            <em>${escapeHtml(row.hasHandsPolicy ? 'Has approved selector/action' : 'Needs approved selector/action')}</em>
+          </aside>
+        </article>
+      `).join('')}
+    </div>
+  `
+}
+
 function renderApprovalReview(snapshot = {}) {
   if (!els.approvalReview) return
   const queue = list(snapshot.approvalReviewQueue)
@@ -377,6 +428,7 @@ function renderApprovalReview(snapshot = {}) {
         <span>No link approvals waiting</span>
         <p>The extractor did not return useful external links that need Steve review right now.</p>
       </article>
+      ${renderHandsQueue(snapshot)}
     `
     return
   }
@@ -420,6 +472,7 @@ function renderApprovalReview(snapshot = {}) {
         </article>
       `).join('')}
     </div>
+    ${renderHandsQueue(snapshot)}
   `
   bindApprovalReviewControls(queue)
 }
