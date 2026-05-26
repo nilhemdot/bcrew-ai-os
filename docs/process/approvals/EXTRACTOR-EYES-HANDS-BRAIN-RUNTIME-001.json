@@ -2,11 +2,11 @@
   "approvalSchemaVersion": 2,
   "cardId": "EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-26T12:30:00-04:00",
+  "approvedAt": "2026-05-26T12:40:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/extractor-eyes-hands-brain-runtime-001-plan.md",
-  "approvedPlanSha256": "a5068894b648d747a43fe8b46f4b6fde7a622081a906ab29531717668a2b4188",
-  "approvedRepoHead": "f35f396f478211bf2e7d8821ff4d886c741efa99",
-  "approvalSource": "Steve May 26 direct correction: expand God Mode extractor source policy to include creator source stacks, approved free newsletters, free Skool/community source lanes, safe free resources/downloads, and per-creator visibility across YouTube, blog/site, newsletter, GitHub/docs/resources, free community, paid course, and other source surfaces. Standing free-source actions may use ai@bensoncrew.ca or crewbert@bensoncrew.ca; paid/private/member/unsafe/external-write boundaries still stop.",
-  "approvalDigest": "b325ee3b6be99afeff89058257cde3693716168552c2b9eac559570d5d99f6af"
+  "approvedPlanSha256": "6740e0d9521419535b8fe2e4aba7a49facc139af92970111293cd714d1f43774",
+  "approvedRepoHead": "99cf66900532e54b1b6a1816399ddf9a5d2aeecf",
+  "approvalSource": "Steve May 26 direct taxonomy correction: MyICOR is a paid course/training platform instance, not its own top-level source family or tag. Keep historical MyICOR/Mycro source IDs and preflight cards as provenance, but fold current extractor/source-family taxonomy into paid course/training platforms while preserving paid/private/member/unsafe/external-write boundaries.",
+  "approvalDigest": "89d8a2605c20ad0c284d7e1ba849cdea72e0b6682a2009a448469f6239956583"
 }

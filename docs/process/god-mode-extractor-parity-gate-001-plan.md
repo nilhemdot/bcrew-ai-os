@@ -36,7 +36,7 @@ An extractor is God Mode only when it can prove the source-appropriate version o
   - GitHub/repos
   - Skool/free communities
   - Skool/paid courses
-  - MyICOR/paid training
+  - paid course/training platforms
   - Google Drive/Meet training corpus
   - Gmail/Missive
   - Slack

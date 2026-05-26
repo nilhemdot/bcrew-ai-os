@@ -20,7 +20,7 @@ This card preserves the May 26 correction so it cannot be reduced back to video-
 - The YouTube job must read the description and classify every resource link.
 - When the creator offers free value such as skills, code, templates, repos, docs, checklists, downloads, or public resource pages, the system captures the allowed value or creates the exact packet needed to capture it.
 - Newsletters are a real creator source. The system should sign up for approved free creator newsletters with `ai@bensoncrew.ca` or `crewbert@bensoncrew.ca`, route issues into an `AIOS Sources/Newsletters` mailbox label/folder, extract ideas/resources/links, and show newsletter value on the creator card.
-- The creator card should show the creator source stack: YouTube, blog/site, newsletter, GitHub/docs/resources, free Skool/community, paid Skool/course, MyICOR/other course, current extraction status, and what value we are getting from each surface.
+- The creator card should show the creator source stack: YouTube, blog/site, newsletter, GitHub/docs/resources, free Skool/community, paid Skool/course, paid course/training platforms, current extraction status, and what value we are getting from each surface. MyICOR is one paid course/training platform instance, not its own top-level source family or tag.
 - If a free Skool/community is linked, the system uses the free-community SOP and approved source identity/session boundary to inspect allowed free areas, including recent free chat/posts/comments, free courses, pinned resources, docs, linked resources, and safe free downloads/resources.
 - If the extractor hits a paid gate, login gate, purchase, private area, member-only area, form, checkout, or download boundary, it stops and creates an evaluation for Steve instead of crossing the boundary.
 - Paid-gate evaluation must answer whether the course/community/package looks worth buying, based on the free evidence already extracted.
@@ -56,7 +56,7 @@ Every source-family extractor must have these layers:
    - GitHub/docs/resources
    - free Skool/community
    - paid Skool/course
-   - MyICOR/other training source
+   - paid course/training platforms, with MyICOR only as one source instance when present
    - other approved public/free resources
 3. Each surface has a clear status:
    - discovered
@@ -217,7 +217,7 @@ Every source-family extractor must have these layers:
 5. Add Newsletter Source Lane runner with mailbox label/folder readback and one bounded signup proof.
 6. Only then resume broad live YouTube spend.
 7. Add Skool free-community SOP runner with standing free-source identity/session boundary and one bounded proof.
-8. Add paid/private Skool and MyICOR approved-session proof after Steve provides exact approvals.
+8. Add paid/private Skool and paid course/training platform approved-session proof after Steve provides exact approvals.
 9. Add GitHub/docs/public resource SOP completion and Scoper-ready resource evidence.
 10. Wire all source-family SOP maturity into the Dev/Foundation source cards and nightly audit.
 
@@ -227,7 +227,7 @@ Every source-family extractor must have these layers:
 - The plan names both layers: reusable extractor runtime and source-specific SOPs.
 - YouTube SOP includes metadata triage, latest 10 baseline, visible creator grade/score, whole page extraction, description/resource links, free-resource capture, free Skool/community source packet, paid-gate evaluation, and morning autopilot.
 - YouTube catch-up card explicitly says video-only catch-up is not God Mode.
-- Source-family SOPs exist for YouTube, Skool free community, Skool paid/private, MyICOR paid training, and GitHub/docs/public resources.
+- Source-family SOPs exist for YouTube, Skool free community, Skool paid/private, paid course/training platforms, and GitHub/docs/public resources.
 - Source-family SOPs exist for the creator source stack and Newsletter Source Lane.
 - Newsletter signup uses `ai@bensoncrew.ca` / `crewbert@bensoncrew.ca`, routes issues to `AIOS Sources/Newsletters`, and stops on paid/private/unsafe actions.
 - Free Skool/community SOP includes recent free chat/posts/comments, free courses, pinned resources, linked resources, and safe free downloads/resources.
@@ -243,7 +243,7 @@ This card is not done when the plan exists. This card is done only when:
 - The source SOPs are represented in code and proof.
 - The YouTube SOP is implemented end to end.
 - The Dev/Foundation source UI can show all YouTube creators and their grade/status.
-- The creator card can show the full source stack: YouTube, blog/site, newsletter, GitHub/docs/resources, free Skool/community, paid Skool/course, and other approved source surfaces.
+- The creator card can show the full source stack: YouTube, blog/site, newsletter, GitHub/docs/resources, free Skool/community, paid Skool/course/training platforms, and other approved source surfaces.
 - The newsletter lane can sign up, label/folder, monitor, extract, grade, and unsubscribe/park in a governed way.
 - Morning autopilot can run in dry-run and live-bounded mode without babysitting.
 - Video-only extraction cannot pass any God Mode proof.

@@ -13,11 +13,11 @@ const plannedSources = [
     label: 'Unified creator card',
     badge: 'Planned',
     status: 'Planned source-stack lane',
-    summary: 'Each creator should show YouTube, blog/site, newsletter, GitHub/resources, free Skool/community, paid course, extracted value, blocker, and next action in one place.',
+    summary: 'Each creator should show YouTube, blog/site, newsletter, GitHub/resources, free Skool/community, paid course/training platforms, extracted value, blocker, and next action in one place.',
     tags: ['creator', 'source stack', 'planned'],
     sourceRoute: 'EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001',
     targets: [
-      ['All approved creators', 'Source stack', 'Show what we get from every surface: video, blog, newsletter, repos/docs, free community, paid/course gate.', 'Planned'],
+      ['All approved creators', 'Source stack', 'Show what we get from every surface: video, blog, newsletter, repos/docs, free community, paid course/training gate.', 'Planned'],
       ['Grades', 'Lane-specific', 'Grade Dev build, realtor training, marketing, ops, and other lanes separately instead of one global score.', 'Planned'],
     ],
   },
@@ -51,16 +51,16 @@ const plannedSources = [
   },
   {
     id: 'skool-paid',
-    name: 'Skool / Paid Courses',
+    name: 'Paid Courses / Training Platforms',
     label: 'Paid / auth',
     badge: 'Pending',
     status: 'Pending registry',
-    summary: 'Paid communities and courses are blocked until source packets and auth boundaries are approved.',
+    summary: 'Paid communities, courses, and training platforms are blocked until source packets and auth boundaries are approved. MyICOR is one source instance, not its own top-level tag.',
     tags: ['auth', 'paid', 'approval'],
     sourceRoute: 'Pending source packet + auth guard',
     targets: [
       ['Mark Kashef', 'Paid Skool', 'Needs exact source packet and guarded auth rules before crawling.', 'Approval required'],
-      ['ICOR / Tom', 'Paid training', 'Known high-value source, but not active in the Dev slice yet.', 'Approval required'],
+      ['ICOR / Tom', 'Paid training platform', 'Known high-value paid-course source instance, not a separate source family.', 'Approval required'],
     ],
   },
   {
@@ -396,7 +396,7 @@ function creatorTargetFromCatchup(row = {}) {
   const packetCopy = packetCount
     ? ` Packets: ${compactNumber(packetCount)} review, ${compactNumber(evidence.runnablePublicSourcePacketCount || 0)} public, ${compactNumber(evidence.freeCommunityPacketCount || 0)} community, ${compactNumber(evidence.paidGatePacketCount || 0)} paid/gate.`
     : ''
-  const stackCopy = ' Source stack: YouTube tracked; newsletter, blog/site, GitHub/resources, Skool/community, and paid course status pending source-stack lane.'
+  const stackCopy = ' Source stack: YouTube tracked; newsletter, blog/site, GitHub/resources, Skool/community, and paid course/training platform status pending source-stack lane.'
   return [
     text(row.creator || creatorNameFromId(row.creatorId), 'Unknown creator'),
     `${grade} Dev build · ${status} · ${sopCopy}`,

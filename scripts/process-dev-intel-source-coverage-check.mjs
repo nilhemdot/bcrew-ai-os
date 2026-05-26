@@ -73,7 +73,7 @@ async function main() {
   const sharedComms = rowById(snapshot, 'shared-internal-comms')
   const skoolFree = rowById(snapshot, 'skool-free-communities')
   const skool = rowById(snapshot, 'skool-paid-communities')
-  const myicor = rowById(snapshot, 'myicor-paid-training')
+  const paidTraining = rowById(snapshot, 'paid-course-training-platforms')
   const github = rowById(snapshot, 'github-public-repos')
 
   addCheck(checks, approvalValidation.ok && approvalValidation.mode === 'v2', 'approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || DEV_INTEL_SOURCE_COVERAGE_APPROVAL_PATH)
@@ -90,7 +90,7 @@ async function main() {
   addCheck(checks, sharedComms?.currentProof.includes(DEV_SOURCE_SLICE_ROUTER_CARD_ID) && sharedComms?.feedsDev === true, 'shared comms feed Dev through source-slice router', sharedComms?.feedPath || 'missing')
   addCheck(checks, skoolFree?.status === DEV_INTEL_SOURCE_FAMILY_STATUS.planned && /last 20 days/i.test(skoolFree?.nextAction || '') && /paid\/private/i.test(skoolFree?.nextAction || ''), 'free Skool/community lane is visible separately from paid Skool blockers', skoolFree?.nextAction || 'missing')
   addCheck(checks, skool?.status === DEV_INTEL_SOURCE_FAMILY_STATUS.blocked && Boolean(skool?.blocker) && Boolean(skool?.nextCard), 'Skool is visible but blocked pending source packet', skool?.blocker || 'missing')
-  addCheck(checks, myicor?.status === DEV_INTEL_SOURCE_FAMILY_STATUS.blocked && Boolean(myicor?.blocker) && Boolean(myicor?.nextCard), 'MyICOR is visible but blocked pending source packet', myicor?.blocker || 'missing')
+  addCheck(checks, paidTraining?.status === DEV_INTEL_SOURCE_FAMILY_STATUS.blocked && Boolean(paidTraining?.blocker) && Boolean(paidTraining?.nextCard) && /not its own source-family tag/i.test(paidTraining?.nextAction || ''), 'paid course/training platforms are visible without making MyICOR its own tag', paidTraining?.nextAction || 'missing')
   addCheck(checks, github?.status === DEV_INTEL_SOURCE_FAMILY_STATUS.planned && Boolean(github?.nextCard), 'GitHub/repos are planned with a next card before repo import', github?.nextCard || 'missing')
   addCheck(checks, snapshot.rows.some(row => row.status === DEV_INTEL_SOURCE_FAMILY_STATUS.blocked) && snapshot.rows.some(row => row.feedsDev), 'blocked private sources do not block active approved sources', `${snapshot.counts.blocked} blocked / ${snapshot.counts.feedsDev} feeding Dev`)
 

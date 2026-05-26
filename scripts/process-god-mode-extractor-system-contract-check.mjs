@@ -228,7 +228,7 @@ async function main() {
       'creator_newsletters',
       'skool_free_community',
       'skool_paid_or_private',
-      'myicor_paid_training',
+      'paid_course_training_platforms',
       'github_docs_public_resources',
       'video_only_youtube_sop_fails',
     ]),

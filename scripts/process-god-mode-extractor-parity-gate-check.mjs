@@ -133,14 +133,14 @@ async function main() {
   )
   addCheck(
     checks,
-    includesAll(parityPlanSource, ['comments are intentionally excluded', 'browser navigation', 'Skool/paid courses', 'MyICOR/paid training', 'source packet']) &&
+    includesAll(parityPlanSource, ['comments are intentionally excluded', 'browser navigation', 'Skool/paid courses', 'paid course/training platforms', 'source packet']) &&
       parityPlanSource.includes('process:god-mode-extractor-parity-gate-check'),
     'God Mode parity plan names comment exclusion, hands, paid sources, and proof command',
     'docs/process/god-mode-extractor-parity-gate-001-plan.md'
   )
   addCheck(
     checks,
-    includesAll(sourceFamilyPlanSource, ['YouTube public comments (operator-excluded)', 'Skool paid courses/classrooms', 'MyICOR paid training', 'model/brain route', 'process:god-mode-extractor-parity-gate-check']),
+    includesAll(sourceFamilyPlanSource, ['YouTube public comments (operator-excluded)', 'Skool paid courses/classrooms', 'paid course/training platforms', 'model/brain route', 'process:god-mode-extractor-parity-gate-check']),
     'source-family plan routes maturity matrix through the parity proof',
     'docs/process/source-family-god-mode-extractors-001-plan.md'
   )

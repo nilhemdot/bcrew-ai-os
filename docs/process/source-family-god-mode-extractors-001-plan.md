@@ -8,7 +8,7 @@ Last updated: 2026-05-26
 
 Create a God Mode maturity plan and readback layer for every extractor family that feeds Foundation.
 
-Plain English: YouTube is only one source. Meetings, Gmail/Missive, Slack, GitHub, Skool, MyICOR, Google Drive/Meet trainings, communities, and public web links all need a clear extractor capability level so Steve can see what is truly connected and what is still partial.
+Plain English: YouTube is only one source. Meetings, Gmail/Missive, Slack, GitHub, Skool, paid course/training platforms, Google Drive/Meet trainings, communities, and public web links all need a clear extractor capability level so Steve can see what is truly connected and what is still partial. MyICOR is one paid course/training platform instance, not its own top-level source family or tag.
 
 ## Why
 
@@ -25,7 +25,7 @@ Track at least these families:
 - GitHub/repo intelligence
 - Skool free communities
 - Skool paid courses/classrooms
-- MyICOR paid training
+- paid course/training platforms
 - Google Drive/Meet training recordings/transcripts
 - Gmail/Missive
 - Slack

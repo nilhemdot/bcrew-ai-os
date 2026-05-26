@@ -79,7 +79,7 @@ V1 baseline:
   - free-resource capture status
   - free-community packet status
   - paid-gate evaluation status
-  - creator source-stack status across YouTube, blog/site, newsletter, GitHub/docs/resources, free Skool/community, paid Skool/course, and other approved surfaces
+  - creator source-stack status across YouTube, blog/site, newsletter, GitHub/docs/resources, free Skool/community, paid Skool/course/training platforms, and other approved surfaces
   - long-course pending count
   - current source grade by lane
   - next watch action
