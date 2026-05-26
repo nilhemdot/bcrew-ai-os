@@ -345,9 +345,10 @@ async function main() {
       moduleSource.includes('startsProviderCall: false') &&
       jsSource.includes('Next dry-run batch') &&
       jsSource.includes('youtubeGodModeAutopilotPlan') &&
-      jsSource.includes('renderAutopilotRows'),
-    'Dev Hub exposes YouTube morning autopilot dry-run without starting a provider run',
-    'catch-up candidates -> dry-run plan -> Dev evidence card/source detail',
+      jsSource.includes('renderAutopilotRows') &&
+      jsSource.includes('autopilot-step-list'),
+    'Dev Hub exposes YouTube morning autopilot dry-run with SOP steps without starting a provider run',
+    'catch-up candidates -> dry-run plan -> Dev evidence card/source detail/SOP steps',
   )
   addCheck(checks, moduleSource.includes('buildExtractionEconomics') && moduleSource.includes('estimateGeminiStandardTokenCostUsd') && routeSource.includes('listLlmCalls'), 'Dev Hub API exposes extraction economics from LLM call usage', 'llm_calls + shared Gemini pricing tokens')
   addCheck(checks, moduleSource.includes('buildApprovalReviewQueue') && jsSource.includes('renderApprovalReview'), 'Dev Hub exposes actual approval links instead of a blind count', 'approvalReviewQueue + #approval-review')
@@ -445,8 +446,13 @@ async function main() {
       payload?.youtubeGodModeAutopilotPlan?.startsProviderCall === false &&
       payload?.youtubeGodModeAutopilotPlan?.runApprovalRequired === true &&
       Number(payload?.youtubeGodModeAutopilotPlan?.candidateVideoCount || 0) >= 1 &&
-      list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).every(video => text(video.title) && /^https:\/\/www\.youtube\.com\/watch\?v=/.test(text(video.url))),
-    'live Dev Hub exposes YouTube autopilot dry-run plan from catch-up candidates',
+      list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).every(video =>
+        text(video.title) &&
+        /^https:\/\/www\.youtube\.com\/watch\?v=/.test(text(video.url)) &&
+        list(video.sourceSopReadiness).length === 8 &&
+        list(video.sourceSopReadiness).every(step => text(step.label) && text(step.status))
+      ),
+    'live Dev Hub exposes YouTube autopilot dry-run plan from catch-up candidates with SOP step readiness',
     `${list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).length} selected / ${payload?.youtubeGodModeAutopilotPlan?.candidateVideoCount || 0} candidates / ${payload?.youtubeGodModeAutopilotPlan?.status || 'missing'}`,
   )
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => /^https?:\/\//i.test(text(item.url)) && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)

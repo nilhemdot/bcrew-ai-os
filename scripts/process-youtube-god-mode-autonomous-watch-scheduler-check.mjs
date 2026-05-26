@@ -8,11 +8,36 @@ import { fileURLToPath } from 'node:url'
 import { Pool } from 'pg'
 
 import {
+  closeFoundationDb,
+  getIntelligenceReportBundle,
+  initFoundationDb,
+  listLlmCalls,
+  listSourceCrawlItems,
+} from '../lib/foundation-db.js'
+import {
+  BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
+} from '../lib/build-intel-source-value-grader.js'
+import {
+  YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
+  YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
+  buildYoutubeCreatorDailyWatchPlan,
+} from '../lib/youtube-creator-daily-watch.js'
+import {
+  buildYoutubeCreatorGodModeCatchupSnapshot,
+} from '../lib/youtube-creator-god-mode-catchup.js'
+import {
+  fullWatchedVideoIdsFromCalls,
+} from '../lib/dev-team-hub.js'
+import {
+  SOURCE_PACKET_WORKER_RUNNER_TARGET_KEY,
+} from '../lib/source-packet-worker-runner.js'
+import {
   YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_CARD_ID,
   YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_JOB_KEY,
   YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_PLAN_PATH,
   YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_SCRIPT_PATH,
   YOUTUBE_GOD_MODE_SCHEDULER_DEFAULT_CONFIG,
+  buildYoutubeGodModeCandidateVideosFromCatchupSnapshot,
   buildYoutubeGodModeAutonomousWatchPlan,
   buildYoutubeGodModeAutonomousWatchSchedulerDogfoodProof,
 } from '../lib/youtube-god-mode-autonomous-watch-scheduler.js'
@@ -28,6 +53,10 @@ const DEFAULT_COMMAND_TIMEOUT_MS = 60 * 60 * 1000
 
 function text(value) {
   return String(value || '').trim()
+}
+
+function list(value) {
+  return Array.isArray(value) ? value : []
 }
 
 function readArgValue(argv = [], prefix = '') {
@@ -157,6 +186,46 @@ function estimatedGeminiCostUsd(call = {}) {
   return estimateGeminiStandardTokenCostUsd({ model, inputTokens: input, outputTokens: output })
 }
 
+function normalizeSourceValueGraderReport(bundle = {}) {
+  const report = bundle.report || null
+  const structured = report?.structuredOutputJson || report?.structured_output_json || {}
+  return {
+    status: report?.status || structured.status || 'needs_source',
+    sourceGrades: list(structured.sourceGrades),
+    topDevBuildSources: list(structured.topDevBuildSources),
+    topByLane: list(structured.topByLane),
+    noAutoBacklogPromotion: structured.noAutoBacklogPromotion !== false,
+    externalWrites: structured.externalWrites === true,
+    reportArtifactId: report?.reportArtifactId || report?.report_artifact_id || BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
+  }
+}
+
+async function loadYoutubeFullWatchReports() {
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT report_artifact_id AS "reportArtifactId",
+               report_type AS "reportType",
+               status,
+               source_ids AS "sourceIds",
+               structured_output_json AS "structuredOutputJson",
+               metadata,
+               created_at AS "createdAt",
+               updated_at AS "updatedAt"
+        FROM intelligence_report_artifacts
+        WHERE metadata->>'fullWatchRoute' = 'gemini_api_youtube_url_video_understanding'
+           OR metadata->>'proofMode' = 'youtube_latest_20_god_mode_api_full_watch'
+        ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+        LIMIT 500
+      `,
+    )
+    return result.rows
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
 async function loadTodayGeminiVideoSpend() {
   const pool = createPool()
   try {
@@ -252,38 +321,104 @@ function sanitizeVideo(video = {}) {
     publicNoAuth: true,
     privateOrPaidAccess: false,
     standardFullWatchRisk: false,
+    sourceSopStatus: text(video.sourceSopStatus),
+    nextWatchAction: text(video.nextWatchAction),
+    trackedMetadataCount: Number(video.trackedMetadataCount) || 0,
+    videoAudioVisualWatchedCount: Number(video.videoAudioVisualWatchedCount) || 0,
+    baselineTargetVideos: Number(video.baselineTargetVideos) || 0,
+    baselineGap: Number(video.baselineGap) || 0,
+    deepBaselineGap: Number(video.deepBaselineGap) || 0,
+    pendingStandardVideoCount: Number(video.pendingStandardVideoCount) || 0,
+    longCoursePendingCount: Number(video.longCoursePendingCount) || 0,
+    fullPageExtractionStatus: text(video.fullPageExtractionStatus),
+    approvedResourceFollowStatus: text(video.approvedResourceFollowStatus),
+    sourcePacketWorkerStatus: text(video.sourcePacketWorkerStatus),
+    browserHandsStatus: text(video.browserHandsStatus),
+    freeResourceCaptureStatus: text(video.freeResourceCaptureStatus),
+    freeCommunityPacketStatus: text(video.freeCommunityPacketStatus),
+    paidGateEvaluationStatus: text(video.paidGateEvaluationStatus),
+    autopilotDispositionStatus: text(video.autopilotDispositionStatus),
   }
 }
 
 async function loadLiveSchedulerInputs(args = {}) {
-  const latestArgs = ['run', 'process:youtube-latest-20-intel-run-check', '--', '--json', `--batch-size=${args.batchSize}`]
-  for (const creatorId of args.creatorIds) latestArgs.push(`--creator-id=${creatorId}`)
-  const [manifestResult, sourceGraderResult, todaySpend] = await Promise.all([
-    runJsonCommand('npm', latestArgs, { timeoutMs: 8 * 60 * 1000 }),
-    runJsonCommand('npm', ['run', 'process:build-intel-source-value-grader-check', '--', '--json'], { timeoutMs: 8 * 60 * 1000 }),
-    loadTodayGeminiVideoSpend(),
-  ])
-  const selectedVideos = (manifestResult.json?.snapshot?.selectedVideos || []).map(sanitizeVideo)
-  const sourceGrades = sourceGraderResult.json?.snapshot?.sourceGrades ||
-    sourceGraderResult.json?.snapshot?.topDevBuildSources ||
-    []
+  await initFoundationDb()
+  let catchupSnapshot = null
+  let sourceValueGrader = null
+  let commandStartedAt = Date.now()
+  try {
+    const [
+      poolItems,
+      geminiVideoReviewCalls,
+      sourceValueGraderBundle,
+      youtubeFullWatchReports,
+      sourcePacketWorkerRuns,
+    ] = await Promise.all([
+      listSourceCrawlItems({
+        targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
+        limit: YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
+        order: 'desc',
+      }),
+      listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 500 }),
+      getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
+      loadYoutubeFullWatchReports(),
+      listSourceCrawlItems({
+        targetKey: SOURCE_PACKET_WORKER_RUNNER_TARGET_KEY,
+        limit: 500,
+        order: 'desc',
+      }),
+    ])
+    sourceValueGrader = normalizeSourceValueGraderReport(sourceValueGraderBundle)
+    catchupSnapshot = buildYoutubeCreatorGodModeCatchupSnapshot({
+      watchPlan: buildYoutubeCreatorDailyWatchPlan(),
+      poolItems,
+      fullWatchedVideoIds: fullWatchedVideoIdsFromCalls(geminiVideoReviewCalls),
+      sourceValueGrader,
+      youtubeFullWatchReports,
+      sourcePacketWorkerRuns,
+    })
+  } finally {
+    await closeFoundationDb()
+  }
+
+  const candidateVideos = buildYoutubeGodModeCandidateVideosFromCatchupSnapshot({
+    catchupSnapshot,
+    maxPerCreator: 3,
+  }).map(sanitizeVideo)
+  const selectedVideos = args.creatorIds.length
+    ? candidateVideos.filter(video => args.creatorIds.includes(video.creatorId))
+    : candidateVideos
+  const sourceGrades = sourceValueGrader?.sourceGrades || sourceValueGrader?.topDevBuildSources || []
+  const todaySpend = await loadTodayGeminiVideoSpend()
+  const selectedByCreator = selectedVideos.reduce((acc, video) => {
+    acc[video.creatorId] = (acc[video.creatorId] || 0) + 1
+    return acc
+  }, {})
   return {
     manifest: {
-      status: manifestResult.json?.snapshot?.status,
+      status: catchupSnapshot?.status,
       selectedVideos,
-      selectedByCreator: manifestResult.json?.snapshot?.selectedByCreator || {},
-      standardFullWatchRiskRoutedOut: manifestResult.json?.snapshot?.standardFullWatchRiskRoutedOut || [],
+      selectedByCreator,
+      standardFullWatchRiskRoutedOut: list(catchupSnapshot?.creators).flatMap(row =>
+        list(row.longCourseCandidates).map(video => ({
+          ...video,
+          creatorId: row.creatorId,
+          creator: row.creator,
+        }))
+      ),
+      catchupSummary: catchupSnapshot?.summary || {},
+      sourceRoute: 'youtubeCreatorGodModeCatchup.nextWatchCandidates + sourceValueGrader.sourceGrades',
     },
     sourceGrader: {
-      status: sourceGraderResult.json?.snapshot?.status || sourceGraderResult.json?.status,
-      sourceCount: sourceGraderResult.json?.snapshot?.sourceCount || sourceGrades.length,
+      status: sourceValueGrader?.status || 'needs_source',
+      sourceCount: sourceGrades.length,
       sourceGrades,
-      topDevBuildSources: sourceGraderResult.json?.snapshot?.topDevBuildSources || [],
+      topDevBuildSources: sourceValueGrader?.topDevBuildSources || [],
     },
     todaySpend,
     commandDurationsMs: {
-      manifest: manifestResult.durationMs,
-      sourceGrader: sourceGraderResult.durationMs,
+      catchupSnapshot: Date.now() - commandStartedAt,
+      sourceGrader: 0,
     },
   }
 }
@@ -441,8 +576,9 @@ async function main() {
       moduleSource.includes('process:dev-team-intelligence-director-check') &&
       moduleSource.includes('process:build-intel-source-value-grader-check') &&
       moduleSource.includes('live_mode_requires_explicit_budget_approval') &&
+      moduleSource.includes('sourceSopReadiness') &&
       moduleSource.includes('--video-id='),
-    'module uses exact-video guarded runner and post-run refresh commands',
+    'module uses exact-video guarded runner, SOP readiness, and post-run refresh commands',
     'lib/youtube-god-mode-autonomous-watch-scheduler.js',
   )
   addCheck(
@@ -480,8 +616,8 @@ async function main() {
   addCheck(
     checks,
     Boolean(liveInputs?.manifest) && Boolean(liveInputs?.sourceGrader),
-    'scheduler reads live manifest and source grades',
-    liveInputs ? `${liveInputs.manifest?.selectedVideos?.length || 0} videos / ${liveInputs.sourceGrader?.sourceCount || 0} sources` : 'missing',
+    'scheduler reads live catch-up candidates and source grades',
+    liveInputs ? `${liveInputs.manifest?.selectedVideos?.length || 0} candidates / ${liveInputs.sourceGrader?.sourceCount || 0} sources` : 'missing',
   )
   if (args.runLiveBatch) {
     addCheck(

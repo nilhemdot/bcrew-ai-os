@@ -391,6 +391,11 @@ function buildYoutubeAutopilotRows(snapshot = {}) {
     description: `${money(autopilot.budget?.estimatedUsdPerVideo || 0)} est · ${statusCopy(video.nextWatchAction || autopilot.status || 'dry-run')}`,
     url: text(video.url),
     status: autopilot.status === 'ready_for_dry_run_report' ? 'Dry-run ready' : 'Blocked',
+    steps: list(video.sourceSopReadiness).map(step => ({
+      label: text(step.label || step.key, 'Step'),
+      status: statusCopy(step.status || step.rawStatus || 'pending'),
+      detail: statusCopy(step.detail || step.rawStatus || ''),
+    })),
   }))
 }
 
@@ -1130,6 +1135,16 @@ function renderAutopilotRows(source = {}) {
             ${needsAttention ? `<span class="pill ${pillClass(row.status)}">${escapeHtml(rowStatus)}</span>` : ''}
           </div>
           <p>${escapeHtml(row.description)}${row.url ? ` · <a href="${escapeHtml(row.url)}" target="_blank" rel="noreferrer">${escapeHtml(row.url)}</a>` : ''}</p>
+          ${list(row.steps).length ? `
+            <div class="autopilot-step-list" aria-label="Autopilot SOP steps">
+              ${list(row.steps).map(step => `
+                <span class="autopilot-step ${pillClass(step.status)}" title="${escapeHtml(step.detail || step.status)}">
+                  <strong>${escapeHtml(step.label)}</strong>
+                  <small>${escapeHtml(step.status)}</small>
+                </span>
+              `).join('')}
+            </div>
+          ` : ''}
         </div>
       `}).join('')}
     </div>
