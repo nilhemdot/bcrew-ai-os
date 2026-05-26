@@ -21,6 +21,14 @@ Steve supplied more public YouTube Build Intel leads while the God Mode extracto
 - Resolved public resource: `https://github.com/bradautomates/claude-video`.
 - Approval-required links: Google sign-in, Cal.com, LinkedIn, Kit signup, and YouTube support. These require exact source-packet decisions before deeper follow-up.
 
+### Steve Builder-Comprehension Video Lead / Creator TBD
+
+- Supplied links: `https://youtu.be/vmiuxvlt7_i?si=bxrbdlnq12lgevpl` and `https://youtu.be/vmiuxvlt7_i?si=aoxyaaloipygq0go`
+- Canonicalized candidate URL: `https://www.youtube.com/watch?v=vmiuxvlt7_i`
+- Why it matters: Steve flagged this as important for extractors, Codex, Claude Code, and future builders to understand the codebase/system, not just as another source video to mine for build ideas.
+- Intake status: exact lower-case video ID `vmiuxvlt7_i` currently returns YouTube `Video unavailable`; Steve then said he may have provided the wrong link.
+- Queue posture: add as a P0 confirmation-needed Build Intel lead, but do not spend extraction/model budget or build conclusions until the exact URL/title/creator is confirmed tomorrow.
+
 ## Case-Sensitivity Note
 
 Steve's pasted YouTube short link arrived lowercased as `qzmljud10su`. YouTube video IDs are case-sensitive; the resolved video ID is `QZMljuD10sU`.
