@@ -41,6 +41,9 @@ import {
   MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID,
 } from '../lib/god-mode-youtube-end-to-end-extractor.js'
 import {
+  isYoutubeLatest20FullWatchReportId,
+} from '../lib/youtube-latest-20-full-watch-runner.js'
+import {
   DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID,
 } from '../lib/dev-team-intelligence-director.js'
 import {
@@ -72,6 +75,25 @@ function list(value) {
 
 function text(value) {
   return String(value || '').trim()
+}
+
+function reportId(item = {}) {
+  return item.reportArtifactId || item.report_artifact_id || ''
+}
+
+function reportUpdatedAt(item = {}) {
+  return item.updatedAt || item.updated_at || item.createdAt || item.created_at || ''
+}
+
+function findLatestApiFullWatchReportId(foundationSnapshot = {}) {
+  return list(foundationSnapshot.intelligenceAtomSpine?.recentReports)
+    .filter(item => {
+      const id = reportId(item)
+      return id === MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID || isYoutubeLatest20FullWatchReportId(id)
+    })
+    .sort((left, right) => text(reportUpdatedAt(right)).localeCompare(text(reportUpdatedAt(left))))
+    .map(reportId)
+    .find(Boolean) || MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID
 }
 
 function addCheck(checks, ok, check, detail = '') {
@@ -144,6 +166,18 @@ function pageHasRequiredSections(html = '') {
   ].every(marker => html.includes(marker))
 }
 
+function pageHasYoutubeIntelligenceSystem(html = '') {
+  return includesAll(html, [
+    'data-view="youtube"',
+    'id="view-youtube"',
+    'id="youtube-system"',
+    'YouTube Source Intelligence',
+    'Discover',
+    'Hand off',
+    'Synthesize',
+  ])
+}
+
 function pageUsesSharedLauncherTopbar(html = '', css = '') {
   return includesAll(html, [
     '/hub-launcher.css',
@@ -208,7 +242,7 @@ async function loadLiveSnapshot() {
     getIntelligenceReportBundle(MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID, { atomLimit: 300, hitLimit: 300 }),
     getIntelligenceReportBundle(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
-    listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 500 }),
+    listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 }),
   ])
   const target = list(extractionControl.targets)
     .find(item => item.targetKey === YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY) || null
@@ -216,6 +250,10 @@ async function loadLiveSnapshot() {
     .find(item => item.reportArtifactId === YOUTUBE_CREATOR_DAILY_WATCH_REPORT_ARTIFACT_ID) || null
   const latestJobRun = list(foundationSnapshot.runtime?.jobs || foundationSnapshot.foundationJobs?.jobs)
     .find(item => item.key === YOUTUBE_CREATOR_DAILY_WATCH_JOB_KEY)?.latestRun || null
+  const latestApiFullWatchReportId = findLatestApiFullWatchReportId(foundationSnapshot)
+  const latestApiFullWatchBundle = latestApiFullWatchReportId === MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID
+    ? markApiFullWatchBundle
+    : await getIntelligenceReportBundle(latestApiFullWatchReportId, { atomLimit: 300, hitLimit: 300 })
   const dailyWatch = buildYoutubeCreatorDailyWatchReadSnapshot({
     target,
     items,
@@ -232,6 +270,7 @@ async function loadLiveSnapshot() {
     eyesBundle,
     markApiFullWatchBundle,
     markBaselineApiFullWatchBundle,
+    latestApiFullWatchBundle,
     directorBundle,
     sourceValueGraderBundle,
     geminiVideoReviewCalls,
@@ -284,20 +323,47 @@ async function main() {
   addCheck(checks, includesAll(serverSource, ['getIntelligenceReportBundle', 'registerFoundationBuildIntelRoutes(app']), 'server passes Foundation report bundle dependency', 'server.js')
   addCheck(checks, includesAll(appRoutesSource, ["app.get('/dev'", 'dev.html']), 'app routes serve owner-only Dev page', DEV_TEAM_HUB_V0_PAGE_ROUTE)
   addCheck(checks, htmlSource.includes('/dev.css') && htmlSource.includes('/dev.js') && pageHasRequiredSections(htmlSource), 'Dev page has required Data Pool sections', 'Director lens, extractors, God Mode parity, evidence, approval review, source leaderboard, source systems, selected detail')
+  addCheck(
+    checks,
+    pageHasYoutubeIntelligenceSystem(htmlSource) &&
+      jsSource.includes('renderYoutubeSourceIntelligence') &&
+      jsSource.includes('renderYoutubeHandoff') &&
+      jsSource.includes('renderYoutubeExecutiveSummary') &&
+      jsSource.includes('setDevView') &&
+      cssSource.includes('.youtube-system') &&
+      cssSource.includes('.yt-stage-grid') &&
+      cssSource.includes('.yt-handoff-grid') &&
+      cssSource.includes('.yt-exec-summary'),
+    'Dev page exposes a separate YouTube Intelligence system view',
+    'sidebar view + #view-youtube + #youtube-system + runtime/stage/handoff/executive-summary renderers',
+  )
   addCheck(checks, pageUsesSharedLauncherTopbar(htmlSource, cssSource), 'Dev page uses the shared launcher topbar structure/CSS', 'launcher-topbar classes + /hub-launcher.css')
   addCheck(checks, !htmlSource.includes('id="active-card"') && !htmlSource.includes('id="source-proof"') && !htmlSource.includes('id="director-status"'), 'Dev page does not show redundant status-only middle cards', 'active card/source proof/director mini cards removed')
   addCheck(checks, jsSource.includes(DEV_TEAM_HUB_V0_API_ROUTE) && jsSource.includes('Needs source') && jsSource.includes("cache: 'no-store'"), 'frontend consumes API and renders missing-source state', DEV_TEAM_HUB_V0_API_ROUTE)
+  addCheck(
+    checks,
+    jsSource.includes('DEV_DATA_POOL_REFRESH_INTERVAL_MS') &&
+      jsSource.includes('refreshDevDataPoolFromBackend') &&
+      jsSource.includes('state.dataPoolLoadInFlight') &&
+      jsSource.includes("document.visibilityState === 'hidden'") &&
+      jsSource.includes("window.addEventListener('focus', refreshDevDataPoolFromBackend)") &&
+      htmlSource.includes('20260527-auto-refresh-v1'),
+    'Dev page automatically refetches source-backed dashboard data after extraction writes',
+    '30s no-store polling + focus refresh + in-flight guard',
+  )
   addCheck(checks, jsSource.includes('YouTube Creators') && jsSource.includes('Creator Source Stack') && jsSource.includes('Creator Newsletters') && jsSource.includes('Skool / Free Communities') && jsSource.includes('Paid Courses / Training Platforms') && jsSource.includes('GitHub / Repos') && jsSource.includes('Gmail / Missive / Slack') && jsSource.includes('Meetings / Transcripts') && jsSource.includes("label: 'Visual evidence'") && jsSource.includes("label: 'Links to review'") && !jsSource.includes("name: 'Video Artifacts'") && !jsSource.includes("name: 'Dev Director'") && !jsSource.includes("name: 'God Mode Eyes'"), 'source cards are actual source inputs and evidence is separate output', 'sources: YouTube/source-stack/newsletters/free Skool/paid courses-training/GitHub/internal/meetings; evidence cards carry output counts')
   addCheck(checks, moduleSource.includes('sourceValueGrader') && routeSource.includes('BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID'), 'Dev Hub API exposes source-value grader data to avoid hardcoded creator cards', BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID)
   addCheck(checks, moduleSource.includes('youtubeCreatorGodModeCatchup') && moduleSource.includes('buildYoutubeCreatorGodModeCatchupSnapshot') && jsSource.includes('youtubeCreatorGodModeCatchup'), 'Dev Hub API/page exposes YouTube creator catch-up baseline readback', 'youtubeCreatorGodModeCatchup')
-  addCheck(
-    checks,
-    routeSource.includes('getIntelligenceAtomSpineSnapshot({ limit: 500 })') &&
-      moduleSource.includes('youtubeFullWatchReports') &&
-      scriptSource.includes('getIntelligenceAtomSpineSnapshot({ limit: 500 })'),
-    'Dev Hub catch-up readback uses the full YouTube full-watch report set instead of a recent-report slice',
-    '500-report spine readback feeds youtubeCreatorGodModeCatchup',
-  )
+	  addCheck(
+	    checks,
+	    routeSource.includes('getIntelligenceAtomSpineSnapshot({ limit: 500 })') &&
+	      moduleSource.includes('youtubeFullWatchReports') &&
+	      scriptSource.includes('getIntelligenceAtomSpineSnapshot({ limit: 500 })') &&
+	      routeSource.includes("listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 })") &&
+	      scriptSource.includes("listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 })"),
+	    'Dev Hub catch-up readback uses the full YouTube full-watch report set instead of a recent-report slice',
+	    '500-report spine + 5000-call Gemini watched-id readback feeds youtubeCreatorGodModeCatchup',
+	  )
   addCheck(
     checks,
     routeSource.includes('YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT') &&
@@ -450,23 +516,32 @@ async function main() {
     'live Dev Hub exposes YouTube SOP source-packet review queue with validated previews',
     `actions=${payload?.youtubeCreatorGodModeCatchup?.summary?.sourcePacketActionCount || 0}; queue=${list(payload?.approvalReviewQueue).length}`,
   )
-  addCheck(
-    checks,
-    list(payload?.approvalReviewQueue).length >= 1 &&
-      payload?.approvalReviewTriage?.totalReviewRows === list(payload?.approvalReviewQueue).length &&
-      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'public_web') &&
-      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'public_repos') &&
-      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'paid_or_auth_gate') &&
-      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'rejected_noise') &&
-      Number(payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0) === 0 &&
-      Number(payload?.approvalReviewTriage?.summary?.requiresAuthCount || 0) >= 1 &&
-      Number(payload?.approvalReviewTriage?.summary?.startsImmediatelyCount || 0) === 0 &&
-      Number(payload?.approvalReviewTriage?.summary?.startsFromApprovalActionCount || 0) === 0 &&
-      Number(payload?.approvalReviewTriage?.summary?.externalWriteCount || 0) === 0 &&
-      Number(payload?.approvalReviewTriage?.summary?.backlogWriteCount || 0) === 0,
-    'live Dev Hub keeps public/free auto-read links out of approval review and proves approval cannot start crawl/write work',
-    `rows=${payload?.approvalReviewTriage?.totalReviewRows || 0}; publicReview=${payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0}; auth=${payload?.approvalReviewTriage?.summary?.requiresAuthCount || 0}`,
-  )
+	  addCheck(
+	    checks,
+	    (() => {
+	      const publicReviewRows = list(payload?.approvalReviewQueue).filter(item => item?.sourcePacketPreview?.runtimePlan?.runnableAfterPacket === true)
+	      const publicReviewRowsAreUnsafe = publicReviewRows.every(item => /download|archive|binary/.test([
+	        item?.reason,
+	        item?.sourcePacketPreview?.reason,
+	        item?.sourcePacketPreview?.currentResolverDisposition,
+	        item?.sourcePacketPreview?.currentResolverStatus,
+	      ].map(text).join(' ').toLowerCase()))
+	      return list(payload?.approvalReviewQueue).length >= 1 &&
+	      payload?.approvalReviewTriage?.totalReviewRows === list(payload?.approvalReviewQueue).length &&
+	      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'public_web') &&
+	      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'public_repos') &&
+	      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'paid_or_auth_gate') &&
+	      list(payload?.approvalReviewTriage?.rows).some(row => row.bucketId === 'rejected_noise') &&
+	      publicReviewRowsAreUnsafe &&
+	      Number(payload?.approvalReviewTriage?.summary?.requiresAuthCount || 0) >= 1 &&
+	      Number(payload?.approvalReviewTriage?.summary?.startsImmediatelyCount || 0) === 0 &&
+	      Number(payload?.approvalReviewTriage?.summary?.startsFromApprovalActionCount || 0) === 0 &&
+	      Number(payload?.approvalReviewTriage?.summary?.externalWriteCount || 0) === 0 &&
+	      Number(payload?.approvalReviewTriage?.summary?.backlogWriteCount || 0) === 0
+	    })(),
+	    'live Dev Hub keeps safe public/free auto-read links out of approval review while unsafe public downloads stay approval-bound',
+	    `rows=${payload?.approvalReviewTriage?.totalReviewRows || 0}; publicReview=${payload?.approvalReviewTriage?.summary?.runnableAfterPacketCount || 0}; auth=${payload?.approvalReviewTriage?.summary?.requiresAuthCount || 0}`,
+	  )
   addCheck(
     checks,
     ['ready', 'not_loaded'].includes(text(payload?.sourcePacketWorkerQueue?.status)) &&
@@ -479,27 +554,92 @@ async function main() {
     `worker=${payload?.sourcePacketWorkerQueue?.counts?.ready || 0}/${payload?.sourcePacketWorkerQueue?.counts?.total || 0}; hands=${payload?.sourcePacketHandsQueue?.counts?.ready || 0}/${payload?.sourcePacketHandsQueue?.counts?.total || 0}`,
   )
   addCheck(checks, Number(payload?.extractionEconomics?.estimatedSpendUsd || 0) > 0 && Number(payload?.extractionEconomics?.costPerIdeaUsd || 0) > 0, 'live extraction economics calculate API spend and cost per idea', `$${Number(payload?.extractionEconomics?.estimatedSpendUsd || 0).toFixed(2)} / $${Number(payload?.extractionEconomics?.costPerIdeaUsd || 0).toFixed(2)} per idea`)
+  const autopilotPlan = payload?.youtubeGodModeAutopilotPlan || {}
+  const selectedAutopilotVideos = list(autopilotPlan.selectedVideos)
+  const rejectedAutopilotVideos = list(autopilotPlan.rejectedVideos)
+  const selectedAutopilotRowsAreRenderable = selectedAutopilotVideos.every(video =>
+    text(video.title) &&
+    /^https:\/\/www\.youtube\.com\/watch\?v=/.test(text(video.url)) &&
+    list(video.sourceSopReadiness).length === 8 &&
+    list(video.sourceSopReadiness).every(step => text(step.label) && text(step.status))
+  )
+  const autopilotHasTruthfulNoEligibleState = text(autopilotPlan.status) === 'blocked' &&
+    selectedAutopilotVideos.length === 0 &&
+    rejectedAutopilotVideos.length > 0 &&
+    list(autopilotPlan.blockers).includes('no_eligible_videos_selected')
   addCheck(
     checks,
-    payload?.youtubeGodModeAutopilotPlan?.reportOnly === true &&
-      payload?.youtubeGodModeAutopilotPlan?.startsProviderCall === false &&
-      payload?.youtubeGodModeAutopilotPlan?.runApprovalRequired === true &&
-      Number(payload?.youtubeGodModeAutopilotPlan?.candidateVideoCount || 0) >= 1 &&
-      list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).every(video =>
-        text(video.title) &&
-        /^https:\/\/www\.youtube\.com\/watch\?v=/.test(text(video.url)) &&
-        list(video.sourceSopReadiness).length === 8 &&
-        list(video.sourceSopReadiness).every(step => text(step.label) && text(step.status))
-      ),
+    autopilotPlan.reportOnly === true &&
+      autopilotPlan.startsProviderCall === false &&
+      autopilotPlan.runApprovalRequired === true &&
+      Number(autopilotPlan.candidateVideoCount || 0) >= 1 &&
+      ((selectedAutopilotVideos.length >= 1 && selectedAutopilotRowsAreRenderable) || autopilotHasTruthfulNoEligibleState),
     'live Dev Hub exposes YouTube autopilot dry-run plan from catch-up candidates with SOP step readiness',
-    `${list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).length} selected / ${payload?.youtubeGodModeAutopilotPlan?.candidateVideoCount || 0} candidates / ${payload?.youtubeGodModeAutopilotPlan?.status || 'missing'}`,
+    `${selectedAutopilotVideos.length} selected / ${autopilotPlan.candidateVideoCount || 0} candidates / ${autopilotPlan.status || 'missing'}`,
   )
   addCheck(
     checks,
-    list(payload?.youtubeGodModeAutopilotPlan?.rejectedVideos).some(video => video.reason === 'source_sop_next_action_blocks_video_watch') &&
-      list(payload?.youtubeGodModeAutopilotPlan?.rejectedVideos).length > list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).length,
+    rejectedAutopilotVideos.some(video => video.reason === 'source_sop_next_action_blocks_video_watch') &&
+      rejectedAutopilotVideos.length > selectedAutopilotVideos.length,
     'live Dev Hub exposes autopilot filtered candidates, including source-SOP-first blocks',
-    `${list(payload?.youtubeGodModeAutopilotPlan?.rejectedVideos).length} rejected / ${list(payload?.youtubeGodModeAutopilotPlan?.selectedVideos).length} selected`,
+    `${rejectedAutopilotVideos.length} rejected / ${selectedAutopilotVideos.length} selected`,
+  )
+  addCheck(
+    checks,
+    payload?.youtubeSourceIntelligence?.title === 'YouTube Source Intelligence System' &&
+      Number(payload?.youtubeSourceIntelligence?.summary?.creatorCount || 0) >= 30 &&
+      Number(payload?.youtubeSourceIntelligence?.summary?.trackedMetadataCount || 0) >= 700 &&
+      list(payload?.youtubeSourceIntelligence?.stages).length >= 7 &&
+      list(payload?.youtubeSourceIntelligence?.stages).some(stage => stage.stageId === 'deep-visual') &&
+      list(payload?.youtubeSourceIntelligence?.topCreators).length >= 3 &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.workingSteps).length >= 5 &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.openGaps).length >= 4 &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.nextBuilds).length >= 4,
+    'live Dev Hub exposes YouTube as a full source intelligence system, not only a watcher',
+    `${payload?.youtubeSourceIntelligence?.summary?.creatorCount || 0} creators / ${payload?.youtubeSourceIntelligence?.summary?.trackedMetadataCount || 0} videos / ${list(payload?.youtubeSourceIntelligence?.stages).length} stages`,
+  )
+  addCheck(
+    checks,
+    list(payload?.youtubeSourceIntelligence?.executiveSummary?.currentState).some(item => text(item).includes('Working now')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.currentState).some(item => text(item).includes('Not yet automatic')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.openGaps).some(item => text(item).includes('Director does not yet hand')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.workingSteps).some(item => text(item.label).includes('New Creator Intake')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.openGaps).some(item => text(item).includes('seed video plus latest-10 baseline')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.openGaps).some(item => text(item).includes('long-course/full-training')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.nextBuilds).some(item => text(item).includes('YOUTUBE-LONG-COURSE-FULL-WATCH-LANE-001')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.nextBuilds).some(item => text(item).includes('YOUTUBE-DEEP-VISUAL-REVIEW-LANE-001')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.nextBuilds).some(item => text(item).includes('S/A continue to 20')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.nextBuilds).some(item => text(item).includes('downstream workers')),
+    'YouTube Intelligence includes plain-English current chain and next-build summary',
+    payload?.youtubeSourceIntelligence?.executiveSummary?.title || 'missing',
+  )
+  const youtubeHandoffBucketIds = list(payload?.youtubeSourceIntelligence?.handoffBuckets).map(bucket => bucket.bucketId)
+  const youtubeHandoffBucketById = Object.fromEntries(list(payload?.youtubeSourceIntelligence?.handoffBuckets)
+    .map(bucket => [bucket.bucketId, bucket]))
+  addCheck(
+    checks,
+    [
+      'public-web-resources',
+      'public-code-repos',
+      'free-communities',
+      'creator-newsletters',
+      'products-tools-to-approve',
+      'paid-auth-gates',
+      'build-scoper',
+    ].every(bucketId => youtubeHandoffBucketIds.includes(bucketId)) &&
+      list(payload?.youtubeSourceIntelligence?.handoffBuckets).every(bucket => text(bucket.description) && text(bucket.route)),
+    'YouTube Intelligence routes discoveries into downstream handoff buckets',
+    youtubeHandoffBucketIds.join(', ') || 'missing',
+  )
+  addCheck(
+    checks,
+    Number(youtubeHandoffBucketById['public-web-resources']?.count || 0) > 0 &&
+      Number(youtubeHandoffBucketById['public-code-repos']?.count || 0) > 0 &&
+      Number(youtubeHandoffBucketById['free-communities']?.count || 0) > 0 &&
+      Number(youtubeHandoffBucketById['creator-newsletters']?.count || 0) > 0 &&
+      Number(payload?.youtubeSourceIntelligence?.handoffEvidence?.scannedReportCount || 0) >= 20,
+    'YouTube handoff counts read from the full watched-video evidence spine, not only the approval queue',
+    `reports=${payload?.youtubeSourceIntelligence?.handoffEvidence?.scannedReportCount || 0} / public=${youtubeHandoffBucketById['public-web-resources']?.count || 0} / repos=${youtubeHandoffBucketById['public-code-repos']?.count || 0} / free=${youtubeHandoffBucketById['free-communities']?.count || 0} / newsletters=${youtubeHandoffBucketById['creator-newsletters']?.count || 0}`,
   )
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => /^https?:\/\//i.test(text(item.url)) && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
   addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'creator-newsletters') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'skool-free-communities'), 'source coverage includes planned GitHub, newsletters, free Skool, and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)
@@ -548,6 +688,25 @@ async function main() {
         budget: payload.youtubeGodModeAutopilotPlan.budget,
         blockers: payload.youtubeGodModeAutopilotPlan.blockers,
         reportOnly: payload.youtubeGodModeAutopilotPlan.reportOnly,
+      } : null,
+      youtubeSourceIntelligence: payload.youtubeSourceIntelligence ? {
+        status: payload.youtubeSourceIntelligence.status,
+        summary: payload.youtubeSourceIntelligence.summary,
+        stages: list(payload.youtubeSourceIntelligence.stages).map(stage => ({ stageId: stage.stageId, status: stage.status, summary: stage.summary })),
+        handoffBuckets: list(payload.youtubeSourceIntelligence.handoffBuckets).map(bucket => ({ bucketId: bucket.bucketId, count: bucket.count, status: bucket.status })),
+        handoffEvidence: payload.youtubeSourceIntelligence.handoffEvidence ? {
+          scannedReportCount: payload.youtubeSourceIntelligence.handoffEvidence.scannedReportCount,
+          buckets: Object.fromEntries(Object.entries(payload.youtubeSourceIntelligence.handoffEvidence.buckets || {})
+            .map(([bucketId, bucket]) => [bucketId, { count: bucket.count, sampleHosts: bucket.sampleHosts }])),
+        } : null,
+        selectedVideos: list(payload.youtubeSourceIntelligence.selectedVideos).length,
+        topCreators: list(payload.youtubeSourceIntelligence.topCreators).length,
+        executiveSummary: payload.youtubeSourceIntelligence.executiveSummary ? {
+          title: payload.youtubeSourceIntelligence.executiveSummary.title,
+          workingSteps: list(payload.youtubeSourceIntelligence.executiveSummary.workingSteps).length,
+          openGaps: list(payload.youtubeSourceIntelligence.executiveSummary.openGaps).length,
+          nextBuilds: list(payload.youtubeSourceIntelligence.executiveSummary.nextBuilds).length,
+        } : null,
       } : null,
       extractionEconomics: payload.extractionEconomics,
       approvalReviewQueue: list(payload.approvalReviewQueue).slice(0, 5),

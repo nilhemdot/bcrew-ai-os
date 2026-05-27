@@ -65,7 +65,7 @@ Implementation files:
 - `docs/process/mark-m-skool-extraction-preflight-001-plan.md`
 - `docs/process/mark-m-skool-extraction-preflight-001-packet.md`
 - `docs/process/approvals/MARK-M-SKOOL-EXTRACTION-PREFLIGHT-001.json`
-- `docs/handoffs/2026-05-18-mark-m-skool-extraction-preflight-closeout.md`
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-mark-m-skool-extraction-preflight-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `package.json`

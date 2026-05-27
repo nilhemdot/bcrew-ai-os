@@ -14,12 +14,12 @@ Plain English: the system should keep watching approved public YouTube sources w
 
 Steve is right: the point of building the system is not for a human to manually trigger every watch batch forever.
 
-Today we have two different layers:
+The system has two layers:
 
 - `youtube-creator-daily-watch` is scheduled. It checks public creator channels and refreshes metadata.
-- `youtube-latest-20-full-watch-runner` is guarded/manual. It spends Gemini API money and creates real video/audio/visual intelligence, so we kept it under supervision while proving quality, cost, and safety.
+- `youtube-god-mode-autonomous-watch-scheduler` is the scheduled live-bounded layer. It spends Gemini API money only inside explicit caps and calls the guarded full-watch runner for approved public/no-auth YouTube videos.
 
-The next move is to graduate the proven public/no-auth lane into an autonomous queue with controls.
+Steve approved the public YouTube live-bounded watcher operating posture on 2026-05-26. The job is allowed to run daily after metadata refresh without Codex babysitting normal batches.
 
 ## Acceptance Criteria
 
@@ -67,14 +67,15 @@ Done means all of this is true and command-proven:
 - `lib/youtube-god-mode-autonomous-watch-scheduler.js` builds a run plan from live Foundation truth and exported pure functions.
 - `scripts/process-youtube-god-mode-autonomous-watch-scheduler-check.mjs` proves synthetic selection, budget, duplicate, long-course, retry, approval, and no-write behavior.
 - `package.json` exposes `process:youtube-god-mode-autonomous-watch-scheduler-check`.
-- `lib/foundation-jobs.js` includes a scheduler job row in dry-run/disabled posture first, with explicit schedule, owner, budget label, and hub served.
+- `lib/foundation-jobs.js` includes a scheduled live-bounded scheduler job row with explicit schedule, owner, run/day budget labels, and hub visibility.
+- `lib/foundation-job-mutation-allowlist.js` explicitly allowlists the scheduled operational write posture for public YouTube full-watch only.
 - Dry-run mode selects the next videos without Gemini calls.
 - Live-bounded mode refuses to run unless explicit approved budget config is present.
 - The scheduler invokes the existing `process:youtube-latest-20-full-watch-runner-check -- --apply --live-gemini-api` path instead of duplicating or bypassing runner logic.
 - Director/source-grader/Dev Hub refresh only runs after a successful full-watch runner result.
 - Failure output writes an internal morning report/summary and stops; it does not loop blindly.
 - The focused proof confirms `reportOnly=true`, no backlog writes, no source-system writes, no external writes, no credential mutation, and no auto-approval.
-- `node --check`, focused scheduler proof, selector proof, read-only runner proof, Director proof, source-grader proof, Dev Hub proof, and the appropriate Foundation ship gate pass before any scheduled live run is enabled.
+- `node --check`, focused scheduler proof, selector proof, read-only runner proof, Director proof, source-grader proof, Dev Hub proof, and job mutation allowlist proof pass before the scheduled live-bounded row is trusted.
 
 ## Details
 
@@ -109,7 +110,7 @@ Suggested operating modes:
 
 Correct steady-state flow:
 
-`daily metadata watch -> source/value ranking -> scheduler selects safe next videos -> guarded full-watch runner -> Director refresh -> source grader refresh -> Dev Hub/morning report`
+`daily metadata watch -> source/value ranking -> scheduler selects safe next videos -> guarded full-watch runner -> immediate deep visual handoff for screen/code/UI hot spots -> Director refresh -> source grader refresh -> Dev Hub/morning report`
 
 This is not the Scoper. This scheduler only decides what to watch next and keeps the intelligence pool fresh. Scoper still turns a build recommendation into a scoped backlog-ready card.
 
@@ -123,6 +124,7 @@ Behavior proof must call real function paths, not source markers:
 - run the scheduler dry-run against live repo/local Foundation truth without Gemini calls
 - prove live mode refuses to run without explicit budget config and approval posture
 - prove the runner command is the existing full-watch runner command, not a bypass path
+- prove future live batches can immediately hand just-watched videos to the deep visual review lane before Director/source-grader refresh
 - prove post-run Director/source-grader refresh only happens after a successful runner result
 
 Gate decision tree:
@@ -130,7 +132,7 @@ Gate decision tree:
 - Static gate: `node --check` for the scheduler module and focused proof script.
 - Focused gate: `npm run process:youtube-god-mode-autonomous-watch-scheduler-check -- --json`.
 - Regression gates: dry-run latest-20 selector, read-only full-watch runner proof, source grader proof, Director proof, and Dev Hub proof.
-- Full gate: `npm run process:foundation-ship` before enabling any scheduled live run, because this touches Foundation job scheduling, extraction runtime, provider spend, source safety, and morning operator reporting.
+- Full gate: run the focused scheduler proof and Foundation job mutation allowlist proof before trusting the scheduled live-bounded row, because this touches Foundation job scheduling, extraction runtime, provider spend, source safety, and morning operator reporting.
 
 Reason: this is high-impact automation with spend and source-boundary risk. Static-only proof is not enough, but the default focused gate must stay fast by proving dry-run/synthetic behavior without Gemini calls.
 
@@ -183,6 +185,6 @@ npm run process:youtube-god-mode-autonomous-watch-scheduler-check -- --json
 - Do not auto-create backlog or sprint cards from video output.
 - Do not bypass the existing guarded full-watch runner.
 - Do not run unbounded long courses in the standard lane.
-- Do not remove manual controls until dry-run and live-bounded proofs are green.
+- Do not remove budget caps, retry caps, source boundaries, or kill-switch posture after live-bounded proofs are green.
 
-Closeout proof lives in `docs/handoffs/2026-05-26-youtube-god-mode-autonomous-watch-scheduler-v1-closeout.md`. V1 is approval/budget-gated: dry-run is safe by default, live-bounded runs require explicit budget approval, and the scheduled job row remains disabled/manual until Steve approves the operating posture.
+Closeout proof lives in `docs/handoffs/2026-05-26-youtube-god-mode-autonomous-watch-scheduler-v1-closeout.md`. V1 is approval/budget-gated: dry-run is safe by default, and the scheduled row now runs live-bounded public YouTube batches after Steve approved the operating posture on 2026-05-26.

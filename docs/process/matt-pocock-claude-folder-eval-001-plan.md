@@ -77,7 +77,7 @@ Implementation files:
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `docs/process/matt-pocock-claude-folder-eval-001-packet.md`
 - `docs/process/approvals/MATT-POCOCK-CLAUDE-FOLDER-EVAL-001.json`
-- `docs/handoffs/2026-05-18-matt-pocock-claude-folder-eval-closeout.md`
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-matt-pocock-claude-folder-eval-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `package.json`

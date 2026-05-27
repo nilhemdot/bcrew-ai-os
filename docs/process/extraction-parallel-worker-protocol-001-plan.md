@@ -64,7 +64,7 @@ Implementation files:
 - `docs/process/extraction-parallel-worker-protocol-001-plan.md`
 - `docs/process/extraction-parallel-worker-protocol-001-protocol.md`
 - `docs/process/approvals/EXTRACTION-PARALLEL-WORKER-PROTOCOL-001.json`
-- `docs/handoffs/2026-05-18-extraction-parallel-worker-protocol-closeout.md`
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-extraction-parallel-worker-protocol-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `package.json`

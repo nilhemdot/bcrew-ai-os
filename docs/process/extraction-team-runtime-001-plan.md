@@ -70,7 +70,7 @@ Implementation files:
 - `lib/foundation-verify-coverage-card-ids.js`
 - `docs/process/extraction-team-runtime-001-plan.md`
 - `docs/process/approvals/EXTRACTION-TEAM-001.json`
-- `docs/handoffs/2026-05-18-extraction-team-runtime-closeout.md`
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-extraction-team-runtime-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `package.json`

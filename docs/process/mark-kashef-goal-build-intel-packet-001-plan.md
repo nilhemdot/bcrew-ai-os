@@ -68,7 +68,7 @@ Implementation files:
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `docs/process/mark-kashef-goal-build-intel-packet-001-packet.md`
 - `docs/process/approvals/MARK-KASHEF-GOAL-BUILD-INTEL-PACKET-001.json`
-- `docs/handoffs/2026-05-18-mark-kashef-goal-build-intel-packet-closeout.md`
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-mark-kashef-goal-build-intel-packet-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `package.json`

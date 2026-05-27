@@ -65,7 +65,7 @@ Implementation files:
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `docs/process/extraction-to-kb-atom-pipeline-001-plan.md`
 - `docs/process/approvals/EXTRACTION-TO-KB-ATOM-PIPELINE-001.json`
-- `docs/handoffs/2026-05-18-extraction-to-kb-atom-pipeline-closeout.md`
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-extraction-to-kb-atom-pipeline-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `package.json`

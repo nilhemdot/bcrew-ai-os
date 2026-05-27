@@ -26,7 +26,7 @@ Operator value for Steve: the useful thing this unlocks is cleaner source maturi
 - `lib/source-maturity-contract-gap-repair.js` owns the repair contract, snapshot checks, synthetic dogfood, and closeout renderer.
 - `scripts/process-source-maturity-contract-gap-repair-check.mjs` owns scaffold, Current Sprint progression, focused proof, close-card behavior, and write guards.
 - `lib/source-contracts.js`, `docs/source-registry.md`, and `docs/source-notes/video-link-inventory.md` all describe the same V1 boundary.
-- Closeout is written to `docs/handoffs/2026-05-18-source-maturity-contract-gap-repair-closeout.md`.
+- Closeout is written to `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-source-maturity-contract-gap-repair-closeout.md`.
 - Focused proof, backlog hygiene, `foundation:verify`, and full `process:foundation-ship` are green before push.
 
 ## Details

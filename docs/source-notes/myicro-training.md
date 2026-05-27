@@ -45,6 +45,9 @@ Rules:
 
 May 26, 2026 live preflight found the current MyICOR MCP route:
 
+- Paid account login is Google OAuth. Use the public MyICOR home page or `https://app.myicor.com/login`, then choose Sign in / Log in with Google for the existing paid account.
+- Do not use Start Free, signup, or onboarding as the paid-account path.
+- Do not ask Steve for a MyICOR password unless Steve later confirms there is a separate MyICOR password login. Current known paid access is Google OAuth.
 - MCP endpoint: `https://mcp.myicor.com/mcp`
 - OAuth metadata: `https://app.myicor.com/.well-known/oauth-authorization-server`
 - Authorization endpoint: `https://app.myicor.com/mcp/authorize`

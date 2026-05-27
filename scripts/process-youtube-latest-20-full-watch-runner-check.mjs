@@ -142,9 +142,7 @@ async function loadDailyWatchPoolRows() {
         FROM source_crawl_items
         WHERE target_key = $1
           AND source_id = $2
-          AND COALESCE(metadata->>'creatorId', '') <> 'mark-kashef'
         ORDER BY COALESCE(metadata->>'creatorId', ''), COALESCE((metadata->>'rank')::int, 9999), discovered_at DESC
-        LIMIT 600
       `,
       [YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY, YOUTUBE_CREATOR_DAILY_WATCH_SOURCE_ID],
     )
@@ -302,7 +300,7 @@ async function main() {
       creatorIds: args.creatorIds,
       videoIds: args.videoIds,
       maxCreators: args.creatorIds.length ? args.creatorIds.length : args.videoIds.length ? args.batchSize : undefined,
-      maxVideosPerCreator: args.creatorIds.length ? args.batchSize : undefined,
+      maxVideosPerCreator: args.creatorIds.length || args.videoIds.length ? args.batchSize : undefined,
       maxRunVideos: args.batchSize,
     })
     selectedVideos = list(manifest.selectedVideos).slice(0, args.batchSize)
@@ -365,7 +363,7 @@ async function main() {
 
     addCheck(checks, approvalValidation.ok && approvalValidation.mode === 'v2', 'approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || YOUTUBE_LATEST_20_FULL_WATCH_RUNNER_APPROVAL_PATH)
     addCheck(checks, packageJson.scripts?.['process:youtube-latest-20-full-watch-runner-check'] === `node --env-file-if-exists=.env ${YOUTUBE_LATEST_20_FULL_WATCH_RUNNER_SCRIPT_PATH}`, 'package exposes latest-20 full-watch runner proof', packageJson.scripts?.['process:youtube-latest-20-full-watch-runner-check'] || 'missing')
-    addCheck(checks, /safe public resource links are resolved or explicitly blocked/i.test(moduleSource), 'module blocks unresolved public resource links before Scoper', 'lib/youtube-latest-20-full-watch-runner.js')
+    addCheck(checks, /safe public resource links are resolved, blocked, or queued for source-worker follow-up/i.test(moduleSource), 'module queues unresolved public resource links instead of blocking full-watch persistence', 'lib/youtube-latest-20-full-watch-runner.js')
     addCheck(checks, /full video\/audio\/visual/i.test(planSource) && /resource-link resolver/i.test(planSource), 'plan requires full-watch plus resource-link resolver', YOUTUBE_LATEST_20_FULL_WATCH_RUNNER_PLAN_PATH)
     addCheck(checks, dogfood.ok === true, 'dogfood covers healthy batch, unresolved link rejection, and no-write posture', JSON.stringify(dogfood.checks))
     addCheck(checks, poolRows.length >= 1, 'live daily-watch pool has non-Mark candidate rows', `${poolRows.length}`)

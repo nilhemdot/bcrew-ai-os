@@ -5,6 +5,7 @@ const SOURCE_PACKET_WORKER_QUEUE_ROUTE = '/api/foundation/dev-team-hub/source-pa
 const EXTRACTOR_HANDS_PRODUCTION_QUEUE_ROUTE = '/api/foundation/dev-team-hub/source-packet-hands-queue'
 const YOUTUBE_CREATOR_TARGET_FALLBACK_LIMIT = 10
 const SOURCE_LEADERBOARD_LIMIT = 10
+const DEV_DATA_POOL_REFRESH_INTERVAL_MS = 30000
 
 const plannedSources = [
   {
@@ -112,6 +113,8 @@ const state = {
   snapshot: null,
   sources: [],
   selectedSourceId: null,
+  dataPoolLoadInFlight: false,
+  lastDataPoolRefreshAt: null,
 }
 
 const els = {
@@ -124,6 +127,7 @@ const els = {
   sourceLeaderboard: document.getElementById('source-leaderboard'),
   directorPanel: document.getElementById('director-panel'),
   directorHeadStats: document.getElementById('director-head-stats'),
+  youtubeSystem: document.getElementById('youtube-system'),
 }
 
 function list(value) {
@@ -557,6 +561,264 @@ function buildEvidenceCards(snapshot = {}) {
       meta: 'Video/audio/visual review',
     },
   ]
+}
+
+function systemRuntimeCopy(system = {}) {
+  const job = system.liveJob || {}
+  if (text(system.status).toLowerCase() === 'post_run_review_needed') return 'Review needed'
+  if (text(job.latestRunStatus).toLowerCase() === 'failed') return 'Error'
+  if (text(job.latestRunStatus).toLowerCase() === 'running') return 'Running'
+  if (job.due === true || text(system.status).toLowerCase() === 'due') return 'Due now'
+  if (text(job.scheduleStatus).toLowerCase() === 'scheduled') return 'Idle'
+  if (text(system.status).toLowerCase().includes('failed')) return 'Error'
+  return statusLabel(system.status || job.status || 'Needs source')
+}
+
+function systemTone(value = '') {
+  const normalized = text(value).toLowerCase()
+  if (normalized.includes('running') || normalized.includes('live')) return 'live'
+  if (normalized.includes('idle') || normalized.includes('scheduled') || normalized.includes('ready')) return 'verified'
+  if (normalized.includes('review')) return 'pending'
+  if (normalized.includes('due')) return 'pending'
+  if (normalized.includes('error') || normalized.includes('failed') || normalized.includes('blocked')) return 'pending'
+  return ''
+}
+
+function durationCopy(ms = null) {
+  const value = Number(ms)
+  if (!Number.isFinite(value) || value <= 0) return 'No duration'
+  const seconds = Math.round(value / 1000)
+  if (seconds < 60) return `${seconds}s`
+  const minutes = Math.round(seconds / 60)
+  if (minutes < 60) return `${minutes}m`
+  return `${Math.round(minutes / 60)}h`
+}
+
+function renderYoutubeSystemStats(system = {}) {
+  const summary = system.summary || {}
+  return [
+    ['Creators', summary.creatorCount],
+    ['Tracked videos', summary.trackedMetadataCount],
+    ['Watched', summary.watchedVideoCount],
+    ['Pending', summary.pendingStandardVideoCount],
+    ['Ideas', summary.buildIdeaCount],
+    ['Spend', money(summary.estimatedSpendUsd || 0)],
+  ].map(([label, value]) => `
+    <article class="yt-stat">
+      <strong>${escapeHtml(typeof value === 'number' ? compactNumber(value) : value)}</strong>
+      <span>${escapeHtml(label)}</span>
+    </article>
+  `).join('')
+}
+
+function renderYoutubeStage(stage = {}) {
+  return `
+    <article class="yt-stage ${escapeHtml(systemTone(stage.status))}">
+      <span>${escapeHtml(stage.label || 'Stage')}</span>
+      <h3>${escapeHtml(stage.title || 'Pipeline stage')}</h3>
+      <p>${escapeHtml(stage.summary || '')}</p>
+      <small>${escapeHtml(stage.detail || '')}</small>
+      <div class="yt-stage-foot">
+        <b>${escapeHtml(statusCopy(stage.status || 'unknown'))}</b>
+        <em>${escapeHtml(shortDate(stage.latestRunAt))}</em>
+      </div>
+    </article>
+  `
+}
+
+function renderYoutubeHandoff(bucket = {}) {
+  return `
+    <article class="yt-handoff ${Number(bucket.count || 0) ? 'pending' : ''}">
+      <div>
+        <strong>${escapeHtml(compactNumber(bucket.count || 0))}</strong>
+        <span>${escapeHtml(bucket.label || bucket.bucketId || 'Handoff')}</span>
+      </div>
+      <p>${escapeHtml(bucket.description || '')}</p>
+      ${bucket.sourceDetail ? `<small>${escapeHtml(bucket.sourceDetail)}</small>` : ''}
+      <small>${escapeHtml(statusCopy(bucket.status || 'waiting'))}${bucket.route ? ` · ${escapeHtml(bucket.route)}` : ''}</small>
+    </article>
+  `
+}
+
+function renderYoutubeNextVideo(video = {}) {
+  const steps = list(video.sourceSopReadiness).slice(0, 8)
+  return `
+    <article class="yt-video">
+      <div class="yt-video-head">
+        <div>
+          <span>${escapeHtml(text(video.creator || creatorDisplayName(state.snapshot, video.creatorId), 'Unknown creator'))}</span>
+          <h3>${escapeHtml(text(video.title, 'Untitled video'))}</h3>
+        </div>
+        <b>${escapeHtml(text(video.sourceGrade, 'ungraded').toUpperCase())}</b>
+      </div>
+      <a href="${escapeHtml(video.url)}" target="_blank" rel="noreferrer">${escapeHtml(video.videoId || video.url || 'Open video')}</a>
+      ${steps.length ? `
+        <div class="yt-step-strip">
+          ${steps.map(step => `<span class="${escapeHtml(systemTone(step.status))}" title="${escapeHtml(step.detail || step.rawStatus || '')}">${escapeHtml(step.label || step.key)}</span>`).join('')}
+        </div>
+      ` : ''}
+    </article>
+  `
+}
+
+function renderYoutubeCreatorGrade(row = {}) {
+  return `
+    <article class="yt-creator ${escapeHtml(gradeTone(row.grade))}">
+      <div>
+        <strong>${escapeHtml(text(row.grade, 'ungraded').toUpperCase())}</strong>
+        <span>${escapeHtml(text(row.creator || row.creatorId, 'Unknown creator'))}</span>
+      </div>
+      <p>${escapeHtml(`${compactNumber(row.watchedVideos || 0)} watched · ${compactNumber(row.buildCandidates || 0)} ideas${row.bestDirectorRank ? ` · best rank #${row.bestDirectorRank}` : ''}`)}</p>
+    </article>
+  `
+}
+
+function renderYoutubeRejectedReasons(reasons = {}) {
+  const rows = Object.entries(reasons || {})
+    .sort((left, right) => Number(right[1] || 0) - Number(left[1] || 0))
+    .slice(0, 8)
+  if (!rows.length) return '<article class="loading-card">No rejected candidates in the current plan.</article>'
+  return rows.map(([reason, count]) => `
+    <article class="yt-reason">
+      <strong>${escapeHtml(compactNumber(count))}</strong>
+      <span>${escapeHtml(statusCopy(reason))}</span>
+    </article>
+  `).join('')
+}
+
+function renderYoutubeExecutiveSummary(summary = {}) {
+  const workingSteps = list(summary.workingSteps)
+  const openGaps = list(summary.openGaps)
+  const nextBuilds = list(summary.nextBuilds)
+  const currentState = list(summary.currentState)
+  return `
+    <section class="yt-section yt-exec-summary">
+      <div class="yt-section-head">
+        <span>EXECUTIVE SUMMARY</span>
+        <h3>${escapeHtml(summary.title || 'Current chain truth')}</h3>
+      </div>
+      <div class="yt-exec-state">
+        ${currentState.map(item => `<p>${escapeHtml(item)}</p>`).join('')}
+      </div>
+      <div class="yt-exec-grid">
+        <article>
+          <h4>Working Now</h4>
+          ${workingSteps.map(step => `
+            <div class="yt-exec-row">
+              <strong>${escapeHtml(step.label || '')}</strong>
+              <p>${escapeHtml(step.detail || '')}</p>
+            </div>
+          `).join('')}
+        </article>
+        <article>
+          <h4>Open Gaps</h4>
+          <ul>
+            ${openGaps.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+          </ul>
+        </article>
+        <article>
+          <h4>Next Builds</h4>
+          <ul>
+            ${nextBuilds.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+          </ul>
+        </article>
+      </div>
+    </section>
+  `
+}
+
+function renderYoutubeSourceIntelligence(snapshot = {}) {
+  if (!els.youtubeSystem) return
+  const system = snapshot.youtubeSourceIntelligence || {}
+  const job = system.liveJob || {}
+  const latestBatch = system.latestBatch || {}
+  const runtime = systemRuntimeCopy(system)
+  els.youtubeSystem.innerHTML = `
+    <section class="yt-runtime ${escapeHtml(systemTone(runtime))}">
+      <div>
+        <span>LIVE PIPELINE</span>
+        <h2>${escapeHtml(runtime)}</h2>
+        <p>${escapeHtml(job.statusDetail || job.scheduleDetail || system.sourceRoute || 'Foundation runtime status is loading.')}</p>
+      </div>
+      <div class="yt-runtime-meta">
+        <span><b>Last job</b>${escapeHtml(shortDate(job.latestRunAt || job.latestRunStartedAt))}</span>
+        <span><b>Next run</b>${escapeHtml(shortDate(job.nextRunAt))}</span>
+        <span><b>Latest batch</b>${escapeHtml(shortDate(latestBatch.updatedAt))}</span>
+        <span><b>Duration</b>${escapeHtml(durationCopy(job.latestRunDurationMs))}</span>
+      </div>
+    </section>
+
+    <section class="yt-stats" aria-label="YouTube intelligence counts">
+      ${renderYoutubeSystemStats(system)}
+    </section>
+
+    <section class="yt-section">
+      <div class="yt-section-head">
+        <span>PIPELINE STAGES</span>
+        <h3>One connected system, not separate chores</h3>
+      </div>
+      <div class="yt-stage-grid">
+        ${list(system.stages).map(renderYoutubeStage).join('') || '<article class="loading-card">No stage readback available.</article>'}
+      </div>
+    </section>
+
+    <section class="yt-two-col">
+      <div class="yt-section">
+        <div class="yt-section-head">
+          <span>NEXT WATCH BATCH</span>
+          <h3>Exact public videos selected</h3>
+        </div>
+        <div class="yt-video-list">
+          ${list(system.selectedVideos).map(renderYoutubeNextVideo).join('') || '<article class="loading-card">No runnable public videos selected right now.</article>'}
+        </div>
+      </div>
+      <div class="yt-section">
+        <div class="yt-section-head">
+          <span>FILTERED BEFORE SPEND</span>
+          <h3>Why candidates did not run</h3>
+        </div>
+        <div class="yt-reason-list">
+          ${renderYoutubeRejectedReasons(system.rejectedReasonCounts)}
+        </div>
+      </div>
+    </section>
+
+    <section class="yt-section">
+      <div class="yt-section-head">
+        <span>HANDOFF QUEUES</span>
+        <h3>Where YouTube sends the next work</h3>
+      </div>
+      <div class="yt-handoff-grid">
+        ${list(system.handoffBuckets).map(renderYoutubeHandoff).join('') || '<article class="loading-card">No handoff queues returned.</article>'}
+      </div>
+    </section>
+
+    <section class="yt-two-col">
+      <div class="yt-section">
+        <div class="yt-section-head">
+          <span>CREATOR GRADES</span>
+          <h3>Who deserves deeper watching</h3>
+        </div>
+        <div class="yt-creator-grid">
+          ${list(system.topCreators).map(renderYoutubeCreatorGrade).join('') || '<article class="loading-card">No creator grades returned yet.</article>'}
+        </div>
+      </div>
+      <div class="yt-section yt-latest-batch">
+        <div class="yt-section-head">
+          <span>LATEST FULL-WATCH BATCH</span>
+          <h3>${escapeHtml(latestBatch.reportArtifactId || 'No batch yet')}</h3>
+        </div>
+        <div class="yt-batch-card">
+          <strong>${escapeHtml(compactNumber(latestBatch.videoCount || 0))} videos</strong>
+          <strong>${escapeHtml(compactNumber(latestBatch.buildCandidateCount || 0))} ideas</strong>
+          <span>${escapeHtml(statusCopy(latestBatch.status || 'Needs source'))}</span>
+          <p>${escapeHtml(latestBatch.sourceRoute || 'Waiting for full-watch report evidence.')}</p>
+        </div>
+      </div>
+    </section>
+
+    ${renderYoutubeExecutiveSummary(system.executiveSummary)}
+  `
 }
 
 function approvalReviewTitle(item = {}) {
@@ -1430,6 +1692,7 @@ function renderSnapshot(snapshot = {}) {
   renderEvidence(snapshot)
   renderApprovalReview(snapshot)
   renderSourceLeaderboard(snapshot)
+  renderYoutubeSourceIntelligence(snapshot)
   renderSources()
   renderTargets(state.selectedSourceId)
   renderDirector(snapshot)
@@ -1442,20 +1705,31 @@ function renderError(error) {
   if (els.godModeParity) els.godModeParity.innerHTML = html
   if (els.approvalReview) els.approvalReview.innerHTML = html
   if (els.sourceLeaderboard) els.sourceLeaderboard.innerHTML = html
+  if (els.youtubeSystem) els.youtubeSystem.innerHTML = html
   els.grid.innerHTML = html
   els.panel.innerHTML = html
   els.directorPanel.innerHTML = html
 }
 
 async function loadDevDataPool() {
+  if (state.dataPoolLoadInFlight) return
+  state.dataPoolLoadInFlight = true
   try {
     const response = await fetch(API_ROUTE, { credentials: 'same-origin', cache: 'no-store' })
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
     const snapshot = await response.json()
     renderSnapshot(snapshot)
+    state.lastDataPoolRefreshAt = new Date().toISOString()
   } catch (error) {
     renderError(error)
+  } finally {
+    state.dataPoolLoadInFlight = false
   }
+}
+
+function refreshDevDataPoolFromBackend() {
+  if (document.visibilityState === 'hidden') return
+  loadDevDataPool()
 }
 
 function updateTime() {
@@ -1559,10 +1833,36 @@ async function loadDevSessionChrome() {
   }
 }
 
+function normalizeViewName(value = '') {
+  const normalized = text(value).replace(/^#/, '')
+  if (normalized === 'youtube' || normalized === 'youtube-intelligence') return 'youtube'
+  return 'pool'
+}
+
+function setDevView(viewName = 'pool', { updateHash = true } = {}) {
+  const activeView = normalizeViewName(viewName)
+  document.querySelectorAll('.view').forEach(view => {
+    const isActive = view.id === `view-${activeView}`
+    view.classList.toggle('active', isActive)
+    view.hidden = !isActive
+  })
+  document.querySelectorAll('.sb-link').forEach(button => {
+    button.classList.toggle('active', button.dataset.view === activeView)
+  })
+  if (updateHash) {
+    const hash = activeView === 'youtube' ? 'youtube-intelligence' : 'data-pool'
+    if (window.location.hash !== `#${hash}`) window.location.hash = hash
+  }
+}
+
 document.querySelectorAll('.sb-link').forEach(button => {
   button.addEventListener('click', () => {
-    window.location.hash = 'data-pool'
+    setDevView(button.dataset.view || 'pool')
   })
+})
+
+window.addEventListener('hashchange', () => {
+  setDevView(window.location.hash, { updateHash: false })
 })
 
 els.grid.addEventListener('click', event => {
@@ -1574,7 +1874,10 @@ els.grid.addEventListener('click', event => {
 })
 
 updateTime()
+setDevView(window.location.hash, { updateHash: false })
 setInterval(updateTime, 60000)
+setInterval(refreshDevDataPoolFromBackend, DEV_DATA_POOL_REFRESH_INTERVAL_MS)
+window.addEventListener('focus', refreshDevDataPoolFromBackend)
 loadDevSessionChrome()
 document.addEventListener('click', handleAccountMenuDocumentClick)
 document.addEventListener('keydown', handleAccountMenuKeydown)

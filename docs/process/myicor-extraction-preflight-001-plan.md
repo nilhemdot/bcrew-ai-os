@@ -65,7 +65,7 @@ Implementation files:
 - `docs/process/myicor-extraction-preflight-001-plan.md`
 - `docs/process/myicor-extraction-preflight-001-packet.md`
 - `docs/process/approvals/MYICOR-EXTRACTION-PREFLIGHT-001.json`
-- `docs/handoffs/2026-05-18-myicor-extraction-preflight-closeout.md`
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-myicor-extraction-preflight-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `package.json`

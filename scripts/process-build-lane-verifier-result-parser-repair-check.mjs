@@ -38,7 +38,7 @@ const CARD_ID = 'BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001'
 const CLOSEOUT_KEY = 'build-lane-verifier-result-parser-repair-v1'
 const PLAN_PATH = 'docs/process/build-lane-verifier-result-parser-repair-001-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001.json'
-const CLOSEOUT_PATH = 'docs/handoffs/2026-05-18-build-lane-verifier-result-parser-repair-closeout.md'
+const CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-build-lane-verifier-result-parser-repair-closeout.md'
 const SCRIPT_PATH = 'scripts/process-build-lane-verifier-result-parser-repair-check.mjs'
 const SPRINT_ID = 'build-lane-verifier-result-parser-repair-2026-05-18'
 

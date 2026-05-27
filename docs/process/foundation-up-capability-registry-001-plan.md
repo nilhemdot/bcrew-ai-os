@@ -72,7 +72,7 @@ Implementation files:
 - `lib/foundation-build-closeout-agent-runtime-records.js`
 - `docs/process/foundation-up-capability-registry-001-plan.md`
 - `docs/process/approvals/FOUNDATION-UP-CAPABILITY-REGISTRY-001.json`
-- `docs/handoffs/2026-05-18-foundation-up-capability-registry-closeout.md`
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-foundation-up-capability-registry-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `package.json`

@@ -32,7 +32,7 @@ For Steve and the team, this unlocks a real workflow improvement: System Health 
 - `lib/build-lane-failure-telemetry.js` blocks PASS-line false positives and preserves real failure parsing.
 - `scripts/process-build-lane-verifier-result-parser-repair-check.mjs` validates approval, Plan Critic, live backlog/current sprint truth, parser dogfood, package script, closeout registry, verifier coverage, and no hidden worker tooling.
 - `docs/process/approvals/BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001.json` validates against this plan.
-- `docs/handoffs/2026-05-18-build-lane-verifier-result-parser-repair-closeout.md` records the closeout.
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-build-lane-verifier-result-parser-repair-closeout.md` records the closeout.
 - Focused proof, backlog hygiene, `foundation:verify`, and `process:foundation-ship` pass before push.
 
 ## Details

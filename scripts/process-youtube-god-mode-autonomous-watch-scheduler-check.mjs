@@ -11,7 +11,6 @@ import {
   closeFoundationDb,
   getIntelligenceReportBundle,
   initFoundationDb,
-  listLlmCalls,
   listSourceCrawlItems,
 } from '../lib/foundation-db.js'
 import {
@@ -25,9 +24,6 @@ import {
 import {
   buildYoutubeCreatorGodModeCatchupSnapshot,
 } from '../lib/youtube-creator-god-mode-catchup.js'
-import {
-  fullWatchedVideoIdsFromCalls,
-} from '../lib/dev-team-hub.js'
 import {
   SOURCE_PACKET_WORKER_RUNNER_TARGET_KEY,
 } from '../lib/source-packet-worker-runner.js'
@@ -57,6 +53,30 @@ function text(value) {
 
 function list(value) {
   return Array.isArray(value) ? value : []
+}
+
+function youtubeVideoIdFromUrl(value = '') {
+  const raw = text(value)
+  if (!raw) return ''
+  const watch = raw.match(/[?&]v=([a-zA-Z0-9_-]{6,})/)
+  if (watch) return watch[1]
+  const short = raw.match(/youtu\.be\/([a-zA-Z0-9_-]{6,})/)
+  if (short) return short[1]
+  const shorts = raw.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{6,})/)
+  if (shorts) return shorts[1]
+  return ''
+}
+
+function videoIdsFromMetadataRow(row = {}) {
+  const metadata = row.metadata || {}
+  return [
+    metadata.sourceVideoId,
+    metadata.videoId,
+    ...(list(metadata.videoIds)),
+    youtubeVideoIdFromUrl(row.anchor_value || row.anchorValue),
+    youtubeVideoIdFromUrl(metadata.sourceUrl),
+    youtubeVideoIdFromUrl(metadata.url),
+  ].map(text).filter(Boolean)
 }
 
 function readArgValue(argv = [], prefix = '') {
@@ -100,7 +120,11 @@ function parseArgs(argv = process.argv.slice(2)) {
     runLiveBatch: flag(argv, '--run-live-batch') || flag(argv, '--apply'),
     approveLiveBudget: flag(argv, '--approve-live-budget'),
     skipPostRefresh: flag(argv, '--skip-post-refresh'),
+    skipDeepVisual: flag(argv, '--skip-deep-visual'),
+    deepVisualBatchSize: numberArg(argv, '--deep-visual-batch-size=', null),
     batchSize: numberArg(argv, '--batch-size=', YOUTUBE_GOD_MODE_SCHEDULER_DEFAULT_CONFIG.maxVideosPerRun),
+    maxPerCreator: numberArg(argv, '--max-per-creator=', 3),
+    finishPublicBacklog: flag(argv, '--finish-public-backlog') || flag(argv, '--finish-public-catchup'),
     creatorIds: readArgValues(argv, '--creator-id='),
     estimatedSpendTodayUsdProvided: hasArg(argv, '--estimated-spend-today-usd='),
     estimatedSpendTodayUsd: numberArg(argv, '--estimated-spend-today-usd=', 0),
@@ -221,6 +245,34 @@ async function loadYoutubeFullWatchReports() {
       `,
     )
     return result.rows
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
+async function loadPersistedFullWatchedVideoIds() {
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT metadata, NULL::text AS anchor_value
+        FROM intelligence_report_artifacts
+        WHERE metadata->>'fullWatchRoute' = 'gemini_api_youtube_url_video_understanding'
+        UNION ALL
+        SELECT metadata, anchor_value
+        FROM intelligence_atoms
+        WHERE metadata->>'sourceVideoId' IS NOT NULL
+        UNION ALL
+        SELECT metadata, anchor_value
+        FROM intelligence_atom_hits
+        WHERE metadata->>'sourceVideoId' IS NOT NULL
+      `,
+    )
+    const ids = new Set()
+    for (const row of result.rows) {
+      for (const id of videoIdsFromMetadataRow(row)) ids.add(id)
+    }
+    return Array.from(ids).filter(Boolean)
   } finally {
     await pool.end().catch(() => {})
   }
@@ -347,21 +399,21 @@ async function loadLiveSchedulerInputs(args = {}) {
   let sourceValueGrader = null
   let commandStartedAt = Date.now()
   try {
-    const [
-      poolItems,
-      geminiVideoReviewCalls,
-      sourceValueGraderBundle,
-      youtubeFullWatchReports,
-      sourcePacketWorkerRuns,
-    ] = await Promise.all([
+	    const [
+	      poolItems,
+	      persistedFullWatchedVideoIds,
+	      sourceValueGraderBundle,
+	      youtubeFullWatchReports,
+	      sourcePacketWorkerRuns,
+	    ] = await Promise.all([
       listSourceCrawlItems({
         targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
         limit: YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
         order: 'desc',
       }),
-      listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 500 }),
-      getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
-      loadYoutubeFullWatchReports(),
+	      loadPersistedFullWatchedVideoIds(),
+	      getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
+	      loadYoutubeFullWatchReports(),
       listSourceCrawlItems({
         targetKey: SOURCE_PACKET_WORKER_RUNNER_TARGET_KEY,
         limit: 500,
@@ -370,10 +422,10 @@ async function loadLiveSchedulerInputs(args = {}) {
     ])
     sourceValueGrader = normalizeSourceValueGraderReport(sourceValueGraderBundle)
     catchupSnapshot = buildYoutubeCreatorGodModeCatchupSnapshot({
-      watchPlan: buildYoutubeCreatorDailyWatchPlan(),
-      poolItems,
-      fullWatchedVideoIds: fullWatchedVideoIdsFromCalls(geminiVideoReviewCalls),
-      sourceValueGrader,
+	      watchPlan: buildYoutubeCreatorDailyWatchPlan(),
+	      poolItems,
+	      fullWatchedVideoIds: persistedFullWatchedVideoIds,
+	      sourceValueGrader,
       youtubeFullWatchReports,
       sourcePacketWorkerRuns,
     })
@@ -383,7 +435,7 @@ async function loadLiveSchedulerInputs(args = {}) {
 
   const candidateVideos = buildYoutubeGodModeCandidateVideosFromCatchupSnapshot({
     catchupSnapshot,
-    maxPerCreator: 3,
+    maxPerCreator: args.maxPerCreator,
   }).map(sanitizeVideo)
   const selectedVideos = args.creatorIds.length
     ? candidateVideos.filter(video => args.creatorIds.includes(video.creatorId))
@@ -451,6 +503,7 @@ function buildSchedulerPlan(args = {}, liveInputs = {}) {
       maxBSourceVideosPerRun: args.maxBSourceVideosPerRun,
       allowUngradedSourceSampling: args.allowUngradedSourceSampling,
       maxUngradedSourceVideosPerRun: args.maxUngradedSourceVideosPerRun,
+      finishPublicBacklog: args.finishPublicBacklog,
     },
   })
 }
@@ -468,6 +521,7 @@ async function runLiveBatchAndRefresh(plan = {}, args = {}) {
     started: false,
     status: 'not_requested',
     runner: null,
+    deepVisualReview: null,
     refreshes: [],
     errors: [],
   }
@@ -494,6 +548,55 @@ async function runLiveBatchAndRefresh(plan = {}, args = {}) {
     snapshot: runnerResult.json?.snapshot || null,
   }
 
+  const runnerVideoIds = list(runnerResult.json?.selectedVideos)
+    .map(video => text(video.videoId))
+    .filter(Boolean)
+  if (!args.skipDeepVisual && runnerVideoIds.length) {
+    const deepBatchSize = Math.max(1, Math.min(
+      runnerVideoIds.length,
+      Number(args.deepVisualBatchSize) || runnerVideoIds.length,
+      10,
+    ))
+    const deepArgs = [
+      'run',
+      'process:youtube-deep-visual-review-lane-check',
+      '--',
+      '--apply',
+      '--live-gemini-api',
+      '--json',
+      '--allow-empty',
+      '--target-count=100',
+      `--batch-size=${deepBatchSize}`,
+      `--video-id=${runnerVideoIds.join(',')}`,
+    ]
+    if (args.model) deepArgs.push(`--model=${args.model}`)
+    const deepCommand = ['npm', ...deepArgs]
+    try {
+      const deep = await runJsonCommand('npm', deepArgs, {
+        timeoutMs: args.commandTimeoutMs,
+      })
+      execution.deepVisualReview = {
+        command: deepCommand,
+        durationMs: deep.durationMs,
+        status: deep.json?.status,
+        reportArtifactId: deep.json?.reportArtifactId,
+        selectedCandidates: deep.json?.selectedCandidates || [],
+        snapshot: deep.json?.snapshot || null,
+      }
+    } catch (error) {
+      execution.deepVisualReview = {
+        command: deepCommand,
+        durationMs: 0,
+        status: 'parked_after_standard_watch',
+        reportArtifactId: null,
+        selectedCandidates: [],
+        snapshot: null,
+        errors: [error instanceof Error ? error.message : String(error)],
+      }
+      execution.errors.push(`Deep visual parked after standard watch: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+
   if (!args.skipPostRefresh) {
     const refreshCommands = [
       ['npm', ['run', 'process:dev-team-intelligence-director-check', '--', '--apply', '--json']],
@@ -510,19 +613,23 @@ async function runLiveBatchAndRefresh(plan = {}, args = {}) {
       })
     }
   }
-  execution.status = 'completed'
+  execution.status = execution.errors.some(error => String(error || '').startsWith('Deep visual parked after standard watch:'))
+    ? 'completed_with_deep_visual_parked'
+    : 'completed'
   return execution
 }
 
 async function main() {
   const args = parseArgs()
   const checks = []
-  const [packageSource, planSource, moduleSource, runnerScriptSource, jobsSource] = await Promise.all([
+  const [packageSource, planSource, moduleSource, runnerScriptSource, schedulerScriptSource, jobsSource, jobRunnerSource] = await Promise.all([
     readRepoFile('package.json'),
     readRepoFile(YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_PLAN_PATH),
     readRepoFile('lib/youtube-god-mode-autonomous-watch-scheduler.js'),
     readRepoFile('scripts/process-youtube-latest-20-full-watch-runner-check.mjs'),
+    readRepoFile(YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_SCRIPT_PATH),
     readRepoFile('lib/foundation-jobs.js'),
+    readRepoFile('scripts/run-foundation-job.mjs'),
   ])
   const packageJson = JSON.parse(packageSource)
   const dogfood = buildYoutubeGodModeAutonomousWatchSchedulerDogfoodProof()
@@ -549,6 +656,7 @@ async function main() {
       started: false,
       status: 'failed',
       runner: null,
+      deepVisualReview: null,
       refreshes: [],
       errors: [error instanceof Error ? error.message : String(error)],
     }
@@ -573,13 +681,17 @@ async function main() {
   addCheck(
     checks,
     moduleSource.includes('process:youtube-latest-20-full-watch-runner-check') &&
+      schedulerScriptSource.includes('process:youtube-deep-visual-review-lane-check') &&
       moduleSource.includes('process:dev-team-intelligence-director-check') &&
       moduleSource.includes('process:build-intel-source-value-grader-check') &&
       moduleSource.includes('live_mode_requires_explicit_budget_approval') &&
+      moduleSource.includes('finishPublicBacklog') &&
+      schedulerScriptSource.includes('--finish-public-backlog') &&
+      schedulerScriptSource.includes('--max-per-creator=') &&
       moduleSource.includes('sourceSopReadiness') &&
       moduleSource.includes('--video-id='),
-    'module uses exact-video guarded runner, SOP readiness, and post-run refresh commands',
-    'lib/youtube-god-mode-autonomous-watch-scheduler.js',
+    'scheduler uses exact-video guarded runner, immediate deep visual handoff, catch-up override, SOP readiness, and post-run refresh commands',
+    'lib/youtube-god-mode-autonomous-watch-scheduler.js + scheduler script',
   )
   addCheck(
     checks,
@@ -591,19 +703,44 @@ async function main() {
   addCheck(
     checks,
     Boolean(job) &&
-      job.enabled === false &&
-      job.runtimeMode === 'manual' &&
-      job.budget === 'gemini_api_live_bounded_requires_approval' &&
+      job.enabled === true &&
+      job.runtimeMode === 'scheduled' &&
+      job.scheduleEveryMinutes === 1440 &&
+      job.scheduleLocalTime === '07:00' &&
+      job.mutationPosture === 'operational_write' &&
+      job.scheduleMutationGuard?.ok === true &&
+      job.budget === 'gemini_api_live_bounded_public_youtube_max_5_run_150_day' &&
       (job.args || []).includes('process:youtube-god-mode-autonomous-watch-scheduler-check'),
-    'job registry has disabled dry-run scheduler row',
-    job ? `${job.enabled}/${job.runtimeMode}/${job.budget}` : 'missing',
+    'job registry has scheduled live-bounded YouTube watcher row',
+    job ? `${job.enabled}/${job.runtimeMode}/${job.scheduleLocalTime}/${job.mutationPosture}/${job.scheduleMutationGuard?.ok}/${job.budget}` : 'missing',
   )
   addCheck(
     checks,
     jobsSource.includes(YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_JOB_KEY) &&
-      jobsSource.includes('dry-run only until live-bounded approval and budget caps are configured'),
-    'job row documents dry-run posture',
+      jobsSource.includes('Steve approved the public YouTube live-bounded watcher operating posture on 2026-05-26') &&
+      jobsSource.includes('--run-live-batch') &&
+      jobsSource.includes('--max-estimated-usd-per-day=150'),
+    'job row documents approved scheduled live-bounded posture',
     'lib/foundation-jobs.js',
+  )
+  addCheck(
+    checks,
+    jobsSource.includes("budget: 'gemini_api_live_bounded_public_youtube_max_5_run_150_day'") &&
+      jobsSource.includes('--max-estimated-usd-per-run=5') &&
+      jobsSource.includes('--max-estimated-usd-per-day=150'),
+    'scheduled YouTube watcher budget matches Steve-approved live catch-up cap',
+    job?.budget || 'missing',
+  )
+  addCheck(
+    checks,
+    jobRunnerSource.includes('runWithFoundationGateRetry') &&
+      jobRunnerSource.includes('formatFoundationGateRetryMessage') &&
+      jobRunnerSource.includes('foundation job process metadata') &&
+      jobRunnerSource.includes('terminateChildForLedgerFailure') &&
+      jobRunnerSource.includes('processMetadataWriteFailed') &&
+      jobRunnerSource.includes('foundation job finish'),
+    'Foundation job runner retries transient ledger writes and kills child if process ownership metadata cannot persist',
+    'scripts/run-foundation-job.mjs',
   )
   addCheck(
     checks,
@@ -620,12 +757,14 @@ async function main() {
     liveInputs ? `${liveInputs.manifest?.selectedVideos?.length || 0} candidates / ${liveInputs.sourceGrader?.sourceCount || 0} sources` : 'missing',
   )
   if (args.runLiveBatch) {
-    addCheck(
-      checks,
-      execution?.status === 'completed' || (execution?.status === 'blocked_before_provider_call' && livePlan?.blockers?.includes('no_eligible_videos_selected')),
-      'requested live-bounded run either completed or stopped before provider call with no eligible videos',
-      execution?.errors?.join('; ') || execution?.status || 'missing',
-    )
+	    addCheck(
+	      checks,
+	      execution?.status === 'completed' ||
+	        execution?.status === 'completed_with_deep_visual_parked' ||
+	        (execution?.status === 'blocked_before_provider_call' && livePlan?.blockers?.includes('no_eligible_videos_selected')),
+	      'requested live-bounded run completed, parked deep visual after standard watch, or stopped before provider call with no eligible videos',
+	      execution?.errors?.join('; ') || execution?.status || 'missing',
+	    )
   }
 
   const failed = checks.filter(check => !check.ok)
@@ -642,6 +781,8 @@ async function main() {
       runLiveBatch: args.runLiveBatch,
       approveLiveBudget: args.approveLiveBudget,
       batchSize: args.batchSize,
+      maxPerCreator: args.maxPerCreator,
+      finishPublicBacklog: args.finishPublicBacklog,
       maxEstimatedUsdPerRun: args.maxEstimatedUsdPerRun,
       maxEstimatedUsdPerDay: args.maxEstimatedUsdPerDay,
       estimatedSpendTodayUsd: args.estimatedSpendTodayUsd,

@@ -10,7 +10,6 @@ import {
   closeFoundationDb,
   getIntelligenceReportBundle,
   initFoundationDb,
-  listLlmCalls,
   listSourceCrawlItems,
 } from '../lib/foundation-db.js'
 import {
@@ -31,9 +30,6 @@ import {
   buildYoutubeCreatorGodModeCatchupSnapshot,
 } from '../lib/youtube-creator-god-mode-catchup.js'
 import {
-  fullWatchedVideoIdsFromCalls,
-} from '../lib/dev-team-hub.js'
-import {
   SOURCE_PACKET_WORKER_RUNNER_TARGET_KEY,
 } from '../lib/source-packet-worker-runner.js'
 
@@ -53,6 +49,30 @@ function text(value) {
 
 function list(value) {
   return Array.isArray(value) ? value : []
+}
+
+function youtubeVideoIdFromUrl(value = '') {
+  const raw = text(value)
+  if (!raw) return ''
+  const watch = raw.match(/[?&]v=([a-zA-Z0-9_-]{6,})/)
+  if (watch) return watch[1]
+  const short = raw.match(/youtu\.be\/([a-zA-Z0-9_-]{6,})/)
+  if (short) return short[1]
+  const shorts = raw.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{6,})/)
+  if (shorts) return shorts[1]
+  return ''
+}
+
+function videoIdsFromMetadataRow(row = {}) {
+  const metadata = row.metadata || {}
+  return [
+    metadata.sourceVideoId,
+    metadata.videoId,
+    ...(list(metadata.videoIds)),
+    youtubeVideoIdFromUrl(row.anchor_value || row.anchorValue),
+    youtubeVideoIdFromUrl(metadata.sourceUrl),
+    youtubeVideoIdFromUrl(metadata.url),
+  ].map(text).filter(Boolean)
 }
 
 function addCheck(checks, ok, check, detail = '') {
@@ -118,6 +138,34 @@ async function loadYoutubeFullWatchReports() {
   }
 }
 
+async function loadPersistedFullWatchedVideoIds() {
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT metadata, NULL::text AS anchor_value
+        FROM intelligence_report_artifacts
+        WHERE metadata->>'fullWatchRoute' = 'gemini_api_youtube_url_video_understanding'
+        UNION ALL
+        SELECT metadata, anchor_value
+        FROM intelligence_atoms
+        WHERE metadata->>'sourceVideoId' IS NOT NULL
+        UNION ALL
+        SELECT metadata, anchor_value
+        FROM intelligence_atom_hits
+        WHERE metadata->>'sourceVideoId' IS NOT NULL
+      `,
+    )
+    const ids = new Set()
+    for (const row of result.rows) {
+      for (const id of videoIdsFromMetadataRow(row)) ids.add(id)
+    }
+    return Array.from(ids).filter(Boolean)
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
 function normalizeSourceValueGraderReport(bundle = {}) {
   const report = bundle.report || null
   const structured = report?.structuredOutputJson || report?.structured_output_json || {}
@@ -153,7 +201,7 @@ function sourceDoesNotWriteOrExtract(source = '') {
 async function loadLiveSnapshot() {
   const [
     poolItems,
-    geminiVideoReviewCalls,
+    persistedFullWatchedVideoIds,
     sourceValueGraderBundle,
     youtubeFullWatchReports,
     sourcePacketWorkerRuns,
@@ -163,7 +211,7 @@ async function loadLiveSnapshot() {
       limit: YOUTUBE_CREATOR_DAILY_WATCH_READBACK_LIMIT,
       order: 'desc',
     }),
-    listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 500 }),
+    loadPersistedFullWatchedVideoIds(),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
     loadYoutubeFullWatchReports(),
     listSourceCrawlItems({
@@ -175,7 +223,7 @@ async function loadLiveSnapshot() {
   return buildYoutubeCreatorGodModeCatchupSnapshot({
     watchPlan: buildYoutubeCreatorDailyWatchPlan(),
     poolItems,
-    fullWatchedVideoIds: fullWatchedVideoIdsFromCalls(geminiVideoReviewCalls),
+    fullWatchedVideoIds: persistedFullWatchedVideoIds,
     sourceValueGrader: normalizeSourceValueGraderReport(sourceValueGraderBundle),
     youtubeFullWatchReports,
     sourcePacketWorkerRuns,

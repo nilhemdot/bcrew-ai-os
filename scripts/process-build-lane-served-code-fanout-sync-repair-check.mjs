@@ -40,7 +40,7 @@ const CARD_ID = 'BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001'
 const CLOSEOUT_KEY = 'build-lane-served-code-fanout-sync-repair-v1'
 const PLAN_PATH = 'docs/process/build-lane-served-code-fanout-sync-repair-001-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001.json'
-const CLOSEOUT_PATH = 'docs/handoffs/2026-05-18-build-lane-served-code-fanout-sync-repair-closeout.md'
+const CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-build-lane-served-code-fanout-sync-repair-closeout.md'
 const SCRIPT_PATH = 'scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs'
 const SPRINT_ID = 'build-lane-served-code-fanout-sync-repair-2026-05-18'
 

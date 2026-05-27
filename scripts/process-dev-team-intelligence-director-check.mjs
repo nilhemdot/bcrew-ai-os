@@ -55,6 +55,10 @@ import {
 import {
   YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID,
 } from '../lib/youtube-long-course-full-watch-lane.js'
+import {
+  YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_ARTIFACT_ID,
+  YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_PREFIX,
+} from '../lib/youtube-deep-visual-review-lane.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -121,10 +125,12 @@ async function listLatestSharedSourceReportIds({ limit = 8 } = {}) {
 function isYoutubeFullWatchReportId(value = '') {
   return isYoutubeLatest20FullWatchReportId(value) ||
     value === YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID ||
-    String(value || '').startsWith(`${YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID}:`)
+    String(value || '').startsWith(`${YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID}:`) ||
+    value === YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_ARTIFACT_ID ||
+    String(value || '').startsWith(YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_PREFIX)
 }
 
-async function listLatestYoutubeFullWatchReportIds({ limit = 18 } = {}) {
+async function listLatestYoutubeFullWatchReportIds({ limit = 500 } = {}) {
   const pool = createPool()
   try {
     const result = await pool.query(
@@ -137,15 +143,20 @@ async function listLatestYoutubeFullWatchReportIds({ limit = 18 } = {}) {
            OR report_artifact_id = $3
            OR report_artifact_id LIKE $4
            OR metadata->>'proofMode' = 'youtube_long_course_god_mode_api_full_watch'
+           OR report_artifact_id = $5
+           OR report_artifact_id LIKE $6
+           OR metadata->>'proofMode' = 'youtube_deep_visual_review_v1'
         ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
-        LIMIT $5
+        LIMIT $7
       `,
       [
         YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID,
         `${YOUTUBE_LATEST_20_FULL_WATCH_REPORT_ARTIFACT_ID}:%`,
         YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID,
         `${YOUTUBE_LONG_COURSE_FULL_WATCH_REPORT_ARTIFACT_ID}:%`,
-        Math.min(40, Math.max(1, Number(limit) || 18)),
+        YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_ARTIFACT_ID,
+        `${YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_PREFIX}%`,
+        Math.min(1000, Math.max(1, Number(limit) || 500)),
       ],
     )
     return result.rows.map(row => row.report_artifact_id).filter(Boolean)
@@ -156,7 +167,7 @@ async function listLatestYoutubeFullWatchReportIds({ limit = 18 } = {}) {
 
 async function loadInputBundles() {
   const bundles = []
-  const latest20ReportIds = await listLatestYoutubeFullWatchReportIds({ limit: 18 })
+  const latest20ReportIds = await listLatestYoutubeFullWatchReportIds({ limit: 500 })
   const inputIds = Array.from(new Set([
     ...DEV_TEAM_INTELLIGENCE_DIRECTOR_INPUT_REPORT_IDS,
     ...latest20ReportIds,
@@ -246,6 +257,7 @@ async function main() {
       currentPlanText,
       currentSprint,
       inputBundleResult,
+      scriptText,
     ] = await Promise.all([
       readRepoJson('package.json'),
       readRepoFile(DEV_TEAM_INTELLIGENCE_DIRECTOR_PLAN_PATH),
@@ -259,6 +271,7 @@ async function main() {
       readRepoFile('docs/rebuild/current-plan.md'),
       getActiveFoundationCurrentSprint(),
       loadInputBundles(),
+      readRepoFile(DEV_TEAM_INTELLIGENCE_DIRECTOR_SCRIPT_PATH),
     ])
     const { reportBundles, devSourceSlice, sharedReportIds, latest20ReportIds } = inputBundleResult
 
@@ -292,12 +305,25 @@ async function main() {
     const persistedAtoms = list(persisted.atoms)
     const persistedHits = list(persisted.hits)
     const topCandidates = list(snapshot.recommendedBuildNow)
+    const liveActiveCardId = currentSprint?.sprint?.activeBlockerCardId || null
+    const deepVisualReportIds = latest20ReportIds.filter(reportArtifactId => isYoutubeFullWatchReportId(reportArtifactId) &&
+      String(reportArtifactId || '').startsWith(YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_PREFIX))
 
     addCheck(checks, approvalValidation.ok && approvalValidation.mode === 'v2', 'approval validates at 9.8+', approvalValidation.failures?.map(failure => failure.check).join(', ') || DEV_TEAM_INTELLIGENCE_DIRECTOR_APPROVAL_PATH)
     addCheck(checks, planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic passes Director plan', buildPlanCriticResultSummary(planReview))
     addCheck(checks, packageJson.scripts?.['process:dev-team-intelligence-director-check'] === `node --env-file-if-exists=.env ${DEV_TEAM_INTELLIGENCE_DIRECTOR_SCRIPT_PATH}`, 'package exposes focused proof', packageJson.scripts?.['process:dev-team-intelligence-director-check'] || 'missing')
+    addCheck(
+      checks,
+      scriptText.includes('listLatestYoutubeFullWatchReportIds({ limit = 500 }') &&
+        scriptText.includes('Math.min(1000') &&
+        scriptText.includes('listLatestYoutubeFullWatchReportIds({ limit: 500 })') &&
+        !/listLatestYoutubeFullWatchReportIds\(\{ limit = 18 \}/.test(scriptText) &&
+        !/Math\.min\(40,/.test(scriptText),
+      'Director reads the full current YouTube report spine instead of a recent 18-report slice',
+      `${latest20ReportIds.length} YouTube reports`,
+    )
     addCheck(checks, snapshot.ok === true, 'Director snapshot is healthy', snapshot.failures.map(failure => failure.check).join(', ') || snapshot.status)
-    addCheck(checks, snapshot.activeCard === 'MARK-KASHEF-LAST-50-BASELINE-001', 'Director respects active sprint context', snapshot.activeCard || 'missing')
+    addCheck(checks, Boolean(snapshot.activeSprintId) && Boolean(snapshot.activeCard) && snapshot.activeCard === liveActiveCardId, 'Director reads live active sprint context', snapshot.activeCard || 'missing')
     addCheck(checks, topCandidates.length >= 5, 'Director emits top 5 build candidates', `${topCandidates.length}`)
     addCheck(checks, topCandidates.every(candidate => candidate.promotionStatus === DEV_TEAM_INTELLIGENCE_DIRECTOR_PROMOTION_STATUS), 'top candidates require Dev Build Scoper before Steve approval', topCandidates.map(candidate => candidate.promotionStatus).join(', '))
     addCheck(checks, topCandidates.every(candidate => candidate.missionScore?.laneScores?.some(lane => lane.id === 'agent_realtor_coaching') || true), 'Director scoring includes agent/realtor coaching lane', 'lane present in rubric')
@@ -306,6 +332,8 @@ async function main() {
     addCheck(checks, devSourceSlice?.parkedOperational?.length >= 1, 'normal ops tasks stay parked out of Dev Director', `${devSourceSlice?.counts?.parkedOperational || 0}`)
     addCheck(checks, snapshot.sourceCoverage.some(source => source.reportArtifactId === DEV_SOURCE_SLICE_ROUTER_REPORT_ARTIFACT_ID), 'Director input includes the Dev source-slice bundle', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
     addCheck(checks, latest20ReportIds.length >= 1, 'Director discovers persisted YouTube full-watch batch reports', latest20ReportIds.join(', '))
+    addCheck(checks, deepVisualReportIds.length >= 1, 'Director discovers persisted YouTube deep visual review reports', deepVisualReportIds.join(', ') || 'missing')
+    addCheck(checks, snapshot.sourceCoverage.some(source => String(source.reportArtifactId || '').startsWith(YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_PREFIX)), 'Director input includes YouTube deep visual review batches', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
     addCheck(checks, snapshot.sourceCoverage.some(source => isYoutubeFullWatchReportId(source.reportArtifactId)), 'Director input includes YouTube full-watch batches', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
     addCheck(checks, !writeRequested || persistedReport?.reportArtifactId === DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, 'persisted Director report reads back', persistedReport?.reportArtifactId || 'missing')
     addCheck(checks, !writeRequested || persistedAtoms.length >= Math.min(5, topCandidates.length), 'persisted Director atoms read back', `${persistedAtoms.length}`)

@@ -18,6 +18,10 @@ import {
   validateFoundationJobSchedulePosture,
 } from '../lib/foundation-jobs.js';
 import {
+  formatFoundationGateRetryMessage,
+  runWithFoundationGateRetry,
+} from '../lib/foundation-gate-reliability.js';
+import {
   getJobRunPermission,
   terminateProcessTree,
 } from '../lib/runtime-process-control.js';
@@ -59,6 +63,55 @@ function killJobProcess(child, signal) {
       // The process may have already exited between timeout and cleanup.
     }
   }
+}
+
+function waitForChildClose(child, timeoutMs = 5000) {
+  if (!child?.pid || child.exitCode !== null || child.signalCode) return Promise.resolve(true);
+  return new Promise(resolve => {
+    const timer = setTimeout(() => {
+      cleanup();
+      resolve(false);
+    }, timeoutMs);
+    function cleanup() {
+      clearTimeout(timer);
+      child.off('close', onClose);
+      child.off('error', onError);
+    }
+    function onClose() {
+      cleanup();
+      resolve(true);
+    }
+    function onError() {
+      cleanup();
+      resolve(true);
+    }
+    child.once('close', onClose);
+    child.once('error', onError);
+  });
+}
+
+async function terminateChildForLedgerFailure(child) {
+  if (!child?.pid) return { stopped: false, escalated: false };
+  await terminateProcessTree(child.pid, { signal: 'SIGTERM' }).catch(() => {
+    killJobProcess(child, 'SIGTERM');
+  });
+  const stopped = await waitForChildClose(child, 5000);
+  if (stopped) return { stopped: true, escalated: false };
+  await terminateProcessTree(child.pid, { signal: 'SIGKILL' }).catch(() => {
+    killJobProcess(child, 'SIGKILL');
+  });
+  return { stopped: await waitForChildClose(child, 2000), escalated: true };
+}
+
+async function runJobLedgerWrite(label, operation) {
+  const result = await runWithFoundationGateRetry(label, operation, {
+    retries: 2,
+    delayMs: 750,
+    onRetry: event => {
+      console.warn(formatFoundationGateRetryMessage(label, event));
+    },
+  });
+  return result.value;
 }
 
 function printJobList() {
@@ -109,26 +162,29 @@ async function runCommand(job, runId, actor) {
   let stderrTail = '';
   let timedOut = false;
 
-  await createFoundationJobRun(
-    {
-      runId,
-      jobKey: job.key,
-      title: job.title,
-      jobType: job.jobType,
-      command: {
-        command: job.command,
-        args: job.args,
-        cwd: process.cwd(),
+  await runJobLedgerWrite(
+    `foundation job create ${runId}`,
+    () => createFoundationJobRun(
+      {
+        runId,
+        jobKey: job.key,
+        title: job.title,
+        jobType: job.jobType,
+        command: {
+          command: job.command,
+          args: job.args,
+          cwd: process.cwd(),
+        },
+        metadata: {
+          lane: job.lane,
+          priority: job.priority,
+          cadence: job.cadence,
+          sourceIds: job.sourceIds,
+        },
+        startedAt: startedAt.toISOString(),
       },
-      metadata: {
-        lane: job.lane,
-        priority: job.priority,
-        cadence: job.cadence,
-        sourceIds: job.sourceIds,
-      },
-      startedAt: startedAt.toISOString(),
-    },
-    actor,
+      actor,
+    ),
   );
 
   console.log(`Foundation job started: ${job.key}`);
@@ -147,20 +203,7 @@ async function runCommand(job, runId, actor) {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
-  if (child.pid) {
-    await updateFoundationJobRunMetadata(runId, {
-      childPid: child.pid,
-      processGroupId: child.pid,
-      processOwner: 'foundation-job-runner',
-      processStartedByRunId: runId,
-      processStartedAt: new Date().toISOString(),
-      maxRuntimeSeconds: job.maxRuntimeSeconds,
-      budget: job.budget,
-      stopSignals: ['SIGTERM', 'SIGKILL'],
-    }, actor);
-  }
-
-  const outcome = await new Promise(resolve => {
+  const outcomePromise = new Promise(resolve => {
     const timeoutMs = Number(job.maxRuntimeSeconds) > 0 ? Number(job.maxRuntimeSeconds) * 1000 : null;
     timeout = timeoutMs
       ? setTimeout(() => {
@@ -216,28 +259,86 @@ async function runCommand(job, runId, actor) {
     });
   });
 
+  if (child.pid) {
+    try {
+      await runJobLedgerWrite(
+        `foundation job process metadata ${runId}`,
+        () => updateFoundationJobRunMetadata(runId, {
+          childPid: child.pid,
+          processGroupId: child.pid,
+          processOwner: 'foundation-job-runner',
+          processStartedByRunId: runId,
+          processStartedAt: new Date().toISOString(),
+          maxRuntimeSeconds: job.maxRuntimeSeconds,
+          budget: job.budget,
+          stopSignals: ['SIGTERM', 'SIGKILL'],
+        }, actor),
+      );
+    } catch (error) {
+      const termination = await terminateChildForLedgerFailure(child);
+      await Promise.race([
+        outcomePromise,
+        new Promise(resolve => setTimeout(resolve, 2000)),
+      ]);
+      const finishedAt = new Date();
+      const durationMs = finishedAt.getTime() - startedAt.getTime();
+      await runJobLedgerWrite(
+        `foundation job fail-closed finish ${runId}`,
+        () => finishFoundationJobRun(
+          runId,
+          {
+            status: 'failed',
+            finishedAt: finishedAt.toISOString(),
+            durationMs,
+            exitCode: null,
+            signal: 'SIGTERM',
+            outputTail,
+            errorMessage: `Process metadata write failed before run ownership was persisted: ${error instanceof Error ? error.message : String(error)}`,
+            metadata: {
+              processMetadataWriteFailed: true,
+              processMetadataFailureAt: finishedAt.toISOString(),
+              processMetadataFailureClass: error?.foundationGateReliability?.diagnostic?.transientClass || null,
+              childTerminatedAfterMetadataFailure: termination.stopped,
+              childTerminationEscalated: termination.escalated,
+            },
+          },
+          actor,
+        ),
+      );
+      console.error(`Foundation job failed before owned process metadata was persisted: ${job.key}`);
+      return 1;
+    }
+  }
+
+  const outcome = await outcomePromise;
   const finishedAt = new Date();
   const durationMs = finishedAt.getTime() - startedAt.getTime();
 
-  const finishedRun = await finishFoundationJobRun(
-    runId,
-    {
-      status: outcome.status,
-      finishedAt: finishedAt.toISOString(),
-      durationMs,
-      exitCode: outcome.exitCode,
-      signal: outcome.signal,
-      outputTail,
-      errorMessage: outcome.errorMessage,
-    },
-    actor,
+  const finishedRun = await runJobLedgerWrite(
+    `foundation job finish ${runId}`,
+    () => finishFoundationJobRun(
+      runId,
+      {
+        status: outcome.status,
+        finishedAt: finishedAt.toISOString(),
+        durationMs,
+        exitCode: outcome.exitCode,
+        signal: outcome.signal,
+        outputTail,
+        errorMessage: outcome.errorMessage,
+      },
+      actor,
+    ),
   );
 
   try {
     await handleSynthesisFreshnessAfterFoundationJobRun(finishedRun, {
       actor,
       getJobRunSnapshot: (...args) => getFoundationJobRunSnapshot(...args),
-      updateJobRunMetadata: (...args) => updateFoundationJobRunMetadata(...args),
+      updateJobRunMetadata: (...args) => runJobLedgerWrite(
+        `foundation job synthesis metadata ${runId}`,
+        () => updateFoundationJobRunMetadata(...args),
+      ),
       runFollowupJob: runFoundationJob,
     });
   } catch (error) {

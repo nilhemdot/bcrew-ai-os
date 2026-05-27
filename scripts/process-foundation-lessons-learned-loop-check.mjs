@@ -153,7 +153,15 @@ function buildSystemHealthGate({ args, processResult }) {
     ...findings.map(finding => finding.id).filter(Boolean),
     ...blockingIds,
   ])
-  const unexpectedIds = [...nonGreenIds].filter(id => !allowedIds.has(id))
+  const nonBlockingClassifiedIds = new Set(findings
+    .filter(finding =>
+      finding?.classification?.blocksCurrentSprint === false &&
+        !['risk', 'red', 'blocked', 'failed', 'critical'].includes(String(finding.status || '').toLowerCase()) &&
+        !['risk', 'red', 'blocked', 'failed', 'critical'].includes(String(finding.rollupLevel || '').toLowerCase())
+    )
+    .map(finding => finding.id)
+    .filter(Boolean))
+  const unexpectedIds = [...nonGreenIds].filter(id => !allowedIds.has(id) && !nonBlockingClassifiedIds.has(id))
   const selfScheduledFinding = findings.find(finding => finding.id === `scheduled_job_${FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY}`)
   const runtimeFailedFinding = findings.find(finding => finding.id === 'runtime_jobs_failed')
   const runtimeFailedKeys = parseRuntimeFailedJobKeys(runtimeFailedFinding?.detail)

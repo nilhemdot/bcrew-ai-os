@@ -236,6 +236,14 @@ async function main() {
     'runner and worker fail closed for decommissioned jobs and record owned process metadata',
   )
   addCheck(
+    runnerSource.includes('runJobLedgerWrite') &&
+      runnerSource.includes('runWithFoundationGateRetry') &&
+      runnerSource.includes('formatFoundationGateRetryMessage') &&
+      runnerSource.includes('terminateChildForLedgerFailure') &&
+      runnerSource.includes('processMetadataWriteFailed'),
+    'runner retries transient job-ledger writes and fails closed before unowned child processes can continue',
+  )
+  addCheck(
     publicRuntimeSource.includes('renderRuntimeProcessControlPanel') &&
       publicRuntimeSource.includes('stopFoundationJobRun') &&
       publicRuntimeSource.includes('decommissionFoundationJob') &&

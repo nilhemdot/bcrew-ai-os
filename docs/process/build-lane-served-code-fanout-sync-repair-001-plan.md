@@ -66,7 +66,7 @@ Implementation details:
 - `scripts/process-fanout-check.mjs` short-circuits dependent Recent Builds checks when served code is stale.
 - `scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs` proves the behavior and manages the live card scaffold.
 - `docs/process/approvals/BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001.json` validates against this plan.
-- `docs/handoffs/2026-05-18-build-lane-served-code-fanout-sync-repair-closeout.md` records the closeout.
+- `docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-build-lane-served-code-fanout-sync-repair-closeout.md` records the closeout.
 - Focused proof, backlog hygiene, `foundation:verify`, and `process:foundation-ship` pass before push.
 
 ## Tests

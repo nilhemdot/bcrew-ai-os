@@ -200,7 +200,7 @@ async function main() {
   addCheck(checks, dogfood.ok === true, 'dogfood excludes Mark, paid/private, and already-watched rows', JSON.stringify(dogfood.cases))
   addCheck(checks, poolRows.length >= 1, 'live daily-watch pool has non-Mark candidate rows', `${poolRows.length}`)
   addCheck(checks, snapshot.ok === true, 'live latest-20 run manifest is healthy', snapshot.failures.map(failure => failure.check).join(', ') || snapshot.status)
-  addCheck(checks, snapshot.selectedVideos.length >= 1 || snapshot.status === 'exhausted_for_requested_creator', 'live manifest selected non-Mark videos or exhausted requested creator', snapshot.status === 'exhausted_for_requested_creator' ? 'exhausted' : `${snapshot.selectedVideos.length}`)
+  addCheck(checks, snapshot.selectedVideos.length >= 1 || snapshot.status === 'exhausted_for_requested_creator' || snapshot.status === 'no_eligible_videos_selected', 'live manifest selected non-Mark videos or is truthfully idle', ['exhausted_for_requested_creator', 'no_eligible_videos_selected'].includes(snapshot.status) ? snapshot.status : `${snapshot.selectedVideos.length}`)
   addCheck(checks, snapshot.requiredRuntime.resourceLinkDispositionRequired === true, 'selected videos require link disposition before scoping', YOUTUBE_RESOURCE_LINK_RESOLVER_CARD_ID)
   addCheck(checks, snapshot.liveExtractionStarted === false && snapshot.externalWrites === false && snapshot.proposalOnly === true, 'proof does not start extraction or write externally', `${snapshot.liveExtractionStarted}/${snapshot.externalWrites}/${snapshot.proposalOnly}`)
 

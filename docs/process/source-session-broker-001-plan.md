@@ -38,7 +38,15 @@ MyICOR/myICOR is one paid course/training platform instance, not its own source 
 
 Steve surfaced a likely better route than browser-only extraction: MyICOR says an AI can connect through its MCP and get read-only access across the library. If that is available, the source broker should prefer the native read-only connector/MCP first because it is cleaner, easier to cite, and likely covers more material than page navigation.
 
-This means native read-only connector/MCP first, browser Hands second, and Keychain login recipe third for MyICOR if the connector cannot answer the job.
+This means native read-only connector/MCP first, browser Hands second, and Google OAuth sign-in through the existing paid account if the connector cannot answer the job.
+
+MyICOR paid account auth rule from Steve on 2026-05-26:
+
+- MyICOR is Google OAuth sign-in, not a separate MyICOR password login.
+- Correct entry points are `https://myicor.com/` Sign in / Log in and `https://app.myicor.com/login`.
+- Do not use Start Free, signup, or onboarding for the paid-account path.
+- Do not ask for or vault a MyICOR password unless Steve later confirms MyICOR has a separate password login.
+- If an existing MyICOR browser session redirects to onboarding, clear only the bad MyICOR session state or use a clean source profile, then retry the Google sign-in path.
 
 Expected MyICOR read-only MCP scope from Steve's note:
 

@@ -63,7 +63,13 @@ function createPool() {
   })
 }
 
-async function loadFullWatchReports({ limit = 40 } = {}) {
+function isDeepVisualReviewReport(report = {}) {
+  const reportArtifactId = String(report.report_artifact_id || report.reportArtifactId || '')
+  return reportArtifactId.startsWith('batch:youtube-deep-visual-review:v1') ||
+    report.metadata?.proofMode === 'youtube_deep_visual_review_v1'
+}
+
+async function loadFullWatchReports({ limit = 500 } = {}) {
   const pool = createPool()
   try {
     const result = await pool.query(
@@ -74,10 +80,12 @@ async function loadFullWatchReports({ limit = 40 } = {}) {
            OR report_artifact_id LIKE 'batch:youtube-latest-20:api-full-watch-v1%'
            OR report_artifact_id LIKE 'batch:youtube-long-course:api-full-watch-v1%'
            OR metadata->>'proofMode' = 'youtube_long_course_god_mode_api_full_watch'
+           OR report_artifact_id LIKE 'batch:youtube-deep-visual-review:v1%'
+           OR metadata->>'proofMode' = 'youtube_deep_visual_review_v1'
         ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
         LIMIT $1
       `,
-      [Math.min(80, Math.max(1, Number(limit) || 40))],
+      [Math.min(1000, Math.max(1, Number(limit) || 500))],
     )
     return result.rows
   } finally {
@@ -159,12 +167,38 @@ async function main() {
   addCheck(checks, /lane-specific grades/i.test(planSource) && /realtor AI coaching\/training value/i.test(planSource), 'plan requires lane-specific source grades', BUILD_INTEL_SOURCE_VALUE_GRADER_PLAN_PATH)
   addCheck(checks, /realtor_ai_training/.test(moduleSource) && /aios_dev_build/.test(moduleSource), 'module separates realtor training from AIOS build grading', 'lib/build-intel-source-value-grader.js')
   addCheck(checks, scriptSource.includes('upsertIntelligenceReportArtifact') && scriptSource.includes('renderBuildIntelSourceValueGraderReport'), 'focused proof can persist a reviewable report', BUILD_INTEL_SOURCE_VALUE_GRADER_SCRIPT_PATH)
+  addCheck(
+    checks,
+    scriptSource.includes('loadFullWatchReports({ limit = 500 }') &&
+      scriptSource.includes('Math.min(1000') &&
+      !/loadFullWatchReports\(\{ limit = 40 \}/.test(scriptSource) &&
+      !/Math\.min\(80,/.test(scriptSource),
+    'source-value grader reads the full current YouTube report spine instead of a recent 40-report slice',
+    `reports=${reports.length}`,
+  )
   addCheck(checks, dogfood.ok === true, 'dogfood proves ranking, lane split, no volume-only S grade, and throttling', JSON.stringify(dogfood.cases))
   addCheck(checks, reports.length >= 3, 'live full-watch reports are available', `${reports.length}`)
+  addCheck(checks, reports.some(isDeepVisualReviewReport), 'live deep visual reports feed source-value grading', reports.map(report => report.report_artifact_id || report.reportArtifactId).filter(Boolean).join(', ') || 'missing')
   addCheck(checks, Boolean(directorReport), 'live Dev Director report is available', directorReport?.report_artifact_id || 'missing')
   addCheck(checks, snapshot.ok === true, 'source-value grader snapshot is healthy', snapshot.failures.map(failure => failure.check).join(', ') || snapshot.status)
   addCheck(checks, snapshot.sourceGrades.length >= 5, 'source-value grader ranks multiple creators', `${snapshot.sourceGrades.length}`)
-  addCheck(checks, snapshot.sourceGrades.some(source => source.primaryLane === 'realtor_ai_training' || source.laneScores.some(lane => lane.laneId === 'realtor_ai_training' && ['A', 'S'].includes(lane.grade))), 'realtor training value is preserved as a lane', snapshot.sourceGrades.map(source => `${source.creator}:${source.primaryLane}`).join(', '))
+  const realtorTrainingLane = Array.isArray(snapshot.topByLane)
+    ? snapshot.topByLane.find(lane => lane.laneId === 'realtor_ai_training')
+    : null
+  const realtorTrainingSources = Array.isArray(realtorTrainingLane?.sources) ? realtorTrainingLane.sources : []
+  addCheck(
+    checks,
+    Boolean(realtorTrainingLane) &&
+      realtorTrainingSources.length >= 3 &&
+      realtorTrainingSources.every(source =>
+        String(source.creator || '').trim() &&
+        String(source.grade || '').trim() &&
+        Number.isFinite(Number(source.score)) &&
+        Number(source.score) > 0
+      ),
+    'realtor training value is preserved as a lane',
+    realtorTrainingSources.map(source => `${source.creator}:${source.grade}:${source.score}`).join(', ') || 'missing realtor_ai_training lane',
+  )
   addCheck(checks, snapshot.externalWrites === false && snapshot.noAutoBacklogPromotion === true, 'grader remains report-only', `${snapshot.externalWrites}/${snapshot.noAutoBacklogPromotion}`)
   if (args.apply) {
     addCheck(checks, persistence?.report?.reportArtifactId || persistence?.report?.report_artifact_id, 'persisted source-value grader report reads back', persistence?.report?.reportArtifactId || persistence?.report?.report_artifact_id || 'missing')
