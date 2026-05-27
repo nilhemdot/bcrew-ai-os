@@ -165,7 +165,22 @@ async function main() {
   addCheck(checks, approvalValidation.ok && approvalValidation.mode === 'v2', 'approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || BUILD_INTEL_SOURCE_VALUE_GRADER_APPROVAL_PATH)
   addCheck(checks, packageJson.scripts?.['process:build-intel-source-value-grader-check'] === 'node --env-file-if-exists=.env scripts/process-build-intel-source-value-grader-check.mjs', 'package exposes focused source-value grader proof', packageJson.scripts?.['process:build-intel-source-value-grader-check'] || 'missing')
   addCheck(checks, /lane-specific grades/i.test(planSource) && /realtor AI coaching\/training value/i.test(planSource), 'plan requires lane-specific source grades', BUILD_INTEL_SOURCE_VALUE_GRADER_PLAN_PATH)
-  addCheck(checks, /realtor_ai_training/.test(moduleSource) && /aios_dev_build/.test(moduleSource), 'module separates realtor training from AIOS build grading', 'lib/build-intel-source-value-grader.js')
+  addCheck(
+    checks,
+    [
+      'aios_dev_build',
+      'ops_process',
+      'sales_conversion',
+      'marketing_recruiting',
+      'marketing_lead_gen',
+      'steve_ai_authority',
+      'realtor_ai_training',
+      'leadership_strategy',
+      'product_tool_evaluation',
+    ].every(laneId => moduleSource.includes(laneId)),
+    'module separates shared Foundation business lanes instead of global Dev-only grading',
+    'Dev, Ops, Sales, Recruiting, Lead Gen, Steve Authority, Realtor Training, Strategy, Product/Tool',
+  )
   addCheck(checks, scriptSource.includes('upsertIntelligenceReportArtifact') && scriptSource.includes('renderBuildIntelSourceValueGraderReport'), 'focused proof can persist a reviewable report', BUILD_INTEL_SOURCE_VALUE_GRADER_SCRIPT_PATH)
   addCheck(
     checks,

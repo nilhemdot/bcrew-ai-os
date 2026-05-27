@@ -381,12 +381,13 @@ async function main() {
   )
   addCheck(
     checks,
-    jsSource.includes('SOURCE_LEADERBOARD_LIMIT = 10') &&
+    !jsSource.includes('SOURCE_LEADERBOARD_LIMIT') &&
       jsSource.includes('rankedDevSources(snapshot)') &&
       jsSource.includes('Why ranked:') &&
-      jsSource.includes('gradeBucketSummary(snapshot)'),
-    'Dev Hub creator ranking shows top 10 with grade filters and why-ranked copy',
-    'top 10 + S/A/B/C/D/ungraded counts + ranking explanation',
+      jsSource.includes('gradeBucketSummary(snapshot)') &&
+      jsSource.includes('totalRankedCreators'),
+    'Dev Hub creator ranking shows the full creator ranking with grade filters and why-ranked copy',
+    'all ranked creators + S/A/B/C/D/ungraded counts + ranking explanation',
   )
   addCheck(
     checks,
@@ -486,6 +487,13 @@ async function main() {
   )
   addCheck(checks, payload?.director?.sourceRoute?.includes(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID) && list(payload?.director?.recommendedBuildNow).length >= 1, 'Dev Intelligence Director recommendations are exposed to Dev Hub', `${list(payload?.director?.recommendedBuildNow).length} recommendations`)
   addCheck(checks, list(payload?.sourceValueGrader?.sourceGrades).length >= 3 && list(payload?.dailyWatch?.creators).length >= 3, 'live source cards can be built from multiple graded creators', `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.dailyWatch?.creators).length} watched`)
+  addCheck(
+    checks,
+    list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length === list(payload?.sourceValueGrader?.sourceGrades).length &&
+      list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length >= list(payload?.youtubeSourceIntelligence?.topCreators).length,
+    'live YouTube source intelligence exposes full creator ranking plus preview rows',
+    `full=${list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length}; preview=${list(payload?.youtubeSourceIntelligence?.topCreators).length}`,
+  )
   addCheck(
     checks,
     Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0) === list(payload?.youtubeCreatorGodModeCatchup?.creators).length &&
@@ -700,7 +708,9 @@ async function main() {
             .map(([bucketId, bucket]) => [bucketId, { count: bucket.count, sampleHosts: bucket.sampleHosts }])),
         } : null,
         selectedVideos: list(payload.youtubeSourceIntelligence.selectedVideos).length,
+        creatorLeaderboard: list(payload.youtubeSourceIntelligence.creatorLeaderboard).length,
         topCreators: list(payload.youtubeSourceIntelligence.topCreators).length,
+        readbackTruth: payload.youtubeSourceIntelligence.readbackTruth,
         executiveSummary: payload.youtubeSourceIntelligence.executiveSummary ? {
           title: payload.youtubeSourceIntelligence.executiveSummary.title,
           workingSteps: list(payload.youtubeSourceIntelligence.executiveSummary.workingSteps).length,

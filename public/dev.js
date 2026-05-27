@@ -4,7 +4,6 @@ const LINK_PACKET_DECISION_ROUTE = '/api/foundation/dev-team-hub/link-source-pac
 const SOURCE_PACKET_WORKER_QUEUE_ROUTE = '/api/foundation/dev-team-hub/source-packet-worker-queue'
 const EXTRACTOR_HANDS_PRODUCTION_QUEUE_ROUTE = '/api/foundation/dev-team-hub/source-packet-hands-queue'
 const YOUTUBE_CREATOR_TARGET_FALLBACK_LIMIT = 10
-const SOURCE_LEADERBOARD_LIMIT = 10
 const DEV_DATA_POOL_REFRESH_INTERVAL_MS = 30000
 
 const plannedSources = [
@@ -733,6 +732,13 @@ function renderYoutubeSourceIntelligence(snapshot = {}) {
   const job = system.liveJob || {}
   const latestBatch = system.latestBatch || {}
   const runtime = systemRuntimeCopy(system)
+  const youtubeCreators = list(system.creatorLeaderboard).length
+    ? list(system.creatorLeaderboard)
+    : list(system.topCreators)
+  const youtubeCreatorTotal = Number(system.readbackTruth?.creatorLeaderboardCount || youtubeCreators.length)
+  const youtubeGradeSummary = Object.entries(system.creatorGradeBuckets || {})
+    .map(([grade, count]) => `${grade}: ${count}`)
+    .join(' · ')
   els.youtubeSystem.innerHTML = `
     <section class="yt-runtime ${escapeHtml(systemTone(runtime))}">
       <div>
@@ -798,9 +804,10 @@ function renderYoutubeSourceIntelligence(snapshot = {}) {
         <div class="yt-section-head">
           <span>CREATOR GRADES</span>
           <h3>Who deserves deeper watching</h3>
+          <small>${escapeHtml(compactNumber(youtubeCreators.length))} of ${escapeHtml(compactNumber(youtubeCreatorTotal))} creators · ${escapeHtml(youtubeGradeSummary || 'no grades yet')}</small>
         </div>
         <div class="yt-creator-grid">
-          ${list(system.topCreators).map(renderYoutubeCreatorGrade).join('') || '<article class="loading-card">No creator grades returned yet.</article>'}
+          ${youtubeCreators.map(renderYoutubeCreatorGrade).join('') || '<article class="loading-card">No creator grades returned yet.</article>'}
         </div>
       </div>
       <div class="yt-section yt-latest-batch">
@@ -1196,7 +1203,7 @@ function renderEconomics(snapshot = {}) {
 function renderSourceLeaderboard(snapshot = {}) {
   if (!els.sourceLeaderboard) return
   const rankedCreators = rankedDevSources(snapshot)
-    .slice(0, SOURCE_LEADERBOARD_LIMIT)
+  const totalRankedCreators = rankedCreators.length
   const gradeFilters = gradeBucketSummary(snapshot)
   const familyRows = buildSourceFamilyRows(snapshot)
 
@@ -1206,7 +1213,7 @@ function renderSourceLeaderboard(snapshot = {}) {
       <section class="leader-block">
         <div class="leader-block-head">
           <span>Ranked creators</span>
-          <small>${escapeHtml(compactNumber(rankedCreators.length))} showing · ${escapeHtml(gradeFilters.join(' · ') || 'no grades yet')}</small>
+          <small>${escapeHtml(compactNumber(rankedCreators.length))} of ${escapeHtml(compactNumber(totalRankedCreators))} showing · ${escapeHtml(gradeFilters.join(' · ') || 'no grades yet')}</small>
         </div>
         <div class="leader-list">
           ${rankedCreators.map((source, index) => {

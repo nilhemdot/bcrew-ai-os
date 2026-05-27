@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-GROWTH-SAFE-READBACK-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-27T11:45:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-growth-safe-readback-001-plan.md",
+  "approvedPlanSha256": "60b60ec413b8c4963bc3a1c5de7ff7e037a781017293320a397c2374b6fa6740",
+  "approvedRepoHead": "d92910e03b7eb398376c2ba47cef5f1c520a5b7c",
+  "approvalSource": "Steve approved the May 27 Foundation-up execution plan after clarifying that Codex and Steve must review extracted intelligence before any Scoper promotion. Scope is the no-spend readback cleanup first: remove hidden caps/top-N drift, protect shared lane grading, and keep Foundation green before deeper source-runtime work.",
+  "notes": "Approval is limited to read-only/readback/UI/proof work. No live extraction, provider spend, Scoper apply path, source crawl, login, form submit, download, purchase, or external write is approved by this file.",
+  "approvalDigest": "86dac1ea5283ee8f712fcb90d46f86c32d75bf0e246747d75526384cee3de458"
+}
