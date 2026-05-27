@@ -492,14 +492,16 @@ async function main() {
   addCheck(checks, list(payload?.sourceValueGrader?.sourceGrades).length >= 3 && list(payload?.dailyWatch?.creators).length >= 3, 'live source cards can be built from multiple graded creators', `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.dailyWatch?.creators).length} watched`)
   const youtubeCreatorLeaderboardCount = list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length
   const youtubeActiveCreatorCount = Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0)
+  const youtubeUngradedCreatorCount = Number(payload?.youtubeCreatorGodModeCatchup?.summary?.ungradedCount || 0)
   const sourceGradeCount = list(payload?.sourceValueGrader?.sourceGrades).length
   addCheck(
     checks,
-    youtubeCreatorLeaderboardCount === youtubeActiveCreatorCount &&
-      youtubeCreatorLeaderboardCount <= sourceGradeCount &&
+    youtubeCreatorLeaderboardCount === sourceGradeCount &&
+      youtubeCreatorLeaderboardCount <= youtubeActiveCreatorCount &&
+      youtubeCreatorLeaderboardCount + youtubeUngradedCreatorCount >= youtubeActiveCreatorCount &&
       youtubeCreatorLeaderboardCount >= list(payload?.youtubeSourceIntelligence?.topCreators).length,
-    'live YouTube source intelligence exposes active creator ranking plus preview rows',
-    `active=${youtubeCreatorLeaderboardCount}; sourceGrades=${sourceGradeCount}; preview=${list(payload?.youtubeSourceIntelligence?.topCreators).length}`,
+    'live YouTube source intelligence exposes active graded creator ranking plus preview rows',
+    `active=${youtubeActiveCreatorCount}; graded=${youtubeCreatorLeaderboardCount}; sourceGrades=${sourceGradeCount}; ungraded=${youtubeUngradedCreatorCount}; preview=${list(payload?.youtubeSourceIntelligence?.topCreators).length}`,
   )
   addCheck(
     checks,

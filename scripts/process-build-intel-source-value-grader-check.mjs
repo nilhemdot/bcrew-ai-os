@@ -30,6 +30,11 @@ import {
   buildBuildIntelSourceValueGraderWriteSet,
   renderBuildIntelSourceValueGraderReport,
 } from '../lib/build-intel-source-value-grader.js'
+import {
+  YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
+  buildYoutubeCreatorDailyWatchPlan,
+  normalizeYoutubeChannelUrl,
+} from '../lib/youtube-creator-daily-watch.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -110,6 +115,49 @@ async function loadDirectorReport() {
   }
 }
 
+function normalizeCreatorName(value = '') {
+  return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ')
+}
+
+async function loadActiveDailyWatchFilter() {
+  const watchPlan = buildYoutubeCreatorDailyWatchPlan()
+  const activeChannelByCreator = new Map(watchPlan.creators.map(creator => [
+    String(creator.creatorId || '').trim(),
+    normalizeYoutubeChannelUrl(creator.channelUrl || creator.channelVideosUrl || ''),
+  ]))
+  const activeCreatorIdsByName = new Map(watchPlan.creators
+    .map(creator => [normalizeCreatorName(creator.displayName), String(creator.creatorId || '').trim()])
+    .filter(([name, creatorId]) => name && creatorId))
+  const pool = createPool()
+  try {
+    const result = await pool.query(
+      `
+        SELECT metadata->>'creatorId' AS creator_id,
+               metadata->>'videoId' AS video_id,
+               metadata->>'channelUrl' AS channel_url
+        FROM source_crawl_items
+        WHERE target_key = $1
+          AND metadata->>'creatorId' IS NOT NULL
+          AND metadata->>'videoId' IS NOT NULL
+      `,
+      [YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY],
+    )
+    const activeVideoIdsByCreator = new Map()
+    for (const row of result.rows) {
+      const creatorId = String(row.creator_id || '').trim()
+      if (!activeChannelByCreator.has(creatorId)) continue
+      const expectedChannelUrl = activeChannelByCreator.get(creatorId) || ''
+      const rowChannelUrl = normalizeYoutubeChannelUrl(row.channel_url || '')
+      if (expectedChannelUrl && rowChannelUrl && rowChannelUrl !== expectedChannelUrl) continue
+      if (!activeVideoIdsByCreator.has(creatorId)) activeVideoIdsByCreator.set(creatorId, new Set())
+      activeVideoIdsByCreator.get(creatorId).add(String(row.video_id || '').trim())
+    }
+    return { activeVideoIdsByCreator, activeCreatorIdsByName }
+  } finally {
+    await pool.end().catch(() => {})
+  }
+}
+
 async function persistSnapshot(snapshot = {}, options = {}) {
   assertProcessCheckWriteAllowed({
     argv: process.argv.slice(2),
@@ -141,6 +189,7 @@ async function main() {
     dogfood,
     reports,
     directorReport,
+    activeDailyWatchFilter,
   ] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile(BUILD_INTEL_SOURCE_VALUE_GRADER_PLAN_PATH),
@@ -154,9 +203,17 @@ async function main() {
     buildBuildIntelSourceValueGraderDogfoodProof(),
     loadFullWatchReports(),
     loadDirectorReport(),
+    loadActiveDailyWatchFilter(),
   ])
 
-  const snapshot = buildBuildIntelSourceValueGraderSnapshot({ reports, directorReport })
+  const activeVideoIdsByCreator = activeDailyWatchFilter.activeVideoIdsByCreator
+  const activeCreatorIdsByName = activeDailyWatchFilter.activeCreatorIdsByName
+  const snapshot = buildBuildIntelSourceValueGraderSnapshot({
+    reports,
+    directorReport,
+    activeVideoIdsByCreator,
+    activeCreatorIdsByName,
+  })
 
   if (args.apply) {
     persistence = await persistSnapshot(snapshot, { writeReport: args.writeReport })
@@ -192,11 +249,22 @@ async function main() {
     `reports=${reports.length}`,
   )
   addCheck(checks, dogfood.ok === true, 'dogfood proves ranking, lane split, no volume-only S grade, and throttling', JSON.stringify(dogfood.cases))
+  addCheck(checks, activeVideoIdsByCreator.size >= 3, 'source-value grader filters stale reports through current daily-watch video IDs', `${activeVideoIdsByCreator.size} creator active-video maps`)
+  addCheck(checks, activeCreatorIdsByName.size >= 3, 'source-value grader maps nameless stale reports back to active creator identities', `${activeCreatorIdsByName.size} active creator names`)
   addCheck(checks, reports.length >= 3, 'live full-watch reports are available', `${reports.length}`)
   addCheck(checks, reports.some(isDeepVisualReviewReport), 'live deep visual reports feed source-value grading', reports.map(report => report.report_artifact_id || report.reportArtifactId).filter(Boolean).join(', ') || 'missing')
   addCheck(checks, Boolean(directorReport), 'live Dev Director report is available', directorReport?.report_artifact_id || 'missing')
   addCheck(checks, snapshot.ok === true, 'source-value grader snapshot is healthy', snapshot.failures.map(failure => failure.check).join(', ') || snapshot.status)
   addCheck(checks, snapshot.sourceGrades.length >= 5, 'source-value grader ranks multiple creators', `${snapshot.sourceGrades.length}`)
+  addCheck(
+    checks,
+    !snapshot.sourceGrades.some(source => String(source.creator || '').trim() === 'Andrej Karpathy' && !String(source.creatorId || '').trim()),
+    'corrected creator channels cannot retain blank-id stale grading rows',
+    snapshot.sourceGrades
+      .filter(source => String(source.creator || '').trim() === 'Andrej Karpathy')
+      .map(source => `${source.creatorId || 'blank'}:${source.watchedVideos}`)
+      .join(', ') || 'no active Andrej source grade until corrected videos are watched',
+  )
   const realtorTrainingLane = Array.isArray(snapshot.topByLane)
     ? snapshot.topByLane.find(lane => lane.laneId === 'realtor_ai_training')
     : null

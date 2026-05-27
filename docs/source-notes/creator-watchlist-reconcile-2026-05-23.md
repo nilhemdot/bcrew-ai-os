@@ -39,7 +39,7 @@ Latest applied run after the 30-creator reconcile:
 | Chase AI | `https://www.youtube.com/@chase-h-ai` |
 | Everyday AI / Jordan Wilson | `https://www.youtube.com/@EverydayAI` |
 | Matt Pocock / Total TypeScript | `https://www.youtube.com/@mattpocockuk` |
-| Andrej Karpathy | `https://www.youtube.com/@karpathy` |
+| Andrej Karpathy | `https://www.youtube.com/@AndrejKarpathy` |
 | Aaron Bitwise | `https://www.youtube.com/@AaronBitwise` |
 | Dan Martell | `https://www.youtube.com/@danmartell` |
 | Nick Saraev | `https://www.youtube.com/@nicksaraev` |
