@@ -490,12 +490,16 @@ async function main() {
   )
   addCheck(checks, payload?.director?.sourceRoute?.includes(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID) && list(payload?.director?.recommendedBuildNow).length >= 1, 'Dev Intelligence Director recommendations are exposed to Dev Hub', `${list(payload?.director?.recommendedBuildNow).length} recommendations`)
   addCheck(checks, list(payload?.sourceValueGrader?.sourceGrades).length >= 3 && list(payload?.dailyWatch?.creators).length >= 3, 'live source cards can be built from multiple graded creators', `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.dailyWatch?.creators).length} watched`)
+  const youtubeCreatorLeaderboardCount = list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length
+  const youtubeActiveCreatorCount = Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0)
+  const sourceGradeCount = list(payload?.sourceValueGrader?.sourceGrades).length
   addCheck(
     checks,
-    list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length === list(payload?.sourceValueGrader?.sourceGrades).length &&
-      list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length >= list(payload?.youtubeSourceIntelligence?.topCreators).length,
-    'live YouTube source intelligence exposes full creator ranking plus preview rows',
-    `full=${list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length}; preview=${list(payload?.youtubeSourceIntelligence?.topCreators).length}`,
+    youtubeCreatorLeaderboardCount === youtubeActiveCreatorCount &&
+      youtubeCreatorLeaderboardCount <= sourceGradeCount &&
+      youtubeCreatorLeaderboardCount >= list(payload?.youtubeSourceIntelligence?.topCreators).length,
+    'live YouTube source intelligence exposes active creator ranking plus preview rows',
+    `active=${youtubeCreatorLeaderboardCount}; sourceGrades=${sourceGradeCount}; preview=${list(payload?.youtubeSourceIntelligence?.topCreators).length}`,
   )
   addCheck(
     checks,
@@ -568,6 +572,7 @@ async function main() {
   const autopilotPlan = payload?.youtubeGodModeAutopilotPlan || {}
   const selectedAutopilotVideos = list(autopilotPlan.selectedVideos)
   const rejectedAutopilotVideos = list(autopilotPlan.rejectedVideos)
+  const parkedStandardVideoCount = Number(payload?.youtubeSourceIntelligence?.summary?.parkedStandardVideoCount || 0)
   const selectedAutopilotRowsAreRenderable = selectedAutopilotVideos.every(video =>
     text(video.title) &&
     /^https:\/\/www\.youtube\.com\/watch\?v=/.test(text(video.url)) &&
@@ -576,25 +581,25 @@ async function main() {
   )
   const autopilotHasTruthfulNoEligibleState = text(autopilotPlan.status) === 'blocked' &&
     selectedAutopilotVideos.length === 0 &&
-    rejectedAutopilotVideos.length > 0 &&
+    (rejectedAutopilotVideos.length > 0 || parkedStandardVideoCount > 0) &&
     list(autopilotPlan.blockers).includes('no_eligible_videos_selected')
   addCheck(
     checks,
     autopilotPlan.reportOnly === true &&
       autopilotPlan.startsProviderCall === false &&
       autopilotPlan.runApprovalRequired === true &&
-      Number(autopilotPlan.candidateVideoCount || 0) >= 1 &&
+      (Number(autopilotPlan.candidateVideoCount || 0) >= 1 || parkedStandardVideoCount > 0) &&
       ((selectedAutopilotVideos.length >= 1 && selectedAutopilotRowsAreRenderable) || autopilotHasTruthfulNoEligibleState),
     'live Dev Hub exposes YouTube autopilot dry-run plan from catch-up candidates with SOP step readiness',
     `${selectedAutopilotVideos.length} selected / ${autopilotPlan.candidateVideoCount || 0} candidates / ${autopilotPlan.status || 'missing'}`,
   )
   addCheck(
     checks,
-    rejectedAutopilotVideos.length > selectedAutopilotVideos.length &&
+    (rejectedAutopilotVideos.length > selectedAutopilotVideos.length || parkedStandardVideoCount > 0) &&
       rejectedAutopilotVideos.every(video => text(video.reason)) &&
       Object.keys(payload?.youtubeSourceIntelligence?.rejectedReasonCounts || {}).length >= 1,
     'live Dev Hub exposes autopilot filtered candidates with exact rejection reasons',
-    `${rejectedAutopilotVideos.length} rejected / ${selectedAutopilotVideos.length} selected / reasons=${Object.keys(payload?.youtubeSourceIntelligence?.rejectedReasonCounts || {}).join(', ')}`,
+    `${rejectedAutopilotVideos.length} rejected / ${parkedStandardVideoCount} parked / ${selectedAutopilotVideos.length} selected / reasons=${Object.keys(payload?.youtubeSourceIntelligence?.rejectedReasonCounts || {}).join(', ')}`,
   )
   addCheck(
     checks,

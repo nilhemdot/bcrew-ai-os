@@ -522,7 +522,7 @@ function buildEvidenceCards(snapshot = {}) {
       label: 'Video inventory',
       tone: 'live',
       summary: `${compactNumber(inventoryCount)} public YouTube metadata rows are known. This is inventory, not full video watching.`,
-      meta: `${compactNumber(autopilot.selectedVideos?.length || 0)} eligible now · ${compactNumber(catchup.summary?.pendingStandardVideoCount || 0)} raw pending · ${compactNumber(catchup.summary?.longCoursePendingCount || 0)} long-course pending`,
+      meta: `${compactNumber(autopilot.selectedVideos?.length || 0)} eligible now · ${compactNumber(catchup.summary?.parkedStandardVideoCount || 0)} parked/no-spend · ${compactNumber(catchup.summary?.providerBlockedVideoCount || 0)} provider-blocked · ${compactNumber(catchup.summary?.longCoursePendingCount || 0)} long-course pending`,
     },
     {
       value: fullReviewCount,
@@ -600,7 +600,8 @@ function renderYoutubeSystemStats(system = {}) {
     ['Tracked videos', summary.trackedMetadataCount],
     ['Watched', summary.watchedVideoCount],
     ['Eligible now', summary.eligibleStandardVideoCount],
-    ['Raw pending', summary.pendingStandardVideoCount],
+    ['Parked/no-spend', summary.parkedStandardVideoCount ?? summary.filteredStandardCandidateCount ?? 0],
+    ['Provider blocked', summary.providerBlockedVideoCount || 0],
     ['Ideas', summary.buildIdeaCount],
     ['Spend', money(summary.estimatedSpendUsd || 0)],
   ].map(([label, value]) => `
