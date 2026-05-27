@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-26T13:39:43-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/source-session-broker-001-plan.md",
-  "approvedPlanSha256": "e2426162c10a71608beec4b3ce11102b227d78f1cbe18cd4a4f753e11b0ed091",
+  "approvedPlanSha256": "eeb63acab1d47ca109d3dd3e6d999b70ac866fe43d32774b73c0eaa437e0c859",
   "approvedRepoHead": "8cada6d2508b977e0aac0df3491a4ff0372b21c1",
   "approvalSource": "Steve May 26 direct closed-loop source-session correction: approved gold standard is try existing source session, use vaulted credentials/source identities, emit auth-needed to the human agent when MFA or verification blocks, wait/resume/fail closed, use ai@bensoncrew.ca for free-source identities, and prefer MyICOR read-only MCP/connector if available before browser fallback.",
-  "approvalDigest": "98d1522f34cc4cfa58181676e81376511d0baa590957158b2396f4f1a567c546"
+  "approvalDigest": "5ada553cb0edb38ce8c02bed3bad60047140f8adef7e3b55a8895653a8322d9b"
 }

@@ -328,14 +328,16 @@ async function main() {
     pageHasYoutubeIntelligenceSystem(htmlSource) &&
       jsSource.includes('renderYoutubeSourceIntelligence') &&
       jsSource.includes('renderYoutubeHandoff') &&
+      jsSource.includes('renderYoutubeSourceHandoffQueue') &&
       jsSource.includes('renderYoutubeExecutiveSummary') &&
       jsSource.includes('setDevView') &&
       cssSource.includes('.youtube-system') &&
       cssSource.includes('.yt-stage-grid') &&
       cssSource.includes('.yt-handoff-grid') &&
+      cssSource.includes('.yt-source-handoff-list') &&
       cssSource.includes('.yt-exec-summary'),
     'Dev page exposes a separate YouTube Intelligence system view',
-    'sidebar view + #view-youtube + #youtube-system + runtime/stage/handoff/executive-summary renderers',
+    'sidebar view + #view-youtube + #youtube-system + runtime/stage/handoff/source-browser/executive-summary renderers',
   )
   addCheck(checks, pageUsesSharedLauncherTopbar(htmlSource, cssSource), 'Dev page uses the shared launcher topbar structure/CSS', 'launcher-topbar classes + /hub-launcher.css')
   addCheck(checks, !htmlSource.includes('id="active-card"') && !htmlSource.includes('id="source-proof"') && !htmlSource.includes('id="director-status"'), 'Dev page does not show redundant status-only middle cards', 'active card/source proof/director mini cards removed')
@@ -347,7 +349,7 @@ async function main() {
       jsSource.includes('state.dataPoolLoadInFlight') &&
       jsSource.includes("document.visibilityState === 'hidden'") &&
       jsSource.includes("window.addEventListener('focus', refreshDevDataPoolFromBackend)") &&
-      htmlSource.includes('20260527-auto-refresh-v1'),
+      htmlSource.includes('20260527-source-handoff-v1'),
     'Dev page automatically refetches source-backed dashboard data after extraction writes',
     '30s no-store polling + focus refresh + in-flight guard',
   )
@@ -649,6 +651,20 @@ async function main() {
     'YouTube handoff counts read from the full watched-video evidence spine, not only the approval queue',
     `reports=${payload?.youtubeSourceIntelligence?.handoffEvidence?.scannedReportCount || 0} / public=${youtubeHandoffBucketById['public-web-resources']?.count || 0} / repos=${youtubeHandoffBucketById['public-code-repos']?.count || 0} / free=${youtubeHandoffBucketById['free-communities']?.count || 0} / newsletters=${youtubeHandoffBucketById['creator-newsletters']?.count || 0}`,
   )
+  const sourceGodModeHandoffQueue = payload?.youtubeSourceIntelligence?.sourceGodModeHandoffQueue || {}
+  const sourceGodModeRows = list(sourceGodModeHandoffQueue.rows)
+  addCheck(
+    checks,
+    sourceGodModeHandoffQueue.status === 'ready' &&
+      Number(sourceGodModeHandoffQueue.counts?.runnableRows || 0) > 0 &&
+      Number(sourceGodModeHandoffQueue.counts?.parkedRows || 0) > 0 &&
+      sourceGodModeRows.some(row => row.runner === 'source:god-mode' && row.runnable === true) &&
+      sourceGodModeRows.some(row => row.runner === 'skool:free-god-mode' && row.runnable === true) &&
+      sourceGodModeRows.some(row => row.requiresAuth === true && row.runnable === false) &&
+      sourceGodModeRows.filter(row => row.runnable === true).every(row => text(row.runCommand)),
+    'YouTube handoff exposes runnable source-browser rows while paid/auth stays parked',
+    `ready=${sourceGodModeHandoffQueue.counts?.runnableRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
+  )
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => /^https?:\/\//i.test(text(item.url)) && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
   addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'creator-newsletters') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'skool-free-communities'), 'source coverage includes planned GitHub, newsletters, free Skool, and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)
   addCheck(checks, list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'meetings-transcripts') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'email-missive-comms') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'slack-comms'), 'active extraction lanes expose internal Foundation signals', list(payload?.activeExtractionLanes).map(lane => lane.laneId).join(', ') || 'missing')
@@ -706,6 +722,10 @@ async function main() {
           scannedReportCount: payload.youtubeSourceIntelligence.handoffEvidence.scannedReportCount,
           buckets: Object.fromEntries(Object.entries(payload.youtubeSourceIntelligence.handoffEvidence.buckets || {})
             .map(([bucketId, bucket]) => [bucketId, { count: bucket.count, sampleHosts: bucket.sampleHosts }])),
+        } : null,
+        sourceGodModeHandoffQueue: payload.youtubeSourceIntelligence.sourceGodModeHandoffQueue ? {
+          status: payload.youtubeSourceIntelligence.sourceGodModeHandoffQueue.status,
+          counts: payload.youtubeSourceIntelligence.sourceGodModeHandoffQueue.counts,
         } : null,
         selectedVideos: list(payload.youtubeSourceIntelligence.selectedVideos).length,
         creatorLeaderboard: list(payload.youtubeSourceIntelligence.creatorLeaderboard).length,

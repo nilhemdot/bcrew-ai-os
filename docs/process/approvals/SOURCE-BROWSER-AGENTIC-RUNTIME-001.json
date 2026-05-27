@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-BROWSER-AGENTIC-RUNTIME-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-27T12:26:17-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-browser-agentic-runtime-001-plan.md",
+  "approvedPlanSha256": "9018988eeca62078a9e01efb4e0df6400516a28008e9c6724cb38339404eec27",
+  "approvedRepoHead": "c29da6ac12e26c79f2c7f70b8f82165ecda1040c",
+  "approvalSource": "Steve May 27 direct approval after reviewing the cleaned Foundation/source-browser plan with ok Go for it. Scope is the approved executing slice for YouTube source-browser handoff queueing, bounded public/free source runs, paid/auth/product parking, and no Scoper promotion.",
+  "approvalDigest": "8098d62f67ee5baf71a2056d13c883b940d6293e95249c5ac186f9dfad884c6a"
+}

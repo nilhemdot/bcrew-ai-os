@@ -2295,7 +2295,8 @@ button {
 
 .yt-video-list,
 .yt-creator-grid,
-.yt-reason-list {
+.yt-reason-list,
+.yt-source-handoff-list {
   display: grid;
   gap: 10px;
 }
@@ -2304,6 +2305,58 @@ button {
   display: grid;
   gap: 10px;
   padding: 16px;
+}
+
+.yt-source-handoff-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.yt-source-handoff-row {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--grey-line);
+  border-left: 4px solid var(--blue);
+  border-radius: var(--r-sm);
+  background: var(--white);
+}
+
+.yt-source-handoff-row.pending {
+  border-left-color: var(--amber);
+}
+
+.yt-source-handoff-row div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.yt-source-handoff-row span,
+.yt-source-handoff-row strong,
+.yt-source-handoff-row small {
+  min-width: 0;
+}
+
+.yt-source-handoff-row strong,
+.yt-source-handoff-row small {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+
+.yt-source-handoff-row strong {
+  color: var(--blue);
+}
+
+.yt-source-handoff-row.pending strong {
+  color: var(--amber);
+}
+
+.yt-source-handoff-row p {
+  margin: 0;
+  color: var(--grey-d);
 }
 
 .yt-video-head {
@@ -3376,6 +3429,7 @@ button {
   .yt-runtime,
   .yt-stage-grid,
   .yt-handoff-grid,
+  .yt-source-handoff-list,
   .yt-two-col {
     grid-template-columns: 1fr;
   }

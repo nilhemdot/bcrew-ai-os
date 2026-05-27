@@ -605,6 +605,7 @@
     "process:decision-004-check": "node --env-file-if-exists=.env scripts/process-decision-004-check.mjs",
     "process:decision-005-check": "node --env-file-if-exists=.env scripts/process-decision-005-check.mjs",
     "process:source-god-mode-extractor-runtime-check": "node --env-file-if-exists=.env scripts/process-source-god-mode-extractor-runtime-check.mjs",
+    "process:source-god-mode-youtube-handoff-check": "node --env-file-if-exists=.env scripts/process-source-god-mode-youtube-handoff-check.mjs",
     "source:god-mode": "node --env-file-if-exists=.env scripts/run-source-god-mode-extractor.mjs",
     "source:browser-agent": "node --env-file-if-exists=.env scripts/run-source-browser-agent.mjs",
     "source:agentic-browser": "node --env-file-if-exists=.env scripts/run-source-agentic-browser.mjs",

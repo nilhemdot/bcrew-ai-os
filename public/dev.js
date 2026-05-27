@@ -639,6 +639,44 @@ function renderYoutubeHandoff(bucket = {}) {
   `
 }
 
+function renderYoutubeSourceHandoffRow(row = {}) {
+  const tone = row.runnable ? 'live' : 'pending'
+  const action = row.runnable ? row.runner || 'source worker' : row.status || 'parked'
+  return `
+    <article class="yt-source-handoff-row ${escapeHtml(tone)}">
+      <div>
+        <span>${escapeHtml(row.label || row.bucketId || 'Source')}</span>
+        <strong>${escapeHtml(action)}</strong>
+      </div>
+      <p>${escapeHtml(row.plainEnglish || row.url || '')}</p>
+      <small>${escapeHtml(row.host || '')}${row.sourceType ? ` · ${escapeHtml(row.sourceType)}` : ''}</small>
+    </article>
+  `
+}
+
+function renderYoutubeSourceHandoffQueue(queue = {}) {
+  const rows = list(queue.rows).slice(0, 12)
+  const counts = queue.counts || {}
+  const queueCopy = [
+    `${compactNumber(counts.evidenceRows || counts.totalRows || 0)} discovered`,
+    `${compactNumber(counts.runnableRows || 0)} public/free rows ready`,
+    `${compactNumber(counts.parkedRows || 0)} parked`,
+    `${compactNumber(counts.rowsWithRunCommand || 0)} with runner commands`,
+  ].join(' · ')
+  return `
+    <section class="yt-section">
+      <div class="yt-section-head">
+        <span>SOURCE-BROWSER QUEUE</span>
+        <h3>What can run next</h3>
+        <small>${escapeHtml(queueCopy)}</small>
+      </div>
+      <div class="yt-source-handoff-list">
+        ${rows.map(renderYoutubeSourceHandoffRow).join('') || '<article class="loading-card">No source-browser queue rows returned yet.</article>'}
+      </div>
+    </section>
+  `
+}
+
 function renderYoutubeNextVideo(video = {}) {
   const steps = list(video.sourceSopReadiness).slice(0, 8)
   return `
@@ -798,6 +836,8 @@ function renderYoutubeSourceIntelligence(snapshot = {}) {
         ${list(system.handoffBuckets).map(renderYoutubeHandoff).join('') || '<article class="loading-card">No handoff queues returned.</article>'}
       </div>
     </section>
+
+    ${renderYoutubeSourceHandoffQueue(system.sourceGodModeHandoffQueue)}
 
     <section class="yt-two-col">
       <div class="yt-section">
