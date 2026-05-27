@@ -154,17 +154,31 @@ async function loadAlreadyFullWatchedVideoIds() {
   try {
     const result = await pool.query(
       `
+        WITH watched_reports AS (
+          SELECT report_artifact_id
+          FROM intelligence_report_artifacts
+          WHERE metadata->>'fullWatchRoute' = 'gemini_api_youtube_url_video_understanding'
+             OR metadata->>'proofMode' IN (
+               'youtube_latest_20_god_mode_api_full_watch',
+               'youtube_long_course_god_mode_api_full_watch'
+             )
+             OR report_artifact_id LIKE 'batch:youtube-latest-20:api-full-watch-v1:%'
+             OR report_artifact_id LIKE 'batch:youtube-long-course:api-full-watch-v1:%'
+             OR report_artifact_id = 'proof:god-mode-extractor-eyes-quality-loop-001'
+        )
         SELECT metadata, NULL::text AS anchor_value
         FROM intelligence_report_artifacts
-        WHERE metadata->>'fullWatchRoute' = 'gemini_api_youtube_url_video_understanding'
+        WHERE report_artifact_id IN (SELECT report_artifact_id FROM watched_reports)
         UNION ALL
         SELECT metadata, anchor_value
         FROM intelligence_atoms
-        WHERE metadata->>'sourceVideoId' IS NOT NULL
+        WHERE report_artifact_id IN (SELECT report_artifact_id FROM watched_reports)
+          AND metadata->>'sourceVideoId' IS NOT NULL
         UNION ALL
         SELECT metadata, anchor_value
         FROM intelligence_atom_hits
-        WHERE metadata->>'sourceVideoId' IS NOT NULL
+        WHERE report_artifact_id IN (SELECT report_artifact_id FROM watched_reports)
+          AND metadata->>'sourceVideoId' IS NOT NULL
       `,
     )
     const ids = new Set()
