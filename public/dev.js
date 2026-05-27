@@ -522,7 +522,7 @@ function buildEvidenceCards(snapshot = {}) {
       label: 'Video inventory',
       tone: 'live',
       summary: `${compactNumber(inventoryCount)} public YouTube metadata rows are known. This is inventory, not full video watching.`,
-      meta: `${compactNumber(catchup.summary?.pendingStandardVideoCount || 0)} standard pending · ${compactNumber(catchup.summary?.longCoursePendingCount || 0)} long-course pending`,
+      meta: `${compactNumber(autopilot.selectedVideos?.length || 0)} eligible now · ${compactNumber(catchup.summary?.pendingStandardVideoCount || 0)} raw pending · ${compactNumber(catchup.summary?.longCoursePendingCount || 0)} long-course pending`,
     },
     {
       value: fullReviewCount,
@@ -599,7 +599,8 @@ function renderYoutubeSystemStats(system = {}) {
     ['Creators', summary.creatorCount],
     ['Tracked videos', summary.trackedMetadataCount],
     ['Watched', summary.watchedVideoCount],
-    ['Pending', summary.pendingStandardVideoCount],
+    ['Eligible now', summary.eligibleStandardVideoCount],
+    ['Raw pending', summary.pendingStandardVideoCount],
     ['Ideas', summary.buildIdeaCount],
     ['Spend', money(summary.estimatedSpendUsd || 0)],
   ].map(([label, value]) => `

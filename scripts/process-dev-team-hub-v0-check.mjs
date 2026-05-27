@@ -10,11 +10,11 @@ import {
   getActiveFoundationCurrentSprint,
   getExtractionControlSnapshot,
   getFoundationSnapshot,
-  getIntelligenceAtomSpineSnapshot,
   getIntelligenceReportBundle,
   initFoundationDb,
   listLlmCalls,
   listSourceCrawlItems,
+  listYoutubeFullWatchReportArtifacts,
 } from '../lib/foundation-db.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
 import { buildCreatorWatchlistSnapshot } from '../lib/build-intel-watchlist.js'
@@ -213,7 +213,7 @@ function buildVisibleNumbers(payload = {}) {
 async function loadLiveSnapshot() {
   const [
     foundationSnapshot,
-    fullReportSpine,
+    youtubeFullWatchReports,
     activeFoundationSprint,
     extractionControl,
     items,
@@ -227,7 +227,7 @@ async function loadLiveSnapshot() {
     geminiVideoReviewCalls,
   ] = await Promise.all([
     getFoundationSnapshot(),
-    getIntelligenceAtomSpineSnapshot({ limit: 500 }),
+    listYoutubeFullWatchReportArtifacts({ limit: 500 }),
     getActiveFoundationCurrentSprint(),
     getExtractionControlSnapshot({ limit: 200 }),
     listSourceCrawlItems({
@@ -274,7 +274,7 @@ async function loadLiveSnapshot() {
     directorBundle,
     sourceValueGraderBundle,
     geminiVideoReviewCalls,
-    youtubeFullWatchReports: fullReportSpine?.recentReports || [],
+    youtubeFullWatchReports,
     actionRouter: foundationSnapshot.intelligenceActionRouter || {},
     currentSprint: activeFoundationSprint,
     extractionControl,
@@ -358,13 +358,14 @@ async function main() {
   addCheck(checks, moduleSource.includes('youtubeCreatorGodModeCatchup') && moduleSource.includes('buildYoutubeCreatorGodModeCatchupSnapshot') && jsSource.includes('youtubeCreatorGodModeCatchup'), 'Dev Hub API/page exposes YouTube creator catch-up baseline readback', 'youtubeCreatorGodModeCatchup')
 	  addCheck(
 	    checks,
-	    routeSource.includes('getIntelligenceAtomSpineSnapshot({ limit: 500 })') &&
+	    routeSource.includes('listYoutubeFullWatchReportArtifacts({ limit: 500 })') &&
 	      moduleSource.includes('youtubeFullWatchReports') &&
-	      scriptSource.includes('getIntelligenceAtomSpineSnapshot({ limit: 500 })') &&
+	      moduleSource.includes("fullWatchReportReadbackRoute: 'listYoutubeFullWatchReportArtifacts({ limit: 500 })'") &&
+	      scriptSource.includes('listYoutubeFullWatchReportArtifacts({ limit: 500 })') &&
 	      routeSource.includes("listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 })") &&
 	      scriptSource.includes("listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 })"),
 	    'Dev Hub catch-up readback uses the full YouTube full-watch report set instead of a recent-report slice',
-	    '500-report spine + 5000-call Gemini watched-id readback feeds youtubeCreatorGodModeCatchup',
+	    'full-watch report helper + 5000-call Gemini watched-id readback feeds youtubeCreatorGodModeCatchup',
 	  )
   addCheck(
     checks,
@@ -589,10 +590,11 @@ async function main() {
   )
   addCheck(
     checks,
-    rejectedAutopilotVideos.some(video => video.reason === 'source_sop_next_action_blocks_video_watch') &&
-      rejectedAutopilotVideos.length > selectedAutopilotVideos.length,
-    'live Dev Hub exposes autopilot filtered candidates, including source-SOP-first blocks',
-    `${rejectedAutopilotVideos.length} rejected / ${selectedAutopilotVideos.length} selected`,
+    rejectedAutopilotVideos.length > selectedAutopilotVideos.length &&
+      rejectedAutopilotVideos.every(video => text(video.reason)) &&
+      Object.keys(payload?.youtubeSourceIntelligence?.rejectedReasonCounts || {}).length >= 1,
+    'live Dev Hub exposes autopilot filtered candidates with exact rejection reasons',
+    `${rejectedAutopilotVideos.length} rejected / ${selectedAutopilotVideos.length} selected / reasons=${Object.keys(payload?.youtubeSourceIntelligence?.rejectedReasonCounts || {}).join(', ')}`,
   )
   addCheck(
     checks,
