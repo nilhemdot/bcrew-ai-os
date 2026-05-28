@@ -386,6 +386,8 @@ async function main() {
       jsSource.includes('renderYoutubeSourceBucketCards') &&
       jsSource.includes('sourceHandoffVisibleRows') &&
       jsSource.includes('renderYoutubeCreatorSourceStacks') &&
+      jsSource.includes('const rows = list(stacks)') &&
+      !jsSource.includes('const rows = list(stacks).slice(0, 12)') &&
       jsSource.includes('renderSourceSessionBrokerDecision') &&
       jsSource.includes('renderYoutubeExecutiveSummary') &&
       jsSource.includes('setDevView') &&
@@ -668,15 +670,16 @@ async function main() {
   const creatorSourceStacks = list(payload?.youtubeSourceIntelligence?.creatorSourceStacks)
   addCheck(
     checks,
-    creatorSourceStacks.length >= list(payload?.youtubeSourceIntelligence?.topCreators).length &&
+    creatorSourceStacks.length === Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || creatorSourceStacks.length) &&
+      creatorSourceStacks.length >= list(payload?.youtubeSourceIntelligence?.topCreators).length &&
       creatorSourceStacks.some(row => Number(row.surfaces?.youtube?.watched || row.surfaces?.youtube?.read || 0) > 0) &&
       creatorSourceStacks.some(row =>
         Number(row.surfaces?.newsletters?.count || 0) > 0 ||
         Number(row.surfaces?.githubRepos?.count || 0) > 0 ||
         Number(row.surfaces?.freeCommunities?.count || 0) > 0
-      ),
+    ),
     'live YouTube source intelligence exposes creator source stacks across YouTube, repos, newsletters, and communities',
-    `${creatorSourceStacks.length} creator stacks`,
+    `${creatorSourceStacks.length}/${payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0} creator stacks`,
   )
   addCheck(
     checks,

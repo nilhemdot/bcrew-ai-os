@@ -869,7 +869,7 @@ function renderYoutubeCreatorSourceStack(row = {}) {
 }
 
 function renderYoutubeCreatorSourceStacks(stacks = []) {
-  const rows = list(stacks).slice(0, 12)
+  const rows = list(stacks)
   if (!rows.length) return ''
   return `
     <section class="yt-section">
