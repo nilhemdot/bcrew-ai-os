@@ -322,10 +322,10 @@ async function main() {
         scannedReportCount: 1,
         buckets: {
           'public-code-repos': {
-            count: 1,
+            count: 2,
             itemLimit: 10,
             hasMore: false,
-            sampleHosts: ['claude.ai'],
+            sampleHosts: ['claude.ai', 'github.com'],
             samples: [{
               url: 'https://claude.ai/code',
               host: 'claude.ai',
@@ -337,17 +337,30 @@ async function main() {
               sourceCreators: ['Fixture A Source'],
               disposition: 'fixture_youtube_handoff',
             }],
-            items: [{
-              url: 'https://claude.ai/code',
-              host: 'claude.ai',
-              reportArtifactId: 'report:repo-host-boundary',
-              sourceVideoId: 'fixture-video-repo-host-boundary',
-              creatorId: 'fixture-a-source',
-              creator: 'Fixture A Source',
-              sourceCreatorIds: ['fixture-a-source'],
-              sourceCreators: ['Fixture A Source'],
-              disposition: 'fixture_youtube_handoff',
-            }],
+            items: [
+              {
+                url: 'https://claude.ai/code',
+                host: 'claude.ai',
+                reportArtifactId: 'report:repo-host-boundary',
+                sourceVideoId: 'fixture-video-repo-host-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+                sourceCreatorIds: ['fixture-a-source'],
+                sourceCreators: ['Fixture A Source'],
+                disposition: 'fixture_youtube_handoff',
+              },
+              {
+                url: 'https://github.com',
+                host: 'github.com',
+                reportArtifactId: 'report:repo-url-boundary',
+                sourceVideoId: 'fixture-video-repo-url-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+                sourceCreatorIds: ['fixture-a-source'],
+                sourceCreators: ['Fixture A Source'],
+                disposition: 'fixture_youtube_handoff',
+              },
+            ],
           },
         },
       },
@@ -514,7 +527,8 @@ async function main() {
 
   const rows = list(queue.rows)
   const repoUpgradeRow = list(repoUpgradeQueue?.rows).find(row => row.bucketId === 'public-code-repos') || null
-  const repoHostBoundaryRow = list(repoHostBoundaryQueue?.rows).find(row => row.bucketId === 'public-code-repos') || null
+  const repoHostBoundaryRow = list(repoHostBoundaryQueue?.rows).find(row => row.url === 'https://claude.ai/code') || null
+  const repoRootBoundaryRow = list(repoHostBoundaryQueue?.rows).find(row => row.url === 'https://github.com') || null
   const results = list(batch.results)
   const byBucket = Object.fromEntries(results.map(result => [result.bucketId, result]))
   const skipped = list(batch.skippedRows)
@@ -626,6 +640,21 @@ async function main() {
       status: repoHostBoundaryRow?.status,
       runnable: repoHostBoundaryRow?.runnable,
       runCommand: repoHostBoundaryRow?.runCommand,
+    }),
+  )
+  addCheck(
+    checks,
+    repoRootBoundaryRow?.status === 'blocked_not_public_repo_deep_review_url' &&
+      repoRootBoundaryRow?.runnable === false &&
+      repoRootBoundaryRow?.parked === true &&
+      repoRootBoundaryRow?.runner === 'repo:deep-review' &&
+      !repoRootBoundaryRow?.runCommand,
+    'repo host roots in the public-code bucket do not run through repo:deep-review',
+    JSON.stringify({
+      url: repoRootBoundaryRow?.url,
+      status: repoRootBoundaryRow?.status,
+      runnable: repoRootBoundaryRow?.runnable,
+      runCommand: repoRootBoundaryRow?.runCommand,
     }),
   )
   addCheck(

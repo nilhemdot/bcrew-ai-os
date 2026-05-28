@@ -18,6 +18,7 @@ This is a blocked-preflight closeout. The full source-browser/GitHub source lane
 - Repo review results persist a repo review packet and cited implementation patterns into the source crawl item metadata.
 - Old generic `source:god-mode` repo reads no longer count as completed repo review. They return as `repo_deep_review_upgrade_needed` until the repo lane proves README/docs/examples/license/provenance and implementation-pattern extraction.
 - Product/tool hosts that accidentally land in the public-code bucket are parked before execution instead of burning `repo:deep-review` runs.
+- Host-root URLs that accidentally land in the public-code bucket, such as `https://github.com`, are parked before execution because they are not exact repo or repo-file targets.
 - Dev source coverage copy now describes the GitHub/repo feed path as public README/docs/examples/license review before any implementation work.
 
 ## Why It Matters
@@ -55,8 +56,15 @@ After this slice, those old generic repo reads are treated honestly:
 - old generic reads stay as history
 - repo rows needing the real lane show as runnable upgrade work
 
-Expected live effect: the Dev Hub should expose the 86 public-code repo rows as repo deep-review upgrade work until bounded batches run.
+Live effect after bounded batches:
+
+- public-code repo rows: 86 total
+- repo rows read or recorded: 81
+- repo rows parked/blocked: 5
+- repo rows still runnable: 0
+
+The parked rows include non-repo/product hosts, host roots, and repo URLs that the read-only repo runner could not read cleanly. They are recorded instead of silently retried.
 
 ## Next
 
-After ship, run bounded public-code repo deep-review batches from the queued YouTube repo evidence. Review the highest-value repo implementation packets with Steve before any Scoper promotion or implementation import.
+Review the highest-value repo implementation packets with Steve before any Scoper promotion or implementation import. The next source-expansion lane should be chosen from the source-session prep queue, not by broadening repo read permissions.
