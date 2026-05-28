@@ -889,6 +889,8 @@ async function main() {
     checks,
     sourceGodModeHandoffQueue.status === 'ready' &&
       sourceGodModeEvidenceAccountedFor &&
+      Number.isFinite(sourceGodModeDuplicateRows) &&
+      jsSource.includes('duplicate variants folded') &&
       Object.values(sourceGodModeBucketCounts).every(bucket => bucket.hasMore === false) &&
       Number(sourceGodModeHandoffQueue.counts?.parkedRows || 0) > 0 &&
       sourceGodModeRows.some(row => row.requiresAuth === true && row.runnable === false) &&

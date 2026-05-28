@@ -713,7 +713,12 @@ function renderYoutubeSourceBucketCards(queue = {}) {
             <strong>${escapeHtml(compactNumber(bucket.count || bucket.queuedRows || 0))}</strong>
           </div>
           <p>${escapeHtml(statusCopy(bucket.status || 'waiting'))}</p>
-          <small>${escapeHtml(compactNumber(bucket.runnableRows || 0))} ready · ${escapeHtml(compactNumber(bucket.alreadyRunRows || 0))} read · ${escapeHtml(compactNumber(bucket.parkedRows || 0))} parked</small>
+          <small>${escapeHtml([
+            `${compactNumber(bucket.runnableRows || 0)} ready`,
+            `${compactNumber(bucket.alreadyRunRows || 0)} read`,
+            `${compactNumber(bucket.parkedRows || 0)} parked`,
+            Number(bucket.duplicateRows || 0) ? `${compactNumber(bucket.duplicateRows || 0)} duplicate variants folded` : '',
+          ].filter(Boolean).join(' · '))}</small>
         </article>
       `).join('')}
     </div>
@@ -993,10 +998,11 @@ function renderYoutubeSourceHandoffQueue(queue = {}) {
   const counts = queue.counts || {}
   const queueCopy = [
     `${compactNumber(counts.evidenceRows || counts.totalRows || 0)} discovered`,
+    Number(counts.duplicateRows || 0) ? `${compactNumber(counts.duplicateRows || 0)} duplicate variants folded` : '',
     `${compactNumber(counts.runnableRows || 0)} public/free rows ready`,
     `${compactNumber(counts.parkedRows || 0)} parked`,
     `${compactNumber(counts.rowsWithRunCommand || 0)} with runner commands`,
-  ].join(' · ')
+  ].filter(Boolean).join(' · ')
   return `
     <section class="yt-section">
       <div class="yt-section-head">
