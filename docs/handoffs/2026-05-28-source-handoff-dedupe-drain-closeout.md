@@ -151,3 +151,39 @@ Morning talk track update:
 - The system is not blocked by public page/source-browser work anymore; that queue is drained.
 - The next unlock is not more public crawling. It is source identity/session setup for free Skool, newsletter signup lane, and myICOR MCP OAuth while Steve is awake.
 - Non-Skool community rows are now visible as their own runner gap instead of being hidden behind Skool cluster volume.
+
+## 09:13 EDT Scheduled Runtime Update
+
+Closed the remaining safe autopilot gap for public source expansion:
+
+- Added scheduled Foundation job `source-god-mode-youtube-handoff`.
+- Schedule: daily 08:15 America/Toronto, after the public YouTube watcher window.
+- Command: `npm run source:youtube-handoff -- --apply --json --max-runs=10`.
+- Mutation posture: explicit `operational_write` allowlist.
+- Allowed work: bounded public/free source-browser reads, repo deep-review reads, and governed source-crawl/report artifact persistence.
+- Still forbidden: auth unless Source Session Broker marks the row ready, form submits, newsletter submits, purchases, downloads, posts/comments/messages, credential mutation, normal Chrome profiles, provider calls, Scoper promotion, and backlog writes.
+
+Proofs passed after scheduling:
+
+```bash
+node --check lib/foundation-jobs.js
+node --check lib/foundation-job-mutation-allowlist.js
+node --check scripts/process-source-god-mode-youtube-handoff-check.mjs
+npm run process:source-god-mode-youtube-handoff-check -- --json
+npm run process:foundation-job-mutation-allowlist-check -- --json
+npm run source:youtube-handoff -- --json --max-runs=10
+npm run process:dev-team-hub-v0-check -- --json
+npm run process:source-session-readiness-check -- --json
+npm run foundation:job -- --job=source-god-mode-youtube-handoff --force --actor=codex-overnight-source-handoff-schedule-proof
+npm run process:system-health-nightly-audit-check -- --json
+```
+
+Live readback after the change:
+
+- Source handoff queue remains drained: 1,234 evidence rows, 1,159 canonical rows, 75 duplicate variants folded, 696 already read, 463 parked, 0 runnable, 0 run commands.
+- First scheduled-job ledger proof ran as `job-source-god-mode-youtube-handoff-20260528131358-lfjqws`; it exited `no_runnable_rows` and started no source-browser work.
+- System Health initially caught the new job as overdue because it had no prior run; after the ledger proof, System Health returned healthy with 0 scheduled-job risks.
+- Dev Hub proof is healthy and still shows 0 public/free rows ready, 463 parked, 24 legacy approval review rows, and 276 source-session prep rows.
+- Source-session readiness remains honest blocked-preflight: missing `skool / ai@bensoncrew.ca`, `creator-newsletters / ai@bensoncrew.ca`, and `myicor-mcp-oauth / myicor-authorized-member`.
+
+Morning note: the safe public source expansion loop is now scheduled. If Steve authorizes sessions/credentials while awake, rerun readiness and then let the scheduled handoff drain newly runnable rows instead of manual babysitting.

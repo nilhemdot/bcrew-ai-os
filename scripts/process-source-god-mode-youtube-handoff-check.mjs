@@ -18,10 +18,14 @@ import {
 import {
   validatePlanApprovalFile,
 } from '../lib/approval-integrity.js'
+import {
+  getFoundationJobDefinition,
+} from '../lib/foundation-jobs.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const APPROVAL_REF = 'docs/process/approvals/SOURCE-BROWSER-AGENTIC-RUNTIME-001.json'
+const SCHEDULED_JOB_KEY = 'source-god-mode-youtube-handoff'
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -243,6 +247,7 @@ function buildFixtureHandoffEvidence(baseUrl = '') {
 async function main() {
   const args = parseArgs()
   const checks = []
+  const scheduledJob = getFoundationJobDefinition(SCHEDULED_JOB_KEY)
   const [
     packageJson,
     moduleSource,
@@ -607,6 +612,29 @@ async function main() {
     approvalValidation.ok === true,
     'source-browser handoff plan approval validates',
     APPROVAL_REF,
+  )
+  addCheck(
+    checks,
+    scheduledJob?.key === SCHEDULED_JOB_KEY &&
+      scheduledJob.runtimeMode === 'scheduled' &&
+      scheduledJob.scheduleLocalTime === '08:15' &&
+      scheduledJob.scheduleTimezone === 'America/Toronto' &&
+      scheduledJob.mutationPosture === 'operational_write' &&
+      scheduledJob.scheduleMutationGuard?.ok === true &&
+      scheduledJob.mutationAllowlist?.decision === 'allow' &&
+      scheduledJob.args?.includes('source:youtube-handoff') &&
+      scheduledJob.args?.includes('--apply') &&
+      scheduledJob.args?.includes('--max-runs=10'),
+    'source handoff runtime is scheduled with an explicit operational-write allowlist',
+    JSON.stringify({
+      key: scheduledJob?.key || 'missing',
+      runtimeMode: scheduledJob?.runtimeMode || 'missing',
+      scheduleLocalTime: scheduledJob?.scheduleLocalTime || 'missing',
+      mutationPosture: scheduledJob?.mutationPosture || 'missing',
+      scheduleGuard: scheduledJob?.scheduleMutationGuard?.ok,
+      allowlist: scheduledJob?.mutationAllowlist?.decision || 'missing',
+      args: scheduledJob?.args || [],
+    }),
   )
   addCheck(
     checks,
