@@ -256,6 +256,7 @@
     "process:harlan-project-registry-check": "node --env-file-if-exists=.env scripts/process-harlan-project-registry-check.mjs",
     "process:harlan-operator-loop-check": "node --env-file-if-exists=.env scripts/process-harlan-operator-loop-check.mjs",
     "process:harlan-auth-escalation-loop-check": "node --env-file-if-exists=.env scripts/process-harlan-auth-escalation-loop-check.mjs",
+    "process:harlan-auth-live-delivery-check": "node --env-file-if-exists=.env scripts/process-harlan-auth-live-delivery-check.mjs",
     "process:codex-direct-subscription-route-check": "node --env-file-if-exists=.env scripts/process-codex-direct-subscription-route-check.mjs",
     "process:gemini-video-brain-route-check": "node --env-file-if-exists=.env scripts/process-gemini-video-brain-route-check.mjs",
     "process:claude-code-review-brain-route-check": "node --env-file-if-exists=.env scripts/process-claude-code-review-brain-route-check.mjs",

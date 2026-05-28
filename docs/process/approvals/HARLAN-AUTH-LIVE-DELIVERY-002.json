@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "HARLAN-AUTH-LIVE-DELIVERY-002",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-28T10:00:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/harlan-auth-live-delivery-002-plan.md",
+  "approvedPlanSha256": "677ce8b4e63f21dd3a5a0f0b4a218aea5bce33d59d2103fac216f9e477d9905a",
+  "approvedRepoHead": "07fee618ec1e88e197283caf68866196a21d2c28",
+  "approvalSource": "Steve confirmed Harlan agent communications should live on Telegram, then told Codex to keep going without stopping unless blocked. Approval is for blocked-preflight delivery gating only: no live Telegram send until Steve approves exact bot/chat boundary and one Steve-only live test.",
+  "constraints": [
+    "Build Harlan Telegram live-delivery preflight for auth-needed operator help",
+    "Keep proof paths no-send with sendsMessageNow=false and externalSent=false",
+    "Reject raw Telegram bot tokens and raw chat IDs from repo/proof output",
+    "Allow only Steve as the target recipient",
+    "Prepare request preview only when bot/chat secret refs and live-test approval ref are present",
+    "Do not send Telegram, create a bot, sign up, log in, resume source sessions, buy, download, post, comment, message, mutate credentials, or extract paid/private content from this slice"
+  ],
+  "approvalDigest": "5db773756056e6a98a5dcb4ac4c6a847968c96b7b110e07edd3ea3998fec27e7"
+}
