@@ -990,7 +990,9 @@ async function main() {
       sourceRunReadbackSource.includes('repoReview') &&
       sourceRunReadbackSource.includes('buildRepoDeepReviewQueue') &&
       sourceRunReadbackSource.includes('buildRepoImplementationPackets') &&
+      sourceRunReadbackSource.includes('repo:deep-review') &&
       sourceRunReadbackSource.includes('buildFileResourceReadback') &&
+      packageJson.scripts?.['repo:deep-review'] === 'node --env-file-if-exists=.env scripts/run-public-repo-deep-review.mjs' &&
       jsSource.includes('renderSourceRunSummary') &&
       jsSource.includes('REPO READBACK') &&
       jsSource.includes('Repo runtime proof') &&

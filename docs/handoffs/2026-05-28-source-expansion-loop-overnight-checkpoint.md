@@ -72,6 +72,11 @@ Foundation/system health is green after the repair pass:
 - Added repo implementation review packets on top of the repo queue.
   - The Dev page now shows what a future repo review should inspect: README/root page, docs/architecture, examples/samples, license/provenance, and implementation signals.
   - These packets are built only from saved source-browser metadata and are review-only; they do not run GitHub, clone repos, install dependencies, import code, or create backlog cards.
+- Added the public repo deep-review runner and fixture proof.
+  - New operator command: `npm run repo:deep-review -- --url=<public repo URL>`.
+  - Focused proof reads a fixture repo README, docs/architecture, examples, and license/provenance pages, extracts cited implementation patterns, records install/clone text as warning-only evidence, and blocks raw/archive/download/auth/external/chrome links.
+  - It proved blocked login/archive/download URLs were not opened and no clone, install, download, import, backlog write, provider call, or auth side effect occurred.
+  - Dev repo queue copy now points at `repo:deep-review` instead of vague future repo work.
 - Hardened the repo source runtime so public GitHub/GitLab/Gist rows stay inside the target repo.
   - GitHub/GitLab browser pages such as README/docs/examples are treated as repo pages, not unsafe file downloads.
   - Repo runs skip global chrome such as GitHub home, pricing, login, features, and marketing pages.
@@ -162,6 +167,8 @@ Healthy:
 - `npm --silent run process:source-god-mode-extractor-runtime-check -- --json`
   - Re-run after file-resource policy proof passed: file/download resources become metadata-only candidates, `downloadedFile=false`, and blocked PDF/ZIP paths were not opened.
   - Re-run after repo runtime hardening passed: synthetic GitHub repo fixture read repo root, README, docs, and examples; skipped 4 GitHub chrome links; opened 0 GitHub chrome pages; found 16 implementation signals; produced 0 hard blockers and 0 unsafe side effects.
+- `npm --silent run process:public-repo-deep-review-runner-check -- --json`
+  - Added after repo runner build: fixture repo review read 5 repo-local pages, extracted 17 cited implementation patterns, blocked raw/archive/download/auth/external/chrome links, proved blocked paths were not opened, and recorded 0 unsafe side effects.
 - `npm --silent run process:source-session-broker-check -- --json`
 - `npm --silent run process:skool-free-community-god-mode-runner-check -- --json`
 - `npm --silent run process:source-god-mode-youtube-handoff-check -- --json`
