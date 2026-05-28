@@ -75,15 +75,31 @@ async function startFixtureServer() {
       <p>Concrete workflow steps, API notes, and implementation details for agent browser verification.</p>
       <a href="/checkout">Paid implementation pack</a>
     `),
-    '/repo': page('Public Repo README', `
+    '/demo/agent-runtime': page('Public Repo README', `
       <h1>course-video-manager README</h1>
-      <p>Public GitHub-style repo with setup notes, code examples, and source provenance for a video course manager.</p>
-      <a href="/repo/examples">Examples</a>
-      <a href="/repo/archive.zip">Download archive</a>
+      <p>Public GitHub-style repo with setup notes, agentic browser runtime, memory, evidence, tests, queue workers, and source provenance for a video course manager.</p>
+      <a href="/demo/agent-runtime/blob/main/docs/architecture.md">Architecture docs</a>
+      <a href="/demo/agent-runtime/tree/main/examples">Examples</a>
+      <a href="/demo/agent-runtime/blob/main/LICENSE">License</a>
+      <a href="/demo/agent-runtime/archive/refs/heads/main.zip">Download archive</a>
     `),
-    '/repo/examples': page('Repo Examples', `
+    '/demo/agent-runtime/blob/main/docs/architecture.md': page('Repo Architecture', `
+      <h1>Architecture</h1>
+      <p>The worker uses a scheduler, queue, retry checkpoint, source session broker, and audit readback so extraction can run without babysitting.</p>
+    `),
+    '/demo/agent-runtime/tree/main/examples': page('Repo Examples', `
       <h1>Examples</h1>
-      <p>Code examples for parsing video metadata and extracting build candidates.</p>
+      <p>Code examples for browser navigation, API adapters, MCP tools, plugin skills, eval checks, and guarded implementation patterns.</p>
+      <a href="/demo/agent-runtime/blob/main/examples/browser-agent.md">Browser agent example</a>
+      <a href="/demo/agent-runtime/releases/download/v1/toolkit.zip">Release zip</a>
+    `),
+    '/demo/agent-runtime/blob/main/examples/browser-agent.md': page('Browser Agent Example', `
+      <h1>Browser Agent Example</h1>
+      <p>The browser agent clicks safe links, captures DOM evidence, records screenshots, and stops at payment or account mutation.</p>
+    `),
+    '/demo/agent-runtime/blob/main/LICENSE': page('MIT License', `
+      <h1>MIT License</h1>
+      <p>MIT license provenance for public read-only review.</p>
     `),
     '/newsletter': page('Creator Newsletter', `
       <h1>AI Hero Newsletter</h1>
@@ -181,8 +197,8 @@ function buildFixtureHandoffEvidence(baseUrl = '') {
       itemLimit: 250,
       hasMore: false,
       sampleHosts: ['127.0.0.1'],
-      samples: [item('/repo', 'public-code-repos')],
-      items: [item('/repo', 'public-code-repos')],
+      samples: [item('/demo/agent-runtime', 'public-code-repos')],
+      items: [item('/demo/agent-runtime', 'public-code-repos')],
     },
     'creator-newsletters': {
       count: 1,
@@ -246,6 +262,7 @@ async function main() {
   const fixture = await startFixtureServer()
   let queue = null
   let uncappedQueue = null
+  let repoUpgradeQueue = null
   let communityBoundaryQueue = null
   let publicWebBoundaryQueue = null
   let batch = null
@@ -262,6 +279,41 @@ async function main() {
           { creatorId: 'fixture-c-source', creator: 'Fixture C Source', devBuildGrade: 'C', devWatchRecommendation: 'sample_only', laneScores: [{ laneId: 'aios_dev_build', grade: 'C', score: 38 }] },
         ],
       },
+    })
+    repoUpgradeQueue = buildSourceGodModeYoutubeHandoffQueue({
+      handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),
+      generatedAt: '2026-05-27T11:00:00.000-04:00',
+      freeCommunitySessionBrokerReady: true,
+      sourceValueGrader: {
+        sourceGrades: [
+          { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+        ],
+      },
+      runItems: [{
+        itemKey: 'source-god-mode-youtube-handoff-runs:old-generic-repo-run',
+        status: 'succeeded',
+        processedAt: '2026-05-27T10:00:00.000-04:00',
+        artifactId: '/tmp/old-generic-repo-read.json',
+        metadata: {
+          url: `${fixture.baseUrl}/demo/agent-runtime`,
+          bucketId: 'public-code-repos',
+          runner: 'source:god-mode',
+          sourceType: 'github_docs_public_resources',
+          status: 'source_god_mode_runtime_healthy',
+          pagesRead: 1,
+          sourceHandoffReadbackVersion: 2,
+          sideEffects: {
+            externalWrites: false,
+            writesBacklog: false,
+            submittedForm: false,
+            downloadedFile: false,
+            purchased: false,
+            postedOrMessaged: false,
+            mutatesCredentials: false,
+            normalChromeProfileUsed: false,
+          },
+        },
+      }],
     })
     const uncappedItem = (pathName, sourceVideoId = 'fixture-video-1') => ({
       url: `${fixture.baseUrl}${pathName}`,
@@ -418,6 +470,7 @@ async function main() {
   }
 
   const rows = list(queue.rows)
+  const repoUpgradeRow = list(repoUpgradeQueue?.rows).find(row => row.bucketId === 'public-code-repos') || null
   const results = list(batch.results)
   const byBucket = Object.fromEntries(results.map(result => [result.bucketId, result]))
   const skipped = list(batch.skippedRows)
@@ -483,7 +536,7 @@ async function main() {
   addCheck(
     checks,
       rows.some(row => row.bucketId === 'public-web-resources' && row.runner === 'source:god-mode') &&
-      rows.some(row => row.bucketId === 'public-code-repos' && row.sourceType === 'github_docs_public_resources') &&
+      rows.some(row => row.bucketId === 'public-code-repos' && row.runner === 'repo:deep-review' && row.sourceType === 'github_docs_public_resources') &&
       rows.some(row => row.bucketId === 'creator-newsletters' && row.sourceType === 'creator_newsletter') &&
       rows.some(row =>
         row.bucketId === 'free-communities' &&
@@ -500,6 +553,21 @@ async function main() {
       .every(row => row.runnable === false && row.parked === true && !row.runCommand),
     'paid/auth/product rows are parked and not runnable',
     rows.filter(row => !row.runnable).map(row => `${row.bucketId}:${row.status}`).join(', '),
+  )
+  addCheck(
+    checks,
+    repoUpgradeRow?.status === 'repo_deep_review_upgrade_needed' &&
+      repoUpgradeRow?.runnable === true &&
+      repoUpgradeRow?.runner === 'repo:deep-review' &&
+      /repo:deep-review/.test(repoUpgradeRow?.runCommand || '') &&
+      repoUpgradeRow?.existingRunRunner === 'source:god-mode',
+    'old generic repo source-browser reads do not satisfy the repo deep-review lane',
+    JSON.stringify({
+      status: repoUpgradeRow?.status,
+      runner: repoUpgradeRow?.runner,
+      existingRunRunner: repoUpgradeRow?.existingRunRunner,
+      runnable: repoUpgradeRow?.runnable,
+    }),
   )
   addCheck(
     checks,
@@ -605,6 +673,20 @@ async function main() {
       byBucket['free-communities']?.sopCompletion?.counts?.recentActivityItems >= 2,
     'free community handoff runs the 20-day community/course/resource SOP',
     JSON.stringify(byBucket['free-communities']?.sopCompletion || {}),
+  )
+  addCheck(
+    checks,
+    byBucket['public-code-repos']?.runner === 'repo:deep-review' &&
+      byBucket['public-code-repos']?.status === 'public_repo_deep_review_completed' &&
+      byBucket['public-code-repos']?.sopCompletion?.docsSeen === true &&
+      byBucket['public-code-repos']?.sopCompletion?.examplesSeen === true &&
+      byBucket['public-code-repos']?.sopCompletion?.licenseSeen === true &&
+      byBucket['public-code-repos']?.sopCompletion?.implementationPatternCount >= 3 &&
+      byBucket['public-code-repos']?.sideEffects?.cloneStarted === false &&
+      byBucket['public-code-repos']?.sideEffects?.installStarted === false &&
+      byBucket['public-code-repos']?.sideEffects?.codeImported === false,
+    'public code repo handoff uses repo:deep-review and extracts cited implementation patterns without clone/install/import',
+    JSON.stringify(byBucket['public-code-repos']?.sopCompletion || {}),
   )
   addCheck(
     checks,

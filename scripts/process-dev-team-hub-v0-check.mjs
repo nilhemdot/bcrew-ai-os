@@ -858,7 +858,7 @@ async function main() {
     Number(sourceGodModeHandoffQueue.counts?.rowsWithRunCommand || 0) === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0) > 0
   const sourceGodModeHasRunnableWork = sourceGodModeRunnableCount > 0 &&
-    sourceGodModeRows.some(row => row.runner === 'source:god-mode' && row.runnable === true) &&
+    sourceGodModeRows.some(row => ['source:god-mode', 'repo:deep-review'].includes(row.runner) && row.runnable === true) &&
     sourceGodModeRows.filter(row => row.runnable === true).every(row => text(row.runCommand))
   const freeCommunitiesParkedForSessionBroker = sourceGodModeRows
     .filter(row => row.bucketId === 'free-communities')
