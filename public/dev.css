@@ -3487,6 +3487,19 @@ button {
   color: var(--grey-d);
 }
 
+.yt-repo-readback {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--grey-line);
+}
+
+.yt-repo-readback > p,
+.yt-repo-readback > small {
+  margin: 0;
+  color: var(--grey-d);
+}
+
 .yt-dev-priority {
   display: grid;
   gap: 12px;

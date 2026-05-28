@@ -813,6 +813,8 @@ function renderSourceRunSummary(summary = {}) {
   if (!summary || summary.status !== 'ready') return ''
   const buckets = list(summary.bucketSummaries).slice(0, 6)
   const topRuns = list(summary.topRuns).slice(0, 6)
+  const repoReadback = summary.repoReadback || {}
+  const topRepos = list(repoReadback.topRepos).slice(0, 6)
   return `
     <section class="yt-source-run-summary">
       <div class="yt-section-head">
@@ -845,6 +847,29 @@ function renderSourceRunSummary(summary = {}) {
           </article>
         `).join('')}
       </div>
+      ${repoReadback.status === 'ready' ? `
+        <div class="yt-repo-readback">
+          <div class="yt-section-head">
+            <span>REPO READBACK</span>
+            <h3>Public code repos saved from YouTube</h3>
+            <small>${escapeHtml(compactNumber(repoReadback.uniqueRepoCount || 0))} repos · ${escapeHtml(compactNumber(repoReadback.runCount || 0))} runs · ${escapeHtml(compactNumber(repoReadback.pagesRead || 0))} pages · ${escapeHtml(compactNumber(repoReadback.unsafeSideEffectRows || 0))} unsafe side effects</small>
+          </div>
+          <p>${escapeHtml(repoReadback.plainEnglish || '')}</p>
+          <div class="yt-source-run-list">
+            ${topRepos.map(repo => `
+              <article>
+                <div>
+                  <span>${escapeHtml(repo.grade || 'ungraded')} · ${escapeHtml(compactNumber(repo.score || 0))}</span>
+                  <strong>${escapeHtml(repo.label || repo.host || 'repo')}</strong>
+                </div>
+                <p>${escapeHtml(list(repo.usefulSignals).join(' · ') || list(repo.pageTitles).join(' · ') || list(repo.urls)[0] || '')}</p>
+                <small>${escapeHtml(`${compactNumber(repo.runs || 0)} runs · ${compactNumber(repo.pagesRead || 0)} pages · ${compactNumber(repo.freeResourceCaptures || 0)} resources · ${compactNumber(repo.blockers || 0)} blockers`)}</small>
+              </article>
+            `).join('') || '<article><p>No repo rows returned.</p></article>'}
+          </div>
+          <small>${escapeHtml(repoReadback.nextAction || '')}</small>
+        </div>
+      ` : ''}
     </section>
   `
 }

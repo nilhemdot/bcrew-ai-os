@@ -341,6 +341,7 @@ async function main() {
     packageJson,
     routeSource,
     moduleSource,
+    sourceRunReadbackSource,
     opportunityLensSource,
     appRoutesSource,
     serverSource,
@@ -353,6 +354,7 @@ async function main() {
     readRepoJson('package.json'),
     readRepoFile('lib/foundation-build-intel-routes.js'),
     readRepoFile('lib/dev-team-hub.js'),
+    readRepoFile('lib/dev-source-run-readback.js'),
     readRepoFile('lib/dev-opportunity-vision-lens.js'),
     readRepoFile('lib/app-page-routes.js'),
     readRepoFile('server.js'),
@@ -373,7 +375,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${jsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -966,10 +968,21 @@ async function main() {
       Number(sourceRunSummary.unsafeSideEffectRows || 0) === 0 &&
       list(sourceRunSummary.bucketSummaries).length >= 3 &&
       list(sourceRunSummary.topRuns).some(row => Number(row.score || 0) > 0) &&
+      sourceRunSummary.repoReadback?.status === 'ready' &&
+      Number(sourceRunSummary.repoReadback?.uniqueRepoCount || 0) > 0 &&
+      Number(sourceRunSummary.repoReadback?.runCount || 0) > 0 &&
+      Number(sourceRunSummary.repoReadback?.unsafeSideEffectRows || 0) === 0 &&
+      sourceRunSummary.repoReadback?.rawArtifactPathsReturned === false &&
+      list(sourceRunSummary.repoReadback?.topRepos).some(row => row.label && Number(row.pagesRead || 0) > 0) &&
+      sourceRunSummary.repoReadback?.plainEnglish?.includes('does not clone') &&
+      moduleSource.includes('dev-source-run-readback') &&
+      sourceRunReadbackSource.includes('buildRepoRunReadback') &&
       jsSource.includes('renderSourceRunSummary') &&
-      cssSource.includes('.yt-source-run-summary'),
-    'YouTube source-browser saved-run outputs are summarized without returning raw artifacts',
-    `runs=${sourceRunSummary.totalRuns || 0}; pages=${sourceRunSummary.pagesRead || 0}; resources=${sourceRunSummary.freeResourceCaptures || 0}`,
+      jsSource.includes('REPO READBACK') &&
+      cssSource.includes('.yt-source-run-summary') &&
+      cssSource.includes('.yt-repo-readback'),
+    'YouTube source-browser saved-run outputs include repo readback without returning raw artifacts',
+    `runs=${sourceRunSummary.totalRuns || 0}; repos=${sourceRunSummary.repoReadback?.uniqueRepoCount || 0}; pages=${sourceRunSummary.pagesRead || 0}; resources=${sourceRunSummary.freeResourceCaptures || 0}`,
   )
   addCheck(
     checks,

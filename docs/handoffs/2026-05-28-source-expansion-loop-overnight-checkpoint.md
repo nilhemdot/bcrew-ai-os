@@ -28,6 +28,7 @@ Final live Dev Hub/source-handoff readback after the continuation pass:
 - Run commands: 0
 - Public web/resources: 624 read, 197 parked
 - Public code repos: 86 read, 0 runnable
+  - Repo readback now groups those saved runs into 77 unique public repo/gist/GitLab source rows for review without cloning, installing, downloading, importing code, creating backlog cards, or exposing raw artifact paths.
 - Creator newsletter landing pages: 17 read, 0 runnable
 - Free communities: 96 parked behind Source Session Broker/session readiness
 - Product/tool approval rows: 38 parked
@@ -60,6 +61,10 @@ Foundation/system health is green after the repair pass:
 - Cleared the public code repo handoff lane.
   - Final repo readback earlier in the run: 86 repo rows persisted, 0 repo rows runnable.
   - Examples included Karpathy repos, Playwright MCP, Hermes Agent, gstack, OpenAI Codex plugin, Firecrawl Claude plugin, and several creator-linked repos/gists.
+- Added a repo-specific readback layer for saved source-browser runs.
+  - Source-run summary now includes public repo readback: 86 saved public-code-repo runs grouped into 77 unique repos/gists.
+  - The Dev page shows top repo candidates, pages read, resource counts, blockers, and useful signals.
+  - This is readback/triage only; it does not claim repo deep review is complete and it does not clone/install/download/import code.
 - Cleared the creator-newsletter public page lane.
   - 17 newsletter rows persisted.
   - Signup forms were detected but not submitted.
@@ -88,6 +93,9 @@ Foundation/system health is green after the repair pass:
 - Archived the latest 2026-05-28 nightly deep audit artifact out of hot `docs/handoffs/`.
   - Committed and pushed `15735fb3 Archive latest nightly deep audit`.
   - Doc bloat guard and System Health are green after the archive move.
+- Archived cold generated health/audit report artifacts while keeping verifier-referenced proof files hot.
+  - Committed and pushed `0fdab4f1 Archive cold generated health reports`.
+  - Hot `docs/handoffs` stayed under the bloat budget and full `foundation:verify -- --json-summary` passed 519/519 after restart.
 - Hardened the nightly deep-audit write-report proof.
   - The check now proves `--write-report` actually leaves non-empty markdown and JSON files on disk before it can pass.
   - This closes the gap where the audit could prove rendered report text but not prove the generated artifacts existed.
@@ -141,6 +149,7 @@ Healthy:
   - `node --check lib/source-god-mode-youtube-handoff.js`
   - `node --check lib/source-lifecycle.js`
   - `node --check lib/dev-team-hub.js`
+  - `node --check lib/dev-source-run-readback.js`
   - `node --check scripts/process-source-god-mode-youtube-handoff-check.mjs`
   - `node --check scripts/process-dev-team-hub-v0-check.mjs`
 
@@ -160,6 +169,12 @@ Served readback after the final Dev Hub proof:
     "freeCommunityRows": 0,
     "paidOrAuthParkedRows": 170,
     "rowsWithRunCommand": 0
+  },
+  "repoReadback": {
+    "publicCodeRepoRuns": 86,
+    "uniqueRepos": 77,
+    "unsafeSideEffects": 0,
+    "rawArtifactPathsReturned": false
   }
 }
 ```
