@@ -1,7 +1,7 @@
 # Nightly Deep Audit Report - 2026-05-28
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
-Generated at: `2026-05-28T05:54:32.932Z`
+Generated at: `2026-05-28T07:00:59.467Z`
 Report path: `docs/handoffs/nightly-deep-audit-2026-05-28.md`
 
 ## Morning Read
@@ -10,8 +10,8 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-28.md`
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev.
 - Active deterministic findings: 0 total (0 P0, 0 P1, 0 P2, 0 P3)
 - Closed detector signals reconciled out of active audit: 0 of 0
-- Changed files selected: 23
-- High-risk review targets: 18
+- Changed files selected: 5
+- High-risk review targets: 15
 - LLM review mode: `bounded_senior_review_executed`
 - Deep senior review rollup: `healthy` (deep senior review executed with 0 active finding(s) and 0 reconciled closed finding(s))
 - Dogfood against May 13 failures: passed
@@ -47,24 +47,24 @@ Deep senior review executed through the approved router.
 
 ## Endpoint And Payload Trend
 
-- /api/foundation-hub: 169ms, 582510B, risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: 25ms, 199972B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: 539ms, 646572B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: 120ms, 239072B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: 31ms, 33222B, risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: 131ms, 585368B, risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: 31ms, 199972B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: 564ms, 625598B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: 141ms, 216789B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: 37ms, 33222B, risk=healthy (Within V1 audit budget.)
 
 ## Largest Files
 
 - scripts/foundation-verify.mjs: 4998 LOC, 277372B
-- public/dev.css: 4433 LOC, 79121B
+- public/dev.css: 4569 LOC, 81509B
 - lib/foundation-build-closeout-source-records.js: 3205 LOC, 273394B
 - lib/foundation-build-closeout-process-gate-records.js: 3133 LOC, 224729B
 - public/foundation.js: 2987 LOC, 113810B
+- lib/dev-team-hub.js: 2894 LOC, 141020B
 - lib/foundation-db-schema-seed-store.js: 2757 LOC, 141992B
-- lib/dev-team-hub.js: 2733 LOC, 132944B
+- public/dev.js: 2725 LOC, 123257B
 - lib/foundation-build-closeout-overnight-records.js: 2718 LOC, 216767B
 - lib/foundation-build-closeout-intelligence-records.js: 2687 LOC, 202469B
-- public/dev.js: 2621 LOC, 119281B
 
 ## High-Risk Review Packets
 
@@ -127,9 +127,9 @@ import {
 
 ### P1 public/dev.css
 
-- Lines: 4433
-- Bytes: 79121
-- Reasons: changed_since_baseline, over_3k_warn
+- Lines: 4569
+- Bytes: 81509
+- Reasons: over_3k_warn
 
 ```
 @font-face {
@@ -186,7 +186,7 @@ import {
 
 - Lines: 3205
 - Bytes: 273394
-- Reasons: changed_since_baseline, over_3k_warn, source_health_surface
+- Reasons: over_3k_warn, source_health_surface
 
 ```
 export const sourceCloseoutRecords = [
@@ -320,8 +320,8 @@ function renderBacklog() {
 
 ### P1 lib/dev-team-hub.js
 
-- Lines: 2733
-- Bytes: 132944
+- Lines: 2894
+- Bytes: 141020
 - Reasons: changed_since_baseline
 
 ```
@@ -375,68 +375,11 @@ import {
   buildSourcePacketPreview,
 ```
 
-### P1 public/dev.js
-
-- Lines: 2621
-- Bytes: 119281
-- Reasons: changed_since_baseline
-
-```
-  const runtime = systemRuntimeCopy(system)
-  const youtubeCreators = list(system.creatorLeaderboard).length
-    ? list(system.creatorLeaderboard)
-    : list(system.topCreators)
-  const youtubeCreatorTotal = Number(system.readbackTruth?.creatorLeaderboardCount || youtubeCreators.length)
-  const youtubeGradeSummary = Object.entries(system.creatorGradeBuckets || {})
-    .map(([grade, count]) => `${grade}: ${count}`)
-    .join(' · ')
-  els.youtubeSystem.innerHTML = `
-    <section class="yt-runtime ${escapeHtml(systemTone(runtime))}">
-      <div>
-        <span>LIVE PIPELINE</span>
-        <h2>${escapeHtml(runtime)}</h2>
-        <p>${escapeHtml(job.statusDetail || job.scheduleDetail || system.sourceRoute || 'Foundation runtime status is loading.')}</p>
-      </div>
-      <div class="yt-runtime-meta">
-        <span><b>Last job</b>${escapeHtml(shortDate(job.latestRunAt || job.latestRunStartedAt))}</span>
-        <span><b>Next run</b>${escapeHtml(shortDate(job.nextRunAt))}</span>
-        <span><b>Latest batch</b>${escapeHtml(shortDate(latestBatch.updatedAt))}</span>
-        <span><b>Duration</b>${escapeHtml(durationCopy(job.latestRunDurationMs))}</span>
-      </div>
-    </section>
-
-    <section class="yt-stats" aria-label="YouTube intelligence counts">
-      ${renderYoutubeSystemStats(system)}
-    </section>
-
-    <section class="yt-section">
-      <div class="yt-section-head">
-        <span>PIPELINE STAGES</span>
-        <h3>One connected system, not separate chores</h3>
-      </div>
-      <div class="yt-stage-grid">
-        ${list(system.stages).map(renderYoutubeStage).join('') || '<article class="loading-card">No stage readback available.</article>'}
-      </div>
-    </section>
-
-    <section class="yt-two-col">
-      <div class="yt-section">
-        <div class="yt-section-head">
-          <span>NEXT WATCH BATCH</span>
-          <h3>Exact public videos selected</h3>
-        </div>
-        <div class="yt-video-list">
-          ${list(system.selectedVideos).map(renderYoutubeNextVideo).join('') || '<article class="loading-card">No runnable public videos selected right now.</article>'}
-        </div>
-      </div>
-      <div class="yt-section">
-```
-
 ### P1 lib/foundation-db.js
 
 - Lines: 2317
 - Bytes: 93577
-- Reasons: changed_since_baseline, live_truth_write_boundary
+- Reasons: live_truth_write_boundary
 
 ```
 
@@ -512,124 +455,10 @@ function isLocalRequest(req) {
   ) {
 ```
 
-### P1 lib/intelligence-action-router.js
-
-- Lines: 1683
-- Bytes: 72726
-- Reasons: changed_since_baseline
-
-```
-import { createHash } from 'node:crypto'
-import {
-  SYNTHESIS_VERIFICATION_METADATA_KEY,
-  isDecisionGradeActionRoute,
-  requireVerifiedSynthesisRecord,
-} from './synthesis-claim-verification.js'
-import {
-  buildThreadContextSummary,
-  enrichSourceProofItemsWithThreadContext,
-} from './intel-thread-context.js'
-
-export const intelligenceActionRouterSchemaSql = `
-  CREATE TABLE IF NOT EXISTS intelligence_action_router_runs (
-    run_id TEXT PRIMARY KEY,
-    run_type TEXT NOT NULL
-      CHECK (run_type IN ('route_proposal', 'router_proof', 'approval', 'application')),
-    status TEXT NOT NULL
-      CHECK (status IN ('succeeded', 'failed')),
-    requested_by TEXT NOT NULL DEFAULT 'system',
-    synthesized_item_count INTEGER NOT NULL DEFAULT 0,
-    route_count INTEGER NOT NULL DEFAULT 0,
-    approved_count INTEGER NOT NULL DEFAULT 0,
-    applied_count INTEGER NOT NULL DEFAULT 0,
-    max_tier INTEGER NOT NULL DEFAULT 1,
-    source_ids TEXT[] NOT NULL DEFAULT ARRAY[]::text[],
-    metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
-    started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    finished_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  );
-
-  CREATE INDEX IF NOT EXISTS idx_intelligence_action_router_runs_lookup
-  ON intelligence_action_router_runs(run_type, status, created_at DESC);
-
-  CREATE TABLE IF NOT EXISTS intelligence_action_routes (
-    route_id TEXT PRIMARY KEY,
-    run_id TEXT REFERENCES intelligence_action_router_runs(run_id) ON DELETE SET NULL,
-    synthesized_item_id TEXT NOT NULL REFERENCES intelligence_synthesized_items(synthesized_item_id) ON DELETE CASCADE,
-    synthesized_item_natural_key TEXT NOT NULL,
-    route_type TEXT NOT NULL
-      CHECK (route_type IN (
-        'decision',
-        'backlog_task',
-        'open_question',
-        'contradiction',
-        'ignore',
-        'snooze',
-        'owner_action',
-```
-
-### P1 lib/source-god-mode-extractor-runtime.js
-
-- Lines: 1168
-- Bytes: 44307
-- Reasons: changed_since_baseline, source_health_surface
-
-```
-import crypto from 'node:crypto'
-import fs from 'node:fs/promises'
-import path from 'node:path'
-
-export const SOURCE_GOD_MODE_EXTRACTOR_RUNTIME_CARD_ID = 'SOURCE-BROWSER-AGENTIC-RUNTIME-001'
-export const SOURCE_GOD_MODE_EXTRACTOR_RUNTIME_SCRIPT_PATH = 'scripts/process-source-god-mode-extractor-runtime-check.mjs'
-export const SOURCE_GOD_MODE_EXTRACTOR_RUNTIME_ROOT = '.openclaw/source-god-mode-extractor'
-
-export const SOURCE_GOD_MODE_REQUIRED_RUNTIME_CAPABILITIES = [
-  'eyes',
-  'read',
-  'hands',
-  'brain',
-  'evidence',
-  'boundaries',
-  'output',
-]
-
-const SOURCE_BROWSER_ARGS = [
-  '--no-first-run',
-  '--no-default-browser-check',
-  '--disable-session-crashed-bubble',
-  '--disable-restore-session-state',
-  '--disable-features=Translate,ChromeWhatsNewUI',
-]
-
-const SAFE_PUBLIC_RESOURCE_HOSTS = new Set([
-  'github.com',
-  'gist.github.com',
-  'raw.githubusercontent.com',
-  'docs.github.com',
-  'npmjs.com',
-  'pypi.org',
-  'playwright.dev',
-  'ai.google.dev',
-  'developers.google.com',
-  'docs.browserbase.com',
-  'browserbase.com',
-  'docs.cursor.com',
-  'cursor.com',
-  'vercel.app',
-  'aihero.dev',
-])
-
-const SHORT_LINK_HOSTS = new Set([
-  'bit.ly',
-  't.co',
-  'tinyurl.com',
-```
-
 ### P1 lib/source-god-mode-youtube-handoff.js
 
-- Lines: 1150
-- Bytes: 43590
+- Lines: 1184
+- Bytes: 45363
 - Reasons: changed_since_baseline, source_health_surface
 
 ```
@@ -658,7 +487,7 @@ export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_SOURCE_ID = YOUTUBE_SCOUT_SOURCE_ID
 export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_MAX_ITEMS_PER_RUN = 20
 export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_MAX_RUNTIME_SECONDS = 3900
 
-const DEFAULT_ROW_LIMIT = 250
+const DEFAULT_ROW_LIMIT = 0
 const DEV_LANE_PRIORITY_GRADES = ['S', 'A', 'B', 'C', 'D']
 const SHORT_LINK_HOSTS = new Set([
   'bit.ly',
@@ -681,60 +510,6 @@ const SOCIAL_PROFILE_HOSTS = new Set([
   'twitter.com',
   'tiktok.com',
   'facebook.com',
-```
-
-### P1 lib/strategy-shared-comms-routes.js
-
-- Lines: 1117
-- Bytes: 50324
-- Reasons: changed_since_baseline
-
-```
-import {
-  ACTION_ROUTE_REVIEW_INBOX_API_PATH,
-  buildActionRouteReviewInboxSnapshot,
-} from './action-route-review-inbox.js'
-import {
-  ACTION_ROUTE_PROMOTION_WORKFLOW_API_PATH,
-  ACTION_ROUTE_PROMOTION_WORKFLOW_CLOSEOUT_KEY,
-  buildActionRoutePromotionWorkflowMetadata,
-  validateActionRoutePromotionWorkflowRequest,
-} from './action-route-promotion-workflow.js'
-import {
-  buildStrategyPlanningWorkflowSnapshot,
-  getStrategyPlanningEvidenceSnapshot,
-} from './strategy-planning-workflow.js'
-import {
-  buildGovernanceAccountabilitySnapshot,
-} from './gov-001-governance-accountability.js'
-import {
-  getStrategyQuarterSnapshot,
-  updateStrategyQuarterContext,
-} from './strategy-quarter-input-layer.js'
-
-export const STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CARD_ID = 'STRATEGY-SHARED-COMMS-ROUTES-SPLIT-001'
-export const STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CLOSEOUT_KEY = 'strategy-shared-comms-routes-split-v1'
-export const STRATEGY_SHARED_COMMS_ROUTES_SPLIT_PLAN_PATH = 'docs/process/strategy-shared-comms-routes-split-001-plan.md'
-export const STRATEGY_SHARED_COMMS_ROUTES_SPLIT_APPROVAL_PATH = 'docs/process/approvals/STRATEGY-SHARED-COMMS-ROUTES-SPLIT-001.json'
-export const STRATEGY_SHARED_COMMS_ROUTES_SPLIT_SCRIPT_PATH = 'scripts/process-strategy-shared-comms-routes-split-check.mjs'
-export const STRATEGY_SHARED_COMMS_ROUTES_SPLIT_SPRINT_ID = 'foundation-server-monolith-closeout-2026-05-15'
-export const STRATEGY_SHARED_COMMS_ROUTES_SPLIT_BEFORE_SERVER_LINES = 6115
-export const STRATEGY_SHARED_COMMS_ROUTES_SPLIT_ROUTE_BUDGET_MS = 15000
-export const STRATEGY_SHARED_COMMS_ROUTES_SPLIT_ROUTE_BUDGET_BYTES = 2_000_000
-
-const MOVED_ROUTE_MARKERS = [
-  "app.get('/api/shared-communications/archive'",
-  "app.get('/api/shared-communications/coverage'",
-  "app.get('/api/shared-communications/candidates'",
-  "app.get('/api/shared-communications/synthesis'",
-  "app.post('/api/shared-communications/candidates/:candidateKey/apply-to-backlog'",
-  "app.post('/api/shared-communications/candidates/:candidateKey/apply-to-decision'",
-  "app.post('/api/shared-communications/candidates/:candidateKey/apply-to-question'",
-  "app.post('/api/shared-communications/candidates/:candidateKey/:action'",
-  "app.get('/api/strategic-execution/prework-coverage'",
-  "app.get('/api/strategic-execution/goal-truth'",
-  "app.get('/api/strategic-execution/operating-truth'",
-  "app.get('/api/strategic-execution/quar
 ```
 
 ### P1 lib/connector-uptime-monitor.js
@@ -794,159 +569,10 @@ export const CONNECTOR_HEALTH_STATUSES = Object.freeze({
   unknown: 'unknown',
 ```
 
-### P1 lib/dev-opportunity-vision-lens.js
-
-- Lines: 1100
-- Bytes: 55915
-- Reasons: changed_since_baseline
-
-```
-export const DEV_OPPORTUNITY_VISION_LENS_ID = 'dev-opportunity-vision-lens-v1'
-
-const LENS_LABELS = {
-  teamAiosVision: 'Team AIOS vision',
-  foundationReliability: 'Foundation reliability',
-  godModeExtraction: 'God Mode extraction',
-  godModeAutomation: 'God Mode automation',
-  memoryContext: 'Memory/context',
-  recruitingMarketing: 'Recruiting/marketing',
-  devTeamQuality: 'Dev team quality',
-  operatorLeverage: 'Steve leverage',
-  vibeCodingOperator: 'Vibe coding/operator upgrade',
-}
-
-const OPPORTUNITY_DEFINITIONS = [
-  {
-    id: 'browser-agent-that-can-work',
-    title: 'Browser Agent That Can Work',
-    plainEnglish: 'Give AIOS a reliable human-style web worker that can see pages, click, type, use approved sessions, and stop when it reaches a real boundary.',
-    nextMove: 'Review the strongest browser, hands, session, and computer-use evidence before deciding the runtime path.',
-    terms: ['browser', 'agentic browser', 'computer use', 'hands', 'click', 'mouse', 'keyboard', 'dom', 'web', 'website', 'form', 'login', 'session', 'playwright', 'stagehand', 'browserbase', 'openclaw', 'control', 'navigation', 'chrome', 'accessibility'],
-    lensBase: { teamAiosVision: 98, foundationReliability: 82, godModeExtraction: 85, godModeAutomation: 98, memoryContext: 62, recruitingMarketing: 88, devTeamQuality: 82, operatorLeverage: 94, vibeCodingOperator: 80 },
-    priorityBoost: 14,
-  },
-  {
-    id: 'extractor-that-can-go-anywhere',
-    title: 'Extractor That Can Go Anywhere',
-    plainEnglish: 'Build the source system that can watch, read, follow useful public/free resources, inspect communities/courses when allowed, and package the gold with proof.',
-    nextMove: 'Use this to decide the next source worker: public resources, repos, newsletters, free communities, or paid/auth sessions.',
-    terms: ['extractor', 'extraction', 'crawl', 'source', 'resource', 'youtube', 'video', 'transcript', 'skool', 'myicor', 'course', 'community', 'newsletter', 'repo', 'github', 'docs', 'page', 'reader', 'watch', 'visual', 'audio'],
-    lensBase: { teamAiosVision: 96, foundationReliability: 90, godModeExtraction: 99, godModeAutomation: 72, memoryContext: 70, recruitingMarketing: 68, devTeamQuality: 86, operatorLeverage: 86, vibeCodingOperator: 86 },
-    priorityBoost: 12,
-  },
-  {
-    id: 'assistant-that-handles-conversations-like-steve',
-    title: 'Assistant That Handles Conver
-```
-
-### P1 lib/source-lifecycle.js
-
-- Lines: 1061
-- Bytes: 42565
-- Reasons: changed_since_baseline, source_health_surface
-
-```
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { readCombinedFoundationStylesheet } from './foundation-stylesheet-monolith-split.js'
-import {
-  YOUTUBE_CREATOR_DAILY_WATCH_DEFAULT_BASELINE_DEPTH,
-  YOUTUBE_CREATOR_DAILY_WATCH_MARK_BASELINE_DEPTH,
-  YOUTUBE_CREATOR_DAILY_WATCH_MAX_BASELINE_DEPTH,
-  buildYoutubeCreatorDailyWatchPlan,
-} from './youtube-creator-daily-watch.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const defaultRepoRoot = path.resolve(__dirname, '..')
-
-export const SOURCE_LIFECYCLE_SCHEMA_VERSION = 1
-export const SOURCE_LIFECYCLE_CARD_ID = 'SOURCE-LIFECYCLE-EXPANSION-001'
-export const SOURCE_LIFECYCLE_CLOSEOUT_KEY = 'source-lifecycle-expansion-v1'
-export const SOURCE_LIFECYCLE_ROUTE = '/foundation#source-lifecycle'
-export const SOURCE_LIFECYCLE_API_PATH = '/api/foundation/source-lifecycle'
-export const SOURCE_LIFECYCLE_APPROVED_PLAN_PATH = 'docs/process/approved-plans/source-lifecycle-expansion-v1.md'
-export const SOURCE_LIFECYCLE_APPROVAL_PATH = 'docs/process/approvals/SOURCE-LIFECYCLE-EXPANSION-001.json'
-export const SOURCE_LIFECYCLE_BASELINE_PATH = 'docs/audits/2026-04-30-source-lifecycle-expansion-baseline.md'
-export const SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH = 'docs/audits/2026-04-30-source-lifecycle-expansion-manual-review.md'
-
-export const SOURCE_LIFECYCLE_INCLUDED_SOURCE_IDS = [
-  'SRC-GMAIL-001',
-  'SRC-GCAL-001',
-  'SRC-MISSIVE-001',
-  'SRC-MEETINGS-001',
-  'SRC-SLACK-001',
-  'SRC-GDRIVE-001',
-  'SRC-VIDEO-001',
-  'SRC-YOUTUBE-INTEL-001',
-  'SRC-SKOOL-001',
-  'SRC-LOOM-001',
-  'SRC-MYICRO-001',
-  'SRC-CREATOR-WATCHLIST-001',
-]
-
-export const SOURCE_LIFECYCLE_EXCLUDED_LANES = [
-  'Strategy Hub activation',
-  'Scoper',
-  'Agent Factory',
-  'broad corpus expansion',
-  'Action Review applying',
-  'research cleanup',
-  'Missive attachment implementation',
-```
-
-### P1 lib/build-intel-source-value-grader.js
-
-- Lines: 1029
-- Bytes: 42508
-- Reasons: changed_since_baseline, source_health_surface
-
-```
-export const BUILD_INTEL_SOURCE_VALUE_GRADER_CARD_ID = 'BUILD-INTEL-SOURCE-VALUE-GRADER-001'
-export const BUILD_INTEL_SOURCE_VALUE_GRADER_PLAN_PATH = 'docs/process/build-intel-source-value-grader-001-plan.md'
-export const BUILD_INTEL_SOURCE_VALUE_GRADER_APPROVAL_PATH = 'docs/process/approvals/BUILD-INTEL-SOURCE-VALUE-GRADER-001.json'
-export const BUILD_INTEL_SOURCE_VALUE_GRADER_SCRIPT_PATH = 'scripts/process-build-intel-source-value-grader-check.mjs'
-export const BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID = 'grader:build-intel-source-value-grader-001:v1'
-export const BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_PATH = 'docs/source-notes/build-intel-source-value-grader-2026-05-25.md'
-export const BUILD_INTEL_SOURCE_VALUE_GRADER_SOURCE_ID = 'SRC-YOUTUBE-INTEL-001'
-
-const LANE_DEFINITIONS = [
-  {
-    id: 'aios_dev_build',
-    label: 'AIOS / Dev build',
-    terms: ['aios', 'agent', 'agentic', 'claude code', 'codex', 'mcp', 'openclaw', 'browser', 'hook', 'pipeline', 'skill', 'state', 'visual', 'repo', 'api', 'tool', 'orchestrator', 'handoff', 'gemini', 'cursor'],
-  },
-  {
-    id: 'ops_process',
-    label: 'Ops / process',
-    terms: ['process', 'workflow', 'automation', 'n8n', 'miro', 'app', 'productivity', 'docs', 'slack', 'email', 'drive', 'calendar', 'spreadsheet', 'tools', 'system', 'operations', 'sop', 'handoff'],
-  },
-  {
-    id: 'sales_conversion',
-    label: 'Sales / conversion',
-    terms: ['sales', 'conversion', 'close', 'closer', 'objection', 'offer', 'appointment', 'booking', 'lead follow up', 'crm', 'pipeline', 'prospect', 'listing appointment', 'buyer consult', 'script', 'negotiation'],
-  },
-  {
-    id: 'marketing_recruiting',
-    label: 'Marketing / recruiting',
-    terms: ['recruit', 'recruiting', 'agent attraction', 'downline', 'rev share', 'revenue share', 'team growth', 'real broker', 'join', 'hiring', 'career', 'agent onboarding', 'culture', 'community'],
-  },
-  {
-    id: 'marketing_lead_gen',
-    label: 'Marketing / lead gen',
-    terms: ['lead gen', 'lead generation', 'lead magnet', 'funnel', 'seo', 'google business', 'ads', 'meta ads', 'content', 'landing page', 'campaign', 'social', 'email marketing', 'newsletter', 'nurture', 'retarget'],
-  },
-  {
-    id: 'steve_ai_authority',
-    label: 'Steve AI authority',
-    terms: ['ai expert', 'authority', 'thought leadership', 'personal brand', 'educate realtors', 'realtor ai', 'ai for real estat
-```
-
 ### P1 scripts/process-dev-team-hub-v0-check.mjs
 
-- Lines: 990
-- Bytes: 63238
+- Lines: 1033
+- Bytes: 65993
 - Reasons: changed_since_baseline, process_check_surface
 
 ```
@@ -1000,6 +626,234 @@ import {
 } from '../lib/dev-team-intelligence-director.js'
 ```
 
+### P1 scripts/process-source-god-mode-youtube-handoff-check.mjs
+
+- Lines: 743
+- Bytes: 30166
+- Reasons: changed_since_baseline, process_check_surface, source_health_surface
+
+```
+#!/usr/bin/env node
+
+import http from 'node:http'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+import {
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_CARD_ID,
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_SCRIPT_PATH,
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
+  buildSourceGodModeYoutubeHandoffCrawlItemInput,
+  buildSourceGodModeYoutubeHandoffQueue,
+  persistSourceGodModeYoutubeHandoffBatch,
+  runSourceGodModeYoutubeHandoffBatch,
+} from '../lib/source-god-mode-youtube-handoff.js'
+import {
+  validatePlanApprovalFile,
+} from '../lib/approval-integrity.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const repoRoot = path.resolve(__dirname, '..')
+const APPROVAL_REF = 'docs/process/approvals/SOURCE-BROWSER-AGENTIC-RUNTIME-001.json'
+
+function parseArgs(argv = process.argv.slice(2)) {
+  return {
+    json: argv.includes('--json') || argv.includes('--json=true'),
+    headed: argv.includes('--headed') || argv.includes('--headed=true'),
+  }
+}
+
+function addCheck(checks, ok, check, detail = '') {
+  checks.push({ ok: Boolean(ok), check, detail })
+}
+
+function list(value) {
+  return Array.isArray(value) ? value : []
+}
+
+function text(value) {
+  return String(value || '').trim()
+}
+
+async function readRepoFile(relativePath) {
+  return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
+}
+
+```
+
+### P1 scripts/run-source-god-mode-youtube-handoff.mjs
+
+- Lines: 226
+- Bytes: 7978
+- Reasons: changed_since_baseline, source_health_surface
+
+```
+#!/usr/bin/env node
+
+import process from 'node:process'
+
+import {
+  BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
+} from '../lib/build-intel-source-value-grader.js'
+import {
+  closeFoundationDb,
+  getIntelligenceReportBundle,
+  initFoundationDb,
+  listSourceCrawlItems,
+  listYoutubeFullWatchReportArtifacts,
+  upsertIntelligenceReportArtifact,
+  upsertSourceCrawlItem,
+  upsertSourceCrawlTarget,
+} from '../lib/foundation-db.js'
+import {
+  buildYoutubeHandoffEvidenceFromReports,
+} from '../lib/dev-team-hub.js'
+import {
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
+  buildSourceGodModeYoutubeHandoffQueue,
+  persistSourceGodModeYoutubeHandoffBatch,
+  runSourceGodModeYoutubeHandoffBatch,
+  selectSourceGodModeYoutubeHandoffRows,
+} from '../lib/source-god-mode-youtube-handoff.js'
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = {
+    apply: false,
+    json: false,
+    headed: false,
+    maxRuns: 3,
+    rowLimit: 0,
+    bucketIds: [],
+    actor: process.env.FOUNDATION_JOB_ACTOR || 'source-god-mode-youtube-handoff-runner',
+  }
+  for (const arg of argv) {
+    if (arg === '--apply' || arg === '--apply=true') args.apply = true
+    if (arg === '--json' || arg === '--json=true') args.json = true
+    if (arg === '--headed' || arg === '--headed=true') args.headed = true
+    if (arg.startsWith('--max-runs=')) args.maxRuns = Number(arg.slice('--max-runs='.length))
+    if (arg.startsWith('--row-limit=')) args.rowLimit = Number(arg.slice('--row-limit='.length))
+    if (arg.startsWith('--bucket=')) args.bucketIds.push(...arg.slice('--bucket='.length).split(',').map(text).filter(Boolean))
+    if (arg.startsWith('--actor=')) args.actor = text(arg.slice('--actor='.length)) || args.actor
+  }
+  args.maxRuns = Math.max(1, Math.min(20, Number.isFinite(args.maxRuns) ? args.maxRuns : 3))
+```
+
+### P3 lib/foundation-jobs.js
+
+- Lines: 1498
+- Bytes: 65649
+- Reasons: changed/review target
+
+```
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  parseProcessWriteFlags,
+} from './process-write-guard.js'
+import {
+  RECURRING_DEEP_AUDIT_CADENCE,
+  RECURRING_DEEP_AUDIT_JOB_KEY,
+} from './recurring-deep-audit.js'
+import {
+  NIGHTLY_DEEP_AUDIT_JOB_KEY,
+  NIGHTLY_DEEP_AUDIT_SCHEDULE_LOCAL_TIME,
+  NIGHTLY_DEEP_AUDIT_SCHEDULE_TIMEZONE,
+} from './nightly-deep-audit-constants.js'
+import {
+  FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY,
+} from './foundation-lessons-learned-loop.js'
+import {
+  NIGHTLY_AUDIT_FLEET_JOB_KEY,
+  NIGHTLY_AUDIT_FLEET_SCHEDULE_LOCAL_TIME,
+  NIGHTLY_AUDIT_FLEET_SCHEDULE_TIMEZONE,
+} from './nightly-audit-fleet.js'
+import {
+  FOUNDATION_JOB_MUTATION_ALLOWLIST_CARD_ID,
+  evaluateFoundationJobMutationAllowlist,
+} from './foundation-job-mutation-allowlist.js'
+import {
+  buildAdminDealBacklogReviewArgs,
+  buildAdminDealBacklogReviewInputs,
+  buildAdminDealBacklogReviewSummary,
+} from './admin-deal-policy-source-contract.js'
+
+export const PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID = 'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001'
+
+export const FOUNDATION_JOB_MUTATION_POSTURES = Object.freeze({
+  readOnly: 'read_only',
+  reportOnly: 'report_only',
+  mutating: 'mutating',
+  externalWrite: 'external_write',
+  operationalWrite: 'operational_write',
+  unknown: 'unknown',
+})
+
+const MUTATING_PROCESS_CHECK_FLAGS = new Set([
+  PROCESS_CHECK_WRITE_FLAGS.apply,
+  PROCESS_CHECK_WRITE_FLAGS.closeCard,
+  PROCESS_CHECK_WRITE_FLAGS.mutateSprint,
+])
+
+```
+
+### P3 lib/code-quality-nightly-audit.js
+
+- Lines: 1416
+- Bytes: 64123
+- Reasons: changed/review target
+
+```
+  })
+  const timeoutEndpoint = classifyEndpointMetric({
+    ok: false,
+    timeout: true,
+    timeoutMs: 5000,
+  })
+  const mutator = detectMutationPatternsInText({
+    relativePath: 'synthetic/process-check.mjs',
+    text: `await updateBacklogItem('CARD-001', { lane: 'done' })`,
+  })
+  const guardedMutator = detectMutationPatternsInText({
+    relativePath: 'scripts/process-safe-check.mjs',
+    text: `
+      import { PROCESS_CHECK_WRITE_FLAGS, assertProcessCheckWriteAllowed, isProcessCheckWriteRequested } from '../lib/process-write-guard.js'
+      assertProcessCheckWriteAllowed({ argv: process.argv.slice(2), scriptPath: 'scripts/process-safe-check.mjs', operation: 'synthetic update', allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] })
+      if (isProcessCheckWriteRequested({ argv: process.argv.slice(2), allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] })) await updateBacklogItem('CARD-001', { lane: 'done' })
+    `,
+  })
+  const unguardedReportWriter = detectProcessReportWritePolicyInText({
+    relativePath: 'scripts/process-report-check.mjs',
+    text: `
+      import fs from 'node:fs/promises'
+      await fs.writeFile('docs/source-notes/run.md', '# generated')
+    `,
+  })
+  const guardedReportWriter = detectProcessReportWritePolicyInText({
+    relativePath: 'scripts/process-report-check.mjs',
+    text: `
+      import fs from 'node:fs/promises'
+      import { isProcessReportWriteRequested } from '../lib/process-write-guard.js'
+      const args = { writeReport: isProcessReportWriteRequested(process.argv.slice(2)) }
+      if (args.writeReport) await fs.writeFile('docs/source-notes/run.md', '# generated')
+    `,
+  })
+  const syntheticGeminiModel = ['gemini', '3.5', 'flash'].join('-')
+  const runtimeModelHardcode = detectRuntimePolicyHardcodesInText({
+    relativePath: 'scripts/process-unowned-model-check.mjs',
+    text: `const MODEL = '${syntheticGeminiModel}'`,
+  })
+  const runtimeModelIdFalsePositive = detectRuntimePolicyHardcodesInText({
+    relativePath: 'scripts/process-card-source-id-check.mjs',
+    text: `
+      const cardId = 'CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001'
+      const sourceId = 'SRC-CLAUDE-CODE-COMMUNITY-BUILD-INTEL-001'
+      const folderCard = 'MATT-POCOCK-CLAUDE-FOLDER-EVAL-001'
+      const routeKey = 'foundation-extractor-claude-subscription-reasoning'
+    `,
+  })
+```
+
 ## Top Deterministic Findings
 
 - none
@@ -1037,7 +891,7 @@ import {
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-28T05:54:33.745Z`
+Generated at: `2026-05-28T07:01:00.337Z`
 
 ## Morning Read
 
@@ -1052,11 +906,11 @@ Generated at: `2026-05-28T05:54:33.745Z`
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=169ms payload=582510B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=25ms payload=199972B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=539ms payload=646572B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=120ms payload=239072B risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: status=200 latency=31ms payload=33222B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=131ms payload=585368B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=31ms payload=199972B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=564ms payload=625598B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=141ms payload=216789B risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: status=200 latency=37ms payload=33222B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
 
@@ -1088,13 +942,13 @@ DOM budget:
 
 Largest files:
 - scripts/foundation-verify.mjs: 4998 LOC, 277372B
-- public/dev.css: 4433 LOC, 79121B
+- public/dev.css: 4569 LOC, 81509B
 - lib/foundation-build-closeout-source-records.js: 3205 LOC, 273394B
 - lib/foundation-build-closeout-process-gate-records.js: 3133 LOC, 224729B
 - public/foundation.js: 2987 LOC, 113810B
+- lib/dev-team-hub.js: 2894 LOC, 141020B
 - lib/foundation-db-schema-seed-store.js: 2757 LOC, 141992B
-- lib/dev-team-hub.js: 2733 LOC, 132944B
-- lib/foundation-build-closeout-overnight-records.js: 2718 LOC, 216767B
+- public/dev.js: 2725 LOC, 123257B
 
 ## Top Findings
 
