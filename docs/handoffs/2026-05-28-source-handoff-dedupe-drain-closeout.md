@@ -104,3 +104,50 @@ Next real unlock is source session setup while Steve is awake:
 5. Run the first real free-community proof only after the session broker shows a ready row.
 6. Keep paid/private/auth extraction parked until Steve approves exact source packets and boundaries.
 
+## 13:06 Continuation Readback
+
+Additional commits pushed after this closeout:
+
+- `13bc829a` - expose source handoff duplicate counts on the Dev page and require the focused proof to keep them visible.
+- `ea096cdf` - balance the source-session cluster preview so Skool, newsletter, non-Skool community, and paid/auth clusters can all surface in the bounded preview.
+
+What changed:
+
+- Dev source-browser queue now shows duplicate variants folded instead of hiding canonicalization.
+- Source-session cluster preview is phase-balanced instead of using all preview slots on earlier-ranked clusters.
+- Dev proof now requires non-Skool community and paid/auth cluster visibility, not only Skool cluster visibility.
+- No live signup, auth crawl, purchase, download, post/comment/message, Scoper promotion, or backlog write was added.
+
+Live source/session state after the continuation:
+
+- YouTube safe public/free source-browser queue remains drained.
+- Source handoff readback: 1,234 evidence rows, 1,159 queued canonical rows, 75 duplicate variants folded, 696 already read, 463 parked, 0 runnable rows.
+- Source-session prep: 276 prep rows, 88 free Skool rows, 16 newsletter rows, 4 non-Skool community runner rows, 168 paid/auth rows, 0 runnable-now rows, 0 raw-secret rows.
+- Source-session readiness remains `waiting_for_credentials_or_sessions`.
+- Missing credentials/session proofs remain:
+  - `skool / ai@bensoncrew.ca`
+  - `creator-newsletters / ai@bensoncrew.ca`
+  - `myicor-mcp-oauth / myicor-authorized-member`
+- myICOR public MCP preflight passed and found MCP server `myicor-mcp` version `1.15.0`; unauthenticated tools/list correctly returns 401 and needs OAuth before extraction.
+
+Freshness repair:
+
+- `gmail-extract-latest` forced run succeeded; 3 archived threads scanned, 0 new candidates.
+- `missive-extract-latest` forced run succeeded; 3 archived threads scanned, 0 new candidates.
+- `intelligence-synthesis-spine-refresh` forced run succeeded; 129 facts, 8 synthesized items.
+- `intelligence-action-router-proposals` forced run succeeded; 2 proposal-only routes created, 0 approved/applied.
+- `process:synthesis-router-freshness-trigger-check -- --json` returned live freshness `fresh`.
+- Dev Hub active extraction lanes show synthesis-router `live`.
+
+Post-push health:
+
+- `foundation:verify`: 519/519 passed after dashboard and worker restart on `ea096cdf`.
+- `process:system-health-nightly-audit-check -- --json`: healthy, 0 risk, 0 watch, 0 scheduled-job risk.
+- `backlog:hygiene -- --json`: healthy, 858 cards, 0 findings.
+- `process:credential-vault-session-broker-check -- --json`: healthy; raw secret printed false.
+
+Morning talk track update:
+
+- The system is not blocked by public page/source-browser work anymore; that queue is drained.
+- The next unlock is not more public crawling. It is source identity/session setup for free Skool, newsletter signup lane, and myICOR MCP OAuth while Steve is awake.
+- Non-Skool community rows are now visible as their own runner gap instead of being hidden behind Skool cluster volume.
