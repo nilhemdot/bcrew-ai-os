@@ -221,6 +221,17 @@ Final health readback:
 - Reran the real Foundation job: `npm run foundation:job -- --job=foundation-lessons-learned-loop --force --actor=codex-lessons-loop-repair`; latest run succeeded.
 - Reran `process:foundation-lessons-learned-loop-check`, `process:build-lane-repeated-failure-action-gate-check`, `process:system-health-nightly-audit-check`, `foundation:verify -- --json-summary`, and `process:verify-gate-tiering-check -- --recordProof=true`; all passed.
 
+Post-push audit readback:
+
+- `nightly-deep-audit` latest run: `job-nightly-deep-audit-20260528070058-f5u8n9`, succeeded from the Foundation worker at the 03:00 America/Toronto window, duration 18.9s.
+- Generated report archive: `docs/_archive/handoffs/2026-05-28-nightly-deep-audit/nightly-deep-audit-2026-05-28.md`.
+- Deep-audit findings: 0 active deterministic findings, 0 P0/P1/P2/P3, 0 new, 0 still open, 0 resolved.
+- LLM/senior review: bounded senior review executed through the approved router; 0 active senior-review findings.
+- Specialist audit fleet: 8 lanes healthy: code quality, hardcoded truth/runtime config, extractor God Mode parity, synthesis/director quality, source coverage/freshness, UI brand system, process write boundary, and mission doctrine alignment.
+- Runtime scan: 1,210 files, 556,958 lines, 4 lanes executed, 4 lanes packet-only, 346 owned signals, 0 active findings.
+- Signal-quality proof: healthy; evidence-only literals stayed owned signals while synthetic active regressions still fail closed.
+- System Health after the post-push checks: healthy, 0 risk, 0 watch, 0 scheduled-job risk, 0 connector degraded/down rows.
+
 ## Parked Blockers
 
 - Free-community extraction:
