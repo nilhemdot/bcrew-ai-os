@@ -889,6 +889,16 @@ async function main() {
   )
   addCheck(
     checks,
+    sourceGodModeHandoffQueue.rowsArePreview === true &&
+      sourceGodModeRows.length === Number(sourceGodModeHandoffQueue.counts?.previewRows || 0) &&
+      sourceGodModeRows.length < Number(sourceGodModeHandoffQueue.counts?.totalRows || 0) &&
+      sourceGodModeRows.some(row => row.status === 'already_run_source_evidence_saved') &&
+      sourceGodModeRows.some(row => row.requiresAuth === true),
+    'Dev Hub source-browser queue returns bounded preview rows while preserving full counts',
+    `preview=${sourceGodModeRows.length}; total=${sourceGodModeHandoffQueue.counts?.totalRows || 0}`,
+  )
+  addCheck(
+    checks,
     Number(sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0) > 0 &&
       sourceGodModeRows.some(row => row.status === 'already_run_source_evidence_saved' && row.runnable === false),
     'YouTube handoff readback marks source-browser rows already persisted',
@@ -954,6 +964,8 @@ async function main() {
   addCheck(checks, list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'meetings-transcripts') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'email-missive-comms') && list(payload?.activeExtractionLanes).some(lane => lane.laneId === 'slack-comms'), 'active extraction lanes expose internal Foundation signals', list(payload?.activeExtractionLanes).map(lane => lane.laneId).join(', ') || 'missing')
   addCheck(checks, payload?.godModeExtractorParity?.evaluation?.ok === true && list(payload?.godModeExtractorParity?.families).length >= 14 && Number(payload?.godModeExtractorParity?.summary?.claimsGodModeCount || 0) === 0, 'live snapshot exposes extractor parity without false full-God-Mode claims', `${list(payload?.godModeExtractorParity?.families).length} families / claims=${payload?.godModeExtractorParity?.summary?.claimsGodModeCount ?? 'missing'}`)
   addCheck(checks, Array.isArray(payload?.sourceRoutes) && payload.sourceRoutes.length >= 5, 'visible value source map is present', `${payload?.sourceRoutes?.length || 0} routes`)
+  const payloadBytes = Buffer.byteLength(JSON.stringify(payload || {}))
+  addCheck(checks, payloadBytes < 8_000_000, 'Dev Hub payload stays under the 8 MB operator budget', `${payloadBytes} bytes`)
 
   const failed = checks.filter(check => !check.ok)
   const result = {

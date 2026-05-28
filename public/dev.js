@@ -2297,6 +2297,7 @@ function renderRankings(snapshot = {}) {
   const rankedIdeas = list(director.rankedCandidates).length
     ? list(director.rankedCandidates)
     : uniqueBy([...list(director.recommendedBuildNow), ...list(director.strongNext)], candidate => candidate.title)
+  const rankedIdeaTotal = Number(director.rankedCandidateCount || rankedIdeas.length)
   const topIdeas = rankedIdeas.slice(0, 12)
   const topCreators = rankedDevSources(snapshot)
   const mission = director.mission?.creatorSourceGradeInfluence?.scoring || 'Creator source grades influence Dev idea ranking; opportunity merge is the next ranking layer.'
@@ -2325,7 +2326,7 @@ function renderRankings(snapshot = {}) {
         <div class="ranking-head">
           <span>RAW IDEA SIGNALS</span>
           <h2>Top 12</h2>
-          <small>${escapeHtml(compactNumber(rankedIdeas.length))} raw ranked ideas · original signals preserved</small>
+          <small>${escapeHtml(compactNumber(rankedIdeaTotal))} raw ranked ideas · original signals preserved${director.rankedCandidatesArePreview ? ' · preview rows shown' : ''}</small>
         </div>
         <div class="ranking-list">
           ${topIdeas.map(renderRankingIdea).join('') || '<article class="loading-card">No ranked ideas returned yet.</article>'}
@@ -2493,7 +2494,7 @@ function renderDirector(snapshot = {}) {
   const director = snapshot.director || {}
   const recommended = list(director.recommendedBuildNow)
   const strongNext = list(director.strongNext)
-  const rankedCount = list(director.rankedCandidates).length
+  const rankedCount = Number(director.rankedCandidateCount || list(director.rankedCandidates).length)
   const candidates = uniqueBy([...recommended, ...strongNext], candidate => candidate.title).slice(0, 6)
   const recommendedTitles = new Set(recommended.map(candidate => text(candidate.title)))
   if (els.directorHeadStats) {
