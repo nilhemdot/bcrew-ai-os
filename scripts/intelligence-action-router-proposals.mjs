@@ -17,6 +17,105 @@ function parseArgs(argv = process.argv.slice(2)) {
   return args
 }
 
+function boolArg(value) {
+  return value === true || String(value || '').toLowerCase() === 'true'
+}
+
+function numberArg(args, fallback, ...keys) {
+  for (const key of keys) {
+    const value = Number(args[key])
+    if (Number.isFinite(value) && value > 0) return value
+  }
+  return fallback
+}
+
+function summarizeRun(run = null) {
+  if (!run) return null
+  return {
+    runId: run.runId || null,
+    runType: run.runType || null,
+    status: run.status || null,
+    routeCount: Number(run.routeCount || 0),
+    selectedItemCount: Number(run.selectedItemCount || 0),
+    startedAt: run.startedAt || null,
+    finishedAt: run.finishedAt || null,
+  }
+}
+
+function countRoutesByApprovalStatus(routes = []) {
+  return routes.reduce((counts, route) => {
+    const status = String(route?.approvalStatus || 'unknown').trim() || 'unknown'
+    counts[status] = Number(counts[status] || 0) + 1
+    return counts
+  }, {})
+}
+
+function compactCountRows(rows = [], keyName) {
+  if (!Array.isArray(rows)) return []
+  return rows.map(row => ({
+    [keyName]: row?.[keyName] || row?.routeType || row?.destinationTable || null,
+    count: Number(row?.count || 0),
+  }))
+}
+
+function buildCompactActionRouterSnapshot(snapshot = {}) {
+  const recentRoutes = Array.isArray(snapshot.recentRoutes) ? snapshot.recentRoutes : []
+  const strategyRecentRoutes = Array.isArray(snapshot.strategyRecentRoutes) ? snapshot.strategyRecentRoutes : []
+
+  return {
+    generatedAt: snapshot.generatedAt || null,
+    totalRoutes: Number(snapshot.totalRoutes || 0),
+    pendingRoutes: Number(snapshot.pendingRoutes || 0),
+    approvedRoutes: Number(snapshot.approvedRoutes || 0),
+    appliedRoutes: Number(snapshot.appliedRoutes || 0),
+    strategyRoutes: Number(snapshot.strategyRoutes || 0),
+    pendingStrategyRoutes: Number(snapshot.pendingStrategyRoutes || 0),
+    routesRequiringApproval: Number(snapshot.routesRequiringApproval || 0),
+    routesWithOwner: Number(snapshot.routesWithOwner || 0),
+    routesWithSourceProvenance: Number(snapshot.routesWithSourceProvenance || 0),
+    tierOneRoutes: Number(snapshot.tierOneRoutes || 0),
+    verifiedSynthesisRoutes: Number(snapshot.verifiedSynthesisRoutes || 0),
+    unverifiedDecisionGradeRoutes: Number(snapshot.unverifiedDecisionGradeRoutes || 0),
+    distinctSynthesizedItems: Number(snapshot.distinctSynthesizedItems || 0),
+    latestRun: summarizeRun(snapshot.latestRun),
+    latestProofRun: summarizeRun(snapshot.latestProofRun),
+    guardedRoutes: Number(snapshot.guardedRoutes || 0),
+    routesWithActiveSynthesizedItems: Number(snapshot.routesWithActiveSynthesizedItems || 0),
+    routesWithActiveFactRefs: Number(snapshot.routesWithActiveFactRefs || 0),
+    routesWithActiveEvidenceRefs: Number(snapshot.routesWithActiveEvidenceRefs || 0),
+    routesWithActiveEvidenceChunkRefs: Number(snapshot.routesWithActiveEvidenceChunkRefs || 0),
+    appliedRoutesChecked: Number(snapshot.appliedRoutesChecked || 0),
+    appliedRoutesWithDestinationRecord: Number(snapshot.appliedRoutesWithDestinationRecord || 0),
+    activeClusteredItems: Number(snapshot.activeClusteredItems || 0),
+    itemsVisibleToRouter: Number(snapshot.itemsVisibleToRouter || 0),
+    strategyItemsVisibleToRouter: Number(snapshot.strategyItemsVisibleToRouter || 0),
+    unclusteredItemsVisibleToRouter: Number(snapshot.unclusteredItemsVisibleToRouter || 0),
+    legacyProtectedItemsVisibleToRouter: Number(snapshot.legacyProtectedItemsVisibleToRouter || 0),
+    recentRouteCount: recentRoutes.length,
+    recentRouteApprovalStatusCounts: countRoutesByApprovalStatus(recentRoutes),
+    strategyRecentRouteCount: strategyRecentRoutes.length,
+    strategyRecentRouteApprovalStatusCounts: countRoutesByApprovalStatus(strategyRecentRoutes),
+    routesByType: compactCountRows(snapshot.routesByType, 'routeType'),
+    routesByDestination: compactCountRows(snapshot.routesByDestination, 'destinationTable'),
+  }
+}
+
+function buildActionRouterProposalOutput({ proposal, snapshot, fullSnapshot = false }) {
+  const output = {
+    run: proposal.run,
+    selectedItems: proposal.selectedItems.length,
+    routesProposed: proposal.routes.length,
+  }
+
+  if (fullSnapshot) {
+    output.snapshot = snapshot
+  } else {
+    output.snapshotSummary = buildCompactActionRouterSnapshot(snapshot)
+  }
+
+  return output
+}
+
 async function main() {
   const args = parseArgs()
   await initFoundationDb()
@@ -36,13 +135,9 @@ async function main() {
     },
   }, 'intelligence-action-router-proposals')
 
-  const snapshot = await getActionRouterSnapshot({ limit: 40 })
-  console.log(JSON.stringify({
-    run: proposal.run,
-    selectedItems: proposal.selectedItems.length,
-    routesProposed: proposal.routes.length,
-    snapshot,
-  }, null, 2))
+  const snapshot = await getActionRouterSnapshot({ limit: numberArg(args, 40, 'snapshotLimit', 'snapshot_limit') })
+  const fullSnapshot = boolArg(args.fullSnapshot || args.full_snapshot || args.verbose)
+  console.log(JSON.stringify(buildActionRouterProposalOutput({ proposal, snapshot, fullSnapshot }), null, 2))
 }
 
 main()

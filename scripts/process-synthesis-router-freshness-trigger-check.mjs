@@ -27,6 +27,7 @@ const SCRIPT_PATH = 'scripts/process-synthesis-router-freshness-trigger-check.mj
 const MODULE_PATH = 'lib/synthesis-router-freshness-trigger.js'
 const RUNNER_PATH = 'scripts/run-foundation-job.mjs'
 const PLAN_PATH = 'docs/process/synthesis-router-freshness-trigger-001-plan.md'
+const ACTION_ROUTER_PROPOSALS_PATH = 'scripts/intelligence-action-router-proposals.mjs'
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -156,12 +157,14 @@ async function main() {
     runnerSource,
     planSource,
     scriptSource,
+    actionRouterProposalsSource,
   ] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile(MODULE_PATH),
     readRepoFile(RUNNER_PATH),
     readRepoFile(PLAN_PATH),
     readRepoFile(SCRIPT_PATH),
+    readRepoFile(ACTION_ROUTER_PROPOSALS_PATH),
   ])
 
   const stale = buildSynthesisRouterFreshnessSnapshot({
@@ -303,6 +306,26 @@ async function main() {
     packageJson.scripts?.['process:synthesis-router-freshness-trigger-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`,
     'package exposes focused synthesis freshness trigger proof',
     packageJson.scripts?.['process:synthesis-router-freshness-trigger-check'] || 'missing',
+  )
+  addCheck(
+    checks,
+    packageJson.scripts?.['intelligence:action-router-proposals'] === `node --env-file-if-exists=.env ${ACTION_ROUTER_PROPOSALS_PATH}`,
+    'package exposes action-router proposal job',
+    packageJson.scripts?.['intelligence:action-router-proposals'] || 'missing',
+  )
+  addCheck(
+    checks,
+    actionRouterProposalsSource.includes('function buildCompactActionRouterSnapshot') &&
+      actionRouterProposalsSource.includes('snapshotSummary = buildCompactActionRouterSnapshot') &&
+      actionRouterProposalsSource.includes('args.fullSnapshot || args.full_snapshot || args.verbose'),
+    'action-router proposal job prints compact snapshot summary by default with explicit full-snapshot override',
+    ACTION_ROUTER_PROPOSALS_PATH,
+  )
+  addCheck(
+    checks,
+    !/console\.log\(JSON\.stringify\(\{\s*run:\s*proposal\.run,\s*selectedItems:\s*proposal\.selectedItems\.length,\s*routesProposed:\s*proposal\.routes\.length,\s*snapshot,/s.test(actionRouterProposalsSource),
+    'action-router proposal job no longer dumps the full route snapshot by default',
+    'default output excludes recentRoutes detail unless --full-snapshot/--verbose is set',
   )
   addCheck(
     checks,
