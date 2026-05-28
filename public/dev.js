@@ -756,6 +756,8 @@ function renderBrowserChallengeFallbackReview(review = {}) {
               row.nextAction,
               row.fallbackPlan?.recoveryPolicy?.mode,
               row.fallbackPlan?.sourceSessionRequired ? 'source session required' : 'clean isolated retry first',
+              row.fallbackRetryPacket?.cleanRetry?.allowedNow ? 'clean retry command ready' : '',
+              row.fallbackRetryPacket?.afterSourceSession?.required ? 'after-session retry command prepared' : '',
               row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel ? `escalates via ${row.fallbackPlan.recoveryPolicy.humanEscalation.channel}` : '',
               row.fallbackPlan?.operatorEscalation ? 'Harlan draft ready' : '',
               row.url,
