@@ -2,7 +2,7 @@
 
 Proposed source ID: `SRC-MYICRO-001`  
 Related cards: `MYICRO-TRAINING-001`, `WEB-GODMODE-001`, `MULTIMODAL-EXTRACTOR-001`, `WEB-CRAWLER-001`, `AGENT-001`
-Last updated: 2026-04-26  
+Last updated: 2026-05-28  
 Status: Proposed / Access Proof Needed
 
 ## Purpose
@@ -56,6 +56,14 @@ May 26, 2026 live preflight found the current MyICOR MCP route:
 - Supported scopes: `mcp:read`, `mcp:tools`, `mcp:progress`, `mcp:inner-circle`, `mcp:admin`
 - Extraction scope should request read/progress/inner-circle/tool-stack access only, not `mcp:admin`.
 - The older `https://mcp.myicor.com/sse` endpoint is stale and returned `404`.
+
+May 28, 2026 recheck confirmed the same safe preflight state:
+
+- `npm run myicor:mcp-preflight -- --json` returned `ok: true`.
+- Server remained `myicor-mcp` version `1.15.0`.
+- Unauthenticated `tools/list` returned `401 Authentication required`, so no paid/private library data is exposed without OAuth.
+- `https://mcp.myicor.com/sse` still returned `404`.
+- Raw secret printed: `false`.
 
 The local helper is `npm run myicor:mcp-preflight`, then `npm run myicor:mcp-authorize -- --account=myicor-authorized-member` once Steve is ready to approve OAuth. Tokens are stored in macOS Keychain under `myicor-mcp-oauth`, not in repo docs or Postgres.
 
