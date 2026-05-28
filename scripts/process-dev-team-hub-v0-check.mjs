@@ -943,17 +943,26 @@ async function main() {
     checks,
     sourceGodModeBrowserChallengeFallbackReview.status === 'needs_source_browser_fallback' &&
       Number(sourceGodModeBrowserChallengeFallbackReview.totalRows || 0) === sourceGodModeBrowserChallengeFallbackCount &&
+      Number(sourceGodModeBrowserChallengeFallbackReview.sourceSessionRequiredRows || 0) >= 0 &&
+      Object.keys(sourceGodModeBrowserChallengeFallbackReview.fallbackRouteCounts || {}).length > 0 &&
       list(sourceGodModeBrowserChallengeFallbackReview.rows).length > 0 &&
       list(sourceGodModeBrowserChallengeFallbackReview.rows).every(row =>
         row.runnable === false &&
         row.parked === true &&
         text(row.reason) &&
-        text(row.nextAction)
+        text(row.nextAction) &&
+        row.fallbackPlan?.status === 'browser_challenge_fallback_required' &&
+        row.fallbackPlan?.normalChromeProfileAllowed === false &&
+        text(row.fallbackPlan?.route) &&
+        text(row.fallbackPlan?.firstStep) &&
+        row.fallbackPlan?.recoveryPolicy?.mode === 'bounded_self_recovery_then_human_escalation' &&
+        row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'operator_ai_assistant_texting_lane'
       ) &&
       list(sourceGodModeBrowserChallengeFallbackReview.topHosts).length > 0 &&
       jsSource.includes('renderBrowserChallengeFallbackReview') &&
+      jsSource.includes('fallbackRouteCounts') &&
       /not counted as completed source evidence/i.test(sourceGodModeBrowserChallengeFallbackReview.plainEnglish || ''),
-    'Dev Hub shows browser-challenge fallback examples and next actions instead of only a hidden count',
+    'Dev Hub shows browser-challenge fallback examples with structured route and next action instead of only a hidden count',
     `fallback=${sourceGodModeBrowserChallengeFallbackReview.totalRows || 0}; examples=${list(sourceGodModeBrowserChallengeFallbackReview.rows).length}; hosts=${list(sourceGodModeBrowserChallengeFallbackReview.topHosts).map(row => row.host).slice(0, 4).join(', ')}`,
   )
   addCheck(

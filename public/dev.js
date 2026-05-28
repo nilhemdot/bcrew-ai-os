@@ -730,24 +730,36 @@ function renderBrowserChallengeFallbackReview(review = {}) {
   const rows = list(review.rows).slice(0, 8)
   const topHosts = list(review.topHosts).slice(0, 8)
   const hostCopy = topHosts.map(host => `${host.host}: ${compactNumber(host.count || 0)}`).join(' · ')
+  const routeCopy = Object.entries(review.fallbackRouteCounts || {})
+    .map(([route, count]) => `${route}: ${compactNumber(count || 0)}`)
+    .join(' · ')
   return `
     <section class="yt-session-prep">
       <div class="yt-section-head">
         <span>BROWSER FALLBACK REVIEW</span>
         <h3>Challenge pages are not evidence</h3>
-        <small>${escapeHtml(compactNumber(review.totalRows || 0))} fallback rows${hostCopy ? ` · ${escapeHtml(hostCopy)}` : ''}</small>
+        <small>${escapeHtml(compactNumber(review.totalRows || 0))} fallback rows · ${escapeHtml(compactNumber(review.sourceSessionRequiredRows || 0))} need source session${hostCopy ? ` · ${escapeHtml(hostCopy)}` : ''}</small>
       </div>
       <p>${escapeHtml(review.plainEnglish || '')}</p>
+      ${routeCopy ? `<p>${escapeHtml(routeCopy)}</p>` : ''}
       ${review.nextAction ? `<p>${escapeHtml(review.nextAction)}</p>` : ''}
       <div class="yt-source-run-list">
         ${rows.map(row => `
           <article>
             <div>
-              <span>${escapeHtml(statusCopy(row.bucketId || 'source'))}</span>
+              <span>${escapeHtml(row.fallbackPlan?.route || statusCopy(row.bucketId || 'source'))}</span>
               <strong>${escapeHtml(row.host || row.label || 'source')}</strong>
             </div>
             <p>${escapeHtml(row.reason || row.url || '')}</p>
-            <small>${escapeHtml([row.nextAction, row.url, row.devLanePriority?.priorityLabel].filter(Boolean).join(' · '))}</small>
+            <small>${escapeHtml([
+              row.fallbackPlan?.firstStep,
+              row.nextAction,
+              row.fallbackPlan?.recoveryPolicy?.mode,
+              row.fallbackPlan?.sourceSessionRequired ? 'source session required' : 'clean isolated retry first',
+              row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel ? `escalates via ${row.fallbackPlan.recoveryPolicy.humanEscalation.channel}` : '',
+              row.url,
+              row.devLanePriority?.priorityLabel,
+            ].filter(Boolean).join(' · '))}</small>
           </article>
         `).join('') || '<article><p>No fallback examples returned.</p></article>'}
       </div>
@@ -903,18 +915,24 @@ function renderSourceRunSummary(summary = {}) {
           <div class="yt-section-head">
             <span>SOURCE BROWSER AGENT</span>
             <h3>Route, auth, and stop-state readback</h3>
-            <small>${escapeHtml(compactNumber(agentReadback.planCount || 0))} plans · ${escapeHtml(compactNumber(agentReadback.readyPlanCount || 0))} ready · ${escapeHtml(compactNumber(agentReadback.authNeededCount || 0))} auth needed · ${escapeHtml(compactNumber(agentReadback.failedClosedCount || 0))} failed closed · ${escapeHtml(compactNumber(agentReadback.unsafeSideEffectRows || 0))} unsafe side effects</small>
+            <small>${escapeHtml(compactNumber(agentReadback.planCount || 0))} plans · ${escapeHtml(compactNumber(agentReadback.readyPlanCount || 0))} ready · ${escapeHtml(compactNumber(agentReadback.authNeededCount || 0))} auth needed · ${escapeHtml(compactNumber(agentReadback.failedClosedCount || 0))} failed closed · ${escapeHtml(compactNumber(agentReadback.fallbackPlanCount || 0))} fallback plans · ${escapeHtml(compactNumber(agentReadback.unsafeSideEffectRows || 0))} unsafe side effects</small>
           </div>
           <p>${escapeHtml(agentReadback.plainEnglish || '')}</p>
           <div class="yt-source-run-list">
             ${agentPlans.map(plan => `
               <article>
                 <div>
-                  <span>${escapeHtml(plan.route || 'route')} · ${escapeHtml(plan.terminalState || 'state')}</span>
+                  <span>${escapeHtml(plan.fallbackPlan?.route || plan.route || 'route')} · ${escapeHtml(plan.terminalState || 'state')}</span>
                   <strong>${escapeHtml(plan.host || plan.sourceId || 'source')}</strong>
                 </div>
-                <p>${escapeHtml(plan.stopReason || plan.nextAction || plan.url || '')}</p>
-                <small>${escapeHtml(`${plan.label || 'source'} · ${compactNumber(plan.stateHistoryCount || 0)} states · ${compactNumber(plan.blockerCount || 0)} blockers`)}</small>
+                <p>${escapeHtml(plan.fallbackPlan?.firstStep || plan.stopReason || plan.nextAction || plan.url || '')}</p>
+                <small>${escapeHtml([
+                  plan.label || 'source',
+                  `${compactNumber(plan.stateHistoryCount || 0)} states`,
+                  `${compactNumber(plan.blockerCount || 0)} blockers`,
+                  plan.fallbackPlan?.sourceSessionRequired ? 'source session required' : '',
+                  plan.fallbackPlan?.recoveryPolicy?.humanEscalationChannel ? `escalates via ${plan.fallbackPlan.recoveryPolicy.humanEscalationChannel}` : '',
+                ].filter(Boolean).join(' · '))}</small>
               </article>
             `).join('') || '<article><p>No source-browser agent rows returned.</p></article>'}
           </div>

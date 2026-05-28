@@ -157,7 +157,10 @@ async function main() {
     dogfood.reports.browserChallengeState.terminalState === 'failed_closed' &&
       dogfood.reports.browserChallengeState.fallbackPlan?.status === 'browser_challenge_fallback_required' &&
       dogfood.reports.browserChallengeState.fallbackPlan?.route === 'source_specific_session_then_hosted_browser_fallback' &&
-      dogfood.reports.browserChallengeState.fallbackPlan?.normalChromeProfileAllowed === false,
+      dogfood.reports.browserChallengeState.fallbackPlan?.normalChromeProfileAllowed === false &&
+      dogfood.reports.browserChallengeState.fallbackPlan?.recoveryPolicy?.mode === 'bounded_self_recovery_then_human_escalation' &&
+      dogfood.reports.browserChallengeState.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'operator_ai_assistant_texting_lane' &&
+      dogfood.reports.browserChallengeState.fallbackPlan?.recoveryPolicy?.humanEscalation?.sendsMessageNow === false,
     'browser challenge pages get a structured fallback plan instead of a generic stop',
     JSON.stringify(dogfood.reports.browserChallengeState.fallbackPlan || {}),
   )

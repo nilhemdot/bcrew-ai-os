@@ -1161,17 +1161,28 @@ async function main() {
   )
   addCheck(
     checks,
-    savedChallengeQueue.browserChallengeFallbackReview?.status === 'needs_source_browser_fallback' &&
+      savedChallengeQueue.browserChallengeFallbackReview?.status === 'needs_source_browser_fallback' &&
       savedChallengeQueue.browserChallengeFallbackReview?.totalRows === 1 &&
+      savedChallengeQueue.browserChallengeFallbackReview?.sourceSessionRequiredRows === 0 &&
+      savedChallengeQueue.browserChallengeFallbackReview?.fallbackRouteCounts?.clean_isolated_retry_then_hosted_browser_fallback === 1 &&
       list(savedChallengeQueue.browserChallengeFallbackReview?.rows).some(row =>
         row.url === 'https://community.youreverydayai.com/' &&
         row.runnable === false &&
         row.parked === true &&
         text(row.reason) &&
-        /fallback|hosted\/browser-agent|source-specific/i.test(row.nextAction || '')
+        /fallback|hosted\/browser-agent|source-specific/i.test(row.nextAction || '') &&
+        row.fallbackPlan?.status === 'browser_challenge_fallback_required' &&
+        row.fallbackPlan?.sourceSessionRequired === false &&
+        row.fallbackPlan?.normalChromeProfileAllowed === false &&
+        row.fallbackPlan?.route === 'clean_isolated_retry_then_hosted_browser_fallback' &&
+        text(row.fallbackPlan?.firstStep) &&
+        row.fallbackPlan?.recoveryPolicy?.mode === 'bounded_self_recovery_then_human_escalation' &&
+        row.fallbackPlan?.recoveryPolicy?.maxAutomaticAttempts === 2 &&
+        row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'operator_ai_assistant_texting_lane' &&
+        row.fallbackPlan?.recoveryPolicy?.humanEscalation?.sendsMessageNow === false
       ) &&
       /not counted as completed source evidence/i.test(savedChallengeQueue.browserChallengeFallbackReview?.plainEnglish || ''),
-    'saved browser challenge fallback rows have a visible review surface with next action',
+    'saved browser challenge fallback rows have a visible structured fallback plan with next action',
     JSON.stringify(savedChallengeQueue.browserChallengeFallbackReview || {}),
   )
   const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({
