@@ -485,6 +485,7 @@ async function main() {
   const closeout = getFoundationBuildCloseouts().find(record => record.key === CLOSEOUT_KEY) || null
   const currentCard = workingCards.find(item => item.id === CARD_ID) || null
   const firstSafeCardId = closeoutStatus.continuation.firstSafeCardId
+  const originalCloseoutFirstCardId = FOUNDATION_SAFE_CONTINUATION_ORDER[0]?.cardId || 'SLICE-001'
   const firstSafeCard = workingCards.find(item => item.id === firstSafeCardId) || null
   const activeBlocker = workingActiveSprint.sprint?.activeBlockerCardId || workingActiveSprint.sprint?.active_blocker_card_id || ''
   const sprintId = workingActiveSprint.sprint?.sprintId || workingActiveSprint.sprint?.id || ''
@@ -497,7 +498,7 @@ async function main() {
   addCheck(checks, scriptSource.includes('buildNextSprintOverlay') && scriptSource.includes('firstSafeCardId'), 'focused script opens next safe sprint instead of stopping', SCRIPT_PATH)
   addCheck(checks, packageJson.scripts?.['process:foundation-overnight-closeout-morning-readiness-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes overnight closeout proof', packageJson.scripts?.['process:foundation-overnight-closeout-morning-readiness-check'] || 'missing')
   addCheck(checks, closeoutRegistrySource.includes(CLOSEOUT_KEY) && closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(CARD_ID), 'closeout registry resolves overnight closeout', closeout?.key || 'missing')
-  addCheck(checks, closeoutDoc.includes(CARD_ID) && closeoutDoc.includes(NEXT_SPRINT_ID) && closeoutDoc.includes(firstSafeCardId || 'SLICE-001'), 'closeout handoff records next sprint and first card', HANDOFF_PATH)
+  addCheck(checks, closeoutDoc.includes(CARD_ID) && closeoutDoc.includes(NEXT_SPRINT_ID) && closeoutDoc.includes(originalCloseoutFirstCardId), 'closeout handoff records next sprint and closeout-time first card', HANDOFF_PATH)
   addCheck(checks, currentCard?.priority === 'P0' && (args.closeCard ? currentCard.lane === 'done' : ['executing', 'scoped', 'done'].includes(currentCard?.lane)), 'overnight closeout backlog row is correct', currentCard ? `${currentCard.lane}/${currentCard.priority}` : 'missing')
   addCheck(checks, !args.closeCard || sprintId === NEXT_SPRINT_ID, 'Current Sprint moves to next safe sprint after closeout', sprintId || 'missing')
   addCheck(checks, !args.closeCard || activeBlocker === firstSafeCardId, 'Current Sprint active blocker is first safe continuation card', activeBlocker || 'missing')
