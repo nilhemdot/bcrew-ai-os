@@ -3253,6 +3253,40 @@ button {
   color: var(--ink);
 }
 
+.yt-session-readiness {
+  display: grid;
+  gap: 6px;
+}
+
+.yt-session-readiness > div {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-xs);
+  background: var(--grey-0);
+}
+
+.yt-session-readiness strong,
+.yt-session-readiness p,
+.yt-session-readiness code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.yt-session-readiness p {
+  margin: 0;
+  color: var(--grey-d);
+  font-size: var(--t-xs);
+}
+
+.yt-session-readiness code {
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  line-height: 1.45;
+}
+
 .yt-video {
   display: grid;
   gap: 10px;

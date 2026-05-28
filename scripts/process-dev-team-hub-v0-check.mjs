@@ -853,6 +853,8 @@ async function main() {
   const sourceRunSummary = sourceGodModeHandoffQueue.sourceRunSummary || {}
   const sourceSessionPrepRows = list(sourceSessionPrepQueue.rows)
   const sourceSessionActionGroups = list(sourceSessionPrepQueue.actionGroups)
+  const sourceSessionReadinessChecks = sourceSessionActionGroups
+    .flatMap(group => list(group.readiness?.checks))
   const sourceGodModeCleared = sourceGodModeRunnableCount === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.publicFreeRuntimeRows || 0) === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.freeCommunityRows || 0) === 0 &&
@@ -945,6 +947,8 @@ async function main() {
       Number(sourceSessionPrepQueue.counts?.clusterCount || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.previewClusters || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.actionGroupCount || 0) > 0 &&
+      Number(sourceSessionPrepQueue.counts?.readinessCheckCount || 0) === sourceSessionReadinessChecks.length &&
+      Number(sourceSessionPrepQueue.counts?.credentialReadinessCheckCount || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.runAllowedNowRows || 0) === 0 &&
       Number(sourceSessionPrepQueue.counts?.rawSecretPrintedRows || 0) === 0 &&
       Number(sourceSessionPrepQueue.phaseCounts?.free_source_identity_session_needed || 0) > 0 &&
@@ -958,6 +962,9 @@ async function main() {
       sourceSessionActionGroups.some(group => group.phase === 'newsletter_signup_lane_needed' && group.nextAction?.includes('dry-run')) &&
       sourceSessionActionGroups.some(group => group.phase === 'paid_or_auth_packet_needed' && group.nextAction?.includes('Steve')) &&
       sourceSessionActionGroups.every(group => Number(group.rawSecretPrintedRows || 0) === 0 && Number(group.totalRows || 0) >= 1 && list(group.topUrls).length >= 1) &&
+      sourceSessionReadinessChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
+      sourceSessionReadinessChecks.some(check => /newsletter:intake/.test(check.statusCommand || '')) &&
+      sourceSessionReadinessChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false) &&
       sourceSessionPrepRows.some(row => row.phase === 'free_source_identity_session_needed') &&
       sourceSessionPrepRows.some(row => row.phase === 'community_runner_needed') &&
       sourceSessionPrepRows.some(row => row.phase === 'newsletter_signup_lane_needed') &&
@@ -965,9 +972,11 @@ async function main() {
       sourceSessionPrepQueue.sideEffects?.externalWrites === false &&
       jsSource.includes('actionGroups') &&
       jsSource.includes('primaryNextAction') &&
+      jsSource.includes('renderSourceSessionReadiness') &&
       jsSource.includes('yt-session-cluster-grid') &&
+      cssSource.includes('.yt-session-readiness') &&
       cssSource.includes('.yt-session-cluster-grid'),
-    'YouTube source-browser queue exposes clustered and action-grouped source-session prep without claiming live signups or auth runs',
+    'YouTube source-browser queue exposes clustered action groups and metadata-only source-session readiness without claiming live signups or auth runs',
     JSON.stringify(sourceSessionPrepQueue.counts || {}),
   )
   const repoReadback = sourceRunSummary.repoReadback || {}

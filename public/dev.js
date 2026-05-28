@@ -683,6 +683,23 @@ function sourceHandoffVisibleRows(queue = {}, limit = 12) {
   return selected.slice(0, limit)
 }
 
+function renderSourceSessionReadiness(readiness = {}) {
+  const checks = list(readiness.checks).slice(0, 3)
+  if (!checks.length) return ''
+  return `
+    <div class="yt-session-readiness">
+      ${checks.map(check => `
+        <div>
+          <span>${escapeHtml(statusCopy(check.status || check.kind || 'readiness'))}</span>
+          <strong>${escapeHtml(check.label || check.checkId || 'Readiness check')}</strong>
+          ${check.nextAction ? `<p>${escapeHtml(check.nextAction)}</p>` : ''}
+          ${check.statusCommand ? `<code>${escapeHtml(check.statusCommand)}</code>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `
+}
+
 function renderYoutubeSourceBucketCards(queue = {}) {
   const bucketCounts = queue.bucketCounts || {}
   const buckets = Object.entries(bucketCounts)
@@ -726,6 +743,7 @@ function renderSourceSessionPrepQueue(prep = {}) {
               <strong>${escapeHtml(group.label || 'Source-session action')}</strong>
             </div>
             <p>${escapeHtml(group.plainEnglish || group.nextAction || '')}</p>
+            ${renderSourceSessionReadiness(group.readiness || {})}
             <small>${escapeHtml([`${compactNumber(group.totalRows || 0)} rows`, `${compactNumber(group.clusterCount || 0)} clusters`, group.account, group.runner, list(group.topHosts).slice(0, 3).join(' · ')].filter(Boolean).join(' · '))}</small>
           </article>
         `).join('') || '<article class="loading-card">No source-session action groups returned.</article>'}

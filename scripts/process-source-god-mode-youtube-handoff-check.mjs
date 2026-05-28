@@ -678,6 +678,10 @@ async function main() {
     'free-community queue parks Skool/community rows behind Source Session Broker decisions and parks signup bridge pages',
     list(communityBoundaryQueue?.rows).map(row => `${row.url}:${row.status}:${row.runnable}`).join(', '),
   )
+  const readyPrepReadinessChecks = list(queue.sourceSessionPrepQueue?.actionGroups)
+    .flatMap(group => list(group.readiness?.checks))
+  const parkedPrepReadinessChecks = list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups)
+    .flatMap(group => list(group.readiness?.checks))
   addCheck(
     checks,
     queue.sourceSessionPrepQueue?.status === 'session_ready_rows_available' &&
@@ -687,6 +691,8 @@ async function main() {
       queue.sourceSessionPrepQueue?.counts?.clusterCount === 3 &&
       queue.sourceSessionPrepQueue?.counts?.previewClusters === 3 &&
       queue.sourceSessionPrepQueue?.counts?.actionGroupCount === 3 &&
+      queue.sourceSessionPrepQueue?.counts?.readinessCheckCount === readyPrepReadinessChecks.length &&
+      queue.sourceSessionPrepQueue?.counts?.credentialReadinessCheckCount >= 1 &&
       queue.sourceSessionPrepQueue?.counts?.runAllowedNowRows === 1 &&
       queue.sourceSessionPrepQueue?.counts?.rawSecretPrintedRows === 0 &&
       queue.sourceSessionPrepQueue?.phaseCounts?.free_skool_session_ready === 1 &&
@@ -697,6 +703,9 @@ async function main() {
       list(queue.sourceSessionPrepQueue?.actionGroups).length === 3 &&
       list(queue.sourceSessionPrepQueue?.actionGroups).every(group => Number(group.totalRows || 0) >= 1 && Number(group.rawSecretPrintedRows || 0) === 0 && group.nextAction) &&
       list(queue.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'free_skool_session_ready' && group.rowsWithRunAfterSessionCommand === 1) &&
+      readyPrepReadinessChecks.some(check => /newsletter:intake/.test(check.statusCommand || '')) &&
+      readyPrepReadinessChecks.some(check => /myicor:mcp-preflight/.test(check.statusCommand || '')) &&
+      readyPrepReadinessChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false) &&
       list(queue.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_skool_session_ready' && row.runAfterSessionCommand) &&
       list(queue.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'free_skool_session_ready' && cluster.rowsWithRunAfterSessionCommand === 1 && /chase-ai-community/.test(cluster.label || '')) &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_source_identity_session_needed') &&
@@ -704,8 +713,10 @@ async function main() {
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'free_source_identity_session_needed' && cluster.host === 'skool.com') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'community_runner_needed' && cluster.host === 'community.youreverydayai.com') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'free_source_identity_session_needed' && group.nextAction?.includes('ai@bensoncrew.ca')) &&
-      list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'community_runner_needed'),
-    'source session prep queue exposes clustered and action-grouped next auth/session work without starting it',
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'community_runner_needed') &&
+      parkedPrepReadinessChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
+      parkedPrepReadinessChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false),
+    'source session prep queue exposes clustered action groups and readiness commands without starting auth/session work',
     JSON.stringify({
       readyPrep: queue.sourceSessionPrepQueue?.counts,
       parkedPrep: communityBoundaryQueue?.sourceSessionPrepQueue?.counts,
