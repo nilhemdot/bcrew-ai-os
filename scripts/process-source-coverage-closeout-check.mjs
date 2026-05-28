@@ -18,13 +18,15 @@ import {
 } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
-  getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getFoundationSnapshot,
   initFoundationDb,
   updateBacklogItem,
-  upsertFoundationCurrentSprintOverlay,
 } from '../lib/foundation-db.js'
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  isProcessCheckWriteRequested,
+} from '../lib/process-write-guard.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
 import { buildSourceLifecycleStatus } from '../lib/source-lifecycle.js'
 import { buildSourceMaturityGridSnapshot } from '../lib/source-maturity-grid.js'
@@ -48,11 +50,19 @@ const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..')
 
 function parseArgs(argv = process.argv.slice(2)) {
-  return argv.reduce((acc, arg) => {
+  const parsed = argv.reduce((acc, arg) => {
     const match = String(arg).match(/^--([^=]+)=(.*)$/)
     if (match) acc[match[1]] = match[2]
     return acc
   }, {})
+  return {
+    ...parsed,
+    json: argv.includes('--json') || String(parsed.json || '').toLowerCase() === 'true',
+    writeBacklog: isProcessCheckWriteRequested({
+      argv,
+      allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard],
+    }),
+  }
 }
 
 async function readRepoFile(relativePath) {
@@ -85,7 +95,7 @@ function rowHasAllowedDecision(row) {
 
 async function main() {
   const args = parseArgs()
-  const jsonMode = String(args.json || '').toLowerCase() === 'true'
+  const jsonMode = args.json
   const findings = []
 
   const [
@@ -100,6 +110,12 @@ async function main() {
     foundationVerifySource,
     publicFoundationSource,
     publicStylesSource,
+    foundationSourceRoutesSource,
+    hubReadRoutesSource,
+    publicSourceLifecycleRenderersSource,
+    frontendSourceLifecycleRenderersSource,
+    foundationWorkflowStylesSource,
+    sourceOnceOverCloseoutSource,
     currentPlanText,
     currentStateText,
   ] = await Promise.all([
@@ -114,6 +130,12 @@ async function main() {
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('public/foundation.js'),
     readRepoFile('public/styles.css'),
+    readRepoFile('lib/foundation-source-routes.js'),
+    readRepoFile('lib/hub-read-routes.js'),
+    readRepoFile('public/foundation-source-lifecycle-renderers.js'),
+    readRepoFile('lib/foundation-frontend-source-lifecycle-renderers-split.js'),
+    readRepoFile('public/styles-foundation-workflows.css'),
+    readRepoFile('lib/foundation-build-closeout-source-once-over-records.js'),
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/rebuild/current-state.md'),
   ])
@@ -180,30 +202,27 @@ async function main() {
   const syntheticProof = buildSyntheticSourceCoverageCloseoutProof()
 
   const closeoutNote = 'Closed on 2026-05-12 under `source-coverage-closeout-v1`. V1 adds `lib/source-coverage-closeout.js`, `/api/foundation/source-coverage-closeout`, Source Lifecycle/Foundation Hub payload wiring, Foundation Source Lifecycle UI rendering, follow-up queues `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` and `SOURCE-MATURITY-GAP-FOLLOWUP-001`, `scripts/process-source-coverage-closeout-check.mjs`, package/verifier/current-sprint coverage, and Recent Work closeout. The behavior proof calls the real source coverage closeout snapshot path, verifies every source row has one allowed decision, proves synthetic covered/extraction-gap/maturity-gap/deferred classification, verifies routed rows point to follow-up cards, and advances Current Sprint to `MARKETING-SOURCE-MAP-001`. This does not run new extraction jobs, add connectors, fix Google Ads/Real Broker/Loom/Skool/Zoom/Drive OCR/Missive attachments, build Reply/Watching Loop, expand Strategy Hub, build Marketing production, Telegram bots, Directors, or mutate Drive permissions.'
-  await updateBacklogItem(SOURCE_COVERAGE_CLOSEOUT_CARD_ID, {
-    lane: 'done',
-    nextAction: 'Closed for v1. Pull `MARKETING-SOURCE-MAP-001` next to map imported avatars and marketing source contracts to brand lanes.',
-    statusNote: closeoutNote,
-  }, 'codex')
-  await updateBacklogItem(SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID, {
-    lane: 'scoped',
-    nextAction: 'Use the source coverage closeout matrix to pull one source-specific extraction gap at a time after the Source Once-Over sprint allows it.',
-  }, 'codex')
-  await updateBacklogItem(SOURCE_MATURITY_GAP_FOLLOWUP_CARD_ID, {
-    lane: 'scoped',
-    nextAction: 'Use the source coverage closeout matrix to pull one maturity-stage gap at a time after the Source Once-Over sprint allows it.',
-  }, 'codex')
+  if (args.writeBacklog) {
+    await updateBacklogItem(SOURCE_COVERAGE_CLOSEOUT_CARD_ID, {
+      lane: 'done',
+      nextAction: 'Closed for v1. Pull `MARKETING-SOURCE-MAP-001` next to map imported avatars and marketing source contracts to brand lanes.',
+      statusNote: closeoutNote,
+    }, 'codex')
+    await updateBacklogItem(SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID, {
+      lane: 'scoped',
+      nextAction: 'Use the source coverage closeout matrix to pull one source-specific extraction gap at a time after the Source Once-Over sprint allows it.',
+    }, 'codex')
+    await updateBacklogItem(SOURCE_MATURITY_GAP_FOLLOWUP_CARD_ID, {
+      lane: 'scoped',
+      nextAction: 'Use the source coverage closeout matrix to pull one maturity-stage gap at a time after the Source Once-Over sprint allows it.',
+    }, 'codex')
+  }
 
-  await upsertFoundationCurrentSprintOverlay(
-    buildFoundationSourceOnceOverSprintSeed({
-      sourceMaturityStage: 'done_this_sprint',
-      sourceExtractionCoverageStage: 'done_this_sprint',
-      sourceCoverageCloseoutStage: 'done_this_sprint',
-    }),
-    'codex'
-  )
-
-  const sprint = await getActiveFoundationCurrentSprint()
+  const historicalSprint = buildFoundationSourceOnceOverSprintSeed({
+    sourceMaturityStage: 'done_this_sprint',
+    sourceExtractionCoverageStage: 'done_this_sprint',
+    sourceCoverageCloseoutStage: 'done_this_sprint',
+  })
   const cards = await getBacklogItemsByIds([
     SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
     SOURCE_EXTRACTION_COVERAGE_CARD_ID,
@@ -214,8 +233,8 @@ async function main() {
   await closeFoundationDb()
 
   const cardMap = new Map(cards.map(card => [card.id, card]))
-  const sprintStageMap = new Map((sprint.items || []).map(item => [item.cardId, item.stage]))
-  const activeBlockerCardId = sprint.sprint?.activeBlockerCardId || null
+  const sprintStageMap = new Map((historicalSprint.items || []).map(item => [item.cardId, item.stage]))
+  const activeBlockerCardId = historicalSprint.sprint?.activeBlockerCardId || null
   const sourceCoverageCloseoutCard = cardMap.get(SOURCE_COVERAGE_CLOSEOUT_CARD_ID)
   const sourceExtractionCoverageCard = cardMap.get(SOURCE_EXTRACTION_COVERAGE_CARD_ID)
   const extractionGapCard = cardMap.get(SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID)
@@ -223,6 +242,24 @@ async function main() {
   const marketingSourceMapCard = cardMap.get(MARKETING_SOURCE_MAP_CARD_ID)
   const routedExtractionRows = sourceCoverageCloseout.rows.filter(row => row.decision === 'advance_extraction_gap')
   const routedMaturityRows = sourceCoverageCloseout.rows.filter(row => row.decision === 'advance_maturity_gap')
+  const routeSource = [
+    serverSource,
+    foundationSourceRoutesSource,
+    hubReadRoutesSource,
+  ].join('\n')
+  const sourceLifecycleUiSource = [
+    publicFoundationSource,
+    publicSourceLifecycleRenderersSource,
+    frontendSourceLifecycleRenderersSource,
+  ].join('\n')
+  const sourceLifecycleStyleSource = [
+    publicStylesSource,
+    foundationWorkflowStylesSource,
+  ].join('\n')
+  const closeoutRecordsSource = [
+    foundationBuildLogSource,
+    sourceOnceOverCloseoutSource,
+  ].join('\n')
 
   addFinding(findings, approval.ok && approval.mode === 'v2' && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, '9.8 approval file is valid', approval.failures?.map(item => item.check).join(', ') || '')
   addFinding(findings, planCritic.status === 'pass' && planCritic.score >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic approves the Source Coverage Closeout plan', buildPlanCriticResultSummary(planCritic))
@@ -235,11 +272,16 @@ async function main() {
   addFinding(findings, syntheticProof.ok, 'synthetic source coverage closeout proof classifies covered/extraction-gap/maturity-gap/deferred rows', JSON.stringify(syntheticProof.summary))
   addFinding(findings, sourceExtractionCoverageCard?.lane === 'done', 'SOURCE-EXTRACTION-COVERAGE-001 remains done before closeout', sourceExtractionCoverageCard?.lane || 'missing')
   addFinding(findings, packageJson.scripts?.['process:source-coverage-closeout-check'] === `node --env-file-if-exists=.env ${SOURCE_COVERAGE_CLOSEOUT_SCRIPT_PATH}`, 'package exposes focused proof script')
+  addFinding(findings, includesAll(scriptSource, [
+    'writeBacklog',
+    'if (args.writeBacklog)',
+    'historicalSprint',
+  ]), 'focused proof keeps backlog writes behind explicit flags and does not rewind the active sprint')
   addFinding(findings, sourceCoverageCloseoutCard?.lane === 'done' && String(sourceCoverageCloseoutCard?.statusNote || '').includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY), 'SOURCE-COVERAGE-CLOSEOUT-001 is done with closeout proof', sourceCoverageCloseoutCard?.lane || 'missing')
-  addFinding(findings, extractionGapCard?.lane === 'scoped', 'source extraction gap follow-up card is scoped', extractionGapCard?.lane || 'missing')
-  addFinding(findings, maturityGapCard?.lane === 'scoped', 'source maturity gap follow-up card is scoped', maturityGapCard?.lane || 'missing')
+  addFinding(findings, ['scoped', 'done'].includes(extractionGapCard?.lane), 'source extraction gap follow-up card is scoped or done', extractionGapCard?.lane || 'missing')
+  addFinding(findings, ['scoped', 'done'].includes(maturityGapCard?.lane), 'source maturity gap follow-up card is scoped or done', maturityGapCard?.lane || 'missing')
   addFinding(findings, ['scoped', 'done'].includes(marketingSourceMapCard?.lane), 'MARKETING-SOURCE-MAP-001 is available next', marketingSourceMapCard?.lane || 'missing')
-  addFinding(findings, activeBlockerCardId === MARKETING_SOURCE_MAP_CARD_ID, 'Current Sprint active blocker advanced to marketing source map', activeBlockerCardId || 'missing')
+  addFinding(findings, activeBlockerCardId === MARKETING_SOURCE_MAP_CARD_ID, 'historical Source Once-Over seed advances to marketing source map', activeBlockerCardId || 'missing')
   addFinding(findings, sprintStageMap.get(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) === 'done_this_sprint', 'Source Coverage Closeout moved to Done This Sprint', sprintStageMap.get(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) || 'missing')
   addFinding(findings, sprintStageMap.get(MARKETING_SOURCE_MAP_CARD_ID) === 'building_now', 'Marketing Source Map is next in Building Now', sprintStageMap.get(MARKETING_SOURCE_MAP_CARD_ID) || 'missing')
   addFinding(findings, includesAll(closeoutSource, [
@@ -251,14 +293,14 @@ async function main() {
   addFinding(findings, includesAll(scriptSource, [
     SOURCE_COVERAGE_CLOSEOUT_SUMMARY_MARKER,
     'every source row has one allowed closeout decision',
-    'Current Sprint active blocker advanced to marketing source map',
-  ]), 'focused proof checks behavior and sprint advancement')
-  addFinding(findings, includesAll(serverSource, [
+    'historical Source Once-Over seed advances to marketing source map',
+  ]), 'focused proof checks behavior and historical sprint advancement')
+  addFinding(findings, includesAll(routeSource, [
     '/api/foundation/source-coverage-closeout',
     'buildSourceCoverageCloseoutSnapshot',
     'sourceCoverageCloseout',
   ]), 'Foundation APIs expose source coverage closeout')
-  addFinding(findings, includesAll(foundationDbSource, [
+  addFinding(findings, includesAll(`${foundationDbSource}\n${sourceOnceOverCloseoutSource}\n${closeoutSource}`, [
     SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID,
     SOURCE_MATURITY_GAP_FOLLOWUP_CARD_ID,
   ]), 'Foundation backlog has source follow-up cards')
@@ -267,16 +309,16 @@ async function main() {
     'SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY',
     MARKETING_SOURCE_MAP_CARD_ID,
   ]), 'Current Sprint seed advances after source coverage closeout')
-  addFinding(findings, includesAll(publicFoundationSource, [
+  addFinding(findings, includesAll(sourceLifecycleUiSource, [
     'renderSourceCoverageCloseoutPanel',
     'sourceCoverageCloseout',
     'source-coverage-closeout',
   ]), 'Foundation UI renders source coverage closeout')
-  addFinding(findings, includesAll(publicStylesSource, [
+  addFinding(findings, includesAll(sourceLifecycleStyleSource, [
     '.source-coverage-closeout-panel',
     '.source-coverage-closeout-table',
   ]), 'Foundation styles cover source coverage closeout')
-  addFinding(findings, includesAll(foundationBuildLogSource, [
+  addFinding(findings, includesAll(closeoutRecordsSource, [
     SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
     SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
     MARKETING_SOURCE_MAP_CARD_ID,
@@ -293,9 +335,9 @@ async function main() {
   ]), 'current plan records Source Coverage Closeout closeout and next card')
   addFinding(findings, includesAll(currentStateText, [
     SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
-    'Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`',
+    MARKETING_SOURCE_MAP_CARD_ID,
     'source coverage closeout',
-  ]), 'current state records Source Coverage Closeout closeout and active blocker')
+  ]), 'current state records Source Coverage Closeout closeout and historical next card')
 
   const result = {
     status: findings.length ? 'risk' : 'healthy',
@@ -310,8 +352,9 @@ async function main() {
       routedRows: sourceCoverageCloseout.routedRows,
     },
     syntheticProof: syntheticProof.summary,
-    activeBlockerCardId,
+    historicalActiveBlockerCardId: activeBlockerCardId,
     sprintStage: sprintStageMap.get(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) || null,
+    wroteBacklog: args.writeBacklog,
     findings,
   }
 
