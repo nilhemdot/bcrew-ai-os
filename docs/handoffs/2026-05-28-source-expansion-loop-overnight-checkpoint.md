@@ -134,6 +134,13 @@ Foundation/system health is green after the repair pass:
   - `slack-extract-latest`: succeeded, 0 candidates from the checked thread.
   - `intelligence-synthesis-spine-refresh`: succeeded with 2 fresh promoted candidates, 1 embedded chunk, 133 facts, and 8 synthesized items.
   - `intelligence-action-router-proposals`: succeeded proposal-only; 0 new routes selected/applied in that run, existing pending routes remain approval-bound.
+- Re-caught synthesis freshness after the later 10:08 Gmail archive sync made Dev Hub honestly show `synthesis-router` as risk again.
+  - `gmail-extract-latest`: succeeded, 0 candidates from 3 scanned threads.
+  - `missive-extract-latest`: succeeded, 1 candidate from 3 scanned threads.
+  - `slack-extract-latest`: succeeded, 0 candidates from 1 scanned thread.
+  - `intelligence-synthesis-spine-refresh`: succeeded with 1 fresh promoted candidate, 1 embedded chunk, 133 facts, and 8 synthesized items.
+  - `intelligence-action-router-proposals`: succeeded proposal-only with 0 new routes selected/applied.
+  - Served Dev Hub readback after the catch-up: `synthesis-router` is `live`, latest synthesis/action-router run at 2026-05-28T10:19:48.760Z, stale=false, waitingForExtractor=false, actionRouterDue=false.
 - Repaired the live backlog God Mode contract wording drift through the guarded apply path.
   - `process:god-mode-extractor-system-contract-check` initially failed because the live `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` row was missing the exact newsletter signup/monitoring source-SOP wording even though the repo seed/doc contract had it.
   - Reran the check with `--apply`; the guarded live backlog stab succeeded and the no-spend contract proof returned green.
@@ -163,6 +170,7 @@ Healthy:
 - `npm --silent run process:nightly-audit-run-proof-check -- --json`
 - `npm --silent run process:nightly-audit-fleet-check -- --json`
 - `npm --silent run process:synthesis-router-freshness-trigger-check -- --json`
+  - Re-run after the 10:20 catch-up passed with live freshness `fresh`, nextJobKey null, blockedByExtractor false, and no failed extractor job keys.
 - `npm --silent run process:source-lifecycle-completion-check -- --json`
 - `npm --silent run process:source-lifecycle-expansion-check -- --json`
 - `npm --silent run process:extract-run-hardening-check -- --json --apply`
