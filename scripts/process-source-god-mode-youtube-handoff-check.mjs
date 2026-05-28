@@ -638,6 +638,44 @@ async function main() {
       metadataStatus: authNeededCrawlInput.metadata.status,
     }),
   )
+  const failedReadRepairInput = buildSourceGodModeYoutubeHandoffCrawlItemInput({
+    rowId: 'youtube-handoff:public-web-resources:http:-127-0-0-1-failed-form-only',
+    bucketId: 'public-web-resources',
+    runner: 'source:god-mode',
+    sourceType: 'public_or_free_source',
+    url: `${fixture.baseUrl}/resource`,
+    status: 'source_god_mode_runtime_needs_repair',
+    ok: false,
+    pagesRead: 1,
+    handsEvents: 0,
+    blockers: [{ type: 'form_or_submit_action_detected', reason: 'form_controls_visible_but_not_submitted' }],
+    sideEffects: { externalWrites: false, writesBacklog: false, submittedForm: false, downloadedFile: false, purchased: false, postedOrMessaged: false, mutatesCredentials: false, normalChromeProfileUsed: false },
+    artifacts: { reportPath: '/tmp/failed-form-only-report.json' },
+  }, {
+    batch: { capturedAt: '2026-05-27T11:00:00.000-04:00' },
+  })
+  const failedReadRepairQueue = buildSourceGodModeYoutubeHandoffQueue({
+    handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),
+    generatedAt: '2026-05-27T11:05:00.000-04:00',
+    sourceValueGrader: {
+      sourceGrades: [
+        { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+      ],
+    },
+    runItems: [{ ...failedReadRepairInput, status: 'failed', metadata: failedReadRepairInput.metadata }],
+  })
+  addCheck(
+    checks,
+    list(failedReadRepairQueue.rows).some(row =>
+      row.url === `${fixture.baseUrl}/resource` &&
+      row.status === 'retry_previous_source_read_action_blocker' &&
+      row.runnable === true &&
+      text(row.runCommand)
+    ) &&
+      failedReadRepairQueue.counts.alreadyRunRows === 0,
+    'failed read/action-blocker runs stay retryable and are not hidden as completed evidence',
+    JSON.stringify(failedReadRepairQueue.rows.find(row => row.url === `${fixture.baseUrl}/resource`) || {}),
+  )
   const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),
     generatedAt: '2026-05-27T11:05:00.000-04:00',

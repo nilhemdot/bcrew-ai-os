@@ -77,6 +77,14 @@ async function startFixtureServer() {
         <button type="submit">Subscribe</button>
       </form>
     `),
+    '/form-only-resource': page('Public Lead Magnet', `
+      <h1>AIOS browser agent guide</h1>
+      <p>Public implementation notes for agentic browser extraction, source monitoring, and workflow automation.</p>
+      <form action="/form-only-submit" method="post">
+        <input type="email" name="email" placeholder="Email">
+        <button type="submit">Get the guide</button>
+      </form>
+    `),
     '/free-skool': page('Free Skool Community', `
       <h1>Free Skool community</h1>
       <p>Visible free community notes from the last 20 days: agent browser tutorial, prompt examples, and resource links.</p>
@@ -125,6 +133,7 @@ async function main() {
 
   const fixture = await startFixtureServer()
   let liveRun = null
+  let formOnlyRun = null
   try {
     liveRun = await runSourceGodModeExtractor({
       url: `${fixture.baseUrl}/youtube-page`,
@@ -137,11 +146,23 @@ async function main() {
       headed: args.headed,
       now: '2026-05-26T20:00:00.000Z',
     })
+    formOnlyRun = await runSourceGodModeExtractor({
+      url: `${fixture.baseUrl}/form-only-resource`,
+      sourceType: 'public_or_free_source',
+      creatorId: 'fixture-form-only-source',
+      creatorName: 'Fixture Form Only Source',
+      mode: 'live_browser',
+      maxPages: 2,
+      maxDepth: 1,
+      headed: args.headed,
+      now: '2026-05-26T20:01:00.000Z',
+    })
   } finally {
     await fixture.close()
   }
 
   const evaluation = evaluateSourceGodModeExtractorRuntime(liveRun)
+  const formOnlyEvaluation = evaluateSourceGodModeExtractorRuntime(formOnlyRun)
   const blockedPaths = ['/checkout', '/login', '/paid-classroom', '/template.zip']
   const blockedPathHits = blockedPaths.map(blockedPath => ({
     path: blockedPath,
@@ -190,6 +211,26 @@ async function main() {
     liveRun.ok === true && evaluation.ok === true,
     'live local browser run is healthy',
     evaluation.findings?.map(item => `${item.check}:${item.detail}`).join(', ') || liveRun.status,
+  )
+  addCheck(
+    checks,
+    formOnlyRun.ok === true &&
+      formOnlyEvaluation.ok === true &&
+      formOnlyRun.pages?.length === 1 &&
+      formOnlyRun.capabilities?.brain === 'working' &&
+      formOnlyRun.capabilities?.hands === 'ready_no_click_needed' &&
+      formOnlyRun.blockers?.some(item => item.type === 'form_or_submit_action_detected') &&
+      formOnlyRun.sideEffects.submittedForm === false &&
+      (fixture.hits.get('/form-only-submit') || 0) === 0,
+    'form-only public pages are successful read evidence with action blockers, not failed extraction',
+    JSON.stringify({
+      status: formOnlyRun.status,
+      ok: formOnlyRun.ok,
+      capabilities: formOnlyRun.capabilities,
+      blockers: formOnlyRun.blockers,
+      submitHits: fixture.hits.get('/form-only-submit') || 0,
+      findings: formOnlyEvaluation.findings || [],
+    }),
   )
   addCheck(
     checks,
@@ -275,6 +316,15 @@ async function main() {
       sourceStackUpdate: liveRun.sourceStackUpdate,
       sideEffects: liveRun.sideEffects,
       artifactReportPath: liveRun.artifacts?.reportPath || '',
+    },
+    formOnlyRun: {
+      status: formOnlyRun.status,
+      ok: formOnlyRun.ok,
+      pagesRead: formOnlyRun.pages?.length || 0,
+      capabilities: formOnlyRun.capabilities,
+      blockers: formOnlyRun.blockers,
+      sideEffects: formOnlyRun.sideEffects,
+      artifactReportPath: formOnlyRun.artifacts?.reportPath || '',
     },
     blockedPathHits,
     checks,

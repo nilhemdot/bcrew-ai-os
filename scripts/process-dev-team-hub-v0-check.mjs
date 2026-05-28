@@ -858,6 +858,7 @@ async function main() {
       'blocked_non_skool_community_bridge',
       'blocked_free_community_form_auth_or_action_surface',
       'blocked_short_link_expansion_needed',
+      'previous_source_run_failed_needs_review',
     ].includes(row.status))
   const freeCommunitySessionBrokerDecisionsVisible = sourceGodModeRows
     .filter(row => row.bucketId === 'free-communities')
