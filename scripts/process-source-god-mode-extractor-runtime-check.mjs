@@ -58,6 +58,7 @@ async function startFixtureServer() {
       <a href="/free-skool">Free Skool community</a>
       <a href="/checkout">Paid course checkout</a>
       <a href="/login">Login area</a>
+      <a href="/guide.pdf">Public PDF guide</a>
       <a href="/template.zip">Template download</a>
     `),
     '/resource': page('Public Repo Resource', `
@@ -99,6 +100,7 @@ async function startFixtureServer() {
     '/checkout': page('Paid Checkout Should Not Be Read', '<h1>Checkout</h1><p>Payment required.</p>'),
     '/login': page('Login Should Not Be Read', '<h1>Login</h1><input type="password" name="password">'),
     '/paid-classroom': page('Paid Classroom Should Not Be Read', '<h1>Paid private classroom</h1><p>Members only.</p>'),
+    '/guide.pdf': 'pdf fixture should not be requested',
     '/template.zip': 'zip fixture should not be requested',
   }
 
@@ -163,7 +165,7 @@ async function main() {
 
   const evaluation = evaluateSourceGodModeExtractorRuntime(liveRun)
   const formOnlyEvaluation = evaluateSourceGodModeExtractorRuntime(formOnlyRun)
-  const blockedPaths = ['/checkout', '/login', '/paid-classroom', '/template.zip']
+  const blockedPaths = ['/checkout', '/login', '/paid-classroom', '/guide.pdf', '/template.zip']
   const blockedPathHits = blockedPaths.map(blockedPath => ({
     path: blockedPath,
     hits: fixture.hits.get(blockedPath) || 0,
@@ -265,6 +267,15 @@ async function main() {
   )
   addCheck(
     checks,
+    (liveRun.fileResourceCandidates || []).some(item => item.url.endsWith('/guide.pdf') && item.resourceKind === 'document' && item.metadataOnly === true && item.downloadAllowed === false) &&
+      (liveRun.fileResourceCandidates || []).some(item => item.url.endsWith('/template.zip') && item.resourceKind === 'archive' && item.metadataOnly === true && item.downloadAllowed === false) &&
+      decisions.some(item => item.url.endsWith('/guide.pdf') && item.filePolicy?.capturePolicy === 'capture_url_host_label_extension_and_context_only') &&
+      /source-free-resource-file-policy/.test(moduleSource),
+    'file/download resources become metadata-only candidates without being opened',
+    JSON.stringify(liveRun.fileResourceCandidates || []),
+  )
+  addCheck(
+    checks,
     blockedPathHits.every(item => item.hits === 0),
     'blocked paid/auth/download paths were not opened',
     JSON.stringify(blockedPathHits),
@@ -311,6 +322,7 @@ async function main() {
       handsEvents: liveRun.handsEvents || [],
       capabilities: liveRun.capabilities,
       blockers: liveRun.blockers,
+      fileResourceCandidates: liveRun.fileResourceCandidates,
       newsletterCandidates: liveRun.newsletterCandidates,
       paidGateEvaluations: liveRun.paidGateEvaluations,
       sourceStackUpdate: liveRun.sourceStackUpdate,

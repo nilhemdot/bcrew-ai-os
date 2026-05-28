@@ -65,6 +65,10 @@ Foundation/system health is green after the repair pass:
   - Source-run summary now includes public repo readback: 86 saved public-code-repo runs grouped into 77 unique repos/gists.
   - The Dev page shows top repo candidates, pages read, resource counts, blockers, and useful signals.
   - This is readback/triage only; it does not claim repo deep review is complete and it does not clone/install/download/import code.
+- Added metadata-only free-resource file policy to the source God Mode runtime.
+  - Public file/download links now become reviewable file-resource candidates with URL, host, label, extension, resource kind, safety posture, and next action.
+  - The browser still does not open, fetch, or download those files from the source runtime.
+  - Focused proof covers both a public PDF guide and ZIP template: both are captured as metadata-only candidates, and both paths have 0 fixture hits.
 - Cleared the creator-newsletter public page lane.
   - 17 newsletter rows persisted.
   - Signup forms were detected but not submitted.
@@ -123,6 +127,7 @@ Healthy:
 - `npm --silent run process:dev-team-hub-v0-check -- --json`
   - Re-run after session-broker UI proof passed.
 - `npm --silent run process:source-god-mode-extractor-runtime-check -- --json`
+  - Re-run after file-resource policy proof passed: file/download resources become metadata-only candidates, `downloadedFile=false`, and blocked PDF/ZIP paths were not opened.
 - `npm --silent run process:source-session-broker-check -- --json`
 - `npm --silent run process:skool-free-community-god-mode-runner-check -- --json`
 - `npm --silent run process:source-god-mode-youtube-handoff-check -- --json`
