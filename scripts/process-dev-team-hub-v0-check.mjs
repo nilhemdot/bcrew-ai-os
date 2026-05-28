@@ -958,6 +958,19 @@ async function main() {
     'YouTube source-browser queue exposes clustered source-session prep without claiming live signups or auth runs',
     JSON.stringify(sourceSessionPrepQueue.counts || {}),
   )
+  const repoReadback = sourceRunSummary.repoReadback || {}
+  const repoDeepReviewRows = list(repoReadback.deepReviewQueue?.rows)
+  const repoImplementationRows = list(repoReadback.implementationPackets?.rows)
+  const repoTopRows = list(repoReadback.topRepos)
+  const repoRowsWithImplementationPatterns = [
+    ...repoDeepReviewRows,
+    ...repoImplementationRows,
+    ...repoTopRows,
+  ].filter(row => list(row.implementationPatternTitles).length > 0)
+  const repoRowsAlreadyDeepReviewed = [
+    ...repoDeepReviewRows,
+    ...repoImplementationRows,
+  ].filter(row => row.alreadyDeepReviewed === true)
   addCheck(
     checks,
     sourceRunSummary.status === 'ready' &&
@@ -968,20 +981,24 @@ async function main() {
       Number(sourceRunSummary.unsafeSideEffectRows || 0) === 0 &&
       list(sourceRunSummary.bucketSummaries).length >= 3 &&
       list(sourceRunSummary.topRuns).some(row => Number(row.score || 0) > 0) &&
-      sourceRunSummary.repoReadback?.status === 'ready' &&
-      Number(sourceRunSummary.repoReadback?.uniqueRepoCount || 0) > 0 &&
-      Number(sourceRunSummary.repoReadback?.runCount || 0) > 0 &&
-      Number(sourceRunSummary.repoReadback?.unsafeSideEffectRows || 0) === 0 &&
-      sourceRunSummary.repoReadback?.rawArtifactPathsReturned === false &&
-      ['ready', 'pending_next_repo_run'].includes(sourceRunSummary.repoReadback?.runtimeProofStatus) &&
-      sourceRunSummary.repoReadback?.deepReviewQueue?.status === 'ready' &&
-      sourceRunSummary.repoReadback?.deepReviewQueue?.policy?.includes('no_clone_install_download_import') &&
-      list(sourceRunSummary.repoReadback?.deepReviewQueue?.rows).some(row => row.label && Number(row.priorityScore || 0) > 0) &&
-      sourceRunSummary.repoReadback?.implementationPackets?.status === 'ready' &&
-      sourceRunSummary.repoReadback?.implementationPackets?.policy?.includes('no_clone_install_download_import') &&
-      list(sourceRunSummary.repoReadback?.implementationPackets?.rows).some(row => row.packetId && row.completeness && list(row.reviewChecklist).length >= 4) &&
-      list(sourceRunSummary.repoReadback?.topRepos).some(row => row.label && Number(row.pagesRead || 0) > 0) &&
-      sourceRunSummary.repoReadback?.plainEnglish?.includes('does not clone') &&
+      repoReadback.status === 'ready' &&
+      Number(repoReadback.uniqueRepoCount || 0) > 0 &&
+      Number(repoReadback.runCount || 0) > 0 &&
+      Number(repoReadback.unsafeSideEffectRows || 0) === 0 &&
+      repoReadback.rawArtifactPathsReturned === false &&
+      ['ready', 'pending_next_repo_run'].includes(repoReadback.runtimeProofStatus) &&
+      repoReadback.deepReviewQueue?.status === 'ready' &&
+      repoReadback.deepReviewQueue?.policy?.includes('no_clone_install_download_import') &&
+      repoDeepReviewRows.some(row => row.label && Number(row.priorityScore || 0) > 0) &&
+      repoReadback.implementationPackets?.status === 'ready' &&
+      repoReadback.implementationPackets?.policy?.includes('no_clone_install_download_import') &&
+      repoImplementationRows.some(row => row.packetId && row.completeness && list(row.reviewChecklist).length >= 4) &&
+      repoTopRows.some(row => row.label && Number(row.pagesRead || 0) > 0) &&
+      repoRowsWithImplementationPatterns.length > 0 &&
+      repoRowsAlreadyDeepReviewed.length > 0 &&
+      repoReadback.plainEnglish?.includes('repo deep-review evidence') &&
+      repoReadback.plainEnglish?.includes('does not clone') &&
+      repoReadback.nextAction?.includes('before any Scoper promotion') &&
       sourceRunSummary.fileResourceReadback?.status &&
       sourceRunSummary.fileResourceReadback?.rawArtifactPathsReturned === false &&
       Number(sourceRunSummary.fileResourceReadback?.downloadAllowedCount || 0) === 0 &&
@@ -1003,8 +1020,8 @@ async function main() {
       cssSource.includes('.yt-source-run-grid.compact') &&
       cssSource.includes('.yt-repo-readback') &&
       cssSource.includes('.yt-file-readback'),
-    'YouTube source-browser saved-run outputs include repo and file-resource readback without returning raw artifacts',
-    `runs=${sourceRunSummary.totalRuns || 0}; repos=${sourceRunSummary.repoReadback?.uniqueRepoCount || 0}; pages=${sourceRunSummary.pagesRead || 0}; resources=${sourceRunSummary.freeResourceCaptures || 0}; files=${sourceRunSummary.fileResourceReadback?.uniqueCandidateCount || 0}`,
+    'YouTube source-browser saved-run outputs include repo implementation-pattern and file-resource readback without returning raw artifacts',
+    `runs=${sourceRunSummary.totalRuns || 0}; repos=${repoReadback.uniqueRepoCount || 0}; patterns=${repoRowsWithImplementationPatterns.length}; deepReviewed=${repoRowsAlreadyDeepReviewed.length}; pages=${sourceRunSummary.pagesRead || 0}; resources=${sourceRunSummary.freeResourceCaptures || 0}; files=${sourceRunSummary.fileResourceReadback?.uniqueCandidateCount || 0}`,
   )
   addCheck(
     checks,

@@ -909,7 +909,7 @@ function renderSourceRunSummary(summary = {}) {
                     <span>${escapeHtml(repo.grade || 'ungraded')} · priority ${escapeHtml(compactNumber(repo.priorityScore || 0))}</span>
                     <strong>${escapeHtml(repo.label || repo.host || 'repo')}</strong>
                   </div>
-                  <p>${escapeHtml(repo.reason || list(repo.sourceSignals).join(' · ') || list(repo.pageTitles).join(' · ') || list(repo.urls)[0] || '')}</p>
+                  <p>${escapeHtml(list(repo.implementationPatternTitles).join(' · ') || repo.reason || list(repo.sourceSignals).join(' · ') || list(repo.pageTitles).join(' · ') || list(repo.urls)[0] || '')}</p>
                   <small>${escapeHtml(repo.nextAction || '')}</small>
                 </article>
               `).join('') || '<article><p>No repo deep-review rows returned.</p></article>'}
@@ -930,7 +930,7 @@ function renderSourceRunSummary(summary = {}) {
                     <span>${escapeHtml(repo.grade || 'ungraded')} · priority ${escapeHtml(compactNumber(repo.priorityScore || 0))}</span>
                     <strong>${escapeHtml(repo.label || 'repo')}</strong>
                   </div>
-                  <p>${escapeHtml(list(repo.evidenceNotes).join(' · ') || repo.plainEnglish || '')}</p>
+                  <p>${escapeHtml(list(repo.implementationPatternTitles).join(' · ') || list(repo.evidenceNotes).join(' · ') || repo.plainEnglish || '')}</p>
                   <small>${escapeHtml(repo.nextAction || '')}</small>
                 </article>
               `).join('') || '<article><p>No repo implementation packets returned.</p></article>'}
@@ -944,7 +944,7 @@ function renderSourceRunSummary(summary = {}) {
                   <span>${escapeHtml(repo.grade || 'ungraded')} · ${escapeHtml(compactNumber(repo.score || 0))}</span>
                   <strong>${escapeHtml(repo.label || repo.host || 'repo')}</strong>
                 </div>
-                <p>${escapeHtml(list(repo.usefulSignals).join(' · ') || list(repo.pageTitles).join(' · ') || list(repo.urls)[0] || '')}</p>
+                <p>${escapeHtml(list(repo.implementationPatternTitles).join(' · ') || list(repo.usefulSignals).join(' · ') || list(repo.pageTitles).join(' · ') || list(repo.urls)[0] || '')}</p>
                 <small>${escapeHtml(`${compactNumber(repo.runs || 0)} runs · ${compactNumber(repo.pagesRead || 0)} pages · ${compactNumber(repo.freeResourceCaptures || 0)} resources · ${compactNumber(repo.blockers || 0)} blockers · ${compactNumber(repo.implementationSignalCount || 0)} repo signals`)}</small>
               </article>
             `).join('') || '<article><p>No repo rows returned.</p></article>'}
