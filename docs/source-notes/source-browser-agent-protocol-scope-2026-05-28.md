@@ -99,6 +99,8 @@ The executor slice adds the first standalone execute-and-ledger wrapper for the 
 
 The fallback executor slice makes saved browser-challenge rows actionable without pretending they are extracted. `npm run source:browser-fallback -- --url=<exact-source-url> --bucketId=<handoff-bucket> --json` dry-runs by default, builds an exact clean-isolated retry packet, and can execute only when explicitly requested. Public bridge rows retry through the public/free source family first; session-bound Skool/newsletter/MyICOR rows wait for source-session proof and expose an after-session retry command. If the clean retry still sees a browser challenge, the row parks for hosted/browser fallback approval instead of counting as source evidence.
 
+The fallback batch planner turns that retry packet layer into a bounded operator/scheduler batch. Browser-challenge review now exposes `retryBatch`, and `npm run source:browser-fallback-batch -- --json --max-runs=5` shows the first clean-isolated retries without launching them. The selector uses Dev source priority but spreads across hosts first, so one challenged host cannot consume the entire batch.
+
 1. Promote Source Browser from runtime to agent harness.
    - Use `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` and `AGENT-CAPABILITY-REGISTRY-001` as the governing protocol.
    - Do not create a brand-new protocol unless a concrete missing field is found.

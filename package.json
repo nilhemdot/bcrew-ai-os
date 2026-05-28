@@ -616,6 +616,7 @@
     "source:youtube-handoff": "node --env-file-if-exists=.env scripts/run-source-god-mode-youtube-handoff.mjs",
     "source:browser-agent": "node --env-file-if-exists=.env scripts/run-source-browser-agent.mjs",
     "source:browser-fallback": "node --env-file-if-exists=.env scripts/run-source-browser-fallback.mjs",
+    "source:browser-fallback-batch": "node --env-file-if-exists=.env scripts/run-source-browser-fallback-batch.mjs",
     "source:agentic-browser": "node --env-file-if-exists=.env scripts/run-source-agentic-browser.mjs",
     "process:public-repo-deep-review-runner-check": "node --env-file-if-exists=.env scripts/process-public-repo-deep-review-runner-check.mjs",
     "repo:deep-review": "node --env-file-if-exists=.env scripts/run-public-repo-deep-review.mjs",

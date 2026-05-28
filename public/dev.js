@@ -728,6 +728,8 @@ function renderYoutubeSourceBucketCards(queue = {}) {
 function renderBrowserChallengeFallbackReview(review = {}) {
   if (!review || !review.status || review.status === 'clear') return ''
   const rows = list(review.rows).slice(0, 8)
+  const retryBatch = review.retryBatch || {}
+  const retryRows = list(retryBatch.selectedRows).slice(0, 6)
   const topHosts = list(review.topHosts).slice(0, 8)
   const hostCopy = topHosts.map(host => `${host.host}: ${compactNumber(host.count || 0)}`).join(' · ')
   const routeCopy = Object.entries(review.fallbackRouteCounts || {})
@@ -743,6 +745,32 @@ function renderBrowserChallengeFallbackReview(review = {}) {
       <p>${escapeHtml(review.plainEnglish || '')}</p>
       ${routeCopy ? `<p>${escapeHtml(routeCopy)}</p>` : ''}
       ${review.nextAction ? `<p>${escapeHtml(review.nextAction)}</p>` : ''}
+      ${retryBatch.status ? `
+        <div class="yt-source-run-list">
+          <article>
+            <div>
+              <span>${escapeHtml(statusCopy(retryBatch.status))}</span>
+              <strong>${escapeHtml(compactNumber(retryBatch.cleanRetryReadyRows || 0))} clean retries ready</strong>
+            </div>
+            <p>${escapeHtml(retryBatch.plainEnglish || '')}</p>
+            <small>${escapeHtml([
+              `${compactNumber(retryBatch.selectedRowCount || 0)} selected`,
+              `${compactNumber(retryBatch.sourceSessionRequiredRows || 0)} need source session`,
+              'dry run first',
+            ].join(' · '))}</small>
+          </article>
+          ${retryRows.map(row => `
+            <article>
+              <div>
+                <span>${escapeHtml(row.priorityLabel || row.bestDevBuildGrade || 'retry')}</span>
+                <strong>${escapeHtml(row.host || row.label || 'source')}</strong>
+              </div>
+              <p>${escapeHtml(row.reason || row.url || '')}</p>
+              <small>${escapeHtml([row.sourceFamily, row.command ? 'command ready' : '', row.url].filter(Boolean).join(' · '))}</small>
+            </article>
+          `).join('')}
+        </div>
+      ` : ''}
       <div class="yt-source-run-list">
         ${rows.map(row => `
           <article>

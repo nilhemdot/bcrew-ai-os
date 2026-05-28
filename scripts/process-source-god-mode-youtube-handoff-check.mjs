@@ -1165,6 +1165,14 @@ async function main() {
       savedChallengeQueue.browserChallengeFallbackReview?.totalRows === 1 &&
       savedChallengeQueue.browserChallengeFallbackReview?.sourceSessionRequiredRows === 0 &&
       savedChallengeQueue.browserChallengeFallbackReview?.fallbackRouteCounts?.clean_isolated_retry_then_hosted_browser_fallback === 1 &&
+      savedChallengeQueue.browserChallengeFallbackReview?.retryBatch?.status === 'ready_for_bounded_clean_retry' &&
+      savedChallengeQueue.browserChallengeFallbackReview?.retryBatch?.cleanRetryReadyRows === 1 &&
+      savedChallengeQueue.browserChallengeFallbackReview?.retryBatch?.selectedRowCount === 1 &&
+      list(savedChallengeQueue.browserChallengeFallbackReview?.retryBatch?.selectedRows).some(row =>
+        row.url === 'https://community.youreverydayai.com/' &&
+        row.command?.includes('source:browser-agent') &&
+        row.sourceFamily === 'public_free_resources'
+      ) &&
       list(savedChallengeQueue.browserChallengeFallbackReview?.rows).some(row =>
         row.url === 'https://community.youreverydayai.com/' &&
         row.runnable === false &&
@@ -1187,7 +1195,7 @@ async function main() {
         row.fallbackPlan?.operatorEscalation?.notification?.externalSent === false
       ) &&
       /not counted as completed source evidence/i.test(savedChallengeQueue.browserChallengeFallbackReview?.plainEnglish || ''),
-    'saved browser challenge fallback rows have a visible structured fallback plan with next action',
+    'saved browser challenge fallback rows have a visible structured fallback plan, retry batch, and next action',
     JSON.stringify(savedChallengeQueue.browserChallengeFallbackReview || {}),
   )
   const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({

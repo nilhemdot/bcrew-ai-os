@@ -60,11 +60,13 @@ async function main() {
   const [
     packageJson,
     runnerSource,
+    batchRunnerSource,
     fallbackSource,
     handoffSource,
   ] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile('scripts/run-source-browser-fallback.mjs'),
+    readRepoFile('scripts/run-source-browser-fallback-batch.mjs'),
     readRepoFile('lib/source-browser-fallback-executor.js'),
     readRepoFile('lib/source-god-mode-youtube-handoff.js'),
   ])
@@ -174,9 +176,10 @@ async function main() {
   addCheck(
     checks,
     packageJson.scripts?.['process:source-browser-fallback-executor-check'] === `node --env-file-if-exists=.env ${SOURCE_BROWSER_FALLBACK_EXECUTOR_SCRIPT_PATH}` &&
-      packageJson.scripts?.['source:browser-fallback'] === 'node --env-file-if-exists=.env scripts/run-source-browser-fallback.mjs',
+      packageJson.scripts?.['source:browser-fallback'] === 'node --env-file-if-exists=.env scripts/run-source-browser-fallback.mjs' &&
+      packageJson.scripts?.['source:browser-fallback-batch'] === 'node --env-file-if-exists=.env scripts/run-source-browser-fallback-batch.mjs',
     'package exposes Source Browser fallback executor scripts',
-    `${packageJson.scripts?.['source:browser-fallback'] || 'missing'} / ${packageJson.scripts?.['process:source-browser-fallback-executor-check'] || 'missing'}`,
+    `${packageJson.scripts?.['source:browser-fallback'] || 'missing'} / ${packageJson.scripts?.['source:browser-fallback-batch'] || 'missing'} / ${packageJson.scripts?.['process:source-browser-fallback-executor-check'] || 'missing'}`,
   )
   addCheck(
     checks,
@@ -185,6 +188,15 @@ async function main() {
       runnerSource.includes('runSourceBrowserFallbackRetry'),
     'fallback CLI can dry-run, execute, and optionally persist exact retry packets',
     'scripts/run-source-browser-fallback.mjs',
+  )
+  addCheck(
+    checks,
+    batchRunnerSource.includes('loadFallbackBatch') &&
+      batchRunnerSource.includes('retryBatch.selectedRows') &&
+      batchRunnerSource.includes('Dry run first') &&
+      batchRunnerSource.includes('runSourceBrowserFallbackRetry'),
+    'fallback batch CLI selects bounded clean retries and defaults to dry-run readback',
+    'scripts/run-source-browser-fallback-batch.mjs',
   )
   addCheck(
     checks,
