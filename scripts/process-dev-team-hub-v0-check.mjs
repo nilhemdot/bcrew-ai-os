@@ -872,6 +872,7 @@ async function main() {
     .filter(row => row.bucketId === 'free-communities')
     .every(row => [
       'already_run_source_evidence_saved',
+      'ready_for_public_community_bridge_read',
       'blocked_free_community_session_broker_required',
       'blocked_non_skool_community_bridge',
       'blocked_free_community_form_auth_or_action_surface',
@@ -880,10 +881,20 @@ async function main() {
     ].includes(row.status))
   const freeCommunitySessionBrokerDecisionsVisible = sourceGodModeRows
     .filter(row => row.bucketId === 'free-communities')
+    .filter(row => row.status !== 'ready_for_public_community_bridge_read')
     .every(row =>
       row.sourceSessionBroker?.account === 'ai@bensoncrew.ca' &&
       row.sourceSessionBroker?.sourceFamily === 'skool_free_community' &&
       row.sourceSessionBroker?.rawSecretPrinted === false
+    )
+  const freeCommunityBridgeRowsAreSafe = sourceGodModeRows
+    .filter(row => row.status === 'ready_for_public_community_bridge_read')
+    .every(row =>
+      row.runner === 'source:god-mode' &&
+      row.sourceType === 'public_community_bridge' &&
+      row.requiresSessionBroker !== true &&
+      row.runnable === true &&
+      text(row.runCommand)
     )
   addCheck(
     checks,
@@ -896,8 +907,9 @@ async function main() {
       sourceGodModeRows.some(row => row.requiresAuth === true && row.runnable === false) &&
       freeCommunitiesParkedForSessionBroker &&
       freeCommunitySessionBrokerDecisionsVisible &&
+      freeCommunityBridgeRowsAreSafe &&
       (sourceGodModeCleared || sourceGodModeHasRunnableWork),
-    'YouTube handoff exposes source-browser run state honestly while paid/auth and session-bound communities stay parked',
+    'YouTube handoff exposes source-browser run state honestly while paid/auth and session-bound communities stay parked or routed to safe public bridge reads',
     `ready=${sourceGodModeRunnableCount}; total=${sourceGodModeTotalRows}; evidence=${sourceGodModeEvidenceRows}; duplicates=${sourceGodModeDuplicateRows}; alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
   )
   addCheck(

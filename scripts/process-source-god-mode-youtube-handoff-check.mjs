@@ -415,18 +415,34 @@ async function main() {
     communityBoundaryQueue = buildSourceGodModeYoutubeHandoffQueue({
       handoffEvidence: {
         sourceRoute: 'fixture.youtube.fullWatchReports.communityBoundary',
-        scannedReportCount: 2,
+        scannedReportCount: 4,
         buckets: {
           'free-communities': {
-            count: 2,
+            count: 4,
             itemLimit: 250,
             hasMore: false,
-            sampleHosts: ['community.youreverydayai.com', 'skool.com'],
+            sampleHosts: ['community.youreverydayai.com', 'jonocatliff.com', 'discord.gg', 'skool.com'],
             items: [
               {
                 url: 'https://community.youreverydayai.com/sign_up?request_host=community.youreverydayai.com',
                 host: 'community.youreverydayai.com',
                 reportArtifactId: 'report:bad-free-community',
+                sourceVideoId: 'fixture-video-community-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+              {
+                url: 'https://jonocatliff.com/skool',
+                host: 'jonocatliff.com',
+                reportArtifactId: 'report:public-community-bridge',
+                sourceVideoId: 'fixture-video-community-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+              {
+                url: 'https://discord.gg/3zy8kqD9Cp',
+                host: 'discord.gg',
+                reportArtifactId: 'report:direct-community-invite',
                 sourceVideoId: 'fixture-video-community-boundary',
                 creatorId: 'fixture-a-source',
                 creator: 'Fixture A Source',
@@ -747,11 +763,27 @@ async function main() {
     checks,
     list(communityBoundaryQueue?.rows).some(row =>
       row.url.includes('community.youreverydayai.com/sign_up') &&
-      row.status === 'blocked_non_skool_community_bridge' &&
+      row.status === 'blocked_free_community_form_auth_or_action_surface' &&
       row.runnable === false &&
       row.parked === true &&
       !row.runCommand
     ) &&
+      list(communityBoundaryQueue?.rows).some(row =>
+        row.url.includes('jonocatliff.com/skool') &&
+        row.status === 'ready_for_public_community_bridge_read' &&
+        row.runner === 'source:god-mode' &&
+        row.sourceType === 'public_community_bridge' &&
+        row.runnable === true &&
+        /source:god-mode/.test(row.runCommand || '') &&
+        /public_community_bridge/.test(row.runCommand || '')
+      ) &&
+      list(communityBoundaryQueue?.rows).some(row =>
+        row.url.includes('discord.gg') &&
+        row.status === 'blocked_non_skool_community_bridge' &&
+        row.runnable === false &&
+        row.parked === true &&
+        !row.runCommand
+      ) &&
       list(communityBoundaryQueue?.rows).some(row =>
         row.url.includes('skool.com/chase-ai-community/about') &&
         row.status === 'blocked_free_community_session_broker_required' &&
@@ -761,7 +793,7 @@ async function main() {
         row.runnable === false &&
         !row.runCommand
       ),
-    'free-community queue parks Skool/community rows behind Source Session Broker decisions and parks signup bridge pages',
+    'free-community queue routes public bridge pages to source:god-mode while parking signup, direct invite, and Skool session rows correctly',
     list(communityBoundaryQueue?.rows).map(row => `${row.url}:${row.status}:${row.runnable}`).join(', '),
   )
   const readyPrepReadinessChecks = list(queue.sourceSessionPrepQueue?.actionGroups)
@@ -795,10 +827,13 @@ async function main() {
       list(queue.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_skool_session_ready' && row.runAfterSessionCommand) &&
       list(queue.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'free_skool_session_ready' && cluster.rowsWithRunAfterSessionCommand === 1 && /chase-ai-community/.test(cluster.label || '')) &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_source_identity_session_needed') &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'community_start_url_needed') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'community_runner_needed') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'free_source_identity_session_needed' && cluster.host === 'skool.com') &&
-      list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'community_runner_needed' && cluster.host === 'community.youreverydayai.com') &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'community_start_url_needed' && cluster.host === 'community.youreverydayai.com') &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'community_runner_needed' && cluster.host === 'discord.gg') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'free_source_identity_session_needed' && group.nextAction?.includes('ai@bensoncrew.ca')) &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'community_start_url_needed') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'community_runner_needed') &&
       parkedPrepReadinessChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
       parkedPrepReadinessChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false),
