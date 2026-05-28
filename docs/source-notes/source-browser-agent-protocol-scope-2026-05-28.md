@@ -91,6 +91,8 @@ The third slice wires the agent into the real YouTube source handoff path. Selec
 
 The public repo lane now has a quality hardening slice: `repo:deep-review` blocks GitHub/GitLab chrome paths such as pulls, projects, issues, actions, releases, settings, branches, tags, and commits before they can be followed as implementation evidence. It also prefers primary repo content and filters GitHub navigation/session snippets so repo implementation patterns come from README/docs/examples/license content instead of site chrome.
 
+The browser-fallback slice now turns page-health failures into explicit continuation plans. Blank/control/empty browser states still fail closed, while browser challenge/interstitial pages now attach a structured fallback plan with route, first step, next action, allowed actions, forbidden actions, source-session requirement, and normal-Chrome prohibition. This does not solve the challenge or run a hosted browser; it prevents a generic stop from losing the next move.
+
 1. Promote Source Browser from runtime to agent harness.
    - Use `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` and `AGENT-CAPABILITY-REGISTRY-001` as the governing protocol.
    - Do not create a brand-new protocol unless a concrete missing field is found.

@@ -78,6 +78,7 @@ async function main() {
     dogfood.reports.myicorMfa,
     dogfood.reports.myicorWrongSignup,
     dogfood.reports.badBrowserState,
+    dogfood.reports.browserChallengeState,
   ].map((plan, index) => buildSourceBrowserAgentCrawlItemInput(plan, {
     batchRunId: 'source-browser-agent-harness-dogfood',
     capturedAt: `2026-05-28T13:${String(index).padStart(2, '0')}:30.000Z`,
@@ -150,6 +151,15 @@ async function main() {
       dogfood.reports.badBrowserState.stopReason === 'browser_state_blocked',
     'blank or browser-control pages cannot produce false green source extraction',
     dogfood.reports.badBrowserState.status,
+  )
+  addCheck(
+    checks,
+    dogfood.reports.browserChallengeState.terminalState === 'failed_closed' &&
+      dogfood.reports.browserChallengeState.fallbackPlan?.status === 'browser_challenge_fallback_required' &&
+      dogfood.reports.browserChallengeState.fallbackPlan?.route === 'source_specific_session_then_hosted_browser_fallback' &&
+      dogfood.reports.browserChallengeState.fallbackPlan?.normalChromeProfileAllowed === false,
+    'browser challenge pages get a structured fallback plan instead of a generic stop',
+    JSON.stringify(dogfood.reports.browserChallengeState.fallbackPlan || {}),
   )
   addCheck(
     checks,
