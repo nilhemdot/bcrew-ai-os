@@ -91,9 +91,9 @@ The third slice wires the agent into the real YouTube source handoff path. Selec
 
 The public repo lane now has a quality hardening slice: `repo:deep-review` blocks GitHub/GitLab chrome paths such as pulls, projects, issues, actions, releases, settings, branches, tags, and commits before they can be followed as implementation evidence. It also prefers primary repo content and filters GitHub navigation/session snippets so repo implementation patterns come from README/docs/examples/license content instead of site chrome.
 
-The browser-fallback slice now turns page-health failures into explicit continuation plans. Blank/control/empty browser states still fail closed, while browser challenge/interstitial pages now attach a structured fallback plan with route, first step, next action, allowed actions, forbidden actions, source-session requirement, and normal-Chrome prohibition. Fallback plans now include bounded self-recovery policy: retry clean/isolated first, use source-specific session when required, then escalate to the operator assistant/texting lane only after retries fail, auth/2FA is required, or real source content still cannot be proven. This does not solve the challenge, send a message, or run a hosted browser; it prevents a generic stop from losing the next move.
+The browser-fallback slice now turns page-health failures into explicit continuation plans. Blank/control/empty browser states still fail closed, while browser challenge/interstitial pages now attach a structured fallback plan with route, first step, next action, allowed actions, forbidden actions, source-session requirement, and normal-Chrome prohibition. Fallback plans now include bounded self-recovery policy: retry clean/isolated first, use source-specific session when required, then escalate to the Harlan Telegram operator lane only after retries fail, auth/2FA is required, or real source content still cannot be proven. This does not solve the challenge, send a message, or run a hosted browser; it prevents a generic stop from losing the next move.
 
-The Harlan escalation bridge now connects those stuck-source plans to the existing Harlan auth-escalation dry-run contract. Source-browser fallback and auth-needed plans prepare an `auth_needed` operator packet with Harlan card ID, notification metadata, `waitsForDoneToken: DONE`, and `sendsMessageNow=false`. Dev/source readback can show that a Harlan draft exists, but the proof path still sends nothing and mutates no credentials. Actual texts/messages, source-session resume, hosted-browser fallback, CAPTCHA/challenge handling, and login execution remain approval-bound follow-up work.
+The Harlan escalation bridge now connects those stuck-source plans to the existing Harlan auth-escalation dry-run contract. Source-browser fallback and auth-needed plans prepare an `auth_needed` operator packet with Harlan card ID, Telegram notification metadata, `waitsForDoneToken: DONE`, and `sendsMessageNow=false`. Dev/source readback can show that a Harlan Telegram draft exists, but the proof path still sends nothing and mutates no credentials. Actual Telegram messages, source-session resume, hosted-browser fallback, CAPTCHA/challenge handling, and login execution remain approval-bound follow-up work.
 
 1. Promote Source Browser from runtime to agent harness.
    - Use `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` and `AGENT-CAPABILITY-REGISTRY-001` as the governing protocol.
@@ -117,7 +117,7 @@ The Harlan escalation bridge now connects those stuck-source plans to the existi
    - Use isolated source profiles, not normal Chrome.
    - Use Keychain secret refs, not chat or git secrets.
    - Use source-specific login recipes only where approved.
-   - Emit auth-needed through Harlan/human-agent flow for MFA/challenges, wait for done, silently reverify, then resume or fail closed.
+   - Emit auth-needed through the Harlan Telegram operator flow for MFA/challenges, wait for done, silently reverify, then resume or fail closed.
 
 5. Prove one real source family at a time.
    - Public page/resource.

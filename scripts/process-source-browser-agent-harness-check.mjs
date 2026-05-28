@@ -159,7 +159,7 @@ async function main() {
       dogfood.reports.browserChallengeState.fallbackPlan?.route === 'source_specific_session_then_hosted_browser_fallback' &&
       dogfood.reports.browserChallengeState.fallbackPlan?.normalChromeProfileAllowed === false &&
       dogfood.reports.browserChallengeState.fallbackPlan?.recoveryPolicy?.mode === 'bounded_self_recovery_then_human_escalation' &&
-      dogfood.reports.browserChallengeState.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'operator_ai_assistant_texting_lane' &&
+      dogfood.reports.browserChallengeState.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'harlan_telegram_operator_lane' &&
       dogfood.reports.browserChallengeState.fallbackPlan?.recoveryPolicy?.humanEscalation?.sendsMessageNow === false,
     'browser challenge pages get a structured fallback plan instead of a generic stop',
     JSON.stringify(dogfood.reports.browserChallengeState.fallbackPlan || {}),
@@ -168,6 +168,10 @@ async function main() {
     checks,
     dogfood.reports.browserChallengeState.operatorEscalation?.status === 'prepared_dry_run' &&
       dogfood.reports.browserChallengeState.operatorEscalation?.cardId === 'HARLAN-AUTH-ESCALATION-LOOP-001' &&
+      dogfood.reports.browserChallengeState.operatorEscalation?.notification?.primaryChannel === 'telegram' &&
+      Array.isArray(dogfood.reports.browserChallengeState.operatorEscalation?.notification?.channels) &&
+      dogfood.reports.browserChallengeState.operatorEscalation.notification.channels.length === 1 &&
+      dogfood.reports.browserChallengeState.operatorEscalation.notification.channels[0] === 'telegram' &&
       dogfood.reports.browserChallengeState.operatorEscalation?.notification?.dryRun === true &&
       dogfood.reports.browserChallengeState.operatorEscalation?.notification?.externalSent === false &&
       dogfood.reports.browserChallengeState.operatorEscalation?.sendsMessageNow === false &&

@@ -177,7 +177,7 @@ function buildExistingWorkCheck() {
       'auth-escalation-protocol blocked-auth and silent reverify rules',
     ],
     notRebuilt: [
-      'No live Telegram/email sender',
+      'No live Telegram sender',
       'No browser auth automation',
       'No credential/token mutation',
       'No live provider probe',
@@ -196,7 +196,7 @@ function buildSprintItem(item = {}, { closeCard = false } = {}) {
     cardId: CARD_ID,
     stage: closeCard ? 'done_this_sprint' : 'building_now',
     planRef: PLAN_PATH,
-    definitionOfDone: 'Harlan auth escalation v1 records auth_needed as blocked-auth, prepares Steve-only dry-run Harlan/Telegram/email notification, dedups duplicate issues, waits for DONE, silently re-verifies, resumes only after proof, fails closed on timeout, cites old-system sources, and proves no credential mutation or external send.',
+    definitionOfDone: 'Harlan auth escalation v1 records auth_needed as blocked-auth, prepares Steve-only dry-run Harlan-on-Telegram notification, dedups duplicate issues, waits for DONE, silently re-verifies, resumes only after proof, fails closed on timeout, cites old-system sources, and proves no credential mutation or external send.',
     proofCommands: PROOF_COMMANDS,
     readinessBlockerCleared: 'BRAIN-FLEET-FOUNDATION-001 closed the no-auth Brain Fleet contract; live probes stay blocked until this auth loop, quota ledger, and capability registry ship.',
     notNextBoundaries: NOT_NEXT,

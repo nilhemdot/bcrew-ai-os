@@ -956,8 +956,9 @@ async function main() {
         text(row.fallbackPlan?.route) &&
         text(row.fallbackPlan?.firstStep) &&
         row.fallbackPlan?.recoveryPolicy?.mode === 'bounded_self_recovery_then_human_escalation' &&
-        row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'operator_ai_assistant_texting_lane' &&
+        row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'harlan_telegram_operator_lane' &&
         row.fallbackPlan?.operatorEscalation?.status === 'prepared_dry_run' &&
+        row.fallbackPlan?.operatorEscalation?.notification?.primaryChannel === 'telegram' &&
         row.fallbackPlan?.operatorEscalation?.sendsMessageNow === false
       ) &&
       list(sourceGodModeBrowserChallengeFallbackReview.topHosts).length > 0 &&
