@@ -17,6 +17,14 @@ He is not the whole BCrew AI OS and he is not the system orchestrator.
 - currently still mounted to the `bcrew-ai-os` workspace
 - not yet moved into a clean external personal-agent home
 
+## Runtime Boundary
+
+Harlan is the personal-agent role and identity. OpenClaw is only the current runtime adapter.
+
+Foundation-owned truth must stay portable: Harlan's permissions, memory boundaries, project registry, auth-needed loop, audit trail, and approval rules should not depend on OpenClaw-specific behavior. Future runtimes can include OpenClaw, Hermes, Claude SDK, Codex, Browser Use, or Benson Crew-owned infrastructure if they satisfy the same contracts.
+
+Runtime adapters are replaceable. Harlan's source-backed behavior and safety boundaries are not.
+
 ## Current Direction
 
 - keep Harlan as the personal assistant layer

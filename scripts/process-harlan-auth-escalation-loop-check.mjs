@@ -469,6 +469,7 @@ async function main() {
   const dogfood = buildHarlanAuthEscalationLoopDogfoodProof()
   const oldChecks = oldSystemHarvestChecks(oldSources)
   const sourceCombined = `${moduleSource}\n${scriptSource}`
+  const historicalCloseoutMode = card?.lane === 'done' && sprint.sprint?.sprintId !== SPRINT_ID
   const expectedActiveBlockerCardId = args.closeCard || card?.lane === 'done' ? NEXT_CARD_ID : CARD_ID
   const forbiddenSendTokens = [
     ['sendTelegramMessage', '('].join(''),
@@ -483,9 +484,24 @@ async function main() {
   addCheck(checks, planCriticRuns.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE), 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, card?.priority === 'P0' && (args.closeCard ? card?.lane === 'done' : ['scoped', 'executing', 'done'].includes(card?.lane)), 'live Harlan auth card exists and is staged', card ? `${card.lane}/${card.priority}` : 'missing')
   addCheck(checks, scaffold.ok, 'live backlog card passes scaffold guard', scaffold.missing.join(', ') || 'complete')
-  addCheck(checks, sprint.sprint?.sprintId === SPRINT_ID, 'Current Sprint remains the May 20 Foundation/Brain Fleet sprint', sprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprint.sprint?.activeBlockerCardId === expectedActiveBlockerCardId, 'Current Sprint active blocker is reconciled', sprint.sprint?.activeBlockerCardId || 'missing')
-  addCheck(checks, sprintMetadata.ok, 'Current Sprint item metadata is complete', sprintMetadata.missing.join(', ') || 'complete')
+  addCheck(
+    checks,
+    historicalCloseoutMode || sprint.sprint?.sprintId === SPRINT_ID,
+    'Harlan auth proof accepts active sprint mode or closed-card historical mode',
+    historicalCloseoutMode ? `historical closeout mode; active sprint=${sprint.sprint?.sprintId || 'missing'}` : sprint.sprint?.sprintId || 'missing',
+  )
+  addCheck(
+    checks,
+    historicalCloseoutMode || sprint.sprint?.activeBlockerCardId === expectedActiveBlockerCardId,
+    'Current Sprint active blocker is reconciled when this card is active',
+    historicalCloseoutMode ? `closed card; current active blocker=${sprint.sprint?.activeBlockerCardId || 'missing'}` : sprint.sprint?.activeBlockerCardId || 'missing',
+  )
+  addCheck(
+    checks,
+    historicalCloseoutMode || sprintMetadata.ok,
+    'Current Sprint item metadata is complete when this card is active',
+    historicalCloseoutMode ? 'closed card; metadata checked through closeout and registry proof' : sprintMetadata.missing.join(', ') || 'complete',
+  )
   addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint status is healthy', currentSprintStatus.findings?.map(item => item.detail || item.check).join('; ') || 'healthy')
   addCheck(checks, nextCard && ['scoped', 'executing', 'done'].includes(nextCard.lane), 'next quota ledger card remains live', nextCard ? `${nextCard.lane}/${nextCard.priority}` : 'missing')
   for (const check of oldChecks) addCheck(checks, check.ok, check.check, check.detail)

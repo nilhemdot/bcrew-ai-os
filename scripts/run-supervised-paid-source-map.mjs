@@ -9,12 +9,17 @@ import { stdin as input, stdout as output } from 'node:process'
 import { chromium } from 'playwright'
 
 import {
+  detectMyicorWrongSignupBranch,
+  evaluateMyicorBrowserAuthSurface,
+} from '../lib/source-session-auth-guards.js'
+import {
   buildKeychainSecretRef,
   keychainItemExists,
-  readKeychainPassword,
 } from '../lib/credential-vault.js'
 import {
   buildSourceSessionBrokerAuthNeededEvent,
+  SOURCE_SESSION_BROKER_MYICOR_AUTH_METHOD,
+  SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT,
 } from '../lib/source-session-broker.js'
 
 const SOURCE_PRESETS = {
@@ -302,8 +307,10 @@ function looksAuthBlocked(authState = {}) {
   return false
 }
 
-function buildAuthNeededReport({ runId, preset, sourceKey, profileDir, runDir, startUrl, authState, approvalNote }) {
-  const accountLabel = 'approved_source_account_or_authorized_profile'
+function buildAuthNeededReport({ runId, preset, sourceKey, profileDir, runDir, startUrl, authState, approvalNote, reason = '', accountLabel = '' }) {
+  const resolvedAccountLabel = accountLabel || (sourceKey === 'myicor'
+    ? SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT
+    : 'approved_source_account_or_authorized_profile')
   return {
     schemaVersion: 1,
     runId,
@@ -319,8 +326,10 @@ function buildAuthNeededReport({ runId, preset, sourceKey, profileDir, runDir, s
       checkedAt: new Date().toISOString(),
     },
     authNeeded: {
-      blocker: 'authorized browser profile is not logged in or hit a login/MFA wall',
-      actionNeeded: 'Steve signs in or approves MFA in the local browser profile, then rerun the same source packet.',
+      blocker: reason || 'authorized browser profile is not logged in or hit a login/MFA wall',
+      actionNeeded: sourceKey === 'myicor'
+        ? 'Use the existing paid MyICOR Google SSO account. If Google asks for passkey, number match, phone approval, authenticator, or another human check, Steve completes it, replies DONE, then the runner re-verifies.'
+        : 'Steve signs in or approves MFA in the local browser profile, then rerun the same source packet.',
       profileDir,
       startUrl,
       authState,
@@ -330,8 +339,8 @@ function buildAuthNeededReport({ runId, preset, sourceKey, profileDir, runDir, s
       cardId: 'SOURCE-SESSION-BROKER-001',
       event: buildSourceSessionBrokerAuthNeededEvent({
         sourceSystem: sourceKey,
-        accountLabel,
-        blocker: 'authorized browser profile is not logged in or hit a login/MFA wall',
+        accountLabel: resolvedAccountLabel,
+        blocker: reason || 'authorized browser profile is not logged in or hit a login/MFA wall',
         jobId: runId,
         artifactRef: path.join(runDir, 'auth-needed.json'),
         createdAt: new Date().toISOString(),
@@ -369,95 +378,104 @@ async function clickFirstVisible(page, selectors = [], timeout = 2500) {
   return ''
 }
 
-async function fillFirstVisible(page, selectors = [], value = '', timeout = 2500) {
-  for (const selector of selectors) {
-    const locator = page.locator(selector).first()
-    if (await locator.isVisible({ timeout }).catch(() => false)) {
-      await locator.fill(value, { timeout }).catch(error => {
-        throw new Error(`fill failed for ${selector}: ${error.message}`)
-      })
-      return selector
+async function ensureMyicorLogin(page, { account = '', startUrl = 'https://app.myicor.com/login' } = {}) {
+  const initialAuthState = await inspectAuthState(page)
+  const accountGuard = evaluateMyicorBrowserAuthSurface({ account, authState: initialAuthState })
+  if (accountGuard.reason === 'myicor_google_sso_account_mismatch') {
+    return {
+      ok: false,
+      status: 'auth_needed',
+      reason: accountGuard.reason,
+      expectedAccount: accountGuard.expectedAccount,
+      authMethodRequired: accountGuard.authMethodRequired,
+      authState: initialAuthState,
+      rawSecretPrinted: false,
     }
   }
-  return ''
-}
-
-async function ensureMyicorLogin(page, { account = '', password = '', startUrl = 'https://app.myicor.com/home' } = {}) {
-  const before = await inspectAuthState(page)
-  if (!looksAuthBlocked(before) && /app\.myicor\.com/i.test(before.url || '')) {
-    return { ok: true, method: 'persistent_profile', authState: before, rawSecretPrinted: false }
+  const before = initialAuthState
+  const beforeGuard = evaluateMyicorBrowserAuthSurface({ account, authState: before })
+  if (beforeGuard.ok) {
+    return {
+      ok: true,
+      method: 'persistent_profile_existing_google_sso',
+      authMethod: SOURCE_SESSION_BROKER_MYICOR_AUTH_METHOD,
+      account,
+      authState: before,
+      rawSecretPrinted: false,
+    }
+  }
+  if (beforeGuard.reason !== 'myicor_existing_google_sso_session_missing') {
+    return { ok: false, status: 'auth_needed', reason: beforeGuard.reason, authState: before, rawSecretPrinted: false }
   }
 
   await page.goto(startUrl, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {})
   await page.waitForTimeout(1500).catch(() => {})
   const afterGoto = await inspectAuthState(page)
-  if (!looksAuthBlocked(afterGoto) && /app\.myicor\.com/i.test(afterGoto.url || '')) {
-    return { ok: true, method: 'persistent_profile_after_goto', authState: afterGoto, rawSecretPrinted: false }
+  const afterGotoGuard = evaluateMyicorBrowserAuthSurface({ account, authState: afterGoto })
+  if (afterGotoGuard.ok) {
+    return {
+      ok: true,
+      method: 'persistent_profile_after_goto_existing_google_sso',
+      authMethod: SOURCE_SESSION_BROKER_MYICOR_AUTH_METHOD,
+      account,
+      authState: afterGoto,
+      rawSecretPrinted: false,
+    }
   }
-  if (!account || !password) {
-    return { ok: false, status: 'auth_needed', reason: 'missing_keychain_account_or_password', authState: afterGoto, rawSecretPrinted: false }
+  if (afterGotoGuard.reason !== 'myicor_existing_google_sso_session_missing') {
+    return { ok: false, status: 'auth_needed', reason: afterGotoGuard.reason, authState: afterGoto, rawSecretPrinted: false }
+  }
+  if (!account) {
+    return {
+      ok: false,
+      status: 'auth_needed',
+      reason: 'myicor_existing_google_sso_session_missing',
+      authState: afterGoto,
+      rawSecretPrinted: false,
+    }
   }
 
   const googleClicked = await clickFirstVisible(page, [
+    'button:has-text("Log in with Google")',
+    'a:has-text("Log in with Google")',
+    'button:has-text("Sign in with Google")',
+    'a:has-text("Sign in with Google")',
+    'button:has-text("Continue with Google")',
+    'a:has-text("Continue with Google")',
     'button:has-text("Google")',
     'a:has-text("Google")',
-    '[class*="google" i]',
   ], 3000).catch(() => '')
 
   if (googleClicked) {
     await page.waitForTimeout(2500).catch(() => {})
-    const emailSelector = await fillFirstVisible(page, [
-      'input[type="email"]',
-      '#identifierId',
-      'input[autocomplete="username"]',
-    ], account, 8000).catch(() => '')
-    if (!emailSelector) {
-      return { ok: false, status: 'auth_needed', reason: 'google_email_field_not_found', authState: await inspectAuthState(page), rawSecretPrinted: false }
-    }
-    await clickFirstVisible(page, ['#identifierNext', 'button:has-text("Next")'], 5000).catch(() => '')
-    await page.waitForTimeout(2500).catch(() => {})
-    if (/challenge|signin\/v2\/challenge/i.test(page.url())) {
-      return { ok: false, status: 'auth_needed', reason: 'google_2fa_required_before_password', authState: await inspectAuthState(page), rawSecretPrinted: false }
-    }
-    const passwordSelector = await fillFirstVisible(page, [
-      'input[type="password"]',
-      'input[autocomplete="current-password"]',
-    ], password, 10000).catch(() => '')
-    if (!passwordSelector) {
-      return { ok: false, status: 'auth_needed', reason: 'google_password_field_not_found_or_mfa_required', authState: await inspectAuthState(page), rawSecretPrinted: false }
-    }
-    await clickFirstVisible(page, ['#passwordNext', 'button:has-text("Next")'], 5000).catch(() => {})
-    await page.waitForTimeout(7000).catch(() => {})
   } else {
-    const emailSelector = await fillFirstVisible(page, [
-      'input[type="email"]',
-      'input[name*="email" i]',
-      'input[autocomplete="username"]',
-    ], account, 5000).catch(() => '')
-    const passwordSelector = await fillFirstVisible(page, [
-      'input[type="password"]',
-      'input[autocomplete="current-password"]',
-    ], password, 5000).catch(() => '')
-    if (!emailSelector || !passwordSelector) {
-      return { ok: false, status: 'auth_needed', reason: 'login_form_not_found', authState: await inspectAuthState(page), rawSecretPrinted: false }
+    return {
+      ok: false,
+      status: 'auth_needed',
+      reason: 'myicor_google_sso_button_not_found',
+      authMethodRequired: SOURCE_SESSION_BROKER_MYICOR_AUTH_METHOD,
+      expectedAccount: SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT,
+      authState: afterGoto,
+      rawSecretPrinted: false,
     }
-    await clickFirstVisible(page, [
-      'button[type="submit"]',
-      'button:has-text("Log In")',
-      'button:has-text("Login")',
-      'button:has-text("Sign In")',
-    ], 5000).catch(() => {})
-    await page.waitForTimeout(6000).catch(() => {})
   }
 
   const finalAuthState = await inspectAuthState(page)
-  if (/challenge|signin\/v2\/challenge|mfa|2fa/i.test(`${page.url()} ${finalAuthState.bodyTextPreview}`)) {
-    return { ok: false, status: 'auth_needed', reason: 'mfa_required', authState: finalAuthState, rawSecretPrinted: false }
+  const finalGuard = evaluateMyicorBrowserAuthSurface({ account, authState: finalAuthState })
+  if (finalGuard.ok) {
+    return {
+      ok: true,
+      method: 'google_sso_existing_session',
+      authMethod: SOURCE_SESSION_BROKER_MYICOR_AUTH_METHOD,
+      account,
+      authState: finalAuthState,
+      rawSecretPrinted: false,
+    }
   }
   if (looksAuthBlocked(finalAuthState)) {
-    return { ok: false, status: 'auth_needed', reason: 'login_did_not_clear_auth_wall', authState: finalAuthState, rawSecretPrinted: false }
+    return { ok: false, status: 'auth_needed', reason: finalGuard.reason || 'myicor_google_sso_did_not_clear_auth_wall', authState: finalAuthState, rawSecretPrinted: false }
   }
-  return { ok: true, method: googleClicked ? 'google_oauth_keychain' : 'form_login_keychain', authState: finalAuthState, rawSecretPrinted: false }
+  return { ok: false, status: 'auth_needed', reason: finalGuard.reason || 'myicor_google_sso_did_not_clear_auth_wall', authState: finalAuthState, rawSecretPrinted: false }
 }
 
 async function maybeRunCredentialBroker({ page, sourceKey, args, startUrl, unattended }) {
@@ -469,19 +487,18 @@ async function maybeRunCredentialBroker({ page, sourceKey, args, startUrl, unatt
   if (!account) {
     return { attempted: true, ok: false, status: 'auth_needed', reason: 'missing_account', secretRef, rawSecretPrinted: false }
   }
+  if (sourceKey === 'myicor') {
+    return {
+      attempted: true,
+      secretRef,
+      ...(await ensureMyicorLogin(page, { account, startUrl })),
+    }
+  }
   const present = await keychainItemExists({ source: credentialSource, account }).catch(() => false)
   if (!present) {
     return { attempted: true, ok: false, status: 'auth_needed', reason: 'keychain_secret_missing', secretRef, rawSecretPrinted: false }
   }
-  const password = await readKeychainPassword({ source: credentialSource, account })
   try {
-    if (sourceKey === 'myicor') {
-      return {
-        attempted: true,
-        secretRef,
-        ...(await ensureMyicorLogin(page, { account, password, startUrl })),
-      }
-    }
     return { attempted: true, ok: false, status: 'auth_needed', reason: `no_login_recipe_for_${sourceKey}`, secretRef, rawSecretPrinted: false }
   } finally {
     // Best-effort overwrite of the local binding; JavaScript strings are immutable, so this is only an intent marker.
@@ -558,6 +575,8 @@ async function run() {
       startUrl,
       authState: credentialBroker.authState || { url: page.url(), reason: credentialBroker.reason },
       approvalNote,
+      reason: credentialBroker.reason || 'credential_broker_failed',
+      accountLabel: credentialBroker.expectedAccount || '',
     })
     authReport.credentialBroker = {
       attempted: true,
@@ -593,6 +612,9 @@ async function run() {
       startUrl,
       authState,
       approvalNote,
+      reason: sourceKey === 'myicor'
+        ? detectMyicorWrongSignupBranch(authState) || 'myicor_existing_google_sso_session_missing'
+        : 'authorized browser profile is not logged in or hit a login/MFA wall',
     })
     await writeJson(path.join(runDir, 'auth-needed.json'), authReport)
     await context.close().catch(() => {})
@@ -638,6 +660,9 @@ async function run() {
         startUrl,
         authState: pageAuthState,
         approvalNote,
+        reason: sourceKey === 'myicor'
+          ? detectMyicorWrongSignupBranch(pageAuthState) || 'myicor_google_sso_did_not_clear_auth_wall'
+          : 'auth_or_signup_wall_after_navigation',
       })
       authReport.boundary = {
         attemptedUrl: url,

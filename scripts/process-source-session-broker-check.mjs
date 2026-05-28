@@ -18,6 +18,9 @@ import {
   isProcessCheckWriteRequested,
 } from '../lib/process-write-guard.js'
 import {
+  buildMyicorAuthGuardDogfoodProof,
+} from '../lib/source-session-auth-guards.js'
+import {
   SOURCE_SESSION_BROKER_APPROVAL_PATH,
   SOURCE_SESSION_BROKER_BACKLOG_ITEM,
   SOURCE_SESSION_BROKER_CARD_ID,
@@ -202,6 +205,7 @@ async function main() {
   const snapshot = buildSourceSessionBrokerContractSnapshot()
   const evaluation = evaluateSourceSessionBrokerContract(snapshot)
   const dogfood = buildSourceSessionBrokerDogfoodProof()
+  const myicorAuthGuardDogfood = buildMyicorAuthGuardDogfoodProof()
 
   addCheck(
     checks,
@@ -226,6 +230,15 @@ async function main() {
     dogfood.ok,
     'dogfood proves session-ready, MyICOR Google SSO/no-signup guard, native MCP, missing credential, MFA, free signup, forbidden action, and no-boundary cases',
     dogfood.cases.filter(item => !item.ok).map(item => item.name).join(', ') || 'all dogfood cases passed',
+  )
+  addCheck(
+    checks,
+    myicorAuthGuardDogfood.ok &&
+      myicorAuthGuardDogfood.cases.some(testCase => testCase.name === 'start_free_signup_branch_fails_closed') &&
+      myicorAuthGuardDogfood.cases.some(testCase => testCase.name === 'google_number_match_emits_auth_needed') &&
+      myicorAuthGuardDogfood.cases.some(testCase => testCase.name === 'wrong_google_account_fails_closed'),
+    'MyICOR browser guard dogfood catches signup/profile branch, Google human verification, and wrong account',
+    myicorAuthGuardDogfood.cases.map(testCase => `${testCase.name}:${testCase.result.reason}`).join(', '),
   )
   addCheck(
     checks,
@@ -320,13 +333,16 @@ async function main() {
   addCheck(
     checks,
       paidMapperSource.includes('buildKeychainSecretRef') &&
-      paidMapperSource.includes('readKeychainPassword') &&
       paidMapperSource.includes('useKeychainLogin') &&
       paidMapperSource.includes('auth-needed.json') &&
+      paidMapperSource.includes('evaluateMyicorBrowserAuthSurface') &&
+      paidMapperSource.includes('SOURCE_SESSION_BROKER_MYICOR_AUTH_METHOD') &&
+      !paidMapperSource.includes('form_login_keychain') &&
+      !paidMapperSource.includes('google_password_field_not_found_or_mfa_required') &&
       paidMapperSource.includes('RISKY_URL_PATTERN') &&
       paidMapperSource.includes('member|members|invite|create') &&
       paidMapperSource.includes('local_only_under_.openclaw_not_tracked_repo'),
-    'paid-source mapper uses broker-only Keychain read, auth-needed reports, risky URL/member blocking, and local-only artifacts',
+    'paid-source mapper uses metadata-only session checks, MyICOR Google SSO/no-signup guards, auth-needed reports, risky URL/member blocking, and local-only artifacts',
     'scripts/run-supervised-paid-source-map.mjs',
   )
   addCheck(
