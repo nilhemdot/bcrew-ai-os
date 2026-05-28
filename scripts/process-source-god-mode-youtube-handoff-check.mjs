@@ -1179,7 +1179,11 @@ async function main() {
         row.fallbackPlan?.recoveryPolicy?.mode === 'bounded_self_recovery_then_human_escalation' &&
         row.fallbackPlan?.recoveryPolicy?.maxAutomaticAttempts === 2 &&
         row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'operator_ai_assistant_texting_lane' &&
-        row.fallbackPlan?.recoveryPolicy?.humanEscalation?.sendsMessageNow === false
+        row.fallbackPlan?.recoveryPolicy?.humanEscalation?.sendsMessageNow === false &&
+        row.fallbackPlan?.operatorEscalation?.status === 'prepared_dry_run' &&
+        row.fallbackPlan?.operatorEscalation?.cardId === 'HARLAN-AUTH-ESCALATION-LOOP-001' &&
+        row.fallbackPlan?.operatorEscalation?.sendsMessageNow === false &&
+        row.fallbackPlan?.operatorEscalation?.notification?.externalSent === false
       ) &&
       /not counted as completed source evidence/i.test(savedChallengeQueue.browserChallengeFallbackReview?.plainEnglish || ''),
     'saved browser challenge fallback rows have a visible structured fallback plan with next action',

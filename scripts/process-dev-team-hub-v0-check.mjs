@@ -956,7 +956,9 @@ async function main() {
         text(row.fallbackPlan?.route) &&
         text(row.fallbackPlan?.firstStep) &&
         row.fallbackPlan?.recoveryPolicy?.mode === 'bounded_self_recovery_then_human_escalation' &&
-        row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'operator_ai_assistant_texting_lane'
+        row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'operator_ai_assistant_texting_lane' &&
+        row.fallbackPlan?.operatorEscalation?.status === 'prepared_dry_run' &&
+        row.fallbackPlan?.operatorEscalation?.sendsMessageNow === false
       ) &&
       list(sourceGodModeBrowserChallengeFallbackReview.topHosts).length > 0 &&
       jsSource.includes('renderBrowserChallengeFallbackReview') &&

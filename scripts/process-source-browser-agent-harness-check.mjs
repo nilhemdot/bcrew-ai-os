@@ -166,12 +166,24 @@ async function main() {
   )
   addCheck(
     checks,
+    dogfood.reports.browserChallengeState.operatorEscalation?.status === 'prepared_dry_run' &&
+      dogfood.reports.browserChallengeState.operatorEscalation?.cardId === 'HARLAN-AUTH-ESCALATION-LOOP-001' &&
+      dogfood.reports.browserChallengeState.operatorEscalation?.notification?.dryRun === true &&
+      dogfood.reports.browserChallengeState.operatorEscalation?.notification?.externalSent === false &&
+      dogfood.reports.browserChallengeState.operatorEscalation?.sendsMessageNow === false &&
+      dogfood.reports.browserChallengeState.operatorEscalation?.waitsForDoneToken === 'DONE',
+    'browser challenge fallback prepares Harlan operator escalation draft without sending',
+    JSON.stringify(dogfood.reports.browserChallengeState.operatorEscalation || {}),
+  )
+  addCheck(
+    checks,
     dogfoodReadback.status === 'ready' &&
       agentReadback.status === 'ready' &&
       Number(agentReadback.planCount || 0) === dogfoodReadbackItems.length &&
       Number(agentReadback.readyPlanCount || 0) >= 3 &&
       Number(agentReadback.authNeededCount || 0) >= 2 &&
       Number(agentReadback.failedClosedCount || 0) >= 2 &&
+      Number(agentReadback.operatorEscalationPreparedCount || 0) >= 2 &&
       Number(agentReadback.unsafeSideEffectRows || 0) === 0 &&
       agentReadback.routeCounts?.['source:god-mode'] >= 1 &&
       agentReadback.routeCounts?.['repo:deep-review'] >= 1 &&
@@ -181,6 +193,7 @@ async function main() {
       plans: agentReadback.planCount,
       routes: agentReadback.routeCounts,
       states: agentReadback.terminalStateCounts,
+      operatorEscalations: agentReadback.operatorEscalationPreparedCount,
       unsafe: agentReadback.unsafeSideEffectRows,
     }),
   )

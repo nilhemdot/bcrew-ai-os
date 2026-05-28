@@ -757,6 +757,7 @@ function renderBrowserChallengeFallbackReview(review = {}) {
               row.fallbackPlan?.recoveryPolicy?.mode,
               row.fallbackPlan?.sourceSessionRequired ? 'source session required' : 'clean isolated retry first',
               row.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel ? `escalates via ${row.fallbackPlan.recoveryPolicy.humanEscalation.channel}` : '',
+              row.fallbackPlan?.operatorEscalation ? 'Harlan draft ready' : '',
               row.url,
               row.devLanePriority?.priorityLabel,
             ].filter(Boolean).join(' · '))}</small>
@@ -915,7 +916,7 @@ function renderSourceRunSummary(summary = {}) {
           <div class="yt-section-head">
             <span>SOURCE BROWSER AGENT</span>
             <h3>Route, auth, and stop-state readback</h3>
-            <small>${escapeHtml(compactNumber(agentReadback.planCount || 0))} plans · ${escapeHtml(compactNumber(agentReadback.readyPlanCount || 0))} ready · ${escapeHtml(compactNumber(agentReadback.authNeededCount || 0))} auth needed · ${escapeHtml(compactNumber(agentReadback.failedClosedCount || 0))} failed closed · ${escapeHtml(compactNumber(agentReadback.fallbackPlanCount || 0))} fallback plans · ${escapeHtml(compactNumber(agentReadback.unsafeSideEffectRows || 0))} unsafe side effects</small>
+            <small>${escapeHtml(compactNumber(agentReadback.planCount || 0))} plans · ${escapeHtml(compactNumber(agentReadback.readyPlanCount || 0))} ready · ${escapeHtml(compactNumber(agentReadback.authNeededCount || 0))} auth needed · ${escapeHtml(compactNumber(agentReadback.failedClosedCount || 0))} failed closed · ${escapeHtml(compactNumber(agentReadback.fallbackPlanCount || 0))} fallback plans · ${escapeHtml(compactNumber(agentReadback.operatorEscalationPreparedCount || 0))} Harlan drafts · ${escapeHtml(compactNumber(agentReadback.unsafeSideEffectRows || 0))} unsafe side effects</small>
           </div>
           <p>${escapeHtml(agentReadback.plainEnglish || '')}</p>
           <div class="yt-source-run-list">
@@ -932,6 +933,7 @@ function renderSourceRunSummary(summary = {}) {
                   `${compactNumber(plan.blockerCount || 0)} blockers`,
                   plan.fallbackPlan?.sourceSessionRequired ? 'source session required' : '',
                   plan.fallbackPlan?.recoveryPolicy?.humanEscalationChannel ? `escalates via ${plan.fallbackPlan.recoveryPolicy.humanEscalationChannel}` : '',
+                  plan.operatorEscalation ? 'Harlan draft ready' : '',
                 ].filter(Boolean).join(' · '))}</small>
               </article>
             `).join('') || '<article><p>No source-browser agent rows returned.</p></article>'}

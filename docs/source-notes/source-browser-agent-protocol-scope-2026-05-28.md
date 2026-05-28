@@ -93,6 +93,8 @@ The public repo lane now has a quality hardening slice: `repo:deep-review` block
 
 The browser-fallback slice now turns page-health failures into explicit continuation plans. Blank/control/empty browser states still fail closed, while browser challenge/interstitial pages now attach a structured fallback plan with route, first step, next action, allowed actions, forbidden actions, source-session requirement, and normal-Chrome prohibition. Fallback plans now include bounded self-recovery policy: retry clean/isolated first, use source-specific session when required, then escalate to the operator assistant/texting lane only after retries fail, auth/2FA is required, or real source content still cannot be proven. This does not solve the challenge, send a message, or run a hosted browser; it prevents a generic stop from losing the next move.
 
+The Harlan escalation bridge now connects those stuck-source plans to the existing Harlan auth-escalation dry-run contract. Source-browser fallback and auth-needed plans prepare an `auth_needed` operator packet with Harlan card ID, notification metadata, `waitsForDoneToken: DONE`, and `sendsMessageNow=false`. Dev/source readback can show that a Harlan draft exists, but the proof path still sends nothing and mutates no credentials. Actual texts/messages, source-session resume, hosted-browser fallback, CAPTCHA/challenge handling, and login execution remain approval-bound follow-up work.
+
 1. Promote Source Browser from runtime to agent harness.
    - Use `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` and `AGENT-CAPABILITY-REGISTRY-001` as the governing protocol.
    - Do not create a brand-new protocol unless a concrete missing field is found.
