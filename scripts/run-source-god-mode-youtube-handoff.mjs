@@ -19,6 +19,7 @@ import {
   buildYoutubeHandoffEvidenceFromReports,
 } from '../lib/dev-team-hub.js'
 import {
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
   SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
   buildSourceGodModeYoutubeHandoffQueue,
   persistSourceGodModeYoutubeHandoffBatch,
@@ -96,7 +97,7 @@ async function loadQueue(args = {}) {
   ] = await Promise.all([
     listYoutubeFullWatchReportArtifacts({ limit: 800 }),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
-    listSourceCrawlItems({ targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY, limit: 1000, order: 'desc' }),
+    listSourceCrawlItems({ targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
   ])
   const handoffEvidence = buildYoutubeHandoffEvidenceFromReports(youtubeFullWatchReports || [])
   const queue = buildSourceGodModeYoutubeHandoffQueue({

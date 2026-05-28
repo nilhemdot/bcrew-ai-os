@@ -62,6 +62,7 @@ import {
   buildDevOpportunityVisionLensReview,
 } from '../lib/dev-opportunity-vision-lens.js'
 import {
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
   SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
 } from '../lib/source-god-mode-youtube-handoff.js'
 
@@ -253,7 +254,7 @@ async function loadLiveSnapshot() {
     getIntelligenceReportBundle(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
     listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 }),
-    listSourceCrawlItems({ targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY, limit: 500, order: 'desc' }),
+    listSourceCrawlItems({ targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
   ])
   const target = list(extractionControl.targets)
     .find(item => item.targetKey === YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY) || null
@@ -347,6 +348,7 @@ async function main() {
     jsSource,
     cssSource,
     scriptSource,
+    sourceHandoffRunnerSource,
   ] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile('lib/foundation-build-intel-routes.js'),
@@ -358,6 +360,7 @@ async function main() {
     readRepoFile('public/dev.js'),
     readRepoFile('public/dev.css'),
     readRepoFile(SCRIPT_PATH),
+    readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
   ])
 
   await initFoundationDb()
@@ -886,6 +889,15 @@ async function main() {
       sourceGodModeRows.some(row => row.status === 'already_run_source_evidence_saved' && row.runnable === false),
     'YouTube handoff readback marks source-browser rows already persisted',
     `alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; total=${sourceGodModeHandoffQueue.counts?.totalRows || 0}`,
+  )
+  addCheck(
+    checks,
+    SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT >= 1000 &&
+      routeSource.includes('SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT') &&
+      scriptSource.includes('SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT') &&
+      sourceHandoffRunnerSource.includes('SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT'),
+    'Dev Hub and source handoff runner share the same source-run readback limit',
+    `limit=${SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT}`,
   )
   addCheck(
     checks,
