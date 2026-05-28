@@ -1026,6 +1026,7 @@ function renderYoutubeSourceHandoffQueue(queue = {}) {
     Number(counts.duplicateRows || 0) ? `${compactNumber(counts.duplicateRows || 0)} duplicate variants folded` : '',
     `${compactNumber(counts.runnableRows || 0)} public/free rows ready`,
     `${compactNumber(counts.parkedRows || 0)} parked`,
+    Number(counts.browserChallengeFallbackRows || 0) ? `${compactNumber(counts.browserChallengeFallbackRows || 0)} browser challenges need fallback` : '',
     `${compactNumber(counts.rowsWithRunCommand || 0)} with runner commands`,
   ].filter(Boolean).join(' · ')
   return `

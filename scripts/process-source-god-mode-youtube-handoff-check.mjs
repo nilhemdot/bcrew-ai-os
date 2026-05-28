@@ -1072,6 +1072,54 @@ async function main() {
     },
     runItems: [{ ...failedReadRepairInput, status: 'failed', metadata: failedReadRepairInput.metadata }],
   })
+  const savedChallengeInput = buildSourceGodModeYoutubeHandoffCrawlItemInput({
+    rowId: 'youtube-handoff:free-communities:https:-community-youreverydayai-com',
+    bucketId: 'free-communities',
+    runner: 'source:god-mode',
+    sourceType: 'public_community_bridge',
+    url: 'https://community.youreverydayai.com/',
+    status: 'source_god_mode_sop_incomplete',
+    ok: true,
+    pagesRead: 1,
+    handsEvents: 0,
+    pageSummaries: [{
+      url: 'https://community.youreverydayai.com/',
+      title: 'Just a moment...',
+      textChars: 244,
+      headings: [],
+    }],
+    blockers: [],
+    sideEffects: { externalWrites: false, writesBacklog: false, submittedForm: false, downloadedFile: false, purchased: false, postedOrMessaged: false, mutatesCredentials: false, normalChromeProfileUsed: false },
+    artifacts: { reportPath: '/tmp/browser-challenge-community-report.json' },
+  }, {
+    batch: { capturedAt: '2026-05-27T11:00:00.000-04:00' },
+  })
+  const savedChallengeQueue = buildSourceGodModeYoutubeHandoffQueue({
+    handoffEvidence: communityBoundaryQueue.handoffEvidence || {
+      sourceRoute: 'fixture.youtube.fullWatchReports.communityBoundary',
+      scannedReportCount: 1,
+      buckets: {
+        'free-communities': {
+          count: 1,
+          items: [{
+            url: 'https://community.youreverydayai.com/sign_up?request_host=community.youreverydayai.com',
+            host: 'community.youreverydayai.com',
+            reportArtifactId: 'report:bad-free-community',
+            sourceVideoId: 'fixture-video-community-boundary',
+            creatorId: 'fixture-a-source',
+            creator: 'Fixture A Source',
+          }],
+        },
+      },
+    },
+    generatedAt: '2026-05-27T11:05:00.000-04:00',
+    sourceValueGrader: {
+      sourceGrades: [
+        { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+      ],
+    },
+    runItems: [{ ...savedChallengeInput, status: 'succeeded', metadata: savedChallengeInput.metadata }],
+  })
   addCheck(
     checks,
     list(failedReadRepairQueue.rows).some(row =>
@@ -1094,6 +1142,22 @@ async function main() {
     ),
     'current-version failed read repairs park for review instead of looping forever',
     JSON.stringify(currentFailedReadRepairQueue.rows.find(row => row.url === `${fixture.baseUrl}/resource`) || {}),
+  )
+  addCheck(
+    checks,
+    list(savedChallengeQueue.rows).some(row =>
+      row.url === 'https://community.youreverydayai.com/' &&
+      row.status === 'previous_source_run_browser_challenge_needs_fallback' &&
+      row.runnable === false &&
+      row.parked === true &&
+      !text(row.runCommand) &&
+      row.existingRunLastError === 'browser_challenge_not_source_content' &&
+      list(row.previousRunBlockers).some(blocker => blocker.type === 'browser_challenge_not_source_content')
+    ) &&
+      savedChallengeQueue.counts.alreadyRunRows === 0 &&
+      savedChallengeQueue.counts.browserChallengeFallbackRows === 1,
+    'saved browser challenge pages are not counted as completed source evidence',
+    JSON.stringify(savedChallengeQueue.rows.find(row => row.url === 'https://community.youreverydayai.com/') || {}),
   )
   const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),

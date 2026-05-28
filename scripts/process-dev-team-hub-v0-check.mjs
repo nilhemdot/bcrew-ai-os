@@ -849,6 +849,7 @@ async function main() {
   const sourceGodModeRows = list(sourceGodModeHandoffQueue.rows)
   const sourceGodModeBucketCounts = sourceGodModeHandoffQueue.bucketCounts || {}
   const sourceGodModeRunnableCount = Number(sourceGodModeHandoffQueue.counts?.runnableRows || 0)
+  const sourceGodModeBrowserChallengeFallbackCount = Number(sourceGodModeHandoffQueue.counts?.browserChallengeFallbackRows || 0)
   const sourceSessionPrepQueue = sourceGodModeHandoffQueue.sourceSessionPrepQueue || {}
   const sourceRunSummary = sourceGodModeHandoffQueue.sourceRunSummary || {}
   const sourceSessionPrepRows = list(sourceSessionPrepQueue.rows)
@@ -878,6 +879,7 @@ async function main() {
       'blocked_free_community_form_auth_or_action_surface',
       'blocked_short_link_expansion_needed',
       'previous_source_run_failed_needs_review',
+      'previous_source_run_browser_challenge_needs_fallback',
     ].includes(row.status))
   const freeCommunityRowsRequiringSessionBroker = sourceGodModeRows
     .filter(row => row.bucketId === 'free-communities')
@@ -929,6 +931,12 @@ async function main() {
       sourceGodModeRows.some(row => row.status === 'already_run_source_evidence_saved' && row.runnable === false),
     'YouTube handoff readback marks source-browser rows already persisted',
     `alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; total=${sourceGodModeHandoffQueue.counts?.totalRows || 0}`,
+  )
+  addCheck(
+    checks,
+    sourceGodModeBrowserChallengeFallbackCount > 0,
+    'YouTube handoff readback surfaces saved browser challenges as fallback work instead of completed evidence',
+    `browserChallengeFallback=${sourceGodModeBrowserChallengeFallbackCount}; alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
   )
   addCheck(
     checks,

@@ -13,7 +13,7 @@ YouTube-discovered free-community links now split into the correct next step:
 - clean public community starts resolved from action URLs run only as bounded public bridge reads
 - direct invite links such as Discord invites park until a source-specific community runner exists
 - Skool about/community rows still wait for Source Session Broker readiness before the 20-day community SOP can run
-- browser challenges and interstitial wrapper pages fail closed instead of becoming empty successful source evidence
+- browser challenges and interstitial wrapper pages fail closed instead of becoming empty successful source evidence, including saved runs that previously looked `succeeded`
 
 ## Why
 
@@ -23,7 +23,7 @@ This keeps Steve's principle intact: free public pages should move, but private/
 
 ## Proof
 
-- `node --check lib/source-god-mode-youtube-handoff.js scripts/process-source-god-mode-youtube-handoff-check.mjs scripts/process-dev-team-hub-v0-check.mjs`
+- `node --check lib/source-god-mode-youtube-handoff.js scripts/process-source-god-mode-youtube-handoff-check.mjs scripts/process-dev-team-hub-v0-check.mjs public/dev.js`
 - `npm run process:source-god-mode-youtube-handoff-check -- --json`
 - `npm run process:source-god-mode-extractor-runtime-check -- --json`
 - `npm run process:dev-team-hub-v0-check -- --json`
@@ -35,13 +35,15 @@ Focused proof verifies:
 - `discord.gg/...` parks as a direct non-Skool community invite
 - `skool.com/chase-ai-community/about` still waits on Source Session Broker
 - `Just a moment...` / browser challenge pages fail closed as `browser_challenge_not_source_content`
+- saved browser-challenge runs are reclassified as `previous_source_run_browser_challenge_needs_fallback`, not counted as completed source evidence
 
 Live Dev Hub readback after the patch and governed bridge runs:
 
 - 0 public/free source rows ready
-- 460 parked rows
-- 699 already persisted rows
-- 3 free-community bridge rows read
+- 538 parked rows
+- 621 already persisted rows
+- 78 saved browser-challenge rows parked for fallback/repair
+- 2 free-community bridge rows read; the challenged community bridge is parked for fallback instead of counted as read
 - 273 source-session prep rows
 - 0 raw-secret rows
 
