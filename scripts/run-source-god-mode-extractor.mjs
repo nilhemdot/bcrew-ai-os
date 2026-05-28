@@ -18,6 +18,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     maxDepth: 1,
     headed: argv.includes('--headed'),
     json: argv.includes('--json'),
+    profileMode: 'ephemeral_isolated',
   }
   for (const arg of argv) {
     if (arg.startsWith('--url=')) args.url = arg.slice('--url='.length)
@@ -27,6 +28,8 @@ function parseArgs(argv = process.argv.slice(2)) {
     if (arg.startsWith('--mode=')) args.mode = arg.slice('--mode='.length)
     if (arg.startsWith('--maxPages=')) args.maxPages = Number(arg.slice('--maxPages='.length))
     if (arg.startsWith('--maxDepth=')) args.maxDepth = Number(arg.slice('--maxDepth='.length))
+    if (arg.startsWith('--profileMode=')) args.profileMode = arg.slice('--profileMode='.length)
+    if (arg.startsWith('--profileRoot=')) args.profileRoot = arg.slice('--profileRoot='.length)
     if (arg.startsWith('--root=')) args.root = arg.slice('--root='.length)
   }
   return args
@@ -45,6 +48,8 @@ async function main() {
     maxPages: Number.isFinite(args.maxPages) ? args.maxPages : 4,
     maxDepth: Number.isFinite(args.maxDepth) ? args.maxDepth : 1,
     headed: args.headed,
+    profileMode: args.profileMode,
+    profileRoot: args.profileRoot ? path.resolve(args.profileRoot) : undefined,
     rootDir: args.root ? path.resolve(args.root) : undefined,
   })
 
@@ -58,6 +63,8 @@ async function main() {
   console.log(`Source type: ${report.sourceType}`)
   console.log(`Pages read: ${report.pages?.length || 0}`)
   console.log(`Hands events: ${report.handsEvents?.length || 0}`)
+  console.log(`Browser recovery events: ${report.browserRecoveryEvents?.length || 0}`)
+  console.log(`Browser profile: ${report.runtime?.sourceBrowserSession?.profileMode || 'unknown'}`)
   console.log(`Capabilities: ${Object.entries(report.capabilities || {}).map(([key, value]) => `${key}=${value}`).join(', ')}`)
   console.log(`Newsletter candidates: ${report.newsletterCandidates?.length || 0}`)
   console.log(`Paid gate evaluations: ${report.paidGateEvaluations?.length || 0}`)

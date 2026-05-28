@@ -10,7 +10,9 @@ import {
   SOURCE_GOD_MODE_EXTRACTOR_RUNTIME_CARD_ID,
   SOURCE_GOD_MODE_EXTRACTOR_RUNTIME_SCRIPT_PATH,
   SOURCE_GOD_MODE_REQUIRED_RUNTIME_CAPABILITIES,
+  buildSourceBrowserSessionPolicy,
   evaluateSourceGodModeExtractorRuntime,
+  evaluateSourceBrowserPageHealth,
   runSourceGodModeExtractor,
 } from '../lib/source-god-mode-extractor-runtime.js'
 
@@ -213,6 +215,24 @@ async function main() {
   const repoPageUrls = new Set((repoRun.pages || []).map(item => item.url))
   const decisions = liveRun.linkDecisions || []
   const capabilities = liveRun.capabilities || {}
+  const sourceBrowserSessionPolicy = buildSourceBrowserSessionPolicy({
+    targetUrl: `${fixture.baseUrl}/youtube-page`,
+    sourceType: 'youtube_public_creator',
+    profileMode: 'persistent_isolated',
+    profileRoot: path.join(repoRoot, '.openclaw/source-browser-profile-fixture'),
+  })
+  const aboutBlankHealth = evaluateSourceBrowserPageHealth({
+    url: 'about:blank',
+    title: '',
+    bodyTextPreview: '',
+    textChars: 0,
+  })
+  const restorePromptHealth = evaluateSourceBrowserPageHealth({
+    url: 'chrome://newtab/',
+    title: 'Restore pages?',
+    bodyTextPreview: "Chrome didn't shut down correctly. Restore pages.",
+    textChars: 52,
+  })
 
   addCheck(
     checks,
@@ -238,14 +258,39 @@ async function main() {
     checks,
     /classifyGodModeSourceLink/.test(moduleSource) &&
       /runSourceGodModeExtractor/.test(moduleSource) &&
-      /stagehandAdapter/.test(moduleSource),
-    'runtime owns source policy, runner, and optional agentic browser adapter bridge',
+      /stagehandAdapter/.test(moduleSource) &&
+      /evaluateSourceBrowserPageHealth/.test(moduleSource) &&
+      /buildSourceBrowserSessionPolicy/.test(moduleSource),
+    'runtime owns source policy, runner, source-browser session policy, health checks, and optional agentic browser adapter bridge',
     'lib/source-god-mode-extractor-runtime.js',
   )
   addCheck(
     checks,
-    /Stagehand/.test(stagehandSource) && /agentic source browser/i.test(stagehandSource),
-    'Stagehand agentic browser adapter remains available for real brain-led browsing',
+    sourceBrowserSessionPolicy.profileMode === 'persistent_isolated' &&
+      sourceBrowserSessionPolicy.usesNormalChromeProfile === false &&
+      sourceBrowserSessionPolicy.defaultChromeProfileForbidden === true &&
+      /source-browser-profile-fixture/.test(sourceBrowserSessionPolicy.userDataDir),
+    'source-browser profile policy forbids normal Chrome and supports isolated persistent source profiles',
+    JSON.stringify(sourceBrowserSessionPolicy),
+  )
+  addCheck(
+    checks,
+    aboutBlankHealth.ok === false &&
+      aboutBlankHealth.findings.some(item => item.check === 'browser_page_not_blank') &&
+      restorePromptHealth.ok === false &&
+      restorePromptHealth.findings.some(item => item.check === 'browser_control_surface_not_source_content') &&
+      /browser_state_must_not_false_green/.test(moduleSource),
+    'browser agent cannot false-green about:blank, restore-session, or empty browser-control states',
+    JSON.stringify({ aboutBlankHealth, restorePromptHealth }),
+  )
+  addCheck(
+    checks,
+    /Stagehand/.test(stagehandSource) &&
+      /agentic source browser/i.test(stagehandSource) &&
+      /evaluateSourceBrowserPageHealth/.test(stagehandSource) &&
+      /agentic_browser_blocked_browser_state/.test(stagehandSource) &&
+      /sourceBrowserSession/.test(stagehandSource),
+    'Stagehand agentic browser adapter remains available and cannot reason from blank browser state',
     'lib/source-agentic-browser-runtime.js',
   )
   addCheck(
@@ -253,6 +298,18 @@ async function main() {
     liveRun.ok === true && evaluation.ok === true,
     'live local browser run is healthy',
     evaluation.findings?.map(item => `${item.check}:${item.detail}`).join(', ') || liveRun.status,
+  )
+  addCheck(
+    checks,
+    liveRun.runtime?.sourceBrowserSession?.profileMode === 'ephemeral_isolated' &&
+      liveRun.runtime?.sourceBrowserSession?.usesNormalChromeProfile === false &&
+      liveRun.runtime?.sourceBrowserSession?.restorePreviousSessionDisabled === true &&
+      Array.isArray(liveRun.browserRecoveryEvents),
+    'live browser run records session policy and recovery ledger',
+    JSON.stringify({
+      sourceBrowserSession: liveRun.runtime?.sourceBrowserSession,
+      browserRecoveryEvents: liveRun.browserRecoveryEvents || [],
+    }),
   )
   addCheck(
     checks,
@@ -380,8 +437,10 @@ async function main() {
       status: liveRun.status,
       ok: liveRun.ok,
       targetUrl: liveRun.targetUrl,
+      runtime: liveRun.runtime,
       pagesRead: liveRun.pages?.length || 0,
       handsEvents: liveRun.handsEvents || [],
+      browserRecoveryEvents: liveRun.browserRecoveryEvents || [],
       capabilities: liveRun.capabilities,
       blockers: liveRun.blockers,
       fileResourceCandidates: liveRun.fileResourceCandidates,
