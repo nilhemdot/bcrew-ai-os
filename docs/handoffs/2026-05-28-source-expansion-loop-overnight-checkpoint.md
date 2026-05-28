@@ -65,6 +65,10 @@ Foundation/system health is green after the repair pass:
   - Source-run summary now includes public repo readback: 86 saved public-code-repo runs grouped into 77 unique repos/gists.
   - The Dev page shows top repo candidates, pages read, resource counts, blockers, and useful signals.
   - This is readback/triage only; it does not claim repo deep review is complete and it does not clone/install/download/import code.
+- Added a repo deep-review queue on top of saved repo readback.
+  - The Dev page now ranks which public repos should be inspected first from already-captured YouTube/source-browser evidence.
+  - Ranking uses source grade, pages read, free-resource signals, implementation signals, and blockers.
+  - Queue policy is explicit: read-only repo review only; no clone, install, download, import, backlog write, or raw artifact path exposure from this queue.
 - Hardened the repo source runtime so public GitHub/GitLab/Gist rows stay inside the target repo.
   - GitHub/GitLab browser pages such as README/docs/examples are treated as repo pages, not unsafe file downloads.
   - Repo runs skip global chrome such as GitHub home, pricing, login, features, and marketing pages.
@@ -143,6 +147,7 @@ Healthy:
 - `npm --silent run process:dev-team-hub-v0-check -- --json`
   - Re-run after session-broker UI proof passed.
   - Re-run after file-resource readback passed: source-browser outputs include repo and file-resource readback, 746 saved runs, 77 repos, 2,533 pages, 23,716 resource captures, 190 file-resource candidates, and no raw artifact paths returned.
+  - Re-run after repo deep-review queue passed: queue status ready, policy includes no clone/install/download/import, and prioritized repo rows are visible on the Dev page.
 - `npm --silent run process:source-god-mode-extractor-runtime-check -- --json`
   - Re-run after file-resource policy proof passed: file/download resources become metadata-only candidates, `downloadedFile=false`, and blocked PDF/ZIP paths were not opened.
   - Re-run after repo runtime hardening passed: synthetic GitHub repo fixture read repo root, README, docs, and examples; skipped 4 GitHub chrome links; opened 0 GitHub chrome pages; found 16 implementation signals; produced 0 hard blockers and 0 unsafe side effects.

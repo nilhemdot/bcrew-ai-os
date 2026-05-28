@@ -815,6 +815,8 @@ function renderSourceRunSummary(summary = {}) {
   const topRuns = list(summary.topRuns).slice(0, 6)
   const repoReadback = summary.repoReadback || {}
   const topRepos = list(repoReadback.topRepos).slice(0, 6)
+  const repoDeepReviewQueue = repoReadback.deepReviewQueue || {}
+  const repoDeepReviewRows = list(repoDeepReviewQueue.rows).slice(0, 6)
   const fileReadback = summary.fileResourceReadback || {}
   const topFiles = list(fileReadback.topCandidates).slice(0, 6)
   return `
@@ -891,6 +893,27 @@ function renderSourceRunSummary(summary = {}) {
               <small>${escapeHtml(`${compactNumber(repoReadback.globalChromeLinksSkipped || 0)} GitHub/GitLab chrome links skipped · ${compactNumber(repoReadback.globalChromePagesOpened || 0)} chrome pages opened · ${compactNumber(repoReadback.repoHardBlockerCount || 0)} repo hard blockers`)}</small>
             </article>
           </div>
+          ${repoDeepReviewQueue.status === 'ready' ? `
+            <div class="yt-section-head">
+              <span>REPO DEEP-REVIEW QUEUE</span>
+              <h3>Which repos should be inspected first</h3>
+              <small>${escapeHtml(compactNumber(repoDeepReviewQueue.candidateCount || 0))} repo candidates · ${escapeHtml(repoDeepReviewQueue.policy || '')}</small>
+            </div>
+            <p>${escapeHtml(repoDeepReviewQueue.plainEnglish || '')}</p>
+            <div class="yt-source-run-list">
+              ${repoDeepReviewRows.map(repo => `
+                <article>
+                  <div>
+                    <span>${escapeHtml(repo.grade || 'ungraded')} · priority ${escapeHtml(compactNumber(repo.priorityScore || 0))}</span>
+                    <strong>${escapeHtml(repo.label || repo.host || 'repo')}</strong>
+                  </div>
+                  <p>${escapeHtml(repo.reason || list(repo.sourceSignals).join(' · ') || list(repo.pageTitles).join(' · ') || list(repo.urls)[0] || '')}</p>
+                  <small>${escapeHtml(repo.nextAction || '')}</small>
+                </article>
+              `).join('') || '<article><p>No repo deep-review rows returned.</p></article>'}
+            </div>
+            <small>${escapeHtml(repoDeepReviewQueue.nextAction || '')}</small>
+          ` : ''}
           <div class="yt-source-run-list">
             ${topRepos.map(repo => `
               <article>
