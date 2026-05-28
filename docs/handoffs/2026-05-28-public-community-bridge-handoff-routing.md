@@ -32,11 +32,12 @@ Focused proof verifies:
 - `discord.gg/...` parks as a direct non-Skool community invite
 - `skool.com/chase-ai-community/about` still waits on Source Session Broker
 
-Live Dev Hub readback after the patch:
+Live Dev Hub readback after the patch and governed bridge run:
 
-- 2 public/free source rows ready
+- 0 public/free source rows ready
 - 461 parked rows
-- 696 already persisted rows
+- 698 already persisted rows
+- 2 free-community bridge rows read
 - 274 source-session prep rows
 - 0 raw-secret rows
 

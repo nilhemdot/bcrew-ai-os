@@ -879,9 +879,10 @@ async function main() {
       'blocked_short_link_expansion_needed',
       'previous_source_run_failed_needs_review',
     ].includes(row.status))
-  const freeCommunitySessionBrokerDecisionsVisible = sourceGodModeRows
+  const freeCommunityRowsRequiringSessionBroker = sourceGodModeRows
     .filter(row => row.bucketId === 'free-communities')
-    .filter(row => row.status !== 'ready_for_public_community_bridge_read')
+    .filter(row => row.status === 'blocked_free_community_session_broker_required' || row.requiresSessionBroker === true)
+  const freeCommunitySessionBrokerDecisionsVisible = freeCommunityRowsRequiringSessionBroker
     .every(row =>
       row.sourceSessionBroker?.account === 'ai@bensoncrew.ca' &&
       row.sourceSessionBroker?.sourceFamily === 'skool_free_community' &&
