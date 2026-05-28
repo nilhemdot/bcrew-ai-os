@@ -51,7 +51,7 @@ async function getRepoHead() {
 async function buildLiveStatus() {
   await initFoundationDb()
   const foundation = await getFoundationSnapshot()
-  const actionRouter = await getActionRouterSnapshot({ limit: 100 })
+  const actionRouter = await getActionRouterSnapshot({ limit: 500 })
   const hygiene = buildBacklogHygieneSnapshot({
     backlogItems: foundation.backlogItems || [],
     closeouts: getFoundationBuildCloseouts(),
@@ -69,7 +69,7 @@ async function buildLiveStatus() {
 async function writeBaseline() {
   await initFoundationDb()
   const foundation = await getFoundationSnapshot()
-  const actionRouter = await getActionRouterSnapshot({ limit: 100 })
+  const actionRouter = await getActionRouterSnapshot({ limit: 500 })
   const baseline = buildFoundationReviewSprintBaseline({
     repoHead: await getRepoHead(),
     foundation,

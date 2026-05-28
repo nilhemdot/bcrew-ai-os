@@ -9,7 +9,10 @@ import { fileURLToPath } from 'node:url'
 import {
   SOURCE_GOD_MODE_YOUTUBE_HANDOFF_CARD_ID,
   SOURCE_GOD_MODE_YOUTUBE_HANDOFF_SCRIPT_PATH,
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
+  buildSourceGodModeYoutubeHandoffCrawlItemInput,
   buildSourceGodModeYoutubeHandoffQueue,
+  persistSourceGodModeYoutubeHandoffBatch,
   runSourceGodModeYoutubeHandoffBatch,
 } from '../lib/source-god-mode-youtube-handoff.js'
 import {
@@ -150,11 +153,15 @@ async function startFixtureServer() {
 }
 
 function buildFixtureHandoffEvidence(baseUrl = '') {
-  const item = (pathName, bucketId, sourceVideoId = 'fixture-video-1') => ({
+  const item = (pathName, bucketId, sourceVideoId = 'fixture-video-1', creatorId = 'fixture-a-source', creator = 'Fixture A Source') => ({
     url: `${baseUrl}${pathName}`,
     host: '127.0.0.1',
     reportArtifactId: `report:${bucketId}`,
     sourceVideoId,
+    creatorId,
+    creator,
+    sourceCreatorIds: [creatorId],
+    sourceCreators: [creator],
     disposition: 'fixture_youtube_handoff',
   })
   const buckets = {
@@ -164,7 +171,10 @@ function buildFixtureHandoffEvidence(baseUrl = '') {
       hasMore: false,
       sampleHosts: ['127.0.0.1'],
       samples: [item('/resource', 'public-web-resources')],
-      items: [item('/resource', 'public-web-resources'), item('/resource/details', 'public-web-resources')],
+      items: [
+        item('/resource', 'public-web-resources'),
+        item('/resource/details', 'public-web-resources', 'fixture-video-2', 'fixture-c-source', 'Fixture C Source'),
+      ],
     },
     'public-code-repos': {
       count: 1,
@@ -235,11 +245,114 @@ async function main() {
 
   const fixture = await startFixtureServer()
   let queue = null
+  let communityBoundaryQueue = null
+  let publicWebBoundaryQueue = null
   let batch = null
+  let persistence = null
+  const persistenceWrites = []
   try {
     queue = buildSourceGodModeYoutubeHandoffQueue({
       handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),
       generatedAt: '2026-05-27T11:00:00.000-04:00',
+      freeCommunitySessionBrokerReady: true,
+      sourceValueGrader: {
+        sourceGrades: [
+          { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', devWatchRecommendation: 'watch_heavily', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+          { creatorId: 'fixture-c-source', creator: 'Fixture C Source', devBuildGrade: 'C', devWatchRecommendation: 'sample_only', laneScores: [{ laneId: 'aios_dev_build', grade: 'C', score: 38 }] },
+        ],
+      },
+    })
+    communityBoundaryQueue = buildSourceGodModeYoutubeHandoffQueue({
+      handoffEvidence: {
+        sourceRoute: 'fixture.youtube.fullWatchReports.communityBoundary',
+        scannedReportCount: 2,
+        buckets: {
+          'free-communities': {
+            count: 2,
+            itemLimit: 250,
+            hasMore: false,
+            sampleHosts: ['community.youreverydayai.com', 'skool.com'],
+            items: [
+              {
+                url: 'https://community.youreverydayai.com/sign_up?request_host=community.youreverydayai.com',
+                host: 'community.youreverydayai.com',
+                reportArtifactId: 'report:bad-free-community',
+                sourceVideoId: 'fixture-video-community-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+              {
+                url: 'https://www.skool.com/chase-ai-community/about',
+                host: 'skool.com',
+                reportArtifactId: 'report:good-free-community',
+                sourceVideoId: 'fixture-video-community-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+            ],
+          },
+        },
+      },
+      generatedAt: '2026-05-27T11:00:00.000-04:00',
+      sourceValueGrader: {
+        sourceGrades: [
+          { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+        ],
+      },
+    })
+    publicWebBoundaryQueue = buildSourceGodModeYoutubeHandoffQueue({
+      handoffEvidence: {
+        sourceRoute: 'fixture.youtube.fullWatchReports.publicWebBoundary',
+        scannedReportCount: 3,
+        buckets: {
+          'public-web-resources': {
+            count: 4,
+            itemLimit: 250,
+            hasMore: false,
+            sampleHosts: ['instagram.com', 'link.example.com', 'n8n.io', 'forms.clickup.com'],
+            items: [
+              {
+                url: 'https://www.instagram.com/source_creator',
+                host: 'instagram.com',
+                reportArtifactId: 'report:social-profile',
+                sourceVideoId: 'fixture-video-public-web-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+              {
+                url: 'https://link.example.com/tool-short',
+                host: 'link.example.com',
+                reportArtifactId: 'report:link-bridge',
+                sourceVideoId: 'fixture-video-public-web-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+              {
+                url: 'https://n8n.io/?ps_partner_key=abc&gspk=def',
+                host: 'n8n.io',
+                reportArtifactId: 'report:affiliate-homepage',
+                sourceVideoId: 'fixture-video-public-web-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+              {
+                url: 'https://forms.clickup.com/90131327433/f/example',
+                host: 'forms.clickup.com',
+                reportArtifactId: 'report:form-surface',
+                sourceVideoId: 'fixture-video-public-web-boundary',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+            ],
+          },
+        },
+      },
+      generatedAt: '2026-05-27T11:00:00.000-04:00',
+      sourceValueGrader: {
+        sourceGrades: [
+          { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+        ],
+      },
     })
     batch = await runSourceGodModeYoutubeHandoffBatch({
       queue,
@@ -248,6 +361,21 @@ async function main() {
       allowLocalFixture: true,
       rootDir: '.openclaw/test-source-god-mode-youtube-handoff',
       now: '2026-05-27T11:00:00.000-04:00',
+    })
+    persistence = await persistSourceGodModeYoutubeHandoffBatch(batch, {
+      actor: 'synthetic-source-youtube-handoff-proof',
+      upsertSourceCrawlTarget: async (input, actor) => {
+        persistenceWrites.push({ type: 'target', input, actor })
+        return { ...input, updatedBy: actor }
+      },
+      upsertSourceCrawlItem: async (input, actor) => {
+        persistenceWrites.push({ type: 'item', input, actor })
+        return { itemKey: input.itemKey, targetKey: input.targetKey, status: input.status, artifactId: input.artifactId, metadata: input.metadata, updatedBy: actor }
+      },
+      upsertIntelligenceReportArtifact: async (input, actor) => {
+        persistenceWrites.push({ type: 'report', input, actor })
+        return { reportArtifactId: input.reportArtifactId, status: input.status, sourceIds: input.sourceIds, updatedBy: actor }
+      },
     })
   } finally {
     await fixture.close()
@@ -264,6 +392,12 @@ async function main() {
     packageJson.scripts?.['process:source-god-mode-youtube-handoff-check'] === `node --env-file-if-exists=.env ${SOURCE_GOD_MODE_YOUTUBE_HANDOFF_SCRIPT_PATH}`,
     'package exposes focused YouTube source handoff proof',
     packageJson.scripts?.['process:source-god-mode-youtube-handoff-check'] || 'missing',
+  )
+  addCheck(
+    checks,
+    packageJson.scripts?.['source:youtube-handoff'] === 'node --env-file-if-exists=.env scripts/run-source-god-mode-youtube-handoff.mjs',
+    'package exposes production YouTube source handoff runner',
+    packageJson.scripts?.['source:youtube-handoff'] || 'missing',
   )
   addCheck(
     checks,
@@ -302,12 +436,16 @@ async function main() {
   )
   addCheck(
     checks,
-    rows.some(row => row.bucketId === 'public-web-resources' && row.runner === 'source:god-mode') &&
+      rows.some(row => row.bucketId === 'public-web-resources' && row.runner === 'source:god-mode') &&
       rows.some(row => row.bucketId === 'public-code-repos' && row.sourceType === 'github_docs_public_resources') &&
       rows.some(row => row.bucketId === 'creator-newsletters' && row.sourceType === 'creator_newsletter') &&
-      rows.some(row => row.bucketId === 'free-communities' && row.runner === 'skool:free-god-mode') &&
+      rows.some(row =>
+        row.bucketId === 'free-communities' &&
+        row.runner === 'skool:free-god-mode' &&
+        row.sourceSessionBroker?.status === 'session_ready'
+      ) &&
       rows.filter(row => row.runnable).every(row => text(row.runCommand)),
-    'public/free/resource/newsletter/community rows get concrete runner commands',
+    'public/free/resource/newsletter/community rows get concrete runner commands when the session broker says ready',
     rows.map(row => `${row.bucketId}:${row.runner}:${row.runnable}`).join(', '),
   )
   addCheck(
@@ -316,6 +454,63 @@ async function main() {
       .every(row => row.runnable === false && row.parked === true && !row.runCommand),
     'paid/auth/product rows are parked and not runnable',
     rows.filter(row => !row.runnable).map(row => `${row.bucketId}:${row.status}`).join(', '),
+  )
+  addCheck(
+    checks,
+    list(communityBoundaryQueue?.rows).some(row =>
+      row.url.includes('community.youreverydayai.com/sign_up') &&
+      row.status === 'blocked_non_skool_community_bridge' &&
+      row.runnable === false &&
+      row.parked === true &&
+      !row.runCommand
+    ) &&
+      list(communityBoundaryQueue?.rows).some(row =>
+        row.url.includes('skool.com/chase-ai-community/about') &&
+        row.status === 'blocked_free_community_session_broker_required' &&
+        row.sourceSessionBroker?.status === 'free_account_creation_allowed' &&
+        row.sourceSessionBroker?.account === 'ai@bensoncrew.ca' &&
+        row.sourceSessionBroker?.rawSecretPrinted === false &&
+        row.runnable === false &&
+        !row.runCommand
+      ),
+    'free-community queue parks Skool/community rows behind Source Session Broker decisions and parks signup bridge pages',
+    list(communityBoundaryQueue?.rows).map(row => `${row.url}:${row.status}:${row.runnable}`).join(', '),
+  )
+  addCheck(
+    checks,
+    list(publicWebBoundaryQueue?.rows).some(row =>
+      row.url.includes('instagram.com') &&
+      row.status === 'blocked_social_profile_lane_needed' &&
+      row.runnable === false
+    ) &&
+      list(publicWebBoundaryQueue?.rows).some(row =>
+        row.url.includes('link.example.com') &&
+        row.status === 'blocked_link_bridge_resolution_needed' &&
+        row.runnable === false
+      ) &&
+      list(publicWebBoundaryQueue?.rows).some(row =>
+        row.url.includes('ps_partner_key') &&
+        row.status === 'blocked_product_or_affiliate_tracking_surface' &&
+        row.runnable === false
+      ) &&
+      list(publicWebBoundaryQueue?.rows).some(row =>
+        row.url.includes('forms.clickup.com') &&
+        row.status === 'blocked_form_auth_booking_or_download_surface' &&
+        row.runnable === false
+      ),
+    'public-web queue parks social profiles, link bridges, affiliate product homepages, and form/action surfaces',
+    list(publicWebBoundaryQueue?.rows).map(row => `${row.url}:${row.status}:${row.runnable}`).join(', '),
+  )
+  addCheck(
+    checks,
+    queue.devLanePriorityPreview?.status === 'priority_preview' &&
+      queue.devLanePriorityPreview.gradeBuckets.A >= 1 &&
+      queue.devLanePriorityPreview.gradeBuckets.C === 1 &&
+      queue.devLanePriorityPreview.topRows.some(row => list(row.sourceGrades).some(source => source.creatorId === 'fixture-a-source')) &&
+      rows.some(row => row.creatorId === 'fixture-c-source' && row.devLanePriority?.priorityBand === 'later_signal') &&
+      queue.devLanePriorityPreview.sideEffects.externalWrites === false,
+    'Dev source-link priority ranks S/A/B/C/D rows without deleting or suppressing evidence',
+    JSON.stringify(queue.devLanePriorityPreview || {}),
   )
   addCheck(
     checks,
@@ -352,6 +547,68 @@ async function main() {
     ),
     'source:god-mode handoff runs produce local evidence without external/backlog/profile side effects',
     results.map(result => `${result.bucketId}:${result.status}:${result.pagesRead}`).join(', '),
+  )
+  addCheck(
+    checks,
+    persistence?.ok === true &&
+      persistence.target?.targetKey === SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY &&
+      persistence.sourceCrawlItems?.length === results.length &&
+      persistence.reportArtifact?.reportArtifactId &&
+      persistenceWrites.some(write => write.type === 'target') &&
+      persistenceWrites.filter(write => write.type === 'item').length === results.length &&
+      persistenceWrites.some(write => write.type === 'report'),
+    'handoff batch persists source-run readback and report artifact',
+    JSON.stringify({
+      status: persistence?.status,
+      targetKey: persistence?.target?.targetKey,
+      itemCount: persistence?.sourceCrawlItems?.length || 0,
+      reportArtifactId: persistence?.reportArtifact?.reportArtifactId || '',
+      writeTypes: persistenceWrites.map(write => write.type),
+    }),
+  )
+  const authNeededCrawlInput = buildSourceGodModeYoutubeHandoffCrawlItemInput({
+    rowId: 'youtube-handoff:free-communities:https:-www-skool-com-auth-needed',
+    bucketId: 'free-communities',
+    runner: 'skool:free-god-mode',
+    sourceType: 'skool_free_community',
+    url: 'https://www.skool.com/auth-needed',
+    status: 'auth_needed',
+    ok: false,
+    pagesRead: 1,
+    handsEvents: 0,
+    authNeeded: { reason: 'login_join_or_verification_surface_visible' },
+    artifacts: { reportPath: '/tmp/auth-needed-report.json' },
+  }, {
+    batch: { capturedAt: '2026-05-27T11:00:00.000-04:00' },
+  })
+  addCheck(
+    checks,
+    authNeededCrawlInput.status === 'failed' &&
+      authNeededCrawlInput.lastError.includes('blocked_auth_needed') &&
+      authNeededCrawlInput.metadata.status === 'auth_needed',
+    'auth-needed source runs use valid crawl-item status while preserving source-specific blocker metadata',
+    JSON.stringify({
+      status: authNeededCrawlInput.status,
+      lastError: authNeededCrawlInput.lastError,
+      metadataStatus: authNeededCrawlInput.metadata.status,
+    }),
+  )
+  const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({
+    handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),
+    generatedAt: '2026-05-27T11:05:00.000-04:00',
+    sourceValueGrader: {
+      sourceGrades: [
+        { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+      ],
+    },
+    runItems: persistence.sourceCrawlItems,
+  })
+  addCheck(
+    checks,
+    queueAfterRun.counts.alreadyRunRows >= 1 &&
+      queueAfterRun.rows.some(row => row.status === 'already_run_source_evidence_saved' && row.runnable === false),
+    'queue readback marks exact rows already run after persistence',
+    JSON.stringify(queueAfterRun.counts),
   )
   addCheck(
     checks,
@@ -392,6 +649,14 @@ async function main() {
         pagesRead: result.pagesRead,
       })),
       sideEffects: batch.sideEffects,
+    },
+    persistence: {
+      status: persistence?.status || '',
+      ok: persistence?.ok === true,
+      targetKey: persistence?.target?.targetKey || '',
+      sourceCrawlItemCount: persistence?.sourceCrawlItems?.length || 0,
+      reportArtifactId: persistence?.reportArtifact?.reportArtifactId || '',
+      writeTypes: persistenceWrites.map(write => write.type),
     },
     checks,
     failures,

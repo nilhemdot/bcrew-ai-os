@@ -57,11 +57,20 @@ import {
   buildDevTeamHubV0DogfoodProof,
   buildDevTeamHubV0Snapshot,
 } from '../lib/dev-team-hub.js'
+import {
+  buildDevOpportunityVisionLensDogfood,
+  buildDevOpportunityVisionLensReview,
+} from '../lib/dev-opportunity-vision-lens.js'
+import {
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
+} from '../lib/source-god-mode-youtube-handoff.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-dev-team-hub-v0-check.mjs'
+const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
+const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -225,6 +234,7 @@ async function loadLiveSnapshot() {
     directorBundle,
     sourceValueGraderBundle,
     geminiVideoReviewCalls,
+    sourceGodModeHandoffRunItems,
   ] = await Promise.all([
     getFoundationSnapshot(),
     listYoutubeFullWatchReportArtifacts({ limit: 500 }),
@@ -243,6 +253,7 @@ async function loadLiveSnapshot() {
     getIntelligenceReportBundle(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
     listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 }),
+    listSourceCrawlItems({ targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY, limit: 500, order: 'desc' }),
   ])
   const target = list(extractionControl.targets)
     .find(item => item.targetKey === YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY) || null
@@ -275,21 +286,61 @@ async function loadLiveSnapshot() {
     sourceValueGraderBundle,
     geminiVideoReviewCalls,
     youtubeFullWatchReports,
+    sourceGodModeHandoffRunItems,
     actionRouter: foundationSnapshot.intelligenceActionRouter || {},
     currentSprint: activeFoundationSprint,
     extractionControl,
   })
 }
 
+async function buildNickSaraevVibeCodingLongCourseProof() {
+  const bundle = await getIntelligenceReportBundle(NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 })
+  const output = bundle.report?.structuredOutputJson || bundle.report?.structured_output_json || {}
+  const candidates = list(output.buildCandidates || output.build_candidates)
+  const contentReview = buildDevOpportunityVisionLensReview({
+    rankedCandidates: candidates,
+  })
+  const vibeOpportunity = list(contentReview.opportunities)
+    .find(item => item.definitionId === 'vibe-coding-system-for-steve') || null
+  const vibeLens = list(contentReview.priorityLensRouter?.lenses)
+    .find(item => item.lensId === 'vibe-coding-operator') || null
+  const provenanceOnlyReview = buildDevOpportunityVisionLensReview({
+    rankedCandidates: candidates.map((candidate, index) => ({
+      rank: index + 1,
+      title: `Neutral provenance readback ${index + 1}`,
+      why: 'Neutral metadata readback only.',
+      recommendedNextStep: 'Store ID only.',
+      sourceTitle: candidate.sourceTitle,
+      sourceVideoTitle: candidate.sourceVideoTitle,
+      sourceVideoId: candidate.sourceVideoId || NICK_SARAEV_VIBE_CODING_VIDEO_ID,
+      evidenceRefs: candidate.evidenceRefs,
+      resourceLinkDispositions: candidate.resourceLinkDispositions,
+    })),
+  })
+  return {
+    reportFound: Boolean(bundle.report),
+    sourceVideoId: NICK_SARAEV_VIBE_CODING_VIDEO_ID,
+    reportArtifactId: NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID,
+    inputCandidateCount: candidates.length,
+    sourceTitlePreservedCount: candidates.filter(candidate => text(candidate.sourceTitle || candidate.sourceVideoTitle)).length,
+    vibeOpportunity,
+    vibeLensTopTitle: vibeLens?.opportunities?.[0]?.title || '',
+    provenanceOnlyMatchedCandidateCount: provenanceOnlyReview.matchedCandidateCount || 0,
+    provenanceOnlyOpportunityCount: provenanceOnlyReview.opportunityCount || 0,
+  }
+}
+
 async function main() {
   const args = parseArgs()
   const checks = []
   let payload = null
+  let nickSaraevVibeCodingProof = null
 
   const [
     packageJson,
     routeSource,
     moduleSource,
+    opportunityLensSource,
     appRoutesSource,
     serverSource,
     htmlSource,
@@ -300,6 +351,7 @@ async function main() {
     readRepoJson('package.json'),
     readRepoFile('lib/foundation-build-intel-routes.js'),
     readRepoFile('lib/dev-team-hub.js'),
+    readRepoFile('lib/dev-opportunity-vision-lens.js'),
     readRepoFile('lib/app-page-routes.js'),
     readRepoFile('server.js'),
     readRepoFile('public/dev.html'),
@@ -311,11 +363,13 @@ async function main() {
   await initFoundationDb()
   try {
     payload = await loadLiveSnapshot()
+    nickSaraevVibeCodingProof = await buildNickSaraevVibeCodingLongCourseProof()
   } finally {
     await closeFoundationDb()
   }
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
+  const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
   const readOnlyBundle = `${moduleSource}\n${jsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
@@ -323,22 +377,58 @@ async function main() {
   addCheck(checks, includesAll(serverSource, ['getIntelligenceReportBundle', 'registerFoundationBuildIntelRoutes(app']), 'server passes Foundation report bundle dependency', 'server.js')
   addCheck(checks, includesAll(appRoutesSource, ["app.get('/dev'", 'dev.html']), 'app routes serve owner-only Dev page', DEV_TEAM_HUB_V0_PAGE_ROUTE)
   addCheck(checks, htmlSource.includes('/dev.css') && htmlSource.includes('/dev.js') && pageHasRequiredSections(htmlSource), 'Dev page has required Data Pool sections', 'Director lens, extractors, God Mode parity, evidence, approval review, source leaderboard, source systems, selected detail')
-  addCheck(
-    checks,
-    pageHasYoutubeIntelligenceSystem(htmlSource) &&
+	  addCheck(
+	    checks,
+	    pageHasYoutubeIntelligenceSystem(htmlSource) &&
       jsSource.includes('renderYoutubeSourceIntelligence') &&
       jsSource.includes('renderYoutubeHandoff') &&
       jsSource.includes('renderYoutubeSourceHandoffQueue') &&
+      jsSource.includes('renderSourceSessionBrokerDecision') &&
       jsSource.includes('renderYoutubeExecutiveSummary') &&
       jsSource.includes('setDevView') &&
       cssSource.includes('.youtube-system') &&
       cssSource.includes('.yt-stage-grid') &&
       cssSource.includes('.yt-handoff-grid') &&
       cssSource.includes('.yt-source-handoff-list') &&
+      cssSource.includes('.yt-source-session') &&
       cssSource.includes('.yt-exec-summary'),
-    'Dev page exposes a separate YouTube Intelligence system view',
-    'sidebar view + #view-youtube + #youtube-system + runtime/stage/handoff/source-browser/executive-summary renderers',
-  )
+	    'Dev page exposes a separate YouTube Intelligence system view',
+	    'sidebar view + #view-youtube + #youtube-system + runtime/stage/handoff/source-browser/session-broker/executive-summary renderers',
+	  )
+	  addCheck(
+	    checks,
+	    htmlSource.includes('id="view-rankings"') &&
+	      htmlSource.includes('id="rankings-system"') &&
+	      htmlSource.includes('data-view="rankings"') &&
+	      jsSource.includes('renderRankings') &&
+	      jsSource.includes('candidateDevSourceGrade') &&
+	      jsSource.includes('Top 12') &&
+	      jsSource.includes('All creators') &&
+	      jsSource.includes('Why for AIOS') &&
+	      jsSource.includes('VISION OPPORTUNITIES') &&
+	      jsSource.includes('renderVisionOpportunities') &&
+	      jsSource.includes('renderPriorityLensRouter') &&
+	      jsSource.includes('renderDirectorTop3ScoperReview') &&
+	      jsSource.includes('renderOperatorPlaybook') &&
+	      jsSource.includes('renderRankingProcessVisualizer') &&
+	      jsSource.includes('data-priority-lens') &&
+	      jsSource.includes('renderCandidateSourceLinks') &&
+	      cssSource.includes('.rankings-system') &&
+	      cssSource.includes('.ranking-process') &&
+	      cssSource.includes('.ranking-process-flow') &&
+	      cssSource.includes('.ranking-audit-strip') &&
+	      cssSource.includes('.ranking-idea') &&
+	      cssSource.includes('.vision-opportunity') &&
+	      cssSource.includes('.priority-lens-router') &&
+	      cssSource.includes('.priority-lens-button') &&
+	      cssSource.includes('.director-scoper-review') &&
+	      cssSource.includes('.director-scoper-grid') &&
+	      cssSource.includes('.operator-playbook') &&
+	      cssSource.includes('.ranking-score-grid') &&
+	      cssSource.includes('.ranking-links'),
+	    'Dev page exposes a separate Rankings view with evidence-rich ideas, process visualization, and full creator priority',
+	    'sidebar view + #view-rankings + ranking process + priority lenses + vision opportunities + top build ideas + full creator ranking + source/evidence details',
+	  )
   addCheck(checks, pageUsesSharedLauncherTopbar(htmlSource, cssSource), 'Dev page uses the shared launcher topbar structure/CSS', 'launcher-topbar classes + /hub-launcher.css')
   addCheck(checks, !htmlSource.includes('id="active-card"') && !htmlSource.includes('id="source-proof"') && !htmlSource.includes('id="director-status"'), 'Dev page does not show redundant status-only middle cards', 'active card/source proof/director mini cards removed')
   addCheck(checks, jsSource.includes(DEV_TEAM_HUB_V0_API_ROUTE) && jsSource.includes('Needs source') && jsSource.includes("cache: 'no-store'"), 'frontend consumes API and renders missing-source state', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -347,11 +437,42 @@ async function main() {
     jsSource.includes('DEV_DATA_POOL_REFRESH_INTERVAL_MS') &&
       jsSource.includes('refreshDevDataPoolFromBackend') &&
       jsSource.includes('state.dataPoolLoadInFlight') &&
-      jsSource.includes("document.visibilityState === 'hidden'") &&
-      jsSource.includes("window.addEventListener('focus', refreshDevDataPoolFromBackend)") &&
-      htmlSource.includes('20260527-source-handoff-v1'),
+	      jsSource.includes("document.visibilityState === 'hidden'") &&
+	      jsSource.includes("window.addEventListener('focus', refreshDevDataPoolFromBackend)") &&
+	      htmlSource.includes('20260528-ranking-process-v1'),
     'Dev page automatically refetches source-backed dashboard data after extraction writes',
     '30s no-store polling + focus refresh + in-flight guard',
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('devOpportunityVisionLens') &&
+      opportunityLensSource.includes('Browser Agent That Can Work') &&
+      opportunityLensSource.includes('Assistant That Handles Conversations Like Steve') &&
+      opportunityLensSource.includes('PRIORITY_LENS_PACKS') &&
+      opportunityLensSource.includes('current-sprint') &&
+      opportunityLensSource.includes('marketing-recruiting') &&
+      opportunityLensSource.includes('vibe-coding-operator') &&
+      opportunityLensSource.includes('Vibe Coding System For Steve') &&
+      opportunityLensSource.includes('noAutoBacklogPromotion: true') &&
+      opportunityLensSource.includes('noAutoScoperPromotion: true') &&
+      opportunityLensDogfood.ok,
+    'Dev Hub exposes review-only vision opportunity merge and priority lens router with simple operator titles',
+    opportunityLensDogfood.checks.map(check => `${check.ok ? 'PASS' : 'FAIL'} ${check.check}`).join(' | '),
+  )
+  addCheck(
+    checks,
+    nickSaraevVibeCodingProof?.reportFound === true &&
+      nickSaraevVibeCodingProof?.inputCandidateCount >= 20 &&
+      nickSaraevVibeCodingProof?.sourceTitlePreservedCount >= 20 &&
+      nickSaraevVibeCodingProof?.vibeOpportunity?.title === 'Vibe Coding System For Steve' &&
+      nickSaraevVibeCodingProof?.vibeOpportunity?.candidateCount >= 2 &&
+      nickSaraevVibeCodingProof?.vibeOpportunity?.operatorPlaybook?.status === 'ready_for_operator_review' &&
+      nickSaraevVibeCodingProof?.vibeOpportunity?.operatorPlaybook?.supportedPillarCount >= 4 &&
+      nickSaraevVibeCodingProof?.vibeLensTopTitle === 'Vibe Coding System For Steve' &&
+      nickSaraevVibeCodingProof?.provenanceOnlyMatchedCandidateCount === 0 &&
+      nickSaraevVibeCodingProof?.provenanceOnlyOpportunityCount === 0,
+    'Nick Saraev long-course content is caught by the vibe-coding lens without source-title or link-disposition forcing',
+    `${nickSaraevVibeCodingProof?.inputCandidateCount || 0} candidates / ${nickSaraevVibeCodingProof?.sourceTitlePreservedCount || 0} source titles preserved / ${nickSaraevVibeCodingProof?.vibeOpportunity?.candidateCount || 0} content vibe signals / ${nickSaraevVibeCodingProof?.vibeOpportunity?.operatorPlaybook?.supportedPillarCount || 0} playbook pillars / provenance-only matched=${nickSaraevVibeCodingProof?.provenanceOnlyMatchedCandidateCount || 0} / top=${nickSaraevVibeCodingProof?.vibeLensTopTitle || 'missing'}`,
   )
   addCheck(checks, jsSource.includes('YouTube Creators') && jsSource.includes('Creator Source Stack') && jsSource.includes('Creator Newsletters') && jsSource.includes('Skool / Free Communities') && jsSource.includes('Paid Courses / Training Platforms') && jsSource.includes('GitHub / Repos') && jsSource.includes('Gmail / Missive / Slack') && jsSource.includes('Meetings / Transcripts') && jsSource.includes("label: 'Visual evidence'") && jsSource.includes("label: 'Links to review'") && !jsSource.includes("name: 'Video Artifacts'") && !jsSource.includes("name: 'Dev Director'") && !jsSource.includes("name: 'God Mode Eyes'"), 'source cards are actual source inputs and evidence is separate output', 'sources: YouTube/source-stack/newsletters/free Skool/paid courses-training/GitHub/internal/meetings; evidence cards carry output counts')
   addCheck(checks, moduleSource.includes('sourceValueGrader') && routeSource.includes('BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID'), 'Dev Hub API exposes source-value grader data to avoid hardcoded creator cards', BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID)
@@ -489,6 +610,42 @@ async function main() {
     `${payload?.counts?.apiFullWatchVideos || 0} accepted API videos / mark row ${markCatchupRow?.videoAudioVisualWatchedCount || 0} represented`,
   )
   addCheck(checks, payload?.director?.sourceRoute?.includes(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID) && list(payload?.director?.recommendedBuildNow).length >= 1, 'Dev Intelligence Director recommendations are exposed to Dev Hub', `${list(payload?.director?.recommendedBuildNow).length} recommendations`)
+  addCheck(
+    checks,
+    moduleSource.includes('buildRankingProcessExplainer') &&
+      payload?.rankingProcess?.status === 'ready' &&
+      payload?.rankingProcess?.creatorRanking?.title === 'Creator ranking' &&
+      payload?.rankingProcess?.ideaRanking?.title === 'Idea ranking' &&
+      list(payload?.rankingProcess?.notScoredAsJudgment).includes('sourceTitle and sourceVideoTitle') &&
+      list(payload?.rankingProcess?.notScoredAsJudgment).includes('source URL, host, or link text by itself') &&
+      payload?.rankingProcess?.proofPosture?.sourceTitleDogfood?.includes('Provenance-only') &&
+      payload?.rankingProcess?.externalWrites === false &&
+      payload?.rankingProcess?.noAutoBacklogPromotion === true,
+    'live Dev Hub exposes the creator/idea ranking process and no-hidden-metadata guardrails',
+    `${payload?.rankingProcess?.currentCounts?.gradedCreators || 0} creators / ${payload?.rankingProcess?.currentCounts?.rankedIdeas || 0} ideas / ${list(payload?.rankingProcess?.notScoredAsJudgment).length} non-judgment fields`,
+  )
+  addCheck(
+    checks,
+    payload?.devOpportunityVisionLens?.status === 'ready' &&
+      list(payload?.devOpportunityVisionLens?.opportunities).length >= 5 &&
+      list(payload?.devOpportunityVisionLens?.opportunities).some(item => item.title === 'Browser Agent That Can Work') &&
+      list(payload?.devOpportunityVisionLens?.opportunities).some(item => item.title === 'Extractor That Can Go Anywhere') &&
+      list(payload?.devOpportunityVisionLens?.opportunities).some(item => item.title === 'Vibe Coding System For Steve' && Number(item.candidateCount || 0) >= 1 && item.operatorPlaybook?.status === 'ready_for_operator_review') &&
+      payload?.devOpportunityVisionLens?.priorityLensRouter?.status === 'ready' &&
+      payload?.devOpportunityVisionLens?.priorityLensRouter?.defaultLensId === 'current-sprint' &&
+      list(payload?.devOpportunityVisionLens?.priorityLensRouter?.lenses).length >= 5 &&
+      list(payload?.devOpportunityVisionLens?.priorityLensRouter?.lenses).some(item => item.lensId === 'marketing-recruiting') &&
+      list(payload?.devOpportunityVisionLens?.priorityLensRouter?.lenses).some(item => item.lensId === 'vibe-coding-operator') &&
+      list(payload?.devOpportunityVisionLens?.priorityLensRouter?.lenses).every(item => list(item.opportunities).length >= 1) &&
+      payload?.devOpportunityVisionLens?.priorityLensRouter?.directorTop3ScoperReview?.status === 'ready' &&
+      list(payload?.devOpportunityVisionLens?.priorityLensRouter?.directorTop3ScoperReview?.candidates).length === 3 &&
+      list(payload?.devOpportunityVisionLens?.priorityLensRouter?.directorTop3ScoperReview?.candidates).every(item => text(item.whySelectedForScoper) && text(item.whyThisBeatsAlternatives) && item.scoperPromotion?.status === 'draft_candidate_no_auto_promotion') &&
+      list(payload?.devOpportunityVisionLens?.opportunities).every(item => item.noAutoBacklogPromotion === true) &&
+      payload?.devOpportunityVisionLens?.priorityLensRouter?.noAutoScoperPromotion === true &&
+      payload?.devOpportunityVisionLens?.externalWrites === false,
+    'live Dev Hub exposes selectable priority lens rankings from raw ranked ideas without promoting anything',
+    `${list(payload?.devOpportunityVisionLens?.opportunities).length} opportunities / ${list(payload?.devOpportunityVisionLens?.priorityLensRouter?.lenses).length} lenses / ${payload?.devOpportunityVisionLens?.matchedCandidateCount || 0} matched signals`,
+  )
   addCheck(checks, list(payload?.sourceValueGrader?.sourceGrades).length >= 3 && list(payload?.dailyWatch?.creators).length >= 3, 'live source cards can be built from multiple graded creators', `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.dailyWatch?.creators).length} watched`)
   const youtubeCreatorLeaderboardCount = list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length
   const youtubeActiveCreatorCount = Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0)
@@ -662,17 +819,59 @@ async function main() {
   )
   const sourceGodModeHandoffQueue = payload?.youtubeSourceIntelligence?.sourceGodModeHandoffQueue || {}
   const sourceGodModeRows = list(sourceGodModeHandoffQueue.rows)
+  const sourceGodModeRunnableCount = Number(sourceGodModeHandoffQueue.counts?.runnableRows || 0)
+  const sourceGodModeCleared = sourceGodModeRunnableCount === 0 &&
+    Number(sourceGodModeHandoffQueue.counts?.publicFreeRuntimeRows || 0) === 0 &&
+    Number(sourceGodModeHandoffQueue.counts?.freeCommunityRows || 0) === 0 &&
+    Number(sourceGodModeHandoffQueue.counts?.rowsWithRunCommand || 0) === 0 &&
+    Number(sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0) > 0
+  const sourceGodModeHasRunnableWork = sourceGodModeRunnableCount > 0 &&
+    sourceGodModeRows.some(row => row.runner === 'source:god-mode' && row.runnable === true) &&
+    sourceGodModeRows.filter(row => row.runnable === true).every(row => text(row.runCommand))
+  const freeCommunitiesParkedForSessionBroker = sourceGodModeRows
+    .filter(row => row.bucketId === 'free-communities')
+    .every(row => [
+      'already_run_source_evidence_saved',
+      'blocked_free_community_session_broker_required',
+      'blocked_non_skool_community_bridge',
+      'blocked_free_community_form_auth_or_action_surface',
+      'blocked_short_link_expansion_needed',
+    ].includes(row.status))
+  const freeCommunitySessionBrokerDecisionsVisible = sourceGodModeRows
+    .filter(row => row.bucketId === 'free-communities')
+    .every(row =>
+      row.sourceSessionBroker?.account === 'ai@bensoncrew.ca' &&
+      row.sourceSessionBroker?.sourceFamily === 'skool_free_community' &&
+      row.sourceSessionBroker?.rawSecretPrinted === false
+    )
   addCheck(
     checks,
     sourceGodModeHandoffQueue.status === 'ready' &&
-      Number(sourceGodModeHandoffQueue.counts?.runnableRows || 0) > 0 &&
       Number(sourceGodModeHandoffQueue.counts?.parkedRows || 0) > 0 &&
-      sourceGodModeRows.some(row => row.runner === 'source:god-mode' && row.runnable === true) &&
-      sourceGodModeRows.some(row => row.runner === 'skool:free-god-mode' && row.runnable === true) &&
       sourceGodModeRows.some(row => row.requiresAuth === true && row.runnable === false) &&
-      sourceGodModeRows.filter(row => row.runnable === true).every(row => text(row.runCommand)),
-    'YouTube handoff exposes runnable source-browser rows while paid/auth stays parked',
-    `ready=${sourceGodModeHandoffQueue.counts?.runnableRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
+      freeCommunitiesParkedForSessionBroker &&
+      freeCommunitySessionBrokerDecisionsVisible &&
+      (sourceGodModeCleared || sourceGodModeHasRunnableWork),
+    'YouTube handoff exposes source-browser run state honestly while paid/auth and session-bound communities stay parked',
+    `ready=${sourceGodModeRunnableCount}; alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
+  )
+  addCheck(
+    checks,
+    Number(sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0) > 0 &&
+      sourceGodModeRows.some(row => row.status === 'already_run_source_evidence_saved' && row.runnable === false),
+    'YouTube handoff readback marks source-browser rows already persisted',
+    `alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; total=${sourceGodModeHandoffQueue.counts?.totalRows || 0}`,
+  )
+  addCheck(
+    checks,
+    sourceGodModeHandoffQueue.devLanePriorityPreview?.status === 'priority_preview' &&
+      sourceGodModeHandoffQueue.devLanePriorityPreview?.plainEnglish?.includes('Priority only') &&
+      sourceGodModeRows.some(row => row.devLanePriority?.priorityLabel) &&
+      sourceGodModeRows.every(row => !row.devLaneCleanup) &&
+      jsSource.includes('renderYoutubeDevPriorityPreview') &&
+      !jsSource.includes('C/D source suppression preview'),
+    'YouTube source handoff ranks links by creator source strength instead of suppressing C/D evidence',
+    `${sourceGodModeHandoffQueue.devLanePriorityPreview?.prioritizedRows || 0} prioritized / ${sourceGodModeHandoffQueue.devLanePriorityPreview?.reviewRows || 0} review`,
   )
   addCheck(checks, list(payload?.approvalReviewQueue).length >= 1 && list(payload?.approvalReviewQueue).every(item => /^https?:\/\//i.test(text(item.url)) && item.decisionNeeded), 'live snapshot exposes actionable link review rows', `${list(payload?.approvalReviewQueue).length} approval rows`)
   addCheck(checks, list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'public-builder-communities') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'github-public-repos') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'creator-newsletters') && list(payload?.sourceCoverage?.rows).some(row => row.familyId === 'skool-free-communities'), 'source coverage includes planned GitHub, newsletters, free Skool, and public builder communities', `${list(payload?.sourceCoverage?.rows).length} families`)

@@ -59,10 +59,15 @@ import {
   YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_ARTIFACT_ID,
   YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_PREFIX,
 } from '../lib/youtube-deep-visual-review-lane.js'
+import {
+  BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
+} from '../lib/build-intel-source-value-grader.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const ACTOR = 'dev-team-intelligence-director-v0'
+const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
+const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -75,6 +80,10 @@ function parseArgs(argv = process.argv.slice(2)) {
 
 function list(value) {
   return Array.isArray(value) ? value : []
+}
+
+function text(value) {
+  return String(value || '').trim()
 }
 
 function addCheck(checks, ok, check, detail = '') {
@@ -167,6 +176,7 @@ async function listLatestYoutubeFullWatchReportIds({ limit = 500 } = {}) {
 
 async function loadInputBundles() {
   const bundles = []
+  const sourceValueGraderBundle = await getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 0, hitLimit: 0 })
   const latest20ReportIds = await listLatestYoutubeFullWatchReportIds({ limit: 500 })
   const inputIds = Array.from(new Set([
     ...DEV_TEAM_INTELLIGENCE_DIRECTOR_INPUT_REPORT_IDS,
@@ -184,7 +194,7 @@ async function loadInputBundles() {
   if (devSourceSlice.ok && devSourceSlice.devCandidates.length) {
     bundles.push(buildDevSourceSliceDirectorInputBundle(devSourceSlice))
   }
-  return { reportBundles: bundles, devSourceSlice, sharedReportIds, latest20ReportIds }
+  return { reportBundles: bundles, devSourceSlice, sharedReportIds, latest20ReportIds, sourceValueGraderBundle }
 }
 
 async function persistDirector(snapshot = {}, options = {}) {
@@ -273,7 +283,7 @@ async function main() {
       loadInputBundles(),
       readRepoFile(DEV_TEAM_INTELLIGENCE_DIRECTOR_SCRIPT_PATH),
     ])
-    const { reportBundles, devSourceSlice, sharedReportIds, latest20ReportIds } = inputBundleResult
+    const { reportBundles, devSourceSlice, sharedReportIds, latest20ReportIds, sourceValueGraderBundle } = inputBundleResult
 
     const planReview = evaluatePlanCriticPlan({
       planText,
@@ -290,6 +300,7 @@ async function main() {
       systemStrategyText,
       businessStrategyText,
       currentPlanText,
+      sourceValueGrader: sourceValueGraderBundle.report,
     })
     const writeRequested = args.apply || args.closeCard
 
@@ -308,6 +319,10 @@ async function main() {
     const liveActiveCardId = currentSprint?.sprint?.activeBlockerCardId || null
     const deepVisualReportIds = latest20ReportIds.filter(reportArtifactId => isYoutubeFullWatchReportId(reportArtifactId) &&
       String(reportArtifactId || '').startsWith(YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_PREFIX))
+    const nickSaraevSourceTitleCandidates = list(snapshot.rankedCandidates)
+      .filter(candidate => candidate.sourceReportArtifactId === NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID &&
+        candidate.sourceVideoId === NICK_SARAEV_VIBE_CODING_VIDEO_ID &&
+        text(candidate.sourceTitle || candidate.sourceVideoTitle))
 
     addCheck(checks, approvalValidation.ok && approvalValidation.mode === 'v2', 'approval validates at 9.8+', approvalValidation.failures?.map(failure => failure.check).join(', ') || DEV_TEAM_INTELLIGENCE_DIRECTOR_APPROVAL_PATH)
     addCheck(checks, planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic passes Director plan', buildPlanCriticResultSummary(planReview))
@@ -335,6 +350,9 @@ async function main() {
     addCheck(checks, deepVisualReportIds.length >= 1, 'Director discovers persisted YouTube deep visual review reports', deepVisualReportIds.join(', ') || 'missing')
     addCheck(checks, snapshot.sourceCoverage.some(source => String(source.reportArtifactId || '').startsWith(YOUTUBE_DEEP_VISUAL_REVIEW_REPORT_PREFIX)), 'Director input includes YouTube deep visual review batches', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
     addCheck(checks, snapshot.sourceCoverage.some(source => isYoutubeFullWatchReportId(source.reportArtifactId)), 'Director input includes YouTube full-watch batches', snapshot.sourceCoverage.map(source => source.reportArtifactId).join(', '))
+    addCheck(checks, nickSaraevSourceTitleCandidates.length >= 20, 'Director preserves source course title as provenance on ranked candidates', `${nickSaraevSourceTitleCandidates.length} Nick Saraev ranked candidates with source-title provenance`)
+    addCheck(checks, sourceValueGraderBundle.report?.reportArtifactId === BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, 'Director reads Dev creator source grades before ranking ideas', sourceValueGraderBundle.report?.reportArtifactId || 'missing')
+    addCheck(checks, topCandidates.every(candidate => !['C', 'D'].includes(String(candidate.sourceValue?.devBuildGrade || '').toUpperCase())), 'top ideas are not sourced only from C/D Dev creators', topCandidates.map(candidate => `${candidate.rank}:${candidate.sourceValue?.devBuildGrade || 'ungraded'}:${candidate.title}`).join(' | '))
     addCheck(checks, !writeRequested || persistedReport?.reportArtifactId === DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, 'persisted Director report reads back', persistedReport?.reportArtifactId || 'missing')
     addCheck(checks, !writeRequested || persistedAtoms.length >= Math.min(5, topCandidates.length), 'persisted Director atoms read back', `${persistedAtoms.length}`)
     addCheck(checks, !writeRequested || persistedHits.length >= Math.min(5, topCandidates.length), 'persisted Director evidence hits read back', `${persistedHits.length}`)
@@ -354,9 +372,11 @@ async function main() {
         rankedCandidates: snapshot.rankedCandidates.length,
         topCandidates: topCandidates.map(candidate => ({
           rank: candidate.rank,
-          title: candidate.title,
-          missionScore: candidate.missionScore.total,
-          sourceReportArtifactId: candidate.sourceReportArtifactId,
+            title: candidate.title,
+            missionScore: candidate.missionScore.total,
+            sourceDevBuildGrade: candidate.sourceValue?.devBuildGrade || 'ungraded',
+            sourceQualityScore: candidate.missionScore.sourceQualityScore,
+            sourceReportArtifactId: candidate.sourceReportArtifactId,
           sourceVideoId: candidate.sourceVideoId,
           nextStep: candidate.recommendedNextStep,
         })),

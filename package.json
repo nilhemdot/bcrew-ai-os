@@ -607,6 +607,7 @@
     "process:source-god-mode-extractor-runtime-check": "node --env-file-if-exists=.env scripts/process-source-god-mode-extractor-runtime-check.mjs",
     "process:source-god-mode-youtube-handoff-check": "node --env-file-if-exists=.env scripts/process-source-god-mode-youtube-handoff-check.mjs",
     "source:god-mode": "node --env-file-if-exists=.env scripts/run-source-god-mode-extractor.mjs",
+    "source:youtube-handoff": "node --env-file-if-exists=.env scripts/run-source-god-mode-youtube-handoff.mjs",
     "source:browser-agent": "node --env-file-if-exists=.env scripts/run-source-browser-agent.mjs",
     "source:agentic-browser": "node --env-file-if-exists=.env scripts/run-source-agentic-browser.mjs",
     "process:skool-free-community-god-mode-runner-check": "node --env-file-if-exists=.env scripts/process-skool-free-community-god-mode-runner-check.mjs",

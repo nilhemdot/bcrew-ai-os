@@ -112,6 +112,7 @@ const state = {
   snapshot: null,
   sources: [],
   selectedSourceId: null,
+  selectedPriorityLensId: 'current-sprint',
   dataPoolLoadInFlight: false,
   lastDataPoolRefreshAt: null,
 }
@@ -127,6 +128,7 @@ const els = {
   directorPanel: document.getElementById('director-panel'),
   directorHeadStats: document.getElementById('director-head-stats'),
   youtubeSystem: document.getElementById('youtube-system'),
+  rankingsSystem: document.getElementById('rankings-system'),
 }
 
 function list(value) {
@@ -641,9 +643,32 @@ function renderYoutubeHandoff(bucket = {}) {
   `
 }
 
+function renderSourceSessionBrokerDecision(row = {}) {
+  const broker = row.sourceSessionBroker || {}
+  if (!broker.status) return ''
+  const brokerCopy = [
+    broker.account ? `account ${broker.account}` : '',
+    broker.sourceFamily ? broker.sourceFamily : '',
+    broker.reason ? broker.reason : '',
+  ].filter(Boolean).join(' · ')
+  return `
+    <div class="yt-source-session">
+      <span>Session broker</span>
+      <strong>${escapeHtml(statusCopy(broker.status))}</strong>
+      <small>${escapeHtml(brokerCopy)}</small>
+      ${broker.nextAction ? `<p>${escapeHtml(broker.nextAction)}</p>` : ''}
+    </div>
+  `
+}
+
 function renderYoutubeSourceHandoffRow(row = {}) {
   const tone = row.runnable ? 'live' : 'pending'
   const action = row.runnable ? row.runner || 'source worker' : row.status || 'parked'
+  const priority = row.devLanePriority || {}
+  const priorityCopy = priority.priorityLabel || ''
+  const sourceGradeCopy = list(row.sourceGrades).length
+    ? list(row.sourceGrades).slice(0, 2).map(source => `${source.creator}: ${source.devBuildGrade}`).join(' · ')
+    : ''
   return `
     <article class="yt-source-handoff-row ${escapeHtml(tone)}">
       <div>
@@ -651,8 +676,53 @@ function renderYoutubeSourceHandoffRow(row = {}) {
         <strong>${escapeHtml(action)}</strong>
       </div>
       <p>${escapeHtml(row.plainEnglish || row.url || '')}</p>
-      <small>${escapeHtml(row.host || '')}${row.sourceType ? ` · ${escapeHtml(row.sourceType)}` : ''}</small>
+      ${renderSourceSessionBrokerDecision(row)}
+      <small>${escapeHtml(row.host || '')}${row.sourceType ? ` · ${escapeHtml(row.sourceType)}` : ''}${sourceGradeCopy ? ` · ${escapeHtml(sourceGradeCopy)}` : ''}${priorityCopy ? ` · ${escapeHtml(priorityCopy)}` : ''}</small>
     </article>
+  `
+}
+
+function renderYoutubeDevPriorityPreview(preview = {}) {
+  if (!preview || !preview.status) return ''
+  const topRows = list(preview.topRows).slice(0, 8)
+  const buckets = preview.gradeBuckets || {}
+  const bucketCopy = ['S', 'A', 'B', 'C', 'D', 'UNGRADED']
+    .map(grade => `${grade}: ${compactNumber(buckets[grade] || buckets[grade.toLowerCase()] || 0)}`)
+    .join(' · ')
+  return `
+    <section class="yt-dev-priority">
+      <div class="yt-section-head">
+        <span>DEV LINK PRIORITY</span>
+        <h3>What to inspect first</h3>
+        <small>${escapeHtml(compactNumber(preview.prioritizedRows || 0))} graded rows · ${escapeHtml(compactNumber(preview.reviewRows || 0))} review rows · ${escapeHtml(bucketCopy)}</small>
+      </div>
+      <p>${escapeHtml(preview.plainEnglish || 'Priority only. Source evidence stays in Foundation.')}</p>
+      <div class="yt-dev-priority-grid">
+        <article>
+          <strong>${escapeHtml(compactNumber(buckets.S || 0))}</strong>
+          <span>S rows</span>
+        </article>
+        <article>
+          <strong>${escapeHtml(compactNumber(buckets.A || 0))}</strong>
+          <span>A rows</span>
+        </article>
+        <article>
+          <strong>${escapeHtml(compactNumber((buckets.B || 0) + (buckets.C || 0) + (buckets.D || 0)))}</strong>
+          <span>B/C/D rows kept for later</span>
+        </article>
+      </div>
+      ${topRows.length ? `
+        <div class="yt-dev-priority-samples">
+          ${topRows.map(row => `
+            <article>
+              <span>${escapeHtml(row.bestDevBuildGrade || 'ungraded')} · ${escapeHtml(row.priorityLabel || '')}</span>
+              <strong>${escapeHtml(row.host || row.url || 'link')}</strong>
+              <small>${escapeHtml(list(row.sourceGrades).map(source => `${source.creator}: ${source.devBuildGrade}`).join(' · '))}</small>
+            </article>
+          `).join('')}
+        </div>
+      ` : '<small>No graded source-link priority rows yet.</small>'}
+    </section>
   `
 }
 
@@ -675,6 +745,7 @@ function renderYoutubeSourceHandoffQueue(queue = {}) {
       <div class="yt-source-handoff-list">
         ${rows.map(renderYoutubeSourceHandoffRow).join('') || '<article class="loading-card">No source-browser queue rows returned yet.</article>'}
       </div>
+      ${renderYoutubeDevPriorityPreview(queue.devLanePriorityPreview)}
     </section>
   `
 }
@@ -1263,6 +1334,7 @@ function renderSourceLeaderboard(snapshot = {}) {
             const grade = text(source.devBuildGrade || devLane?.grade || source.overallGrade, 'Needs grade').toUpperCase()
             const score = devLane?.score == null ? '' : ` · ${compactNumber(devLane.score)} score`
             const rankCopy = source.bestDirectorRank ? `Best idea rank #${compactNumber(source.bestDirectorRank)}` : 'No Director rank yet'
+            const watchCopy = text(source.devWatchRecommendation || devLane?.watchRecommendation || source.watchRecommendation, 'watch recommendation pending')
             const whyRanked = `Why ranked: ${grade} grade; ${compactNumber(source.buildCandidates)} ideas; ${compactNumber(source.watchedVideos)} watched; ${rankCopy.toLowerCase()}.`
             return `
               <article class="leader-card ${escapeHtml(gradeTone(grade))}">
@@ -1271,6 +1343,7 @@ function renderSourceLeaderboard(snapshot = {}) {
                   <span>#${escapeHtml(compactNumber(index + 1))} · Dev build${escapeHtml(score)}</span>
                   <h3>${escapeHtml(source.creator || creatorDisplayName(snapshot, source.creatorId))}</h3>
                   <p>${escapeHtml(`${compactNumber(source.buildCandidates)} ideas · ${compactNumber(source.watchedVideos)} watched/represented videos · ${rankCopy}`)}</p>
+                  <p>${escapeHtml(`Dev action: ${statusCopy(watchCopy)}.`)}</p>
                   <p>${escapeHtml(whyRanked)}</p>
                 </div>
               </article>
@@ -1537,6 +1610,608 @@ function candidateSourceCopy(candidate = {}) {
   return 'From approved research'
 }
 
+function candidateDevSourceGrade(candidate = {}) {
+  const direct = text(candidate.sourceDevBuildGrade).toUpperCase()
+  if (direct) return direct
+  const creatorId = text(candidate.creatorId || creatorIdFromReportId(candidate.sourceReportArtifactId))
+  if (creatorId) {
+    const source = sourceGrades(state.snapshot || {}).find(item => item.creatorId === creatorId)
+    const devLane = laneScore(source)
+    return text(source?.devBuildGrade || devLane?.grade || source?.overallGrade || 'ungraded').toUpperCase()
+  }
+  return 'ungraded'
+}
+
+function safeHref(value = '') {
+  const raw = text(value)
+  if (!raw) return ''
+  try {
+    const url = new URL(raw)
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : ''
+  } catch {
+    return ''
+  }
+}
+
+function urlHost(value = '') {
+  const href = safeHref(value)
+  if (!href) return text(value)
+  try {
+    return new URL(href).hostname.replace(/^www\./, '')
+  } catch {
+    return href
+  }
+}
+
+function renderExternalLink(url = '', label = '') {
+  const href = safeHref(url)
+  if (!href) return escapeHtml(label || url || 'No link')
+  return `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(label || urlHost(href) || href)}</a>`
+}
+
+function candidateVideoRecord(candidate = {}, snapshot = state.snapshot || {}) {
+  const videoId = text(candidate.sourceVideoId)
+  if (!videoId) return null
+  return list(snapshot.dailyWatch?.researchPool).find(item => text(item.videoId) === videoId) || null
+}
+
+function candidateAssociatedLinkRows(candidate = {}, snapshot = state.snapshot || {}) {
+  const videoId = text(candidate.sourceVideoId)
+  if (!videoId) return []
+  const rows = list(snapshot.youtubeSourceIntelligence?.sourceGodModeHandoffQueue?.rows)
+    .filter(row => text(row.sourceVideoId) === videoId || list(row.sourceVideoIds).map(text).includes(videoId))
+  return uniqueBy(rows, row => row.rowId || row.url)
+}
+
+function candidateApprovalRows(candidate = {}, snapshot = state.snapshot || {}) {
+  const videoId = text(candidate.sourceVideoId)
+  if (!videoId) return []
+  const rows = list(snapshot.director?.report?.actionRequiredItems)
+    .filter(row => text(row.sourceVideoId) === videoId || text(row.sourceUrl).includes(videoId))
+  return uniqueBy(rows, row => row.url || `${row.host}:${row.blocker}`)
+}
+
+function candidateSourceLinkRows(candidate = {}, snapshot = state.snapshot || {}) {
+  const handoffRows = candidateAssociatedLinkRows(candidate, snapshot).map(row => ({
+    url: row.url,
+    host: row.host || urlHost(row.url),
+    label: row.label || statusCopy(row.bucketId || row.sourceType),
+    status: row.devLanePriority?.priorityLabel || statusCopy(row.status || row.disposition),
+    reason: row.plainEnglish || row.devLanePriority?.reason || '',
+    bucketId: row.bucketId,
+  }))
+  const approvalRows = candidateApprovalRows(candidate, snapshot).map(row => ({
+    url: row.url,
+    host: row.host || urlHost(row.url),
+    label: statusCopy(row.type || 'approval required'),
+    status: row.allowedNextDecision || statusCopy(row.blocker),
+    reason: row.blocker || '',
+    bucketId: 'approval',
+  }))
+  return uniqueBy([...handoffRows, ...approvalRows], row => row.url).slice(0, 6)
+}
+
+function topCandidateLanes(candidate = {}) {
+  return list(candidate.missionScoreBreakdown?.laneScores)
+    .filter(lane => Number(lane.score || 0) > 0)
+    .sort((left, right) => Number(right.score || 0) - Number(left.score || 0))
+    .slice(0, 3)
+}
+
+function candidateRankReason(candidate = {}) {
+  const grade = candidateDevSourceGrade(candidate)
+  const lanes = topCandidateLanes(candidate).map(lane => lane.label || lane.id)
+  const parts = []
+  if (candidate.sourceTrustLabel === 'api_full_watch') parts.push('full video/audio/visual watch')
+  if (candidate.scopeReadiness?.status === 'ready_for_scoper') parts.push('ready for Scoper')
+  if (grade && grade !== 'ungraded') parts.push(`${grade} Dev source`)
+  if (lanes.length) parts.push(`matches ${lanes.join(', ')}`)
+  return parts.length ? parts.join(' · ') : 'Ranked by mission fit, evidence, trust, and source strength.'
+}
+
+function renderCandidateScoreBreakdown(candidate = {}) {
+  const breakdown = candidate.missionScoreBreakdown || {}
+  const lanes = topCandidateLanes(candidate)
+  const chips = [
+    ['Mission', candidate.missionScore],
+    ['Evidence', breakdown.evidenceScore],
+    ['Trust', breakdown.sourceTrustScore ?? candidate.sourceTrustScore],
+    ['Creator', breakdown.sourceQualityScore ?? candidate.sourceQualityScore],
+    ['Confidence', breakdown.confidenceScore],
+  ].filter(([, value]) => value !== undefined && value !== null && text(value) !== '')
+  return `
+    <div class="ranking-score-grid" aria-label="Idea score breakdown">
+      ${chips.map(([label, value]) => `
+        <span><b>${escapeHtml(label)}</b>${escapeHtml(compactNumber(value || 0))}</span>
+      `).join('')}
+    </div>
+    ${lanes.length ? `
+      <div class="ranking-lanes">
+        ${lanes.map(lane => `<span>${escapeHtml(lane.label || lane.id)} ${escapeHtml(compactNumber(lane.score || 0))}</span>`).join('')}
+      </div>
+    ` : ''}
+  `
+}
+
+function renderCandidateEvidence(candidate = {}) {
+  const video = candidateVideoRecord(candidate)
+  const videoTitle = video?.title || candidate.sourceVideoId || 'Source video'
+  const videoUrl = candidate.sourceUrl || video?.url || ''
+  const timestamps = list(candidate.evidenceTimestamps).slice(0, 4)
+  const refs = list(candidate.evidenceRefs).slice(0, 3)
+  const posture = candidate.sourceTrustEvidencePosture || candidate.scopeReadiness?.evidencePosture || statusCopy(candidate.sourceTrustLabel)
+  return `
+    <div class="ranking-evidence">
+      <div>
+        <b>Source video</b>
+        <span>${videoUrl ? renderExternalLink(videoUrl, videoTitle) : escapeHtml(videoTitle)}</span>
+      </div>
+      <div>
+        <b>Evidence posture</b>
+        <span>${escapeHtml(posture || 'Evidence pointer present; deeper details need review.')}</span>
+      </div>
+      <div>
+        <b>Report</b>
+        <span>${escapeHtml(candidate.sourceReportTitle || candidate.sourceReportArtifactId || 'No report attached')}</span>
+      </div>
+      <div>
+        <b>Visual details</b>
+        <span>${timestamps.length ? escapeHtml(timestamps.join(' · ')) : 'No timestamp list exposed on this card yet.'}</span>
+      </div>
+      ${refs.length ? `
+        <div>
+          <b>Evidence refs</b>
+          <span>${escapeHtml(refs.join(' · '))}</span>
+        </div>
+      ` : ''}
+    </div>
+  `
+}
+
+function renderCandidateSourceLinks(candidate = {}) {
+  const rows = candidateSourceLinkRows(candidate)
+  if (!rows.length) {
+    return `
+      <div class="ranking-links empty">
+        <b>Attached links/resources</b>
+        <span>No repo/resource/community/product links are attached to this idea yet.</span>
+      </div>
+    `
+  }
+  return `
+    <div class="ranking-links">
+      <b>Attached links/resources</b>
+      <div>
+        ${rows.map(row => `
+          <a href="${escapeHtml(safeHref(row.url) || '#')}" target="_blank" rel="noreferrer">
+            <span>${escapeHtml(row.host || urlHost(row.url) || 'resource')}</span>
+            <small>${escapeHtml(row.label)} · ${escapeHtml(row.status)}</small>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `
+}
+
+function renderOpportunityLensScores(opportunity = {}) {
+  const lenses = list(opportunity.lensScores).slice(0, 5)
+  if (!lenses.length) return ''
+  return `
+    <div class="opportunity-lenses">
+      ${lenses.map(lens => `
+        <span><b>${escapeHtml(lens.label || lens.lensId)}</b>${escapeHtml(compactNumber(lens.score || 0))}</span>
+      `).join('')}
+    </div>
+  `
+}
+
+function renderOpportunitySupport(opportunity = {}) {
+  const support = opportunity.support || {}
+  const creators = list(support.creators).slice(0, 5)
+  const videos = list(support.videos).slice(0, 4)
+  const links = list(support.links).slice(0, 4)
+  return `
+    <div class="opportunity-support">
+      <div>
+        <b>Support</b>
+        <span>${escapeHtml(opportunity.supportSummary || 'No support summary')}</span>
+      </div>
+      <div>
+        <b>Creators</b>
+        <span>${creators.length ? escapeHtml(creators.map(item => item.creator || item.creatorId).join(' · ')) : 'No creator support exposed yet'}</span>
+      </div>
+      <div>
+        <b>Videos</b>
+        <span>${videos.length ? videos.map(video => renderExternalLink(video.url, video.creator ? `${video.creator}: ${video.videoId}` : video.videoId)).join(' · ') : 'No video links exposed yet'}</span>
+      </div>
+      <div>
+        <b>Links/resources</b>
+        <span>${links.length ? links.map(link => renderExternalLink(link.url, link.host || link.label)).join(' · ') : 'No attached links/resources yet'}</span>
+      </div>
+    </div>
+  `
+}
+
+function renderOpportunitySignal(signal = {}) {
+  return `
+    <li>
+      <strong>${escapeHtml(signal.title || 'Idea signal')}</strong>
+      <span>${escapeHtml(signal.creator || 'Unknown source')}${signal.missionScore ? ` · score ${escapeHtml(compactNumber(signal.missionScore))}` : ''}</span>
+    </li>
+  `
+}
+
+function renderOperatorPlaybook(opportunity = {}) {
+  const playbook = opportunity.operatorPlaybook || null
+  if (!playbook) return ''
+  const pillars = list(playbook.pillars)
+  return `
+    <div class="operator-playbook">
+      <div class="operator-playbook-head">
+        <b>${escapeHtml(playbook.title || 'Operator playbook')}</b>
+        <span>${escapeHtml(playbook.plainEnglish || '')}</span>
+      </div>
+      <div class="operator-playbook-grid">
+        ${pillars.map(pillar => `
+          <div class="operator-playbook-pillar">
+            <b>${escapeHtml(pillar.label || pillar.id)}</b>
+            <span>${escapeHtml(pillar.operatorRule || '')}</span>
+            <small>${escapeHtml(compactNumber(list(pillar.supportingSignals).length))} source signals · ${escapeHtml(pillar.status || 'needs evidence')}</small>
+          </div>
+        `).join('')}
+      </div>
+      <div class="operator-playbook-rules">
+        <b>Codex rules to review</b>
+        <ul>${list(playbook.codexRules).map(rule => `<li>${escapeHtml(rule)}</li>`).join('')}</ul>
+      </div>
+      <p><b>Next review:</b> ${escapeHtml(playbook.nextReview || 'Review before doctrine.')}</p>
+    </div>
+  `
+}
+
+function renderVisionOpportunity(opportunity = {}) {
+  const rank = opportunity.priorityRank || opportunity.rank || 0
+  const score = opportunity.priorityScore || opportunity.score || 0
+  const recommendation = opportunity.scoperRecommendation || {}
+  return `
+    <article class="vision-opportunity">
+      <div class="vision-rank">#${escapeHtml(compactNumber(rank))}</div>
+      <div class="vision-body">
+        <div class="ranking-meta">
+          <span>score ${escapeHtml(compactNumber(score))}</span>
+          <span>${escapeHtml(opportunity.selectedPriorityLensLabel || opportunity.strongestLens?.label || 'Vision lens')}</span>
+          <span>${escapeHtml(compactNumber(opportunity.candidateCount || 0))} signals</span>
+          ${recommendation.label ? `<span>${escapeHtml(recommendation.label)}</span>` : ''}
+        </div>
+        <h3>${escapeHtml(opportunity.title || 'Opportunity')}</h3>
+        <p>${escapeHtml(opportunity.whyForAios || opportunity.plainEnglish || '')}</p>
+        ${opportunity.priorityReason ? `<p><b>Why this lens:</b> ${escapeHtml(opportunity.priorityReason)}</p>` : ''}
+        <p><b>Next useful move:</b> ${escapeHtml(opportunity.nextMove || 'Review before Scoper.')}</p>
+        ${recommendation.plainEnglish ? `<p><b>Promotion boundary:</b> ${escapeHtml(recommendation.plainEnglish)}</p>` : ''}
+        ${renderOpportunityLensScores(opportunity)}
+        ${renderOperatorPlaybook(opportunity)}
+        ${renderOpportunitySupport(opportunity)}
+        <div class="opportunity-signal-list">
+          <b>Strongest idea signals</b>
+          <ul>${list(opportunity.importantSignals).slice(0, 4).map(renderOpportunitySignal).join('')}</ul>
+        </div>
+      </div>
+    </article>
+  `
+}
+
+function selectedPriorityLens(review = {}) {
+  const router = review.priorityLensRouter || {}
+  const lenses = list(router.lenses)
+  const selectedId = state.selectedPriorityLensId || router.defaultLensId || 'current-sprint'
+  return lenses.find(lens => lens.lensId === selectedId) || lenses.find(lens => lens.lensId === router.defaultLensId) || lenses[0] || null
+}
+
+function renderPriorityLensRouter(review = {}) {
+  const router = review.priorityLensRouter || {}
+  const lenses = list(router.lenses)
+  if (!lenses.length) return ''
+  const selected = selectedPriorityLens(review)
+  const context = router.context || {}
+  return `
+    <div class="priority-lens-router">
+      <div class="priority-lens-copy">
+        <span>PRIORITY LENS</span>
+        <h3>${escapeHtml(selected?.label || 'Current Sprint')}</h3>
+        <p>${escapeHtml(selected?.question || router.plainEnglish || 'Choose how to rank the same source evidence.')}</p>
+      </div>
+      <div class="priority-lens-tabs" role="tablist" aria-label="Priority ranking lenses">
+        ${lenses.map(lens => `
+          <button class="priority-lens-button${lens.lensId === selected?.lensId ? ' active' : ''}" type="button" data-priority-lens="${escapeHtml(lens.lensId)}">
+            <span>${escapeHtml(lens.label)}</span>
+            <small>${escapeHtml(compactNumber(lens.opportunityCount || 0))} ranked</small>
+          </button>
+        `).join('')}
+      </div>
+      <div class="priority-context-grid">
+        <div>
+          <b>Current objective</b>
+          <span>${escapeHtml(context.currentObjective || 'Use the selected lens to choose the next move.')}</span>
+        </div>
+        <div>
+          <b>System posture</b>
+          <span>${escapeHtml(context.existingSystemPosture || 'Raw evidence stays neutral; lenses only change ranking.')}</span>
+        </div>
+        <div>
+          <b>Known gaps</b>
+          <span>${escapeHtml(list(context.knownGaps).slice(0, 3).join(' · ') || 'No live gaps exposed by this payload.')}</span>
+        </div>
+        <div>
+          <b>Who picks Scoper candidates</b>
+          <span>${escapeHtml(context.scoperOwnership?.now || 'Steve + Codex choose for now.')} ${escapeHtml(context.scoperOwnership?.later || '')}</span>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+function renderDirectorScoperCandidate(candidate = {}) {
+  const support = candidate.lensSupport || {}
+  const topLensCopy = list(support.top3LensLabels).slice(0, 5).join(' · ')
+  return `
+    <article class="director-scoper-card">
+      <div class="director-scoper-rank">#${escapeHtml(compactNumber(candidate.directorRank || 0))}</div>
+      <div>
+        <div class="ranking-meta">
+          <span>Director score ${escapeHtml(compactNumber(candidate.directorScore || 0))}</span>
+          <span>${escapeHtml(compactNumber(support.top3Count || 0))}/${escapeHtml(compactNumber(support.lensCount || 0))} lenses top 3</span>
+          <span>${escapeHtml(candidate.scoperPromotion?.label || 'Draft candidate')}</span>
+        </div>
+        <h3>${escapeHtml(candidate.title || 'Scoper candidate')}</h3>
+        <p>${escapeHtml(candidate.whySelectedForScoper || 'Needs Director explanation.')}</p>
+        <p><b>Why it got through:</b> ${escapeHtml(candidate.whyThisBeatsAlternatives || 'Needs comparison.')}</p>
+        <p><b>Lens support:</b> ${escapeHtml(topLensCopy || 'No top lens support exposed yet.')}</p>
+        <p><b>Boundary:</b> ${escapeHtml(candidate.scoperPromotion?.boundary || 'Review-only until Steve/Codex approves promotion.')}</p>
+      </div>
+    </article>
+  `
+}
+
+function renderDirectorTop3ScoperReview(review = {}) {
+  const router = review.priorityLensRouter || {}
+  const scoperReview = router.directorTop3ScoperReview || {}
+  const candidates = list(scoperReview.candidates)
+  if (!candidates.length) return ''
+  const nearMisses = list(scoperReview.nearMisses).slice(0, 3)
+  return `
+    <div class="director-scoper-review">
+      <div class="priority-lens-copy">
+        <span>DIRECTOR TOP 3</span>
+        <h3>Scoper candidates</h3>
+        <p>${escapeHtml(scoperReview.plainEnglish || 'All lenses vote before anything becomes a Scoper candidate.')}</p>
+      </div>
+      <div class="director-scoper-rule">
+        <b>Selection rule</b>
+        <span>${escapeHtml(scoperReview.selectionRule || 'Compare all lenses, dedupe overlaps, explain the why, then require Steve/Codex approval.')}</span>
+      </div>
+      <div class="director-scoper-grid">
+        ${candidates.map(renderDirectorScoperCandidate).join('')}
+      </div>
+      ${nearMisses.length ? `
+        <div class="director-near-misses">
+          <b>Near misses</b>
+          <span>${nearMisses.map(item => `${item.rank}. ${item.title} (${compactNumber(item.directorScore || 0)})`).map(escapeHtml).join(' · ')}</span>
+        </div>
+      ` : ''}
+    </div>
+  `
+}
+
+function renderVisionOpportunities(snapshot = {}) {
+  const review = snapshot.devOpportunityVisionLens || {}
+  const selected = selectedPriorityLens(review)
+  const opportunities = list(selected?.opportunities).length ? list(selected.opportunities).slice(0, 8) : list(review.opportunities).slice(0, 8)
+  return `
+    <section class="vision-opportunities">
+      <div class="ranking-head">
+        <span>VISION OPPORTUNITIES</span>
+        <h2>What this points to</h2>
+        <small>${escapeHtml(compactNumber(review.opportunityCount || opportunities.length))} opportunities from ${escapeHtml(compactNumber(review.matchedCandidateCount || 0))}/${escapeHtml(compactNumber(review.inputCandidateCount || 0))} matched idea signals · ${escapeHtml(selected?.label || 'default lens')} · review-only</small>
+      </div>
+      ${renderPriorityLensRouter(review)}
+      ${renderDirectorTop3ScoperReview(review)}
+      <div class="vision-opportunity-list">
+        ${opportunities.map(renderVisionOpportunity).join('') || '<article class="loading-card">No vision opportunities returned yet.</article>'}
+      </div>
+    </section>
+  `
+}
+
+function renderRankingIdea(candidate = {}) {
+  const grade = candidateDevSourceGrade(candidate)
+  const readiness = candidate.scopeReadiness?.label || statusCopy(candidate.buildReadiness || candidate.directorRecommendation || 'Needs Director review')
+  return `
+    <article class="ranking-idea">
+      <div class="ranking-rank">#${escapeHtml(compactNumber(candidate.rank || 0))}</div>
+      <div class="ranking-idea-body">
+        <div class="ranking-meta">
+          <span>score ${escapeHtml(compactNumber(candidate.missionScore || 0))}</span>
+          <span>source ${escapeHtml(grade)}</span>
+          <span>${escapeHtml(readiness)}</span>
+        </div>
+        <h3>${escapeHtml(candidate.title || shortCandidateTitle(candidate))}</h3>
+        <p><b>Why for AIOS:</b> ${escapeHtml(candidate.why || shortCandidateBody(candidate))}</p>
+        <p><b>Next useful move:</b> ${escapeHtml(candidate.recommendedNextStep || 'Review with Steve before Scoper promotion.')}</p>
+        <div class="ranking-rationale">
+          <b>Why ranked here</b>
+          <span>${escapeHtml(candidateRankReason(candidate))}</span>
+        </div>
+        ${renderCandidateScoreBreakdown(candidate)}
+        ${renderCandidateEvidence(candidate)}
+        ${renderCandidateSourceLinks(candidate)}
+        <small>${escapeHtml(candidateSourceCopy(candidate))}${candidate.sourceVideoId ? ` · ${escapeHtml(candidate.sourceVideoId)}` : ''}</small>
+      </div>
+    </article>
+  `
+}
+
+function renderRankingCreator(source = {}, index = 0) {
+  const devLane = laneScore(source)
+  const grade = text(source.devBuildGrade || devLane?.grade || source.overallGrade, 'ungraded').toUpperCase()
+  const rankCopy = source.bestDirectorRank ? `best idea #${compactNumber(source.bestDirectorRank)}` : 'no top idea yet'
+  const watchCopy = statusCopy(source.devWatchRecommendation || devLane?.watchRecommendation || source.watchRecommendation || '')
+  return `
+    <article class="ranking-creator">
+      <div class="creator-grade ${grade.toLowerCase()}">${escapeHtml(grade)}</div>
+      <div>
+        <strong>${escapeHtml(source.creator || creatorDisplayName(state.snapshot || {}, source.creatorId) || `Creator ${index + 1}`)}</strong>
+        <p>${escapeHtml(`${compactNumber(source.buildCandidates || 0)} ideas · ${compactNumber(source.watchedVideos || 0)} watched · ${rankCopy}`)}</p>
+        <small>${escapeHtml(watchCopy || 'Priority pending')}</small>
+      </div>
+    </article>
+  `
+}
+
+function renderRankingProcessList(items = []) {
+  return `<ul>${list(items).map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+}
+
+function renderGradeThresholds(thresholds = []) {
+  return `
+    <div class="ranking-grade-thresholds">
+      ${list(thresholds).map(item => `
+        <span><b>${escapeHtml(item.grade)}</b>${escapeHtml(item.rule)}</span>
+      `).join('')}
+    </div>
+  `
+}
+
+function renderRankingProcessVisualizer(snapshot = {}) {
+  const process = snapshot.rankingProcess || {}
+  if (!process || process.status !== 'ready') return ''
+  const creator = process.creatorRanking || {}
+  const idea = process.ideaRanking || {}
+  const proof = process.proofPosture || {}
+  const counts = process.currentCounts || {}
+  return `
+    <section class="ranking-process">
+      <div class="ranking-head">
+        <span>RANKING PROCESS</span>
+        <h2>${escapeHtml(process.title || 'How ranking works')}</h2>
+        <small>${escapeHtml(process.plainEnglish || 'Ranking rules are exposed here for audit.')}</small>
+      </div>
+      <div class="ranking-process-flow">
+        <article class="ranking-process-card">
+          <span>CREATORS</span>
+          <h3>${escapeHtml(creator.title || 'Creator ranking')}</h3>
+          <p>${escapeHtml(creator.goal || '')}</p>
+          <div class="ranking-process-columns">
+            <div>
+              <b>Inputs</b>
+              ${renderRankingProcessList(creator.inputs)}
+            </div>
+            <div>
+              <b>Score pieces</b>
+              ${renderRankingProcessList(creator.scoring)}
+            </div>
+          </div>
+          ${renderGradeThresholds(creator.gradeThresholds)}
+          <div class="ranking-process-guard">
+            <b>Guardrails</b>
+            ${renderRankingProcessList(creator.guardrails)}
+          </div>
+        </article>
+        <article class="ranking-process-card">
+          <span>IDEAS</span>
+          <h3>${escapeHtml(idea.title || 'Idea ranking')}</h3>
+          <p>${escapeHtml(idea.goal || '')}</p>
+          <div class="ranking-process-columns">
+            <div>
+              <b>Inputs</b>
+              ${renderRankingProcessList(idea.inputs)}
+            </div>
+            <div>
+              <b>Score pieces</b>
+              ${renderRankingProcessList(idea.scoring)}
+            </div>
+          </div>
+          <div class="ranking-process-guard">
+            <b>Sorting</b>
+            ${renderRankingProcessList(idea.sorting)}
+          </div>
+          <div class="ranking-process-guard">
+            <b>Guardrails</b>
+            ${renderRankingProcessList(idea.guardrails)}
+          </div>
+        </article>
+      </div>
+      <div class="ranking-audit-strip">
+        <div>
+          <b>Not allowed to judge by itself</b>
+          <span>${list(process.notScoredAsJudgment).map(escapeHtml).join(' · ')}</span>
+        </div>
+        <div>
+          <b>Dogfood proof</b>
+          <span>${escapeHtml(proof.sourceTitleDogfood || '')} ${escapeHtml(proof.ambiguousReportDogfood || '')} ${escapeHtml(proof.sourceGraderDogfood || '')}</span>
+        </div>
+        <div>
+          <b>Current readback</b>
+          <span>${escapeHtml(compactNumber(counts.gradedCreators || 0))} creators graded · ${escapeHtml(compactNumber(counts.rankedIdeas || 0))} ideas ranked · read-only</span>
+        </div>
+      </div>
+    </section>
+  `
+}
+
+function renderRankings(snapshot = {}) {
+  if (!els.rankingsSystem) return
+  const director = snapshot.director || {}
+  const rankedIdeas = list(director.rankedCandidates).length
+    ? list(director.rankedCandidates)
+    : uniqueBy([...list(director.recommendedBuildNow), ...list(director.strongNext)], candidate => candidate.title)
+  const topIdeas = rankedIdeas.slice(0, 12)
+  const topCreators = rankedDevSources(snapshot)
+  const mission = director.mission?.creatorSourceGradeInfluence?.scoring || 'Creator source grades influence Dev idea ranking; opportunity merge is the next ranking layer.'
+  els.rankingsSystem.innerHTML = `
+    <section class="rankings-grid">
+      <article class="ranking-rule">
+        <span>RANKING RULE</span>
+        <h3>Ideas rank first</h3>
+        <p>Top build ideas should come from evidence quality, implementation usefulness, mission fit, source trust, and creator/source strength. Duplicate ideas still need the canonical opportunity merge layer.</p>
+        <small>${escapeHtml(mission)}</small>
+      </article>
+      <article class="ranking-rule">
+        <span>CREATOR RULE</span>
+        <h3>Trust is lane-specific</h3>
+        <p>A creator can be S for Ops, A for Dev, and C for another lane. Weak YouTube does not delete the contributor profile; it only lowers follow-up priority for that surface.</p>
+        <small>${escapeHtml(compactNumber(sourceGrades(snapshot).length))} creators graded from current evidence</small>
+      </article>
+    </section>
+
+    ${renderRankingProcessVisualizer(snapshot)}
+
+    ${renderVisionOpportunities(snapshot)}
+
+    <section class="rankings-layout">
+      <div class="ranking-column">
+        <div class="ranking-head">
+          <span>RAW IDEA SIGNALS</span>
+          <h2>Top 12</h2>
+          <small>${escapeHtml(compactNumber(rankedIdeas.length))} raw ranked ideas · original signals preserved</small>
+        </div>
+        <div class="ranking-list">
+          ${topIdeas.map(renderRankingIdea).join('') || '<article class="loading-card">No ranked ideas returned yet.</article>'}
+        </div>
+      </div>
+      <div class="ranking-column">
+        <div class="ranking-head">
+          <span>DEV CREATOR PRIORITY</span>
+          <h2>All creators</h2>
+          <small>${escapeHtml(compactNumber(topCreators.length))} ranked highest to lowest for Dev only.</small>
+        </div>
+        <div class="ranking-list compact">
+          ${topCreators.map(renderRankingCreator).join('') || '<article class="loading-card">No creator grades returned yet.</article>'}
+        </div>
+      </div>
+    </section>
+  `
+}
+
 function renderExtractors(snapshot = {}) {
   const extractors = list(snapshot.activeExtractionLanes)
 
@@ -1742,6 +2417,7 @@ function renderSnapshot(snapshot = {}) {
   renderApprovalReview(snapshot)
   renderSourceLeaderboard(snapshot)
   renderYoutubeSourceIntelligence(snapshot)
+  renderRankings(snapshot)
   renderSources()
   renderTargets(state.selectedSourceId)
   renderDirector(snapshot)
@@ -1755,6 +2431,7 @@ function renderError(error) {
   if (els.approvalReview) els.approvalReview.innerHTML = html
   if (els.sourceLeaderboard) els.sourceLeaderboard.innerHTML = html
   if (els.youtubeSystem) els.youtubeSystem.innerHTML = html
+  if (els.rankingsSystem) els.rankingsSystem.innerHTML = html
   els.grid.innerHTML = html
   els.panel.innerHTML = html
   els.directorPanel.innerHTML = html
@@ -1885,6 +2562,7 @@ async function loadDevSessionChrome() {
 function normalizeViewName(value = '') {
   const normalized = text(value).replace(/^#/, '')
   if (normalized === 'youtube' || normalized === 'youtube-intelligence') return 'youtube'
+  if (normalized === 'rankings' || normalized === 'idea-rankings' || normalized === 'build-rankings') return 'rankings'
   return 'pool'
 }
 
@@ -1899,7 +2577,7 @@ function setDevView(viewName = 'pool', { updateHash = true } = {}) {
     button.classList.toggle('active', button.dataset.view === activeView)
   })
   if (updateHash) {
-    const hash = activeView === 'youtube' ? 'youtube-intelligence' : 'data-pool'
+    const hash = activeView === 'youtube' ? 'youtube-intelligence' : activeView === 'rankings' ? 'rankings' : 'data-pool'
     if (window.location.hash !== `#${hash}`) window.location.hash = hash
   }
 }
@@ -1920,6 +2598,13 @@ els.grid.addEventListener('click', event => {
   document.querySelectorAll('.source-card').forEach(item => item.classList.remove('active'))
   card.classList.add('active')
   renderTargets(card.dataset.source)
+})
+
+document.addEventListener('click', event => {
+  const button = event.target.closest('[data-priority-lens]')
+  if (!button) return
+  state.selectedPriorityLensId = button.dataset.priorityLens || 'current-sprint'
+  if (state.snapshot) renderRankings(state.snapshot)
 })
 
 updateTime()
