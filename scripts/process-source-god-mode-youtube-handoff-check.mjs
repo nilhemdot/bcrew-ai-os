@@ -639,11 +639,13 @@ async function main() {
   addCheck(
     checks,
     moduleSource.includes('buildSourceGodModeYoutubeHandoffQueue') &&
-      moduleSource.includes('buildSourceSessionPrepQueue') &&
+    moduleSource.includes('buildSourceSessionPrepQueue') &&
       moduleSource.includes('runSourceGodModeYoutubeHandoffBatch') &&
+      moduleSource.includes('planSourceBrowserAgentRun') &&
+      moduleSource.includes('buildSourceBrowserAgentCrawlItemInput') &&
       moduleSource.includes('runSourceGodModeExtractor') &&
       moduleSource.includes('runSkoolFreeCommunityGodMode'),
-    'handoff module owns queue building and source-specific runners',
+    'handoff module owns queue building, Source Browser Agent preflight, and source-specific runners',
     'lib/source-god-mode-youtube-handoff.js',
   )
   addCheck(
@@ -877,6 +879,35 @@ async function main() {
       parkedSkipped.length === 2,
     'batch runs only runnable public/free rows and skips parked approval-bound rows',
     `results=${results.length}; skipped=${skipped.length}; status=${batch.status}`,
+  )
+  const persistedItemWrites = persistenceWrites.filter(write => write.type === 'item')
+  addCheck(
+    checks,
+    results.length === 5 &&
+      results.every(result =>
+        result.sourceBrowserAgentReadbackVersion &&
+        result.sourceBrowserAgentPlan?.agentId === 'source-browser-agent' &&
+        result.sourceBrowserAgentPlan?.terminalState === 'completed' &&
+        result.sourceBrowserAgentPlan?.runnerCommand?.displayCommand &&
+        result.sourceStackUpdate?.surfaces?.sourceBrowserAgent === 'planned_or_ready_for_runner'
+      ) &&
+      results.some(result => result.sourceBrowserAgentPlan?.toolRoute === 'repo:deep-review') &&
+      results.some(result => result.sourceBrowserAgentPlan?.toolRoute === 'skool:free-god-mode') &&
+      results.filter(result => result.sourceBrowserAgentPlan?.toolRoute === 'source:god-mode').length >= 2,
+    'selected handoff rows pass through Source Browser Agent before source-specific runners',
+    results.map(result => `${result.bucketId}:${result.sourceBrowserAgentPlan?.toolRoute}:${result.sourceBrowserAgentPlan?.terminalState}`).join(', '),
+  )
+  addCheck(
+    checks,
+    persistedItemWrites.length === results.length &&
+      persistedItemWrites.every(write =>
+        write.input?.metadata?.sourceBrowserAgentPlan?.agentId === 'source-browser-agent' &&
+        write.input?.metadata?.sourceBrowserAgentPlan?.terminalState === 'completed' &&
+        write.input?.metadata?.sourceStackUpdate?.surfaces?.sourceBrowserAgent === 'planned_or_ready_for_runner' &&
+        write.input?.metadata?.sideEffects?.externalWrites === false
+      ),
+    'persisted source handoff rows carry Source Browser Agent readback metadata',
+    persistedItemWrites.map(write => `${write.input?.metadata?.bucketId}:${write.input?.metadata?.sourceBrowserAgentPlan?.toolRoute}`).join(', '),
   )
   addCheck(
     checks,

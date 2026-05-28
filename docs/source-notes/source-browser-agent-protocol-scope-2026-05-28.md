@@ -87,6 +87,8 @@ This slice does not claim full live source extraction. It creates the governing 
 
 The second slice makes the harness readback-ready. Any plan can now be serialized into the same `source_crawl_items`-style record used by the Dev source-browser summary, including bucket, route, terminal state, blocker, auth-needed, side-effect, and source-stack metadata. `npm run source:browser-agent -- --url=<exact-source-url> --sourceType=<source-type> --crawlItem --json` prints that handoff shape for inspection, and the focused proof verifies that public, repo, newsletter, free-community, paid/auth, and failed-closed states render without unsafe side effects.
 
+The third slice wires the agent into the real YouTube source handoff path. Selected runnable YouTube-discovered source rows now pass through Source Browser Agent preflight before `source:god-mode`, `repo:deep-review`, or `skool:free-god-mode` runs, and the persisted source handoff crawl items carry the agent plan, route, terminal state, source-stack surface, and side-effect truth.
+
 1. Promote Source Browser from runtime to agent harness.
    - Use `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` and `AGENT-CAPABILITY-REGISTRY-001` as the governing protocol.
    - Do not create a brand-new protocol unless a concrete missing field is found.
