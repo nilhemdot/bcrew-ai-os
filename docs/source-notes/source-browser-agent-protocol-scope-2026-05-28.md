@@ -89,6 +89,8 @@ The second slice makes the harness readback-ready. Any plan can now be serialize
 
 The third slice wires the agent into the real YouTube source handoff path. Selected runnable YouTube-discovered source rows now pass through Source Browser Agent preflight before `source:god-mode`, `repo:deep-review`, or `skool:free-god-mode` runs, and the persisted source handoff crawl items carry the agent plan, route, terminal state, source-stack surface, and side-effect truth.
 
+The public repo lane now has a quality hardening slice: `repo:deep-review` blocks GitHub/GitLab chrome paths such as pulls, projects, issues, actions, releases, settings, branches, tags, and commits before they can be followed as implementation evidence. It also prefers primary repo content and filters GitHub navigation/session snippets so repo implementation patterns come from README/docs/examples/license content instead of site chrome.
+
 1. Promote Source Browser from runtime to agent harness.
    - Use `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` and `AGENT-CAPABILITY-REGISTRY-001` as the governing protocol.
    - Do not create a brand-new protocol unless a concrete missing field is found.

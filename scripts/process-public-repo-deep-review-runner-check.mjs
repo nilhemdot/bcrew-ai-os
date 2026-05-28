@@ -55,16 +55,25 @@ async function startFixtureServer() {
     let body = ''
     if (url.pathname === '/demo/agent-runtime') {
       body = page('README - Demo Agent Runtime', `
-        <h1>Demo Agent Runtime</h1>
-        <p>Agentic browser runtime for Playwright Hands, source session broker auth, MCP tools, memory, evidence citations, and fail-closed verifier checks.</p>
-        <p>Setup docs mention npm install only as source text; the reviewer must not execute it.</p>
-        <a href="/demo/agent-runtime/blob/main/docs/architecture.md">Architecture docs</a>
-        <a href="/demo/agent-runtime/tree/main/examples">Examples</a>
-        <a href="/demo/agent-runtime/blob/main/LICENSE">License</a>
-        <a href="/demo/agent-runtime/archive/refs/heads/main.zip">Download ZIP</a>
-        <a href="https://raw.githubusercontent.com/demo/agent-runtime/main/src/index.js">Raw file</a>
-        <a href="/login">Sign in</a>
-        <a href="https://github.com/pricing">GitHub pricing chrome</a>
+        <nav>
+          <p>GitHub Spark Build and deploy intelligent apps. GitHub Copilot Write better code with AI. Actions Automate any workflow.</p>
+          <p>Resetting focus You signed in with another tab or window.</p>
+          <a href="/demo/agent-runtime/pulls">Pull requests</a>
+          <a href="/demo/agent-runtime/projects">Projects</a>
+          <a href="/demo/agent-runtime/actions">Actions</a>
+        </nav>
+        <article class="markdown-body">
+          <h1>Demo Agent Runtime</h1>
+          <p>Agentic browser runtime for Playwright Hands, source session broker auth, MCP tools, memory, evidence citations, and fail-closed verifier checks.</p>
+          <p>Setup docs mention npm install only as source text; the reviewer must not execute it.</p>
+          <a href="/demo/agent-runtime/blob/main/docs/architecture.md">Architecture docs</a>
+          <a href="/demo/agent-runtime/tree/main/examples">Examples</a>
+          <a href="/demo/agent-runtime/blob/main/LICENSE">License</a>
+          <a href="/demo/agent-runtime/archive/refs/heads/main.zip">Download ZIP</a>
+          <a href="https://raw.githubusercontent.com/demo/agent-runtime/main/src/index.js">Raw file</a>
+          <a href="/login">Sign in</a>
+          <a href="https://github.com/pricing">GitHub pricing chrome</a>
+        </article>
       `)
     } else if (url.pathname === '/demo/agent-runtime/blob/main/docs/architecture.md') {
       body = page('Architecture - Demo Agent Runtime', `
@@ -145,6 +154,7 @@ async function main() {
 
   const evaluation = evaluatePublicRepoDeepReviewReport(report)
   const packet = buildPublicRepoDeepReviewPacket(report)
+  const implementationEvidenceText = JSON.stringify(report.implementationPatterns || [])
   const blockedUnsupported = await runPublicRepoDeepReview({
     url: 'https://example.com/not-a-supported-repo',
     maxPages: 1,
@@ -199,6 +209,7 @@ async function main() {
     checks,
     blockedDecisions.includes('blocked_raw_or_archive_download') &&
       blockedDecisions.includes('blocked_auth_download_archive_or_write_path') &&
+      blockedDecisions.includes('blocked_repo_chrome_path') &&
       blockedDecisions.some(decision => /external|chrome/.test(decision)),
     'repo runner blocks raw/archive/download/auth/external/chrome links',
     blockedDecisions.join(', '),
@@ -206,10 +217,20 @@ async function main() {
   addCheck(
     checks,
     !openedPaths['/login'] &&
+      !openedPaths['/demo/agent-runtime/pulls'] &&
+      !openedPaths['/demo/agent-runtime/projects'] &&
+      !openedPaths['/demo/agent-runtime/actions'] &&
       !openedPaths['/demo/agent-runtime/archive/refs/heads/main.zip'] &&
       !openedPaths['/demo/agent-runtime/releases/download/v1/toolkit.zip'],
     'blocked auth/download/archive paths were not opened',
     JSON.stringify(openedPaths),
+  )
+  addCheck(
+    checks,
+    report.pages?.some(page => page.primaryContentUsed === true && page.chromeTextFiltered === true) &&
+      !/GitHub Spark|GitHub Copilot|Resetting focus|signed in with another tab/i.test(implementationEvidenceText),
+    'repo implementation evidence uses primary repo content instead of GitHub chrome text',
+    implementationEvidenceText.slice(0, 240),
   )
   addCheck(
     checks,
