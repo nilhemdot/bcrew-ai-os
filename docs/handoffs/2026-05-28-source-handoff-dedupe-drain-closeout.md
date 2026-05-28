@@ -187,3 +187,23 @@ Live readback after the change:
 - Source-session readiness remains honest blocked-preflight: missing `skool / ai@bensoncrew.ca`, `creator-newsletters / ai@bensoncrew.ca`, and `myicor-mcp-oauth / myicor-authorized-member`.
 
 Morning note: the safe public source expansion loop is now scheduled. If Steve authorizes sessions/credentials while awake, rerun readiness and then let the scheduled handoff drain newly runnable rows instead of manual babysitting.
+
+## 09:20 EDT Morning Wrap Check
+
+Additional audit/readiness sweep before Steve regroup:
+
+- `process:myicor-extraction-preflight-check -- --json` is not green, but it did not touch MyICOR content.
+- The useful MyICOR truth still passed inside that proof: source contract exists, connector posture is blocked, approval packet draft is complete, no paid/private auth was used, no course map/content was inspected, no screenshots/transcripts/downloads/model calls/downstream writes happened, and unsafe preflight variants are rejected.
+- The failures are process-history drift:
+  - approved plan hash no longer matches the current plan snapshot, so this needs Steve/reviewer re-approval before anyone updates approval truth;
+  - the focused proof still expects old MyICOR/Skool preflight cards to be present in the active Current Sprint even though the active sprint has rolled forward;
+  - Current Sprint overlay metadata is carrying old done-this-sprint items without Plan Critic rows.
+- Parked call: do not "fix" the approval hash unattended. That would fabricate approval. Treat this as a historical-proof repair/re-approval item, not as a source extraction blocker.
+
+Morning regroup truth:
+
+- Public YouTube catch-up is complete.
+- Safe public/free source-browser queue is drained and now scheduled daily.
+- Source-session work is honestly blocked on identity/session setup for Skool, creator newsletters, and MyICOR OAuth.
+- Full God Mode is not done until those session lanes run real proofs.
+- No paid/private/auth extraction, newsletter signup, forms, downloads, purchases, posts/comments/messages, credential mutation, or Scoper promotion was done while Steve slept.
