@@ -850,6 +850,7 @@ async function main() {
   const sourceGodModeBucketCounts = sourceGodModeHandoffQueue.bucketCounts || {}
   const sourceGodModeRunnableCount = Number(sourceGodModeHandoffQueue.counts?.runnableRows || 0)
   const sourceGodModeBrowserChallengeFallbackCount = Number(sourceGodModeHandoffQueue.counts?.browserChallengeFallbackRows || 0)
+  const sourceGodModeBrowserChallengeFallbackReview = sourceGodModeHandoffQueue.browserChallengeFallbackReview || {}
   const sourceSessionPrepQueue = sourceGodModeHandoffQueue.sourceSessionPrepQueue || {}
   const sourceRunSummary = sourceGodModeHandoffQueue.sourceRunSummary || {}
   const sourceSessionPrepRows = list(sourceSessionPrepQueue.rows)
@@ -937,6 +938,23 @@ async function main() {
     sourceGodModeBrowserChallengeFallbackCount > 0,
     'YouTube handoff readback surfaces saved browser challenges as fallback work instead of completed evidence',
     `browserChallengeFallback=${sourceGodModeBrowserChallengeFallbackCount}; alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
+  )
+  addCheck(
+    checks,
+    sourceGodModeBrowserChallengeFallbackReview.status === 'needs_source_browser_fallback' &&
+      Number(sourceGodModeBrowserChallengeFallbackReview.totalRows || 0) === sourceGodModeBrowserChallengeFallbackCount &&
+      list(sourceGodModeBrowserChallengeFallbackReview.rows).length > 0 &&
+      list(sourceGodModeBrowserChallengeFallbackReview.rows).every(row =>
+        row.runnable === false &&
+        row.parked === true &&
+        text(row.reason) &&
+        text(row.nextAction)
+      ) &&
+      list(sourceGodModeBrowserChallengeFallbackReview.topHosts).length > 0 &&
+      jsSource.includes('renderBrowserChallengeFallbackReview') &&
+      /not counted as completed source evidence/i.test(sourceGodModeBrowserChallengeFallbackReview.plainEnglish || ''),
+    'Dev Hub shows browser-challenge fallback examples and next actions instead of only a hidden count',
+    `fallback=${sourceGodModeBrowserChallengeFallbackReview.totalRows || 0}; examples=${list(sourceGodModeBrowserChallengeFallbackReview.rows).length}; hosts=${list(sourceGodModeBrowserChallengeFallbackReview.topHosts).map(row => row.host).slice(0, 4).join(', ')}`,
   )
   addCheck(
     checks,

@@ -725,6 +725,36 @@ function renderYoutubeSourceBucketCards(queue = {}) {
   `
 }
 
+function renderBrowserChallengeFallbackReview(review = {}) {
+  if (!review || !review.status || review.status === 'clear') return ''
+  const rows = list(review.rows).slice(0, 8)
+  const topHosts = list(review.topHosts).slice(0, 8)
+  const hostCopy = topHosts.map(host => `${host.host}: ${compactNumber(host.count || 0)}`).join(' · ')
+  return `
+    <section class="yt-session-prep">
+      <div class="yt-section-head">
+        <span>BROWSER FALLBACK REVIEW</span>
+        <h3>Challenge pages are not evidence</h3>
+        <small>${escapeHtml(compactNumber(review.totalRows || 0))} fallback rows${hostCopy ? ` · ${escapeHtml(hostCopy)}` : ''}</small>
+      </div>
+      <p>${escapeHtml(review.plainEnglish || '')}</p>
+      ${review.nextAction ? `<p>${escapeHtml(review.nextAction)}</p>` : ''}
+      <div class="yt-source-run-list">
+        ${rows.map(row => `
+          <article>
+            <div>
+              <span>${escapeHtml(statusCopy(row.bucketId || 'source'))}</span>
+              <strong>${escapeHtml(row.host || row.label || 'source')}</strong>
+            </div>
+            <p>${escapeHtml(row.reason || row.url || '')}</p>
+            <small>${escapeHtml([row.nextAction, row.url, row.devLanePriority?.priorityLabel].filter(Boolean).join(' · '))}</small>
+          </article>
+        `).join('') || '<article><p>No fallback examples returned.</p></article>'}
+      </div>
+    </section>
+  `
+}
+
 function renderSourceSessionPrepQueue(prep = {}) {
   if (!prep || !prep.status) return ''
   const rows = list(prep.rows).slice(0, 8)
@@ -1037,6 +1067,7 @@ function renderYoutubeSourceHandoffQueue(queue = {}) {
         <small>${escapeHtml(queueCopy)}</small>
       </div>
       ${renderYoutubeSourceBucketCards(queue)}
+      ${renderBrowserChallengeFallbackReview(queue.browserChallengeFallbackReview)}
       ${renderSourceRunSummary(queue.sourceRunSummary)}
       ${renderSourceSessionPrepQueue(queue.sourceSessionPrepQueue)}
       <div class="yt-source-handoff-list">

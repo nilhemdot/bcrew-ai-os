@@ -1159,6 +1159,21 @@ async function main() {
     'saved browser challenge pages are not counted as completed source evidence',
     JSON.stringify(savedChallengeQueue.rows.find(row => row.url === 'https://community.youreverydayai.com/') || {}),
   )
+  addCheck(
+    checks,
+    savedChallengeQueue.browserChallengeFallbackReview?.status === 'needs_source_browser_fallback' &&
+      savedChallengeQueue.browserChallengeFallbackReview?.totalRows === 1 &&
+      list(savedChallengeQueue.browserChallengeFallbackReview?.rows).some(row =>
+        row.url === 'https://community.youreverydayai.com/' &&
+        row.runnable === false &&
+        row.parked === true &&
+        text(row.reason) &&
+        /fallback|hosted\/browser-agent|source-specific/i.test(row.nextAction || '')
+      ) &&
+      /not counted as completed source evidence/i.test(savedChallengeQueue.browserChallengeFallbackReview?.plainEnglish || ''),
+    'saved browser challenge fallback rows have a visible review surface with next action',
+    JSON.stringify(savedChallengeQueue.browserChallengeFallbackReview || {}),
+  )
   const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),
     generatedAt: '2026-05-27T11:05:00.000-04:00',
