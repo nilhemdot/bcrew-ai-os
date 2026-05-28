@@ -977,6 +977,9 @@ async function main() {
       sourceRunSummary.repoReadback?.deepReviewQueue?.status === 'ready' &&
       sourceRunSummary.repoReadback?.deepReviewQueue?.policy?.includes('no_clone_install_download_import') &&
       list(sourceRunSummary.repoReadback?.deepReviewQueue?.rows).some(row => row.label && Number(row.priorityScore || 0) > 0) &&
+      sourceRunSummary.repoReadback?.implementationPackets?.status === 'ready' &&
+      sourceRunSummary.repoReadback?.implementationPackets?.policy?.includes('no_clone_install_download_import') &&
+      list(sourceRunSummary.repoReadback?.implementationPackets?.rows).some(row => row.packetId && row.completeness && list(row.reviewChecklist).length >= 4) &&
       list(sourceRunSummary.repoReadback?.topRepos).some(row => row.label && Number(row.pagesRead || 0) > 0) &&
       sourceRunSummary.repoReadback?.plainEnglish?.includes('does not clone') &&
       sourceRunSummary.fileResourceReadback?.status &&
@@ -986,11 +989,13 @@ async function main() {
       sourceRunReadbackSource.includes('buildRepoRunReadback') &&
       sourceRunReadbackSource.includes('repoReview') &&
       sourceRunReadbackSource.includes('buildRepoDeepReviewQueue') &&
+      sourceRunReadbackSource.includes('buildRepoImplementationPackets') &&
       sourceRunReadbackSource.includes('buildFileResourceReadback') &&
       jsSource.includes('renderSourceRunSummary') &&
       jsSource.includes('REPO READBACK') &&
       jsSource.includes('Repo runtime proof') &&
       jsSource.includes('REPO DEEP-REVIEW QUEUE') &&
+      jsSource.includes('REPO IMPLEMENTATION PACKETS') &&
       jsSource.includes('FILE RESOURCE CANDIDATES') &&
       cssSource.includes('.yt-source-run-summary') &&
       cssSource.includes('.yt-source-run-grid.compact') &&

@@ -817,6 +817,8 @@ function renderSourceRunSummary(summary = {}) {
   const topRepos = list(repoReadback.topRepos).slice(0, 6)
   const repoDeepReviewQueue = repoReadback.deepReviewQueue || {}
   const repoDeepReviewRows = list(repoDeepReviewQueue.rows).slice(0, 6)
+  const repoImplementationPackets = repoReadback.implementationPackets || {}
+  const repoImplementationRows = list(repoImplementationPackets.rows).slice(0, 4)
   const fileReadback = summary.fileResourceReadback || {}
   const topFiles = list(fileReadback.topCandidates).slice(0, 6)
   return `
@@ -913,6 +915,27 @@ function renderSourceRunSummary(summary = {}) {
               `).join('') || '<article><p>No repo deep-review rows returned.</p></article>'}
             </div>
             <small>${escapeHtml(repoDeepReviewQueue.nextAction || '')}</small>
+          ` : ''}
+          ${repoImplementationPackets.status === 'ready' ? `
+            <div class="yt-section-head">
+              <span>REPO IMPLEMENTATION PACKETS</span>
+              <h3>What a repo review would inspect</h3>
+              <small>${escapeHtml(compactNumber(repoImplementationPackets.readyCount || 0))} ready · ${escapeHtml(compactNumber(repoImplementationPackets.needsMoreEvidenceCount || 0))} need more evidence · ${escapeHtml(repoImplementationPackets.policy || '')}</small>
+            </div>
+            <p>${escapeHtml(repoImplementationPackets.plainEnglish || '')}</p>
+            <div class="yt-source-run-list">
+              ${repoImplementationRows.map(repo => `
+                <article>
+                  <div>
+                    <span>${escapeHtml(repo.grade || 'ungraded')} · priority ${escapeHtml(compactNumber(repo.priorityScore || 0))}</span>
+                    <strong>${escapeHtml(repo.label || 'repo')}</strong>
+                  </div>
+                  <p>${escapeHtml(list(repo.evidenceNotes).join(' · ') || repo.plainEnglish || '')}</p>
+                  <small>${escapeHtml(repo.nextAction || '')}</small>
+                </article>
+              `).join('') || '<article><p>No repo implementation packets returned.</p></article>'}
+            </div>
+            <small>${escapeHtml(repoImplementationPackets.nextAction || '')}</small>
           ` : ''}
           <div class="yt-source-run-list">
             ${topRepos.map(repo => `

@@ -69,6 +69,9 @@ Foundation/system health is green after the repair pass:
   - The Dev page now ranks which public repos should be inspected first from already-captured YouTube/source-browser evidence.
   - Ranking uses source grade, pages read, free-resource signals, implementation signals, and blockers.
   - Queue policy is explicit: read-only repo review only; no clone, install, download, import, backlog write, or raw artifact path exposure from this queue.
+- Added repo implementation review packets on top of the repo queue.
+  - The Dev page now shows what a future repo review should inspect: README/root page, docs/architecture, examples/samples, license/provenance, and implementation signals.
+  - These packets are built only from saved source-browser metadata and are review-only; they do not run GitHub, clone repos, install dependencies, import code, or create backlog cards.
 - Hardened the repo source runtime so public GitHub/GitLab/Gist rows stay inside the target repo.
   - GitHub/GitLab browser pages such as README/docs/examples are treated as repo pages, not unsafe file downloads.
   - Repo runs skip global chrome such as GitHub home, pricing, login, features, and marketing pages.
@@ -148,6 +151,7 @@ Healthy:
   - Re-run after session-broker UI proof passed.
   - Re-run after file-resource readback passed: source-browser outputs include repo and file-resource readback, 746 saved runs, 77 repos, 2,533 pages, 23,716 resource captures, 190 file-resource candidates, and no raw artifact paths returned.
   - Re-run after repo deep-review queue passed: queue status ready, policy includes no clone/install/download/import, and prioritized repo rows are visible on the Dev page.
+  - Re-run after repo implementation packets passed: packet status ready, policy includes no clone/install/download/import, review checklist is visible, and Dev Hub payload stayed under the 8 MB operator budget.
 - `npm --silent run process:source-god-mode-extractor-runtime-check -- --json`
   - Re-run after file-resource policy proof passed: file/download resources become metadata-only candidates, `downloadedFile=false`, and blocked PDF/ZIP paths were not opened.
   - Re-run after repo runtime hardening passed: synthetic GitHub repo fixture read repo root, README, docs, and examples; skipped 4 GitHub chrome links; opened 0 GitHub chrome pages; found 16 implementation signals; produced 0 hard blockers and 0 unsafe side effects.
