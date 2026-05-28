@@ -1,0 +1,904 @@
+{
+  "generatedAt": "2026-05-19T20:43:22.805Z",
+  "reportPath": "docs/handoffs/nightly-deep-audit-2026-05-19.md",
+  "jsonPath": "docs/handoffs/nightly-deep-audit-2026-05-19.json",
+  "cardId": "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
+  "closeoutKey": "nightly-deep-audit-upgrade-v1",
+  "summary": {
+    "findingCount": 13,
+    "p0": 0,
+    "p1": 6,
+    "p2": 7,
+    "p3": 0,
+    "proposedCardCount": 12,
+    "endpointsMeasured": 5,
+    "staticReportOnly": true
+  },
+  "endpointMetrics": [
+    {
+      "endpoint": "/api/foundation-hub",
+      "ok": true,
+      "status": 200,
+      "durationMs": 99.35216699999995,
+      "payloadBytes": 523042,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/source-of-truth",
+      "ok": true,
+      "status": 200,
+      "durationMs": 24.765417000000014,
+      "payloadBytes": 196036,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/source-lifecycle",
+      "ok": true,
+      "status": 200,
+      "durationMs": 362.265083,
+      "payloadBytes": 621472,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/build-log",
+      "ok": true,
+      "status": 200,
+      "durationMs": 103.61033400000002,
+      "payloadBytes": 415845,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/gstack-build-intel",
+      "ok": true,
+      "status": 200,
+      "durationMs": 27.877542000000005,
+      "payloadBytes": 31638,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "active-vs-historical-verifier-mixing",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Verifier mixes active sprint assertions with historical closeout proof",
+      "whyItMatters": "A current-sprint advancement assertion can pass from a historical closeout unless active and historical helpers are separate.",
+      "refs": [
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3073,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3097,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3103,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4143,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4348,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4429,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4493,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4502,
+          "detail": "activeSprintAtOrPast"
+        }
+      ],
+      "detector": "active versus historical helper detector",
+      "proposedCard": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+      "proposedOwner": "Foundation Verifier",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-client-current-state-monolith",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P1",
+      "type": "refactor_candidate",
+      "title": "Foundation client embeds a large current-state renderer",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "public/foundation.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-hub-route-monolith",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P1",
+      "type": "refactor_candidate",
+      "title": "Foundation Hub route builds many domains in one handler",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "server.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-foundation-ui-current-summary",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Foundation UI embeds current-state summary truth",
+      "whyItMatters": "Static UI copy can report stale health, source, or KPI counts after APIs change.",
+      "refs": [
+        {
+          "path": "scripts/process-extract-current-check.mjs",
+          "line": 363,
+          "detail": ""
+        }
+      ],
+      "detector": "currentSummary/static-live-copy detector",
+      "proposedCard": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+      "proposedOwner": "Foundation UI",
+      "falsePositiveNote": "Static maturity explainers are acceptable; live checkpoint wording is not.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-source-count-baseline",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Source contract count is encoded as an exact baseline",
+      "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 916,
+          "detail": ""
+        }
+      ],
+      "detector": "source-count literal detector",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "proposedOwner": "Source Lifecycle",
+      "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-source-count-baseline",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Source contract count is encoded as an exact baseline",
+      "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+      "refs": [
+        {
+          "path": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+          "line": 187,
+          "detail": ""
+        }
+      ],
+      "detector": "source-count literal detector",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "proposedOwner": "Source Lifecycle",
+      "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "admin-deal-policy-date-duplication",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Admin deal-review policy dates are duplicated across runner, job config, and UI",
+      "whyItMatters": "Policy cutoff changes require manual edits across several surfaces unless a source contract owns the dates.",
+      "refs": [
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 981,
+          "detail": "--backlog-since="
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 981,
+          "detail": "2025-06-01"
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 984,
+          "detail": "June 2025"
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 984,
+          "detail": "2026-04-01"
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 985,
+          "detail": "June 2025"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 14,
+          "detail": "DEFAULT_BACKLOG_SINCE"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 14,
+          "detail": "2025-06-01"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 16,
+          "detail": "OPS_BONUS_POLICY_EFFECTIVE_DATE"
+        }
+      ],
+      "detector": "policy-date duplication detector",
+      "proposedCard": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+      "proposedOwner": "Ops Source Truth",
+      "falsePositiveNote": "Durable policy dates are acceptable when source ID, owner, and as-of date are explicit.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "approval-threshold-raw-literal",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Plan Critic 9.8 threshold appears as raw literals",
+      "whyItMatters": "Approval policy can drift when some checks import the registry constant and others hardcode the score.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 342,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 347,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 486,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/source-lifecycle-completion.js",
+          "line": 682,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/source-lifecycle-completion.js",
+          "line": 682,
+          "detail": "9.8"
+        },
+        {
+          "path": "scripts/process-action-route-dedup-staleness-guard-check.mjs",
+          "line": 231,
+          "detail": "9.8"
+        },
+        {
+          "path": "scripts/process-action-route-promotion-workflow-check.mjs",
+          "line": 230,
+          "detail": "9.8"
+        },
+        {
+          "path": "scripts/process-action-route-review-inbox-check.mjs",
+          "line": 241,
+          "detail": "9.8"
+        }
+      ],
+      "detector": "raw approval threshold detector",
+      "proposedCard": "APPROVAL-THRESHOLD-REGISTRY-001",
+      "proposedOwner": "Plan Critic",
+      "falsePositiveNote": "The canonical constant is valid; duplicated raw literals are the risk.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "build-closeout-code-owned-data",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P2",
+      "type": "refactor_candidate",
+      "title": "Build closeout history is code-owned data",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "lib/foundation-build-log.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "BUILD-CLOSEOUT-REGISTRY-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "build-log-request-time-git-and-duplication",
+      "cardId": "FOUNDATION-API-PERF-AUDIT-001",
+      "severity": "P2",
+      "type": "performance_risk",
+      "title": "Build Log shells out to git and returns duplicate group/build payloads",
+      "whyItMatters": "Request-time subprocess work and duplicated serialized build entries can make Recent Work slow as closeout history grows.",
+      "refs": [
+        {
+          "path": "server.js",
+          "line": 333,
+          "detail": ""
+        },
+        {
+          "path": "lib/foundation-build-log.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "request-time git log detector",
+      "proposedCard": "BUILD-LOG-API-CACHE-AND-SLIM-001",
+      "proposedOwner": "Foundation Runtime",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "fixed-build-intel-commit-baseline",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Build Intel commit is pinned as expected truth",
+      "whyItMatters": "A fixed inspected commit is valid snapshot evidence, but it must not be treated as latest Build Intel monitoring truth.",
+      "refs": [
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 20,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 313,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 314,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 324,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 391,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 521,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        }
+      ],
+      "detector": "expected-commit baseline detector",
+      "proposedCard": "BUILD-INTEL-SNAPSHOT-BASELINE-001",
+      "proposedOwner": "Build Intel",
+      "falsePositiveNote": "Valid when labeled inspected snapshot evidence with an as-of date.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "focused-check-active-sprint-id-assumption",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Focused checks assert exact dated active sprint IDs",
+      "whyItMatters": "One-time closeout checks are unsafe as nightly checks after rollover if they hard-fail on the current active sprint.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 103,
+          "detail": "const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 145,
+          "detail": "const FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID = 'foundation-source-once-over-2026-05-12"
+        },
+        {
+          "path": "lib/foundation-verify-registry-split.js",
+          "line": 7,
+          "detail": "const FOUNDATION_VERIFY_REGISTRY_SPLIT_SPRINT_ID = 'foundation-verify-registry-split-2026-05-18"
+        },
+        {
+          "path": "lib/kpi-health.js",
+          "line": 8,
+          "detail": "const KPI_HEALTH_API_CACHE_SPRINT_ID = 'kpi-health-api-cache-2026-05-15"
+        },
+        {
+          "path": "lib/kpi-health.js",
+          "line": 14,
+          "detail": "const KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SPRINT_ID = 'kpi-health-dynamic-year-contract-2026-05-16"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 13,
+          "detail": "const GSTACK_BUILD_INTEL_SPRINT_ID = 'gstack-build-intel-extraction-2026-05-13"
+        },
+        {
+          "path": "scripts/process-agent-feedback-routes-split-check.mjs",
+          "line": 219,
+          "detail": "activeSprint.sprint?.sprintId ==="
+        },
+        {
+          "path": "scripts/process-app-page-routes-split-check.mjs",
+          "line": 159,
+          "detail": "activeSprint.sprint?.sprintId ==="
+        }
+      ],
+      "detector": "dated active-sprint assertion detector",
+      "proposedCard": "SPRINT-CHECK-HISTORICAL-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Active live-truth literals still fail as P0; dated card/sprint metadata is a review finding unless a focused proof hard-fails after rollover.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-dom-rebuild-risk",
+      "cardId": "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+      "severity": "P2",
+      "type": "performance_risk",
+      "title": "Foundation frontend has heavy DOM rebuild signals",
+      "whyItMatters": "Backlog, source, current-state, and runtime filters can churn large DOM trees on each interaction as card/source counts grow.",
+      "refs": [
+        {
+          "path": "public/foundation.html",
+          "line": 103,
+          "detail": ""
+        },
+        {
+          "path": "public/foundation.html",
+          "line": 1,
+          "detail": "Foundation frontend scripts call document.createElement 1669 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2142 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 73 times, above the 50 aggregate review budget."
+        }
+      ],
+      "detector": "DOM budget snapshot status=review createElement=1669 appendChild=2142 innerHTML=73",
+      "proposedCard": "FOUNDATION-FRONTEND-DOM-BUDGET-001",
+      "proposedOwner": "Foundation Frontend",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    }
+  ],
+  "reviewTargets": [
+    {
+      "file": "scripts/foundation-verify.mjs",
+      "severity": "P0",
+      "reasons": [
+        "over_3k_warn",
+        "verifier_trust_surface"
+      ],
+      "lines": 4973,
+      "bytes": 275714
+    },
+    {
+      "file": "public/foundation.js",
+      "severity": "P1",
+      "reasons": [
+        "frontend_route_cache_surface"
+      ],
+      "lines": 2998,
+      "bytes": 113633
+    },
+    {
+      "file": "lib/foundation-db.js",
+      "severity": "P1",
+      "reasons": [
+        "live_truth_write_boundary"
+      ],
+      "lines": 2261,
+      "bytes": 90410
+    },
+    {
+      "file": "server.js",
+      "severity": "P1",
+      "reasons": [
+        "hot_route_surface"
+      ],
+      "lines": 2023,
+      "bytes": 66109
+    },
+    {
+      "file": "lib/foundation-build-closeout-process-gate-records.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 1706,
+      "bytes": 117842
+    },
+    {
+      "file": "lib/connector-uptime-monitor.js",
+      "severity": "P1",
+      "reasons": [
+        "source_health_surface"
+      ],
+      "lines": 1063,
+      "bytes": 42053
+    },
+    {
+      "file": "lib/kpi-health.js",
+      "severity": "P1",
+      "reasons": [
+        "source_health_surface"
+      ],
+      "lines": 1045,
+      "bytes": 38564
+    },
+    {
+      "file": "lib/source-lifecycle-completion.js",
+      "severity": "P1",
+      "reasons": [
+        "source_health_surface"
+      ],
+      "lines": 707,
+      "bytes": 36234
+    },
+    {
+      "file": "scripts/process-action-route-review-inbox-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 559,
+      "bytes": 29366
+    },
+    {
+      "file": "scripts/process-extract-current-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 551,
+      "bytes": 27615
+    },
+    {
+      "file": "scripts/process-action-route-promotion-workflow-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 524,
+      "bytes": 25625
+    },
+    {
+      "file": "scripts/process-action-route-dedup-staleness-guard-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 502,
+      "bytes": 24373
+    },
+    {
+      "file": "scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "process_check_surface"
+      ],
+      "lines": 451,
+      "bytes": 20232
+    },
+    {
+      "file": "scripts/process-agent-feedback-routes-split-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 286,
+      "bytes": 12225
+    },
+    {
+      "file": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface",
+        "source_health_surface"
+      ],
+      "lines": 272,
+      "bytes": 10909
+    },
+    {
+      "file": "scripts/process-app-page-routes-split-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 225,
+      "bytes": 9932
+    },
+    {
+      "file": "lib/foundation-sprint-closeout-continuous-work.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 155,
+      "bytes": 7919
+    },
+    {
+      "file": "lib/foundation-current-sprint.js",
+      "severity": "P3",
+      "reasons": [],
+      "lines": 1608,
+      "bytes": 79717
+    }
+  ],
+  "diff": {
+    "previousReportPath": "docs/handoffs/nightly-deep-audit-2026-05-18.json",
+    "newFindingIds": [
+      "active-vs-historical-verifier-mixing",
+      "foundation-client-current-state-monolith",
+      "foundation-hub-route-monolith",
+      "hardcoded-foundation-ui-current-summary",
+      "hardcoded-source-count-baseline",
+      "admin-deal-policy-date-duplication",
+      "approval-threshold-raw-literal",
+      "build-closeout-code-owned-data",
+      "build-log-request-time-git-and-duplication",
+      "fixed-build-intel-commit-baseline",
+      "focused-check-active-sprint-id-assumption",
+      "foundation-dom-rebuild-risk"
+    ],
+    "resolvedFindingIds": [],
+    "stillOpenFindingIds": [],
+    "trend": {
+      "currentFindingCount": 12,
+      "previousFindingCount": 0,
+      "delta": 12
+    }
+  },
+  "llmReview": {
+    "status": "degraded_packet_only",
+    "mode": "packet_only_explicitly_degraded",
+    "executedThisRun": false,
+    "providerReviewRequested": false,
+    "route": {
+      "runnable": true,
+      "selectedRoute": "foundation-synthesis-openclaw-chatgpt",
+      "provider": "openclaw",
+      "model": "openai-codex/gpt-5.4",
+      "blockReason": null,
+      "routeReadiness": [
+        {
+          "routeKey": "foundation-synthesis-openclaw-chatgpt",
+          "credentialKey": "openclaw-chatgpt-pro",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "allowed",
+          "runnable": true,
+          "blockReason": null
+        },
+        {
+          "routeKey": "foundation-synthesis-claude-code",
+          "credentialKey": "claude-code-local-max",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "experimental",
+          "runnable": false,
+          "blockReason": "route status is probe_required"
+        },
+        {
+          "routeKey": "foundation-synthesis-claude-oauth",
+          "credentialKey": "claude-code-oauth-token",
+          "credentialStatus": "missing",
+          "credentialPolicyClassification": "experimental",
+          "runnable": false,
+          "blockReason": "route status is blocked"
+        },
+        {
+          "routeKey": "foundation-synthesis-anthropic-api",
+          "credentialKey": "anthropic-api-default",
+          "credentialStatus": "missing",
+          "credentialPolicyClassification": "api_fallback",
+          "runnable": false,
+          "blockReason": "route status is blocked"
+        },
+        {
+          "routeKey": "foundation-synthesis-openai-api",
+          "credentialKey": "openai-api-default",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "api_fallback",
+          "runnable": true,
+          "blockReason": null
+        }
+      ]
+    },
+    "findingCount": 0,
+    "findings": [],
+    "actionRoutes": [],
+    "packets": [
+      {
+        "file": "scripts/foundation-verify.mjs",
+        "severity": "P0",
+        "reasons": [
+          "over_3k_warn",
+          "verifier_trust_surface"
+        ],
+        "lines": 4973,
+        "bytes": 275714
+      },
+      {
+        "file": "public/foundation.js",
+        "severity": "P1",
+        "reasons": [
+          "frontend_route_cache_surface"
+        ],
+        "lines": 2998,
+        "bytes": 113633
+      },
+      {
+        "file": "lib/foundation-db.js",
+        "severity": "P1",
+        "reasons": [
+          "live_truth_write_boundary"
+        ],
+        "lines": 2261,
+        "bytes": 90410
+      },
+      {
+        "file": "server.js",
+        "severity": "P1",
+        "reasons": [
+          "hot_route_surface"
+        ],
+        "lines": 2023,
+        "bytes": 66109
+      },
+      {
+        "file": "lib/foundation-build-closeout-process-gate-records.js",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline"
+        ],
+        "lines": 1706,
+        "bytes": 117842
+      },
+      {
+        "file": "lib/connector-uptime-monitor.js",
+        "severity": "P1",
+        "reasons": [
+          "source_health_surface"
+        ],
+        "lines": 1063,
+        "bytes": 42053
+      },
+      {
+        "file": "lib/kpi-health.js",
+        "severity": "P1",
+        "reasons": [
+          "source_health_surface"
+        ],
+        "lines": 1045,
+        "bytes": 38564
+      },
+      {
+        "file": "lib/source-lifecycle-completion.js",
+        "severity": "P1",
+        "reasons": [
+          "source_health_surface"
+        ],
+        "lines": 707,
+        "bytes": 36234
+      }
+    ],
+    "note": "Deep senior review did not execute. This run produced review packets only; do not present it as a completed deep code review."
+  },
+  "deepSeniorReviewRollup": {
+    "status": "degraded",
+    "executed": false,
+    "detail": "Deep senior review did not execute. This run produced review packets only; do not present it as a completed deep code review."
+  },
+  "knownFailureDogfood": {
+    "ok": true,
+    "slowEndpoint": {
+      "status": "risk",
+      "severity": "P1",
+      "reason": "Latency 70244ms exceeds 2000ms budget."
+    },
+    "selfRepairCount": 1,
+    "writeCapableCheckCount": 1,
+    "hardcodedTruthCount": 2,
+    "monolith": {
+      "file": "lib/foundation-db.js",
+      "reasons": [
+        "actively_dangerous_10k_plus_file",
+        "live_truth_write_boundary"
+      ],
+      "severity": "P0"
+    }
+  },
+  "docArtifactBloat": {
+    "status": "healthy",
+    "summary": {
+      "artifactCount": 1096,
+      "handoffFileCount": 115,
+      "handoffLineTotal": 7352,
+      "recentHandoffFileCount": 114,
+      "nightlyArtifactCount": 7,
+      "riskCount": 0,
+      "reviewCount": 0
+    },
+    "topFindings": []
+  }
+}
