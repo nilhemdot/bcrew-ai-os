@@ -17,6 +17,7 @@ This is a blocked-preflight closeout. The full source-browser/GitHub source lane
 - The batch runner can execute the public repo deep-review runner directly from the YouTube source handoff queue.
 - Repo review results persist a repo review packet and cited implementation patterns into the source crawl item metadata.
 - Old generic `source:god-mode` repo reads no longer count as completed repo review. They return as `repo_deep_review_upgrade_needed` until the repo lane proves README/docs/examples/license/provenance and implementation-pattern extraction.
+- Product/tool hosts that accidentally land in the public-code bucket are parked before execution instead of burning `repo:deep-review` runs.
 - Dev source coverage copy now describes the GitHub/repo feed path as public README/docs/examples/license review before any implementation work.
 
 ## Why It Matters

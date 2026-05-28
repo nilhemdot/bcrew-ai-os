@@ -263,6 +263,7 @@ async function main() {
   let queue = null
   let uncappedQueue = null
   let repoUpgradeQueue = null
+  let repoHostBoundaryQueue = null
   let communityBoundaryQueue = null
   let publicWebBoundaryQueue = null
   let batch = null
@@ -314,6 +315,48 @@ async function main() {
           },
         },
       }],
+    })
+    repoHostBoundaryQueue = buildSourceGodModeYoutubeHandoffQueue({
+      handoffEvidence: {
+        sourceRoute: 'fixture.youtube.fullWatchReports.repoHostBoundary',
+        scannedReportCount: 1,
+        buckets: {
+          'public-code-repos': {
+            count: 1,
+            itemLimit: 10,
+            hasMore: false,
+            sampleHosts: ['claude.ai'],
+            samples: [{
+              url: 'https://claude.ai/code',
+              host: 'claude.ai',
+              reportArtifactId: 'report:repo-host-boundary',
+              sourceVideoId: 'fixture-video-repo-host-boundary',
+              creatorId: 'fixture-a-source',
+              creator: 'Fixture A Source',
+              sourceCreatorIds: ['fixture-a-source'],
+              sourceCreators: ['Fixture A Source'],
+              disposition: 'fixture_youtube_handoff',
+            }],
+            items: [{
+              url: 'https://claude.ai/code',
+              host: 'claude.ai',
+              reportArtifactId: 'report:repo-host-boundary',
+              sourceVideoId: 'fixture-video-repo-host-boundary',
+              creatorId: 'fixture-a-source',
+              creator: 'Fixture A Source',
+              sourceCreatorIds: ['fixture-a-source'],
+              sourceCreators: ['Fixture A Source'],
+              disposition: 'fixture_youtube_handoff',
+            }],
+          },
+        },
+      },
+      generatedAt: '2026-05-27T11:00:00.000-04:00',
+      sourceValueGrader: {
+        sourceGrades: [
+          { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+        ],
+      },
     })
     const uncappedItem = (pathName, sourceVideoId = 'fixture-video-1') => ({
       url: `${fixture.baseUrl}${pathName}`,
@@ -471,6 +514,7 @@ async function main() {
 
   const rows = list(queue.rows)
   const repoUpgradeRow = list(repoUpgradeQueue?.rows).find(row => row.bucketId === 'public-code-repos') || null
+  const repoHostBoundaryRow = list(repoHostBoundaryQueue?.rows).find(row => row.bucketId === 'public-code-repos') || null
   const results = list(batch.results)
   const byBucket = Object.fromEntries(results.map(result => [result.bucketId, result]))
   const skipped = list(batch.skippedRows)
@@ -567,6 +611,21 @@ async function main() {
       runner: repoUpgradeRow?.runner,
       existingRunRunner: repoUpgradeRow?.existingRunRunner,
       runnable: repoUpgradeRow?.runnable,
+    }),
+  )
+  addCheck(
+    checks,
+    repoHostBoundaryRow?.status === 'blocked_not_public_repo_deep_review_host' &&
+      repoHostBoundaryRow?.runnable === false &&
+      repoHostBoundaryRow?.parked === true &&
+      repoHostBoundaryRow?.runner === 'repo:deep-review' &&
+      !repoHostBoundaryRow?.runCommand,
+    'non-repo product/tool hosts in the public-code bucket do not run through repo:deep-review',
+    JSON.stringify({
+      url: repoHostBoundaryRow?.url,
+      status: repoHostBoundaryRow?.status,
+      runnable: repoHostBoundaryRow?.runnable,
+      runCommand: repoHostBoundaryRow?.runCommand,
     }),
   )
   addCheck(
