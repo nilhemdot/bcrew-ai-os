@@ -81,10 +81,14 @@ The practical stack should be:
 
 ## Build Order
 
+Implementation slice now exists in `lib/source-browser-agent-harness.js`, with focused proof `npm run process:source-browser-agent-harness-check -- --json` and CLI entrypoint `npm run source:browser-agent -- --url=<exact-source-url> --sourceType=<source-type> --json`.
+
+This slice does not claim full live source extraction. It creates the governing Source Browser Agent harness that accepts an exact source packet, chooses the existing runner, checks page/browser health, routes session/auth work through `SOURCE-SESSION-BROKER-001`, and fails closed before unsafe action. The dogfood proof covers public resource routing, repo routing, newsletter no-submit parking, free Skool session gating, MyICOR Google SSO auth-needed, MyICOR wrong-signup fail-closed, blank browser fail-closed, and purchase/action blocking.
+
 1. Promote Source Browser from runtime to agent harness.
    - Use `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` and `AGENT-CAPABILITY-REGISTRY-001` as the governing protocol.
    - Do not create a brand-new protocol unless a concrete missing field is found.
-   - Add a Source Browser Agent run state machine: queued, preparing_session, observing, planning, acting, extracting, evaluating, waiting_auth, blocked, completed, failed_closed, parked.
+   - Add a Source Browser Agent run state machine: queued, preparing_session, observing, planning, acting, extracting, evaluating, recording, waiting_auth, blocked, completed, failed_closed, parked.
 
 2. Wrap current tools behind the agent.
    - `source:god-mode` for public/free pages.
@@ -157,4 +161,3 @@ Steve can manually help in three ways without weakening the target system:
 - Clear MFA or human verification through the human-agent auth-needed flow.
 
 That help should become less frequent over time. If the same manual help is needed repeatedly, it should become a credential/session recipe, source policy, verifier rule, or explicit blocker.
-

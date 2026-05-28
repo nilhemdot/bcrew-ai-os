@@ -1,53 +1,69 @@
 #!/usr/bin/env node
 
-import path from 'node:path'
 import process from 'node:process'
 
 import {
-  SKOOL_FREE_PUBLIC_READ_DEFAULT_URL,
-  SKOOL_FREE_PUBLIC_READ_POST_URL,
-  runSkoolFreePublicReadCheck,
-} from '../lib/skool-free-public-read-runner.js'
+  SOURCE_BROWSER_AGENT_ID,
+  buildSourceBrowserAgentHarnessSnapshot,
+  planSourceBrowserAgentRun,
+} from '../lib/source-browser-agent-harness.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {
-    target: 'kia-skool-community',
-    url: '',
-    liveGemini: argv.includes('--live-gemini'),
-    headed: argv.includes('--headed'),
     json: argv.includes('--json'),
+    snapshot: argv.includes('--snapshot'),
+    packet: {},
+    observation: {},
   }
   for (const arg of argv) {
-    if (arg.startsWith('--target=')) args.target = arg.slice('--target='.length)
-    if (arg.startsWith('--url=')) args.url = arg.slice('--url='.length)
-    if (arg.startsWith('--root=')) args.root = arg.slice('--root='.length)
-    if (arg.startsWith('--model=')) args.model = arg.slice('--model='.length)
-    if (arg.startsWith('--maxPages=')) args.maxPages = Number(arg.slice('--maxPages='.length))
-    if (arg.startsWith('--maxDepth=')) args.maxDepth = Number(arg.slice('--maxDepth='.length))
-    if (arg.startsWith('--maxClicks=')) args.maxClicks = Number(arg.slice('--maxClicks='.length))
-    if (arg.startsWith('--lookbackDays=')) args.lookbackDays = Number(arg.slice('--lookbackDays='.length))
+    if (!arg.startsWith('--')) continue
+    const [rawKey, ...rawValue] = arg.slice(2).split('=')
+    const key = rawKey.trim()
+    const value = rawValue.length ? rawValue.join('=') : 'true'
+    if (key === 'url') args.packet.url = value
+    if (key === 'sourceId') args.packet.sourceId = value
+    if (key === 'sourceType') args.packet.sourceType = value
+    if (key === 'sourceFamily') args.packet.sourceFamily = value
+    if (key === 'title') args.packet.title = value
+    if (key === 'preview') args.packet.preview = value
+    if (key === 'action' || key === 'requestedAction') args.packet.action = value
+    if (key === 'account') args.packet.account = value
+    if (key === 'authMethod') args.packet.authMethod = value
+    if (key === 'sourceBoundaryApproved') args.packet.sourceBoundaryApproved = value
+    if (key === 'keychainPresent') args.packet.keychainPresent = value
+    if (key === 'persistentProfilePresent') args.packet.persistentProfilePresent = value
+    if (key === 'sessionHealthy') args.packet.sessionHealthy = value
+    if (key === 'loginRecipePresent') args.packet.loginRecipePresent = value
+    if (key === 'mfaChallenge') args.packet.mfaChallenge = value
+    if (key === 'requiresAccountCreation') args.packet.requiresAccountCreation = value
+    if (key === 'signupSurfaceDetected') args.packet.signupSurfaceDetected = value
+    if (key === 'allowExternalSignup') args.packet.allowExternalSignup = value
+    if (key === 'nativeReadonlyConnectorPresent') args.packet.nativeReadonlyConnectorPresent = value
+    if (key === 'nativeReadonlyConnectorApproved') args.packet.nativeReadonlyConnectorApproved = value
+    if (key === 'observedUrl') args.observation.url = value
+    if (key === 'observedTitle') args.observation.title = value
+    if (key === 'observedText') {
+      args.observation.bodyTextPreview = value
+      args.observation.textChars = value.length
+    }
   }
   return args
 }
 
-function urlForTarget(args = {}) {
-  if (args.url) return args.url
-  if (args.target === 'kia-skool-post') return SKOOL_FREE_PUBLIC_READ_POST_URL
-  return SKOOL_FREE_PUBLIC_READ_DEFAULT_URL
-}
-
 async function main() {
   const args = parseArgs()
-  const report = await runSkoolFreePublicReadCheck({
-    url: urlForTarget(args),
-    rootDir: args.root ? path.resolve(args.root) : undefined,
-    liveGemini: args.liveGemini,
-    headed: args.headed,
-    model: args.model,
-    maxPages: Number.isFinite(args.maxPages) ? args.maxPages : undefined,
-    maxDepth: Number.isFinite(args.maxDepth) ? args.maxDepth : undefined,
-    maxClicks: Number.isFinite(args.maxClicks) ? args.maxClicks : undefined,
-    lookbackDays: Number.isFinite(args.lookbackDays) ? args.lookbackDays : undefined,
+  if (args.snapshot) {
+    const snapshot = buildSourceBrowserAgentHarnessSnapshot()
+    console.log(JSON.stringify(snapshot, null, 2))
+    return
+  }
+  if (!args.packet.url) {
+    throw new Error('Usage: npm run source:browser-agent -- --url=https://source.example --sourceType=public_or_free_source --json')
+  }
+
+  const report = planSourceBrowserAgentRun({
+    packet: args.packet,
+    observation: Object.keys(args.observation).length ? args.observation : undefined,
   })
 
   if (args.json) {
@@ -55,15 +71,14 @@ async function main() {
     return
   }
 
-  console.log(`Source browser agent run: ${report.status}`)
-  console.log(`Target: ${report.targetUrl}`)
-  console.log(`Final: ${report.finalUrl}`)
-  console.log(`Public readable: ${report.publicReadable}`)
-  console.log(`Eyes: DOM=true screenshot=${Boolean(report.artifacts?.screenshotPath)} Gemini=${report.vision?.status || 'unknown'}`)
-  console.log(`Manual clicks: ${report.sideEffects?.manualClicks}`)
-  console.log(`Clicked: ${report.sideEffects?.clicked}`)
-  console.log(`Browser profile: ${report.runner?.browserProfileMode || report.sideEffects?.browserProfileMode || 'unknown'}`)
-  console.log(`Report: ${report.artifacts?.reportPath}`)
+  console.log(`Source Browser Agent: ${report.status}`)
+  console.log(`Agent: ${SOURCE_BROWSER_AGENT_ID}`)
+  console.log(`Source: ${report.sourcePacket?.url}`)
+  console.log(`Family: ${report.sourcePacket?.sourceFamily}`)
+  console.log(`Tool: ${report.toolRoute?.toolId}`)
+  console.log(`State: ${report.terminalState}`)
+  console.log(`Runner: ${report.runnerCommand?.displayCommand || 'none'}`)
+  console.log(`Next: ${report.nextAction}`)
 }
 
 main().catch(error => {
