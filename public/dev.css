@@ -3487,7 +3487,8 @@ button {
   color: var(--grey-d);
 }
 
-.yt-repo-readback {
+.yt-repo-readback,
+.yt-file-readback {
   display: grid;
   gap: 10px;
   padding-top: 12px;
@@ -3495,7 +3496,9 @@ button {
 }
 
 .yt-repo-readback > p,
-.yt-repo-readback > small {
+.yt-repo-readback > small,
+.yt-file-readback > p,
+.yt-file-readback > small {
   margin: 0;
   color: var(--grey-d);
 }

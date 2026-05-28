@@ -975,14 +975,20 @@ async function main() {
       sourceRunSummary.repoReadback?.rawArtifactPathsReturned === false &&
       list(sourceRunSummary.repoReadback?.topRepos).some(row => row.label && Number(row.pagesRead || 0) > 0) &&
       sourceRunSummary.repoReadback?.plainEnglish?.includes('does not clone') &&
+      sourceRunSummary.fileResourceReadback?.status &&
+      sourceRunSummary.fileResourceReadback?.rawArtifactPathsReturned === false &&
+      Number(sourceRunSummary.fileResourceReadback?.downloadAllowedCount || 0) === 0 &&
       moduleSource.includes('dev-source-run-readback') &&
       sourceRunReadbackSource.includes('buildRepoRunReadback') &&
+      sourceRunReadbackSource.includes('buildFileResourceReadback') &&
       jsSource.includes('renderSourceRunSummary') &&
       jsSource.includes('REPO READBACK') &&
+      jsSource.includes('FILE RESOURCE CANDIDATES') &&
       cssSource.includes('.yt-source-run-summary') &&
-      cssSource.includes('.yt-repo-readback'),
-    'YouTube source-browser saved-run outputs include repo readback without returning raw artifacts',
-    `runs=${sourceRunSummary.totalRuns || 0}; repos=${sourceRunSummary.repoReadback?.uniqueRepoCount || 0}; pages=${sourceRunSummary.pagesRead || 0}; resources=${sourceRunSummary.freeResourceCaptures || 0}`,
+      cssSource.includes('.yt-repo-readback') &&
+      cssSource.includes('.yt-file-readback'),
+    'YouTube source-browser saved-run outputs include repo and file-resource readback without returning raw artifacts',
+    `runs=${sourceRunSummary.totalRuns || 0}; repos=${sourceRunSummary.repoReadback?.uniqueRepoCount || 0}; pages=${sourceRunSummary.pagesRead || 0}; resources=${sourceRunSummary.freeResourceCaptures || 0}; files=${sourceRunSummary.fileResourceReadback?.uniqueCandidateCount || 0}`,
   )
   addCheck(
     checks,

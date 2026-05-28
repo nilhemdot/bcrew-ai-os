@@ -815,12 +815,14 @@ function renderSourceRunSummary(summary = {}) {
   const topRuns = list(summary.topRuns).slice(0, 6)
   const repoReadback = summary.repoReadback || {}
   const topRepos = list(repoReadback.topRepos).slice(0, 6)
+  const fileReadback = summary.fileResourceReadback || {}
+  const topFiles = list(fileReadback.topCandidates).slice(0, 6)
   return `
     <section class="yt-source-run-summary">
       <div class="yt-section-head">
         <span>SOURCE RUN OUTPUT</span>
         <h3>What the source browser already found</h3>
-        <small>${escapeHtml(compactNumber(summary.totalRuns || 0))} runs · ${escapeHtml(compactNumber(summary.pagesRead || 0))} pages · ${escapeHtml(compactNumber(summary.freeResourceCaptures || 0))} resources · ${escapeHtml(compactNumber(summary.unsafeSideEffectRows || 0))} unsafe side effects</small>
+        <small>${escapeHtml(compactNumber(summary.totalRuns || 0))} runs · ${escapeHtml(compactNumber(summary.pagesRead || 0))} pages · ${escapeHtml(compactNumber(summary.freeResourceCaptures || 0))} resources · ${escapeHtml(compactNumber(summary.fileResourceCandidates || 0))} files · ${escapeHtml(compactNumber(summary.unsafeSideEffectRows || 0))} unsafe side effects</small>
       </div>
       <p>${escapeHtml(summary.plainEnglish || '')}</p>
       <div class="yt-source-run-grid">
@@ -830,7 +832,7 @@ function renderSourceRunSummary(summary = {}) {
               <span>${escapeHtml(bucket.label || bucket.bucketId || 'Source')}</span>
               <strong>${escapeHtml(compactNumber(bucket.runs || 0))}</strong>
             </div>
-            <p>${escapeHtml(`${compactNumber(bucket.pagesRead || 0)} pages · ${compactNumber(bucket.freeResourceCaptures || 0)} resources · ${compactNumber(bucket.blockers || 0)} blockers`)}</p>
+            <p>${escapeHtml(`${compactNumber(bucket.pagesRead || 0)} pages · ${compactNumber(bucket.freeResourceCaptures || 0)} resources · ${compactNumber(bucket.fileResourceCandidates || 0)} files · ${compactNumber(bucket.blockers || 0)} blockers`)}</p>
             <small>${escapeHtml(`${compactNumber(bucket.succeeded || 0)} saved · best ${bucket.bestGrade || 'ungraded'} ${compactNumber(bucket.bestScore || 0)}`)}</small>
           </article>
         `).join('')}
@@ -843,10 +845,33 @@ function renderSourceRunSummary(summary = {}) {
               <strong>${escapeHtml(run.host || run.label || 'source')}</strong>
             </div>
             <p>${escapeHtml(list(run.usefulSignals).join(' · ') || run.url || '')}</p>
-            <small>${escapeHtml(`${compactNumber(run.pagesRead || 0)} pages · ${compactNumber(run.freeResourceCaptures || 0)} resources · ${compactNumber(run.blockers || 0)} blockers`)}</small>
+            <small>${escapeHtml(`${compactNumber(run.pagesRead || 0)} pages · ${compactNumber(run.freeResourceCaptures || 0)} resources · ${compactNumber(run.fileResourceCandidates || 0)} files · ${compactNumber(run.blockers || 0)} blockers`)}</small>
           </article>
         `).join('')}
       </div>
+      ${fileReadback.status === 'ready' ? `
+        <div class="yt-file-readback">
+          <div class="yt-section-head">
+            <span>FILE RESOURCE CANDIDATES</span>
+            <h3>Docs, templates, and downloads found safely</h3>
+            <small>${escapeHtml(compactNumber(fileReadback.uniqueCandidateCount || 0))} unique · ${escapeHtml(compactNumber(fileReadback.candidateCount || 0))} sightings · ${escapeHtml(compactNumber(fileReadback.downloadAllowedCount || 0))} downloads allowed · ${escapeHtml(compactNumber(fileReadback.unsafeSideEffectRows || 0))} unsafe side effects</small>
+          </div>
+          <p>${escapeHtml(fileReadback.plainEnglish || '')}</p>
+          <div class="yt-source-run-list">
+            ${topFiles.map(file => `
+              <article>
+                <div>
+                  <span>${escapeHtml(file.resourceKind || 'file')}</span>
+                  <strong>${escapeHtml(file.host || file.extension || 'resource')}</strong>
+                </div>
+                <p>${escapeHtml(file.label || file.url || '')}</p>
+                <small>${escapeHtml(`${file.extension || 'unknown'} · ${compactNumber(file.sourceRuns || 0)} sightings · ${file.safety || 'metadata only'}`)}</small>
+              </article>
+            `).join('') || '<article><p>No file resource rows returned.</p></article>'}
+          </div>
+          <small>${escapeHtml(fileReadback.nextAction || '')}</small>
+        </div>
+      ` : ''}
       ${repoReadback.status === 'ready' ? `
         <div class="yt-repo-readback">
           <div class="yt-section-head">
