@@ -13,31 +13,42 @@ Steve approved overnight work with this order:
 
 The YouTube extraction and handoff system is now caught up through the runnable public/free handoff rows.
 
-Served Dev Hub readback after dashboard/worker restart:
+Final live Dev Hub/source-handoff readback after the continuation pass:
 
 - Watched YouTube videos: 743
 - Build ideas: 2,232
-- Source handoff queue total rows: 657
-- Already persisted source-browser rows: 285
+- Source handoff evidence rows: 1,228
+- Source handoff queued rows: 1,228
+- Already persisted/read source-browser rows: 727
 - Runnable rows: 0
-- Parked rows: 372
+- Parked rows: 501
 - Public/free runtime rows: 0
 - Free-community runnable rows: 0
 - Paid/auth parked rows: 170
 - Run commands: 0
-- Free-community sample broker status: `free_account_creation_allowed`
-- Free-community sample broker account: `ai@bensoncrew.ca`
-- Free-community sample raw secret printed: `false`
+- Public web/resources: 624 read, 197 parked
+- Public code repos: 86 read, 0 runnable
+- Creator newsletter landing pages: 17 read, 0 runnable
+- Free communities: 96 parked behind Source Session Broker/session readiness
+- Product/tool approval rows: 38 parked
+- Paid/auth gates: 170 parked
 
 The Dev Hub handoff stage now reads:
 
-`0 public/free rows ready · 372 parked · 24 legacy review rows`
+`0 public/free rows ready · 501 parked · 24 legacy review rows`
+
+Internal synthesis freshness is also caught up:
+
+- Gmail, Missive, and Slack candidate extractors were rerun after fresh archive syncs.
+- Synthesis refresh succeeded after extractor catch-up.
+- Action Router proposal refresh succeeded and stayed proposal-only.
+- Dev Hub active extraction lane readback now shows `synthesis-router` as `live`, not `risk`.
 
 Foundation/system health is green after the repair pass:
 
 - `foundation:verify -- --json-summary`: 519/519 passed.
 - `process:system-health-nightly-audit-check -- --json`: healthy, 0 red/yellow rollup findings.
-- Scheduled connector, verifier, and meeting-transcript extraction jobs have fresh successful runs.
+- Scheduled connector, verifier, audit, extractor, synthesis, and action-router jobs have fresh successful runs.
 
 ## Completed Work
 
@@ -69,6 +80,18 @@ Foundation/system health is green after the repair pass:
   - Foundation verifier job succeeded.
   - Meeting transcript extraction backlog succeeded with 16 candidates from 3 transcripts.
   - Connector uptime monitor succeeded with 6/6 connectors healthy.
+- Archived the latest 2026-05-28 nightly deep audit artifact out of hot `docs/handoffs/`.
+  - Committed and pushed `15735fb3 Archive latest nightly deep audit`.
+  - Doc bloat guard and System Health are green after the archive move.
+- Proved Source Session Broker and free-community runner posture without live external side effects.
+  - Source Session Broker contract proof passed.
+  - Free Skool/community fixture proof passed: auth-needed path fails closed, joined/session fixture reads last-20-day activity, classroom/resources, safe resource candidates, and blocks paid/write/download/profile actions.
+- Caught up internal synthesis freshness.
+  - `gmail-extract-latest`: succeeded, 1 candidate upserted.
+  - `missive-extract-latest`: succeeded, 1 candidate upserted.
+  - `slack-extract-latest`: succeeded, 0 candidates from the checked thread.
+  - `intelligence-synthesis-spine-refresh`: succeeded with 2 fresh promoted candidates, 1 embedded chunk, 133 facts, and 8 synthesized items.
+  - `intelligence-action-router-proposals`: succeeded proposal-only; 0 new routes selected/applied in that run, existing pending routes remain approval-bound.
 
 ## Proofs Run
 
@@ -79,8 +102,10 @@ Healthy:
   - Re-run after session-broker UI proof passed.
 - `npm --silent run process:source-god-mode-extractor-runtime-check -- --json`
 - `npm --silent run process:source-session-broker-check -- --json`
+- `npm --silent run process:skool-free-community-god-mode-runner-check -- --json`
 - `npm --silent run process:nightly-audit-run-proof-check -- --json`
 - `npm --silent run process:nightly-audit-fleet-check -- --json`
+- `npm --silent run process:synthesis-router-freshness-trigger-check -- --json`
 - `npm --silent run process:source-lifecycle-completion-check -- --json`
 - `npm --silent run process:source-lifecycle-expansion-check -- --json`
 - `npm --silent run process:extract-run-hardening-check -- --json --apply`
@@ -90,6 +115,11 @@ Healthy:
 - `npm --silent run foundation:job -- --job=foundation-verify --force --actor=codex-source-expansion-repair`
 - `npm --silent run foundation:job -- --job=meeting-transcripts-extract-backlog --force --actor=codex-source-expansion-repair`
 - `npm --silent run foundation:job -- --job=connector-uptime-monitor --force --actor=codex-source-expansion-repair`
+- `npm --silent run foundation:job -- --job=gmail-extract-latest --force --actor=codex-overnight-synthesis-catchup`
+- `npm --silent run foundation:job -- --job=missive-extract-latest --force --actor=codex-overnight-synthesis-catchup`
+- `npm --silent run foundation:job -- --job=slack-extract-latest --force --actor=codex-overnight-synthesis-catchup`
+- `npm --silent run foundation:job -- --job=intelligence-synthesis-spine-refresh --force --actor=codex-overnight-synthesis-catchup`
+- `npm --silent run foundation:job -- --job=intelligence-action-router-proposals --force --actor=codex-overnight-synthesis-catchup`
 - Syntax checks:
   - `node --check public/dev.js`
   - `node --check lib/source-god-mode-youtube-handoff.js`
@@ -106,20 +136,14 @@ Served readback after the final Dev Hub proof:
   "watched": 743,
   "ideas": 2232,
   "sourceHandoffCounts": {
-    "totalRows": 657,
+    "totalRows": 1228,
     "runnableRows": 0,
-    "parkedRows": 372,
-    "alreadyRunRows": 285,
+    "parkedRows": 501,
+    "alreadyRunRows": 727,
     "publicFreeRuntimeRows": 0,
     "freeCommunityRows": 0,
     "paidOrAuthParkedRows": 170,
     "rowsWithRunCommand": 0
-  },
-  "freeCommunitySample": {
-    "status": "blocked_free_community_session_broker_required",
-    "account": "ai@bensoncrew.ca",
-    "brokerStatus": "free_account_creation_allowed",
-    "rawSecretPrinted": false
   }
 }
 ```
@@ -128,6 +152,8 @@ Final health readback:
 
 - `foundation:verify -- --json-summary`: 519 checks, 519 passed, 0 failed.
 - `process:system-health-nightly-audit-check -- --json`: `healthy`, risk count 0, watch count 0, scheduled-job risk count 0, connector degraded count 0.
+- Synthesis freshness snapshot: `fresh`, no waiting families, no failed extractor jobs.
+- Dev Hub active extraction lanes: YouTube generated, meetings live, email/Missive live, Slack live, synthesis-router live.
 
 ## Parked Blockers
 
@@ -150,6 +176,14 @@ Final health readback:
 3. Add paid/auth source-session runner path for MyICOR and Steve-approved paid Skool only.
 4. Keep scheduled health green while building the source-session path.
 5. Only after source/session truth is clean, promote selected Director ideas into Scoper with Steve review.
+
+## Morning Talk Track
+
+- YouTube baseline and public/read-only source handoff are caught up for currently runnable rows.
+- Full God Mode is still not done because live free-community sessions, newsletter signups, paid/auth extraction, purchases/downloads/posts/messages, and MyICOR/paid Skool are not automatic yet.
+- Source Session Broker and the free Skool runner have green internal/fixture proofs; next real build is turning that into approved live source-session execution.
+- Synthesis was stale earlier because fresh Gmail/Missive/Slack archives were newer than candidate extraction. That was caught up and now reads fresh.
+- No Scoper promotion was done while Steve was asleep.
 
 ## Important Warnings
 
