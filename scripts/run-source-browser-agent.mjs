@@ -3,6 +3,16 @@
 import process from 'node:process'
 
 import {
+  closeFoundationDb,
+  initFoundationDb,
+  upsertSourceCrawlItem,
+  upsertSourceCrawlTarget,
+} from '../lib/foundation-db.js'
+import {
+  executeSourceBrowserAgentRun,
+  persistSourceBrowserAgentExecution,
+} from '../lib/source-browser-agent-executor.js'
+import {
   SOURCE_BROWSER_AGENT_ID,
   buildSourceBrowserAgentCrawlItemInput,
   buildSourceBrowserAgentHarnessSnapshot,
@@ -14,6 +24,15 @@ function parseArgs(argv = process.argv.slice(2)) {
     json: argv.includes('--json'),
     snapshot: argv.includes('--snapshot'),
     crawlItem: argv.includes('--crawlItem') || argv.includes('--crawl-item'),
+    execute: argv.includes('--execute'),
+    persist: argv.includes('--persist'),
+    allowLocalFixture: argv.includes('--allowLocalFixture') || argv.includes('--allow-local-fixture'),
+    allowSourceSessionRun: argv.includes('--allowSourceSessionRun') || argv.includes('--allow-source-session-run'),
+    headed: argv.includes('--headed'),
+    mode: 'live_browser',
+    maxPages: 4,
+    maxDepth: 1,
+    actor: process.env.FOUNDATION_JOB_ACTOR || 'source-browser-agent-cli',
     packet: {},
     observation: {},
   }
@@ -48,7 +67,13 @@ function parseArgs(argv = process.argv.slice(2)) {
       args.observation.bodyTextPreview = value
       args.observation.textChars = value.length
     }
+    if (key === 'mode') args.mode = value
+    if (key === 'maxPages') args.maxPages = Number(value)
+    if (key === 'maxDepth') args.maxDepth = Number(value)
+    if (key === 'actor') args.actor = value
   }
+  args.maxPages = Number.isFinite(args.maxPages) ? Math.max(1, Math.min(20, args.maxPages)) : 4
+  args.maxDepth = Number.isFinite(args.maxDepth) ? Math.max(0, Math.min(4, args.maxDepth)) : 1
   return args
 }
 
@@ -61,6 +86,47 @@ async function main() {
   }
   if (!args.packet.url) {
     throw new Error('Usage: npm run source:browser-agent -- --url=https://source.example --sourceType=public_or_free_source --json')
+  }
+
+  if (args.execute) {
+    const execution = await executeSourceBrowserAgentRun({
+      packet: args.packet,
+      observation: Object.keys(args.observation).length ? args.observation : undefined,
+      mode: args.mode,
+      maxPages: args.maxPages,
+      maxDepth: args.maxDepth,
+      headed: args.headed,
+      allowLocalFixture: args.allowLocalFixture,
+      allowSourceSessionRun: args.allowSourceSessionRun,
+    })
+    let persistence = null
+    if (args.persist) {
+      await initFoundationDb()
+      try {
+        persistence = await persistSourceBrowserAgentExecution(execution, {
+          actor: args.actor,
+          upsertSourceCrawlTarget,
+          upsertSourceCrawlItem,
+        })
+      } finally {
+        await closeFoundationDb().catch(() => {})
+      }
+    }
+    const output = { execution, persistence }
+    if (args.json) {
+      console.log(JSON.stringify(output, null, 2))
+      return
+    }
+    console.log(`Source Browser Agent execution: ${execution.status}`)
+    console.log(`Agent: ${SOURCE_BROWSER_AGENT_ID}`)
+    console.log(`Source: ${execution.plan?.sourcePacket?.url}`)
+    console.log(`Tool: ${execution.runner || execution.plan?.toolRoute?.toolId || 'none'}`)
+    console.log(`Pages: ${execution.crawlItem?.metadata?.pagesRead || 0}`)
+    console.log(`Unsafe side effects: ${Boolean(execution.unsafeSideEffectDetected)}`)
+    if (persistence) console.log(`Persisted: ${persistence.status}`)
+    console.log(`Next: ${execution.plan?.nextAction || execution.plainEnglish || ''}`)
+    if (execution.ok !== true) process.exitCode = 1
+    return
   }
 
   const report = planSourceBrowserAgentRun({
