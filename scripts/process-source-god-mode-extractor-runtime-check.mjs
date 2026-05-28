@@ -256,6 +256,12 @@ async function main() {
     bodyTextPreview: 'Checking your browser before accessing the community. Enable JavaScript and cookies to continue.',
     textChars: 91,
   })
+  const docsMentionHealth = evaluateSourceBrowserPageHealth({
+    url: 'https://docs.example.com/getting-started',
+    title: 'Build with Cloudflare and verify a Captcha in your app',
+    bodyTextPreview: 'This public documentation explains how developers can add Cloudflare routing and a recipe named Verify a Captcha. It is source content, not a browser interstitial.',
+    textChars: 156,
+  })
 
   addCheck(
     checks,
@@ -304,9 +310,10 @@ async function main() {
       restorePromptHealth.findings.some(item => item.check === 'browser_control_surface_not_source_content') &&
       challengeHealth.ok === false &&
       challengeHealth.findings.some(item => item.check === 'browser_challenge_not_source_content') &&
+      docsMentionHealth.ok === true &&
       /browser_state_must_not_false_green/.test(moduleSource),
     'browser agent cannot false-green about:blank, restore-session, challenge, or empty browser-control states',
-    JSON.stringify({ aboutBlankHealth, restorePromptHealth, challengeHealth }),
+    JSON.stringify({ aboutBlankHealth, restorePromptHealth, challengeHealth, docsMentionHealth }),
   )
   addCheck(
     checks,
