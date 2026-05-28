@@ -796,6 +796,46 @@ function renderYoutubeDevPriorityPreview(preview = {}) {
   `
 }
 
+function renderSourceRunSummary(summary = {}) {
+  if (!summary || summary.status !== 'ready') return ''
+  const buckets = list(summary.bucketSummaries).slice(0, 6)
+  const topRuns = list(summary.topRuns).slice(0, 6)
+  return `
+    <section class="yt-source-run-summary">
+      <div class="yt-section-head">
+        <span>SOURCE RUN OUTPUT</span>
+        <h3>What the source browser already found</h3>
+        <small>${escapeHtml(compactNumber(summary.totalRuns || 0))} runs · ${escapeHtml(compactNumber(summary.pagesRead || 0))} pages · ${escapeHtml(compactNumber(summary.freeResourceCaptures || 0))} resources · ${escapeHtml(compactNumber(summary.unsafeSideEffectRows || 0))} unsafe side effects</small>
+      </div>
+      <p>${escapeHtml(summary.plainEnglish || '')}</p>
+      <div class="yt-source-run-grid">
+        ${buckets.map(bucket => `
+          <article>
+            <div>
+              <span>${escapeHtml(bucket.label || bucket.bucketId || 'Source')}</span>
+              <strong>${escapeHtml(compactNumber(bucket.runs || 0))}</strong>
+            </div>
+            <p>${escapeHtml(`${compactNumber(bucket.pagesRead || 0)} pages · ${compactNumber(bucket.freeResourceCaptures || 0)} resources · ${compactNumber(bucket.blockers || 0)} blockers`)}</p>
+            <small>${escapeHtml(`${compactNumber(bucket.succeeded || 0)} saved · best ${bucket.bestGrade || 'ungraded'} ${compactNumber(bucket.bestScore || 0)}`)}</small>
+          </article>
+        `).join('')}
+      </div>
+      <div class="yt-source-run-list">
+        ${topRuns.map(run => `
+          <article>
+            <div>
+              <span>${escapeHtml(run.grade || 'ungraded')} · ${escapeHtml(compactNumber(run.score || 0))}</span>
+              <strong>${escapeHtml(run.host || run.label || 'source')}</strong>
+            </div>
+            <p>${escapeHtml(list(run.usefulSignals).join(' · ') || run.url || '')}</p>
+            <small>${escapeHtml(`${compactNumber(run.pagesRead || 0)} pages · ${compactNumber(run.freeResourceCaptures || 0)} resources · ${compactNumber(run.blockers || 0)} blockers`)}</small>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+  `
+}
+
 function renderYoutubeSourceHandoffQueue(queue = {}) {
   const rows = sourceHandoffVisibleRows(queue, 12)
   const counts = queue.counts || {}
@@ -813,6 +853,7 @@ function renderYoutubeSourceHandoffQueue(queue = {}) {
         <small>${escapeHtml(queueCopy)}</small>
       </div>
       ${renderYoutubeSourceBucketCards(queue)}
+      ${renderSourceRunSummary(queue.sourceRunSummary)}
       ${renderSourceSessionPrepQueue(queue.sourceSessionPrepQueue)}
       <div class="yt-source-handoff-list">
         ${rows.map(renderYoutubeSourceHandoffRow).join('') || '<article class="loading-card">No source-browser queue rows returned yet.</article>'}

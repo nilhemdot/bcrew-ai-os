@@ -848,6 +848,7 @@ async function main() {
   const sourceGodModeBucketCounts = sourceGodModeHandoffQueue.bucketCounts || {}
   const sourceGodModeRunnableCount = Number(sourceGodModeHandoffQueue.counts?.runnableRows || 0)
   const sourceSessionPrepQueue = sourceGodModeHandoffQueue.sourceSessionPrepQueue || {}
+  const sourceRunSummary = sourceGodModeHandoffQueue.sourceRunSummary || {}
   const sourceSessionPrepRows = list(sourceSessionPrepQueue.rows)
   const sourceGodModeCleared = sourceGodModeRunnableCount === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.publicFreeRuntimeRows || 0) === 0 &&
@@ -947,6 +948,21 @@ async function main() {
       sourceSessionPrepQueue.sideEffects?.externalWrites === false,
     'YouTube source-browser queue exposes source-session prep without claiming live signups or auth runs',
     JSON.stringify(sourceSessionPrepQueue.counts || {}),
+  )
+  addCheck(
+    checks,
+    sourceRunSummary.status === 'ready' &&
+      Number(sourceRunSummary.totalRuns || 0) > 0 &&
+      Number(sourceRunSummary.succeededRuns || 0) > 0 &&
+      Number(sourceRunSummary.pagesRead || 0) > 0 &&
+      Number(sourceRunSummary.freeResourceCaptures || 0) > 0 &&
+      Number(sourceRunSummary.unsafeSideEffectRows || 0) === 0 &&
+      list(sourceRunSummary.bucketSummaries).length >= 3 &&
+      list(sourceRunSummary.topRuns).some(row => Number(row.score || 0) > 0) &&
+      jsSource.includes('renderSourceRunSummary') &&
+      cssSource.includes('.yt-source-run-summary'),
+    'YouTube source-browser saved-run outputs are summarized without returning raw artifacts',
+    `runs=${sourceRunSummary.totalRuns || 0}; pages=${sourceRunSummary.pagesRead || 0}; resources=${sourceRunSummary.freeResourceCaptures || 0}`,
   )
   addCheck(
     checks,

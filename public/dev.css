@@ -3397,6 +3397,80 @@ button {
   color: var(--ink);
 }
 
+.yt-source-run-summary {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--grey-line);
+  border-left: 4px solid var(--green);
+  border-radius: var(--r-sm);
+  background: var(--grey-0);
+}
+
+.yt-source-run-summary > p {
+  margin: 0;
+  color: var(--grey-d);
+}
+
+.yt-source-run-grid,
+.yt-source-run-list {
+  display: grid;
+  gap: 10px;
+}
+
+.yt-source-run-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.yt-source-run-grid article,
+.yt-source-run-list article {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-xs);
+  background: var(--white);
+}
+
+.yt-source-run-grid article > div,
+.yt-source-run-list article > div {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.yt-source-run-grid span,
+.yt-source-run-grid strong,
+.yt-source-run-grid small,
+.yt-source-run-list span,
+.yt-source-run-list strong,
+.yt-source-run-list small {
+  min-width: 0;
+}
+
+.yt-source-run-grid span,
+.yt-source-run-list span,
+.yt-source-run-grid small,
+.yt-source-run-list small {
+  color: var(--grey-m);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+
+.yt-source-run-grid strong,
+.yt-source-run-list strong {
+  color: var(--green);
+}
+
+.yt-source-run-grid p,
+.yt-source-run-list p {
+  margin: 0;
+  color: var(--grey-d);
+}
+
 .yt-dev-priority {
   display: grid;
   gap: 12px;
