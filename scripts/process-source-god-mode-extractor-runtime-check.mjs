@@ -139,6 +139,7 @@ async function main() {
   let liveRun = null
   let formOnlyRun = null
   let repoRun = null
+  let challengeRun = null
   try {
     liveRun = await runSourceGodModeExtractor({
       url: `${fixture.baseUrl}/youtube-page`,
@@ -200,12 +201,28 @@ async function main() {
         `),
       },
     })
+    challengeRun = await runSourceGodModeExtractor({
+      url: 'https://community.example.com/',
+      sourceType: 'public_community_bridge',
+      creatorId: 'fixture-browser-challenge-source',
+      creatorName: 'Fixture Browser Challenge Source',
+      mode: 'synthetic_fixture',
+      maxPages: 1,
+      maxDepth: 0,
+      now: '2026-05-26T20:03:00.000Z',
+      htmlByUrl: {
+        'https://community.example.com/': page('Just a moment...', `
+          <p>Checking your browser before accessing the community. Enable JavaScript and cookies to continue.</p>
+        `),
+      },
+    })
   } finally {
     await fixture.close()
   }
 
   const evaluation = evaluateSourceGodModeExtractorRuntime(liveRun)
   const formOnlyEvaluation = evaluateSourceGodModeExtractorRuntime(formOnlyRun)
+  const challengeEvaluation = evaluateSourceGodModeExtractorRuntime(challengeRun)
   const blockedPaths = ['/checkout', '/login', '/paid-classroom', '/guide.pdf', '/template.zip']
   const blockedPathHits = blockedPaths.map(blockedPath => ({
     path: blockedPath,
@@ -232,6 +249,12 @@ async function main() {
     title: 'Restore pages?',
     bodyTextPreview: "Chrome didn't shut down correctly. Restore pages.",
     textChars: 52,
+  })
+  const challengeHealth = evaluateSourceBrowserPageHealth({
+    url: 'https://community.example.com/',
+    title: 'Just a moment...',
+    bodyTextPreview: 'Checking your browser before accessing the community. Enable JavaScript and cookies to continue.',
+    textChars: 91,
   })
 
   addCheck(
@@ -279,9 +302,11 @@ async function main() {
       aboutBlankHealth.findings.some(item => item.check === 'browser_page_not_blank') &&
       restorePromptHealth.ok === false &&
       restorePromptHealth.findings.some(item => item.check === 'browser_control_surface_not_source_content') &&
+      challengeHealth.ok === false &&
+      challengeHealth.findings.some(item => item.check === 'browser_challenge_not_source_content') &&
       /browser_state_must_not_false_green/.test(moduleSource),
-    'browser agent cannot false-green about:blank, restore-session, or empty browser-control states',
-    JSON.stringify({ aboutBlankHealth, restorePromptHealth }),
+    'browser agent cannot false-green about:blank, restore-session, challenge, or empty browser-control states',
+    JSON.stringify({ aboutBlankHealth, restorePromptHealth, challengeHealth }),
   )
   addCheck(
     checks,
@@ -329,6 +354,21 @@ async function main() {
       blockers: formOnlyRun.blockers,
       submitHits: fixture.hits.get('/form-only-submit') || 0,
       findings: formOnlyEvaluation.findings || [],
+    }),
+  )
+  addCheck(
+    checks,
+    challengeRun.ok === false &&
+      challengeRun.status === 'source_god_mode_runtime_needs_repair' &&
+      challengeRun.blockers?.some(item => item.type === 'browser_challenge_not_source_content') &&
+      challengeEvaluation.ok === false &&
+      challengeEvaluation.findings?.some(item => item.check === 'browser_state_must_not_false_green'),
+    'challenge/browser-interstitial pages fail closed instead of becoming empty successful source evidence',
+    JSON.stringify({
+      status: challengeRun.status,
+      ok: challengeRun.ok,
+      blockers: challengeRun.blockers,
+      findings: challengeEvaluation.findings || [],
     }),
   )
   addCheck(

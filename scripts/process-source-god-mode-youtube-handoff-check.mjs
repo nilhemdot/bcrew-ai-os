@@ -762,11 +762,15 @@ async function main() {
   addCheck(
     checks,
     list(communityBoundaryQueue?.rows).some(row =>
-      row.url.includes('community.youreverydayai.com/sign_up') &&
-      row.status === 'blocked_free_community_form_auth_or_action_surface' &&
-      row.runnable === false &&
-      row.parked === true &&
-      !row.runCommand
+      row.url === 'https://community.youreverydayai.com/' &&
+      list(row.originalUrls).some(originalUrl => originalUrl.includes('community.youreverydayai.com/sign_up')) &&
+      row.cleanedFromUrl.includes('community.youreverydayai.com/sign_up') &&
+      row.status === 'ready_for_public_community_bridge_read' &&
+      row.runner === 'source:god-mode' &&
+      row.sourceType === 'public_community_bridge' &&
+      row.runnable === true &&
+      /source:god-mode/.test(row.runCommand || '') &&
+      /public_community_bridge/.test(row.runCommand || '')
     ) &&
       list(communityBoundaryQueue?.rows).some(row =>
         row.url.includes('jonocatliff.com/skool') &&
@@ -793,7 +797,7 @@ async function main() {
         row.runnable === false &&
         !row.runCommand
       ),
-    'free-community queue routes public bridge pages to source:god-mode while parking signup, direct invite, and Skool session rows correctly',
+    'free-community queue resolves clean public bridge starts while parking direct invite and Skool session rows correctly',
     list(communityBoundaryQueue?.rows).map(row => `${row.url}:${row.status}:${row.runnable}`).join(', '),
   )
   const readyPrepReadinessChecks = list(queue.sourceSessionPrepQueue?.actionGroups)
@@ -827,13 +831,13 @@ async function main() {
       list(queue.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_skool_session_ready' && row.runAfterSessionCommand) &&
       list(queue.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'free_skool_session_ready' && cluster.rowsWithRunAfterSessionCommand === 1 && /chase-ai-community/.test(cluster.label || '')) &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_source_identity_session_needed') &&
-      list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'community_start_url_needed') &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).every(row => row.phase !== 'community_start_url_needed') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'community_runner_needed') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'free_source_identity_session_needed' && cluster.host === 'skool.com') &&
-      list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'community_start_url_needed' && cluster.host === 'community.youreverydayai.com') &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).every(cluster => cluster.phase !== 'community_start_url_needed') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'community_runner_needed' && cluster.host === 'discord.gg') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'free_source_identity_session_needed' && group.nextAction?.includes('ai@bensoncrew.ca')) &&
-      list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'community_start_url_needed') &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).every(group => group.phase !== 'community_start_url_needed') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'community_runner_needed') &&
       parkedPrepReadinessChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
       parkedPrepReadinessChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false),
