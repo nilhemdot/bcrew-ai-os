@@ -154,6 +154,8 @@ Final health readback:
 - `process:system-health-nightly-audit-check -- --json`: `healthy`, risk count 0, watch count 0, scheduled-job risk count 0, connector degraded count 0.
 - Synthesis freshness snapshot: `fresh`, no waiting families, no failed extractor jobs.
 - Dev Hub active extraction lanes: YouTube generated, meetings live, email/Missive live, Slack live, synthesis-router live.
+- After committing the checkpoint update, full verify caught stale served code. Dashboard and worker were restarted, then `foundation:verify -- --json-summary` passed 519/519 again.
+- `connector-uptime-monitor` became due inside the grace window; it was run manually and returned 6/6 connectors healthy. Final System Health after that run: healthy, due count 0, risk/watch 0.
 
 ## Parked Blockers
 
