@@ -266,6 +266,7 @@ async function main() {
   let repoHostBoundaryQueue = null
   let communityBoundaryQueue = null
   let publicWebBoundaryQueue = null
+  let canonicalUrlQueue = null
   let batch = null
   let persistence = null
   const persistenceWrites = []
@@ -498,6 +499,61 @@ async function main() {
         ],
       },
     })
+    canonicalUrlQueue = buildSourceGodModeYoutubeHandoffQueue({
+      handoffEvidence: {
+        sourceRoute: 'fixture.youtube.fullWatchReports.canonicalUrlDedupe',
+        scannedReportCount: 4,
+        buckets: {
+          'public-web-resources': {
+            count: 4,
+            itemLimit: 4,
+            hasMore: false,
+            sampleHosts: ['buildpartner.ai'],
+            items: [
+              {
+                url: 'https://buildpartner.ai/4cp',
+                host: 'buildpartner.ai',
+                reportArtifactId: 'report:canonical-1',
+                sourceVideoId: 'fixture-video-canonical-1',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+              {
+                url: 'https://www.buildpartner.ai/4cp/',
+                host: 'www.buildpartner.ai',
+                reportArtifactId: 'report:canonical-2',
+                sourceVideoId: 'fixture-video-canonical-2',
+                creatorId: 'fixture-c-source',
+                creator: 'Fixture C Source',
+              },
+              {
+                url: 'https://buildpartner.ai/4cp?utm_source=youtube&session=abc123',
+                host: 'buildpartner.ai',
+                reportArtifactId: 'report:canonical-3',
+                sourceVideoId: 'fixture-video-canonical-3',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+              {
+                url: 'https://buildpartner.ai/4cp?item=1',
+                host: 'buildpartner.ai',
+                reportArtifactId: 'report:canonical-distinct',
+                sourceVideoId: 'fixture-video-canonical-4',
+                creatorId: 'fixture-a-source',
+                creator: 'Fixture A Source',
+              },
+            ],
+          },
+        },
+      },
+      generatedAt: '2026-05-27T11:00:00.000-04:00',
+      sourceValueGrader: {
+        sourceGrades: [
+          { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+          { creatorId: 'fixture-c-source', creator: 'Fixture C Source', devBuildGrade: 'C', laneScores: [{ laneId: 'aios_dev_build', grade: 'C', score: 38 }] },
+        ],
+      },
+    })
     batch = await runSourceGodModeYoutubeHandoffBatch({
       queue,
       maxRuns: 5,
@@ -528,7 +584,7 @@ async function main() {
   const rows = list(queue.rows)
   const repoUpgradeRow = list(repoUpgradeQueue?.rows).find(row => row.bucketId === 'public-code-repos') || null
   const repoHostBoundaryRow = list(repoHostBoundaryQueue?.rows).find(row => row.url === 'https://claude.ai/code') || null
-  const repoRootBoundaryRow = list(repoHostBoundaryQueue?.rows).find(row => row.url === 'https://github.com') || null
+  const repoRootBoundaryRow = list(repoHostBoundaryQueue?.rows).find(row => row.url.replace(/\/$/g, '') === 'https://github.com') || null
   const results = list(batch.results)
   const byBucket = Object.fromEntries(results.map(result => [result.bucketId, result]))
   const skipped = list(batch.skippedRows)
@@ -735,7 +791,7 @@ async function main() {
         row.runnable === false
       ) &&
       list(publicWebBoundaryQueue?.rows).some(row =>
-        row.url.includes('ps_partner_key') &&
+        list(row.originalUrls).some(originalUrl => originalUrl.includes('ps_partner_key')) &&
         row.status === 'blocked_product_or_affiliate_tracking_surface' &&
         row.runnable === false
       ) &&
@@ -746,6 +802,33 @@ async function main() {
       ),
     'public-web queue parks social profiles, link bridges, affiliate product homepages, and form/action surfaces',
     list(publicWebBoundaryQueue?.rows).map(row => `${row.url}:${row.status}:${row.runnable}`).join(', '),
+  )
+  const canonicalRows = list(canonicalUrlQueue?.rows)
+  const mergedCanonicalRow = canonicalRows.find(row => row.url === 'https://buildpartner.ai/4cp')
+  addCheck(
+    checks,
+    canonicalUrlQueue?.counts?.evidenceRows === 4 &&
+      canonicalUrlQueue?.counts?.totalRows === 2 &&
+      canonicalUrlQueue?.counts?.duplicateRows === 2 &&
+      canonicalUrlQueue?.bucketCounts?.['public-web-resources']?.duplicateRows === 2 &&
+      canonicalUrlQueue?.bucketCounts?.['public-web-resources']?.hasMore === false &&
+      mergedCanonicalRow?.host === 'buildpartner.ai' &&
+      mergedCanonicalRow?.duplicateEvidenceRowCount >= 3 &&
+      list(mergedCanonicalRow?.sourceVideoIds).length === 3 &&
+      list(mergedCanonicalRow?.reportArtifactIds).length === 3 &&
+      list(mergedCanonicalRow?.sourceGrades).some(source => source.creatorId === 'fixture-c-source') &&
+      canonicalRows.some(row => row.url === 'https://buildpartner.ai/4cp?item=1'),
+    'source handoff queue dedupes www/trailing-slash/tracking variants while preserving provenance',
+    JSON.stringify({
+      counts: canonicalUrlQueue?.counts,
+      bucket: canonicalUrlQueue?.bucketCounts?.['public-web-resources'],
+      rows: canonicalRows.map(row => ({
+        url: row.url,
+        originalUrls: row.originalUrls,
+        sourceVideoIds: row.sourceVideoIds,
+        reportArtifactIds: row.reportArtifactIds,
+      })),
+    }),
   )
   addCheck(
     checks,

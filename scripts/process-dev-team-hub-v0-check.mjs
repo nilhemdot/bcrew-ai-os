@@ -855,6 +855,11 @@ async function main() {
   const sourceSessionActionGroups = list(sourceSessionPrepQueue.actionGroups)
   const sourceSessionReadinessChecks = sourceSessionActionGroups
     .flatMap(group => list(group.readiness?.checks))
+  const sourceGodModeTotalRows = Number(sourceGodModeHandoffQueue.counts?.totalRows || 0)
+  const sourceGodModeEvidenceRows = Number(sourceGodModeHandoffQueue.counts?.evidenceRows || 0)
+  const sourceGodModeDuplicateRows = Number(sourceGodModeHandoffQueue.counts?.duplicateRows || 0)
+  const sourceGodModeEvidenceAccountedFor = sourceGodModeTotalRows > 0 &&
+    sourceGodModeEvidenceRows === sourceGodModeTotalRows + sourceGodModeDuplicateRows
   const sourceGodModeCleared = sourceGodModeRunnableCount === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.publicFreeRuntimeRows || 0) === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.freeCommunityRows || 0) === 0 &&
@@ -883,7 +888,7 @@ async function main() {
   addCheck(
     checks,
     sourceGodModeHandoffQueue.status === 'ready' &&
-      Number(sourceGodModeHandoffQueue.counts?.totalRows || 0) === Number(sourceGodModeHandoffQueue.counts?.evidenceRows || 0) &&
+      sourceGodModeEvidenceAccountedFor &&
       Object.values(sourceGodModeBucketCounts).every(bucket => bucket.hasMore === false) &&
       Number(sourceGodModeHandoffQueue.counts?.parkedRows || 0) > 0 &&
       sourceGodModeRows.some(row => row.requiresAuth === true && row.runnable === false) &&
@@ -891,7 +896,7 @@ async function main() {
       freeCommunitySessionBrokerDecisionsVisible &&
       (sourceGodModeCleared || sourceGodModeHasRunnableWork),
     'YouTube handoff exposes source-browser run state honestly while paid/auth and session-bound communities stay parked',
-    `ready=${sourceGodModeRunnableCount}; total=${sourceGodModeHandoffQueue.counts?.totalRows || 0}; evidence=${sourceGodModeHandoffQueue.counts?.evidenceRows || 0}; alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
+    `ready=${sourceGodModeRunnableCount}; total=${sourceGodModeTotalRows}; evidence=${sourceGodModeEvidenceRows}; duplicates=${sourceGodModeDuplicateRows}; alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
   )
   addCheck(
     checks,
