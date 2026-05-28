@@ -2928,6 +2928,7 @@ button {
 .yt-section-head span,
 .yt-stage > span,
 .yt-handoff span,
+.yt-source-bucket span,
 .yt-video-head span,
 .yt-creator span,
 .yt-reason span,
@@ -3118,6 +3119,57 @@ button {
 .yt-source-handoff-list {
   display: grid;
   gap: 10px;
+}
+
+.yt-source-bucket-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.yt-source-bucket {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--grey-line);
+  border-top: 3px solid var(--amber);
+  border-radius: var(--r-sm);
+  background: var(--white);
+}
+
+.yt-source-bucket.live {
+  border-top-color: var(--green);
+}
+
+.yt-source-bucket > div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.yt-source-bucket span,
+.yt-source-bucket strong,
+.yt-source-bucket small,
+.yt-source-bucket p {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.yt-source-bucket strong {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: var(--t-xl);
+  font-weight: var(--w-black);
+}
+
+.yt-source-bucket p,
+.yt-source-bucket small {
+  margin: 0;
+  color: var(--grey-d);
+  font-size: var(--t-xs);
 }
 
 .yt-video {

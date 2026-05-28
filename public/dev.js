@@ -661,6 +661,48 @@ function renderSourceSessionBrokerDecision(row = {}) {
   `
 }
 
+function sourceHandoffVisibleRows(queue = {}, limit = 12) {
+  const rows = list(queue.rows)
+  const bucketIds = Object.keys(queue.bucketCounts || {})
+  const orderedBucketIds = bucketIds.length
+    ? bucketIds
+    : Array.from(new Set(rows.map(row => row.bucketId).filter(Boolean)))
+  const selected = []
+  for (const bucketId of orderedBucketIds) {
+    const bucketRows = rows.filter(row => row.bucketId === bucketId)
+    selected.push(...bucketRows.slice(0, 2))
+  }
+  const seen = new Set(selected.map(row => row.rowId || row.url))
+  for (const row of rows) {
+    const key = row.rowId || row.url
+    if (seen.has(key)) continue
+    selected.push(row)
+    seen.add(key)
+    if (selected.length >= limit) break
+  }
+  return selected.slice(0, limit)
+}
+
+function renderYoutubeSourceBucketCards(queue = {}) {
+  const bucketCounts = queue.bucketCounts || {}
+  const buckets = Object.entries(bucketCounts)
+  if (!buckets.length) return ''
+  return `
+    <div class="yt-source-bucket-grid">
+      ${buckets.map(([bucketId, bucket]) => `
+        <article class="yt-source-bucket ${bucket.runnable ? 'live' : 'pending'}">
+          <div>
+            <span>${escapeHtml(bucket.label || bucketId)}</span>
+            <strong>${escapeHtml(compactNumber(bucket.count || bucket.queuedRows || 0))}</strong>
+          </div>
+          <p>${escapeHtml(statusCopy(bucket.status || 'waiting'))}</p>
+          <small>${escapeHtml(compactNumber(bucket.runnableRows || 0))} ready · ${escapeHtml(compactNumber(bucket.alreadyRunRows || 0))} read · ${escapeHtml(compactNumber(bucket.parkedRows || 0))} parked</small>
+        </article>
+      `).join('')}
+    </div>
+  `
+}
+
 function renderYoutubeSourceHandoffRow(row = {}) {
   const tone = row.runnable ? 'live' : 'pending'
   const action = row.runnable ? row.runner || 'source worker' : row.status || 'parked'
@@ -727,7 +769,7 @@ function renderYoutubeDevPriorityPreview(preview = {}) {
 }
 
 function renderYoutubeSourceHandoffQueue(queue = {}) {
-  const rows = list(queue.rows).slice(0, 12)
+  const rows = sourceHandoffVisibleRows(queue, 12)
   const counts = queue.counts || {}
   const queueCopy = [
     `${compactNumber(counts.evidenceRows || counts.totalRows || 0)} discovered`,
@@ -742,6 +784,7 @@ function renderYoutubeSourceHandoffQueue(queue = {}) {
         <h3>What can run next</h3>
         <small>${escapeHtml(queueCopy)}</small>
       </div>
+      ${renderYoutubeSourceBucketCards(queue)}
       <div class="yt-source-handoff-list">
         ${rows.map(renderYoutubeSourceHandoffRow).join('') || '<article class="loading-card">No source-browser queue rows returned yet.</article>'}
       </div>

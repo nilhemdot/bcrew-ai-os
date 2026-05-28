@@ -383,17 +383,20 @@ async function main() {
       jsSource.includes('renderYoutubeSourceIntelligence') &&
       jsSource.includes('renderYoutubeHandoff') &&
       jsSource.includes('renderYoutubeSourceHandoffQueue') &&
+      jsSource.includes('renderYoutubeSourceBucketCards') &&
+      jsSource.includes('sourceHandoffVisibleRows') &&
       jsSource.includes('renderSourceSessionBrokerDecision') &&
       jsSource.includes('renderYoutubeExecutiveSummary') &&
       jsSource.includes('setDevView') &&
       cssSource.includes('.youtube-system') &&
       cssSource.includes('.yt-stage-grid') &&
       cssSource.includes('.yt-handoff-grid') &&
+      cssSource.includes('.yt-source-bucket-grid') &&
       cssSource.includes('.yt-source-handoff-list') &&
       cssSource.includes('.yt-source-session') &&
       cssSource.includes('.yt-exec-summary'),
 	    'Dev page exposes a separate YouTube Intelligence system view',
-	    'sidebar view + #view-youtube + #youtube-system + runtime/stage/handoff/source-browser/session-broker/executive-summary renderers',
+	    'sidebar view + #view-youtube + #youtube-system + runtime/stage/handoff/source-browser grouped buckets/session-broker/executive-summary renderers',
 	  )
 	  addCheck(
 	    checks,
@@ -819,6 +822,7 @@ async function main() {
   )
   const sourceGodModeHandoffQueue = payload?.youtubeSourceIntelligence?.sourceGodModeHandoffQueue || {}
   const sourceGodModeRows = list(sourceGodModeHandoffQueue.rows)
+  const sourceGodModeBucketCounts = sourceGodModeHandoffQueue.bucketCounts || {}
   const sourceGodModeRunnableCount = Number(sourceGodModeHandoffQueue.counts?.runnableRows || 0)
   const sourceGodModeCleared = sourceGodModeRunnableCount === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.publicFreeRuntimeRows || 0) === 0 &&
@@ -861,6 +865,25 @@ async function main() {
       sourceGodModeRows.some(row => row.status === 'already_run_source_evidence_saved' && row.runnable === false),
     'YouTube handoff readback marks source-browser rows already persisted',
     `alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; total=${sourceGodModeHandoffQueue.counts?.totalRows || 0}`,
+  )
+  addCheck(
+    checks,
+    [
+      'public-web-resources',
+      'public-code-repos',
+      'creator-newsletters',
+      'free-communities',
+      'products-tools-to-approve',
+      'paid-auth-gates',
+    ].every(bucketId => sourceGodModeBucketCounts[bucketId]) &&
+      Object.values(sourceGodModeBucketCounts).every(bucket =>
+        Number.isFinite(Number(bucket.runnableRows || 0)) &&
+        Number.isFinite(Number(bucket.parkedRows || 0)) &&
+        Number.isFinite(Number(bucket.alreadyRunRows || 0)) &&
+        Number.isFinite(Number(bucket.rowsWithRunCommand || 0))
+      ),
+    'YouTube source-browser queue exposes per-bucket readiness so communities/repos/newsletters are not hidden behind mixed rows',
+    Object.entries(sourceGodModeBucketCounts).map(([bucketId, bucket]) => `${bucketId}:ready=${bucket.runnableRows || 0}/read=${bucket.alreadyRunRows || 0}/parked=${bucket.parkedRows || 0}`).join(' | ') || 'missing',
   )
   addCheck(
     checks,
