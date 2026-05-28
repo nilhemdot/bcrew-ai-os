@@ -168,14 +168,27 @@ async function main() {
         now: new Date().toISOString(),
       }))
     }
+    const unsafeResults = results.filter(result => result.unsafeSideEffectDetected === true)
+    const safelyTerminalRows = results.filter(result =>
+      result.ok === true ||
+      result.hostedFallbackRequired === true ||
+      /failed_closed|blocked_before_run/.test(String(result.status || ''))
+    )
+    const systemOk = unsafeResults.length === 0 && safelyTerminalRows.length === results.length
     const output = {
-      ok: results.every(result => result.ok === true),
-      status: results.every(result => result.ok === true) ? 'completed' : 'completed_with_parked_or_failed_rows',
+      ok: systemOk,
+      status: results.every(result => result.ok === true)
+        ? 'completed'
+        : systemOk
+          ? 'completed_with_safe_parked_rows'
+          : 'completed_with_failed_rows',
       targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
       counts: {
         selectedRows: loaded.selectedRows.length,
         completedRows: results.filter(result => result.ok === true).length,
         hostedFallbackRequiredRows: results.filter(result => result.hostedFallbackRequired === true).length,
+        safelyParkedRows: safelyTerminalRows.filter(result => result.ok !== true).length,
+        unsafeRows: unsafeResults.length,
       },
       results: results.map(result => ({
         status: result.status,

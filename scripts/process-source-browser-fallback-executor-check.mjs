@@ -194,8 +194,10 @@ async function main() {
     batchRunnerSource.includes('loadFallbackBatch') &&
       batchRunnerSource.includes('retryBatch.selectedRows') &&
       batchRunnerSource.includes('Dry run first') &&
-      batchRunnerSource.includes('runSourceBrowserFallbackRetry'),
-    'fallback batch CLI selects bounded clean retries and defaults to dry-run readback',
+      batchRunnerSource.includes('runSourceBrowserFallbackRetry') &&
+      batchRunnerSource.includes('completed_with_safe_parked_rows') &&
+      batchRunnerSource.includes('unsafeRows'),
+    'fallback batch CLI selects bounded clean retries, defaults to dry-run readback, and treats safe parked rows as terminal',
     'scripts/run-source-browser-fallback-batch.mjs',
   )
   addCheck(

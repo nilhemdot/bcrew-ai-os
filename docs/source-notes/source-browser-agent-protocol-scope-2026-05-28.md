@@ -101,6 +101,8 @@ The fallback executor slice makes saved browser-challenge rows actionable withou
 
 The fallback batch planner turns that retry packet layer into a bounded operator/scheduler batch. Browser-challenge review now exposes `retryBatch`, and `npm run source:browser-fallback-batch -- --json --max-runs=5` shows the first clean-isolated retries without launching them. The selector uses Dev source priority but spreads across hosts first, so one challenged host cannot consume the entire batch.
 
+Live persistence repair: the Source Browser Agent recovery target now uses the registered YouTube Intelligence source contract, the existing `recovery` crawl lane, manual runtime mode, and explicit runtime caps so Postgres constraints protect the run ledger instead of being bypassed by fixture proof. Clean retry batches also treat safe parked rows as handled: if a row still hits a browser challenge and has no unsafe side effects, the batch records it for hosted/browser fallback instead of crashing or claiming extraction.
+
 1. Promote Source Browser from runtime to agent harness.
    - Use `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` and `AGENT-CAPABILITY-REGISTRY-001` as the governing protocol.
    - Do not create a brand-new protocol unless a concrete missing field is found.

@@ -334,13 +334,20 @@ async function main() {
   )
   addCheck(
     checks,
-    targetInput.budget?.broadCrawl === false &&
+      targetInput.sourceId === 'SRC-YOUTUBE-INTEL-001' &&
+      targetInput.lane === 'recovery' &&
+      targetInput.runtimeMode === 'manual' &&
+      targetInput.cursorState?.cursorType === 'exact_source_packet_recovery' &&
+      targetInput.budget?.llmBudget === 'none_for_source_browser_recovery' &&
+      targetInput.budget?.maxItemsPerRun === 20 &&
+      targetInput.budget?.maxRuntimeSeconds === 3900 &&
+      targetInput.budget?.broadCrawl === false &&
       targetInput.budget?.formSubmits === false &&
       targetInput.budget?.downloads === false &&
       targetInput.budget?.purchases === false &&
       targetInput.metadata?.noScoperPromotion === true,
-    'execution target locks exact-source/no-side-effect/no-Scoper budget',
-    JSON.stringify(targetInput.budget),
+    'execution target uses registered source contract plus valid source-crawl lane/runtime values and locks exact-source/no-side-effect/no-Scoper budget',
+    JSON.stringify({ sourceId: targetInput.sourceId, lane: targetInput.lane, runtimeMode: targetInput.runtimeMode, cursorType: targetInput.cursorState?.cursorType, budget: targetInput.budget }),
   )
   addCheck(
     checks,
