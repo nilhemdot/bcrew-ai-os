@@ -826,6 +826,65 @@ function renderYoutubeCreatorGrade(row = {}) {
   `
 }
 
+function surfaceStatusTone(status = '') {
+  const normalized = text(status).toLowerCase()
+  if (['ready', 'read', 'baseline_complete'].includes(normalized)) return 'live'
+  if (normalized === 'mixed_read_and_parked') return 'verified'
+  if (['parked', 'needs_watch'].includes(normalized)) return 'pending'
+  return ''
+}
+
+function renderCreatorSurface(surface = {}) {
+  return `
+    <span class="yt-surface ${escapeHtml(surfaceStatusTone(surface.status))}" title="${escapeHtml(list(surface.hosts).join(' · ') || statusCopy(surface.status || 'not_found'))}">
+      <b>${escapeHtml(surface.label || 'Surface')}</b>
+      <em>${escapeHtml(compactNumber(surface.count || surface.watched || 0))}</em>
+    </span>
+  `
+}
+
+function renderYoutubeCreatorSourceStack(row = {}) {
+  const surfaces = row.surfaces || {}
+  const ordered = [
+    surfaces.youtube,
+    surfaces.publicWeb,
+    surfaces.githubRepos,
+    surfaces.newsletters,
+    surfaces.freeCommunities,
+    surfaces.paidAuthGates,
+    surfaces.productsTools,
+  ].filter(Boolean)
+  return `
+    <article class="yt-source-stack">
+      <div>
+        <strong>${escapeHtml(text(row.grade, 'ungraded').toUpperCase())}</strong>
+        <span>${escapeHtml(text(row.creator || row.creatorId, 'Unknown creator'))}</span>
+      </div>
+      <p>${escapeHtml(`${compactNumber(row.discoveredSurfaceCount || 0)} surfaces · ${compactNumber(row.readSurfaceCount || 0)} read · ${compactNumber(row.parkedSurfaceCount || 0)} parked`)}</p>
+      <div class="yt-surface-strip">
+        ${ordered.map(renderCreatorSurface).join('')}
+      </div>
+    </article>
+  `
+}
+
+function renderYoutubeCreatorSourceStacks(stacks = []) {
+  const rows = list(stacks).slice(0, 12)
+  if (!rows.length) return ''
+  return `
+    <section class="yt-section">
+      <div class="yt-section-head">
+        <span>CREATOR SOURCE STACK</span>
+        <h3>What surfaces we found per creator</h3>
+        <small>${escapeHtml(compactNumber(list(stacks).length))} creator stacks · YouTube, public pages, repos, newsletters, communities, paid/auth gates</small>
+      </div>
+      <div class="yt-source-stack-grid">
+        ${rows.map(renderYoutubeCreatorSourceStack).join('')}
+      </div>
+    </section>
+  `
+}
+
 function renderYoutubeRejectedReasons(reasons = {}) {
   const rows = Object.entries(reasons || {})
     .sort((left, right) => Number(right[1] || 0) - Number(left[1] || 0))
@@ -954,6 +1013,8 @@ function renderYoutubeSourceIntelligence(snapshot = {}) {
     </section>
 
     ${renderYoutubeSourceHandoffQueue(system.sourceGodModeHandoffQueue)}
+
+    ${renderYoutubeCreatorSourceStacks(system.creatorSourceStacks)}
 
     <section class="yt-two-col">
       <div class="yt-section">

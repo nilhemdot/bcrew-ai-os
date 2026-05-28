@@ -385,6 +385,7 @@ async function main() {
       jsSource.includes('renderYoutubeSourceHandoffQueue') &&
       jsSource.includes('renderYoutubeSourceBucketCards') &&
       jsSource.includes('sourceHandoffVisibleRows') &&
+      jsSource.includes('renderYoutubeCreatorSourceStacks') &&
       jsSource.includes('renderSourceSessionBrokerDecision') &&
       jsSource.includes('renderYoutubeExecutiveSummary') &&
       jsSource.includes('setDevView') &&
@@ -392,11 +393,12 @@ async function main() {
       cssSource.includes('.yt-stage-grid') &&
       cssSource.includes('.yt-handoff-grid') &&
       cssSource.includes('.yt-source-bucket-grid') &&
+      cssSource.includes('.yt-source-stack-grid') &&
       cssSource.includes('.yt-source-handoff-list') &&
       cssSource.includes('.yt-source-session') &&
       cssSource.includes('.yt-exec-summary'),
 	    'Dev page exposes a separate YouTube Intelligence system view',
-	    'sidebar view + #view-youtube + #youtube-system + runtime/stage/handoff/source-browser grouped buckets/session-broker/executive-summary renderers',
+	    'sidebar view + #view-youtube + #youtube-system + runtime/stage/handoff/source-browser grouped buckets/source-stack/session-broker/executive-summary renderers',
 	  )
 	  addCheck(
 	    checks,
@@ -662,6 +664,19 @@ async function main() {
       youtubeCreatorLeaderboardCount >= list(payload?.youtubeSourceIntelligence?.topCreators).length,
     'live YouTube source intelligence exposes active graded creator ranking plus preview rows',
     `active=${youtubeActiveCreatorCount}; graded=${youtubeCreatorLeaderboardCount}; sourceGrades=${sourceGradeCount}; ungraded=${youtubeUngradedCreatorCount}; preview=${list(payload?.youtubeSourceIntelligence?.topCreators).length}`,
+  )
+  const creatorSourceStacks = list(payload?.youtubeSourceIntelligence?.creatorSourceStacks)
+  addCheck(
+    checks,
+    creatorSourceStacks.length >= list(payload?.youtubeSourceIntelligence?.topCreators).length &&
+      creatorSourceStacks.some(row => Number(row.surfaces?.youtube?.watched || row.surfaces?.youtube?.read || 0) > 0) &&
+      creatorSourceStacks.some(row =>
+        Number(row.surfaces?.newsletters?.count || 0) > 0 ||
+        Number(row.surfaces?.githubRepos?.count || 0) > 0 ||
+        Number(row.surfaces?.freeCommunities?.count || 0) > 0
+      ),
+    'live YouTube source intelligence exposes creator source stacks across YouTube, repos, newsletters, and communities',
+    `${creatorSourceStacks.length} creator stacks`,
   )
   addCheck(
     checks,
