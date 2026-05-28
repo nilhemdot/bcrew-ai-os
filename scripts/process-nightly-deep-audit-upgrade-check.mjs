@@ -90,9 +90,16 @@ async function writeReportArtifacts(audit) {
   await fs.mkdir(path.dirname(reportPath), { recursive: true })
   await fs.writeFile(reportPath, markdown, 'utf8')
   await fs.writeFile(jsonPath, `${json}\n`, 'utf8')
+  const [reportStat, jsonStat] = await Promise.all([
+    fs.stat(reportPath),
+    fs.stat(jsonPath),
+  ])
   return {
     markdown,
     json,
+    wroteFiles: true,
+    reportBytes: reportStat.size,
+    jsonFileBytes: jsonStat.size,
     jsonBytes: Buffer.byteLength(json),
     jsonLines: 1,
     reportPath: audit.reportPath,
@@ -134,6 +141,9 @@ async function main() {
         return {
           markdown: renderNightlyDeepAuditUpgradeReport(audit),
           json,
+          wroteFiles: false,
+          reportBytes: Buffer.byteLength(renderNightlyDeepAuditUpgradeReport(audit)),
+          jsonFileBytes: Buffer.byteLength(`${json}\n`),
           jsonBytes: Buffer.byteLength(json),
           jsonLines: 1,
           reportPath: audit.reportPath,
@@ -279,6 +289,18 @@ async function main() {
       /^docs\/handoffs\/nightly-deep-audit-\d{4}-\d{2}-\d{2}\.json$/.test(audit.jsonPath),
     'audit uses date-based report and JSON paths',
     `${audit.reportPath} / ${audit.jsonPath}`,
+  )
+  addCheck(
+    checks,
+    args.writeReport
+      ? artifacts.wroteFiles === true && artifacts.reportBytes > 0 && artifacts.jsonFileBytes > 0
+      : artifacts.wroteFiles === false,
+    args.writeReport
+      ? 'write-report flag proves nightly audit artifacts exist on disk'
+      : 'no-write mode renders without writing nightly audit artifacts',
+    args.writeReport
+      ? `${artifacts.reportPath} ${artifacts.reportBytes || 0}b / ${artifacts.jsonPath} ${artifacts.jsonFileBytes || 0}b`
+      : `${artifacts.reportPath} render-only`,
   )
   addCheck(
     checks,

@@ -1,7 +1,7 @@
 # Nightly Deep Audit Report - 2026-05-28
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
-Generated at: `2026-05-28T07:00:59.467Z`
+Generated at: `2026-05-28T08:51:01.934Z`
 Report path: `docs/handoffs/nightly-deep-audit-2026-05-28.md`
 
 ## Morning Read
@@ -10,12 +10,12 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-28.md`
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev.
 - Active deterministic findings: 0 total (0 P0, 0 P1, 0 P2, 0 P3)
 - Closed detector signals reconciled out of active audit: 0 of 0
-- Changed files selected: 5
-- High-risk review targets: 15
+- Changed files selected: 4
+- High-risk review targets: 13
 - LLM review mode: `bounded_senior_review_executed`
 - Deep senior review rollup: `healthy` (deep senior review executed with 0 active finding(s) and 0 reconciled closed finding(s))
 - Dogfood against May 13 failures: passed
-- Doc/report artifact bloat: `healthy` (0 red, 0 yellow)
+- Doc/report artifact bloat: `watch` (0 red, 1 yellow)
 
 ## Diff Summary
 
@@ -47,22 +47,22 @@ Deep senior review executed through the approved router.
 
 ## Endpoint And Payload Trend
 
-- /api/foundation-hub: 131ms, 585368B, risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: 31ms, 199972B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: 564ms, 625598B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: 141ms, 216789B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: 37ms, 33222B, risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: 100ms, 582887B, risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: 25ms, 199973B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: 556ms, 624970B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: 112ms, 205917B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: 28ms, 33222B, risk=healthy (Within V1 audit budget.)
 
 ## Largest Files
 
 - scripts/foundation-verify.mjs: 4998 LOC, 277372B
-- public/dev.css: 4569 LOC, 81509B
+- public/dev.css: 4707 LOC, 84043B
+- lib/dev-team-hub.js: 3240 LOC, 154345B
 - lib/foundation-build-closeout-source-records.js: 3205 LOC, 273394B
 - lib/foundation-build-closeout-process-gate-records.js: 3133 LOC, 224729B
 - public/foundation.js: 2987 LOC, 113810B
-- lib/dev-team-hub.js: 2894 LOC, 141020B
+- public/dev.js: 2796 LOC, 127329B
 - lib/foundation-db-schema-seed-store.js: 2757 LOC, 141992B
-- public/dev.js: 2725 LOC, 123257B
 - lib/foundation-build-closeout-overnight-records.js: 2718 LOC, 216767B
 - lib/foundation-build-closeout-intelligence-records.js: 2687 LOC, 202469B
 
@@ -127,9 +127,9 @@ import {
 
 ### P1 public/dev.css
 
-- Lines: 4569
-- Bytes: 81509
-- Reasons: over_3k_warn
+- Lines: 4707
+- Bytes: 84043
+- Reasons: changed_since_baseline, over_3k_warn
 
 ```
 @font-face {
@@ -180,6 +180,63 @@ import {
   --t-md: 16px;
   --t-lg: 18px;
   --t-xl: 22px;
+```
+
+### P1 lib/dev-team-hub.js
+
+- Lines: 3240
+- Bytes: 154345
+- Reasons: changed_since_baseline, over_3k_warn
+
+```
+import { CREATOR_WATCHLIST_SOURCE_ID } from './build-intel-watchlist.js'
+import {
+  YOUTUBE_CREATOR_DAILY_WATCH_JOB_KEY,
+  YOUTUBE_CREATOR_DAILY_WATCH_MARK_CREATOR_ID,
+  YOUTUBE_CREATOR_DAILY_WATCH_REPORT_ARTIFACT_ID,
+  YOUTUBE_CREATOR_DAILY_WATCH_SOURCE_ID,
+  YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
+} from './youtube-creator-daily-watch.js'
+import {
+  YOUTUBE_SCOUT_CHANNEL,
+  YOUTUBE_SCOUT_CHANNEL_URL,
+  YOUTUBE_SCOUT_REPORT_ARTIFACT_ID,
+  YOUTUBE_SCOUT_SEED_ARTIFACT_ID,
+  YOUTUBE_SCOUT_SEED_VIDEO_ID,
+  YOUTUBE_SCOUT_SEED_VIDEO_URL,
+  YOUTUBE_SCOUT_SOURCE_ID,
+  YOUTUBE_SCOUT_VIDEO_SOURCE_ID,
+} from './youtube-scout-latest-video-vision.js'
+import {
+  YOUTUBE_BUILD_INTEL_LINK_RESOURCE_REPORT_ARTIFACT_ID,
+} from './youtube-build-intel-link-resource.js'
+import {
+  GOD_MODE_EYES_SOURCE_ID,
+  GOD_MODE_EYES_VIDEO_SOURCE_ID,
+  GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID,
+} from './god-mode-extractor-eyes-quality-loop.js'
+import {
+  MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID,
+} from './mark-kashef-god-mode-small-batch.js'
+import {
+  MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID,
+} from './god-mode-youtube-end-to-end-extractor.js'
+import {
+  DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID,
+  DEV_TEAM_INTELLIGENCE_DIRECTOR_SOURCE_ID,
+} from './dev-team-intelligence-director.js'
+import {
+  BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
+  BUILD_INTEL_SOURCE_VALUE_GRADER_SOURCE_ID,
+} from './build-intel-source-value-grader.js'
+import {
+  isYoutubeLatest20FullWatchReportId,
+} from './youtube-latest-20-full-watch-runner.js'
+import {
+  buildDevIntelSourceCoverageSnapshot,
+} from './dev-intel-source-coverage.js'
+import {
+  buildSourcePacketPreview,
 ```
 
 ### P1 lib/foundation-build-closeout-source-records.js
@@ -318,61 +375,61 @@ function renderBacklog() {
       var count = (hub.backlogItems || []).filter(function(item) { return item.scope === scope.key }).length
 ```
 
-### P1 lib/dev-team-hub.js
+### P1 public/dev.js
 
-- Lines: 2894
-- Bytes: 141020
+- Lines: 2796
+- Bytes: 127329
 - Reasons: changed_since_baseline
 
 ```
-import { CREATOR_WATCHLIST_SOURCE_ID } from './build-intel-watchlist.js'
-import {
-  YOUTUBE_CREATOR_DAILY_WATCH_JOB_KEY,
-  YOUTUBE_CREATOR_DAILY_WATCH_MARK_CREATOR_ID,
-  YOUTUBE_CREATOR_DAILY_WATCH_REPORT_ARTIFACT_ID,
-  YOUTUBE_CREATOR_DAILY_WATCH_SOURCE_ID,
-  YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
-} from './youtube-creator-daily-watch.js'
-import {
-  YOUTUBE_SCOUT_CHANNEL,
-  YOUTUBE_SCOUT_CHANNEL_URL,
-  YOUTUBE_SCOUT_REPORT_ARTIFACT_ID,
-  YOUTUBE_SCOUT_SEED_ARTIFACT_ID,
-  YOUTUBE_SCOUT_SEED_VIDEO_ID,
-  YOUTUBE_SCOUT_SEED_VIDEO_URL,
-  YOUTUBE_SCOUT_SOURCE_ID,
-  YOUTUBE_SCOUT_VIDEO_SOURCE_ID,
-} from './youtube-scout-latest-video-vision.js'
-import {
-  YOUTUBE_BUILD_INTEL_LINK_RESOURCE_REPORT_ARTIFACT_ID,
-} from './youtube-build-intel-link-resource.js'
-import {
-  GOD_MODE_EYES_SOURCE_ID,
-  GOD_MODE_EYES_VIDEO_SOURCE_ID,
-  GOD_MODE_EXTRACTOR_EYES_QUALITY_LOOP_REPORT_ARTIFACT_ID,
-} from './god-mode-extractor-eyes-quality-loop.js'
-import {
-  MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID,
-} from './mark-kashef-god-mode-small-batch.js'
-import {
-  MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID,
-} from './god-mode-youtube-end-to-end-extractor.js'
-import {
-  DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID,
-  DEV_TEAM_INTELLIGENCE_DIRECTOR_SOURCE_ID,
-} from './dev-team-intelligence-director.js'
-import {
-  BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
-  BUILD_INTEL_SOURCE_VALUE_GRADER_SOURCE_ID,
-} from './build-intel-source-value-grader.js'
-import {
-  isYoutubeLatest20FullWatchReportId,
-} from './youtube-latest-20-full-watch-runner.js'
-import {
-  buildDevIntelSourceCoverageSnapshot,
-} from './dev-intel-source-coverage.js'
-import {
-  buildSourcePacketPreview,
+  const runtime = systemRuntimeCopy(system)
+  const youtubeCreators = list(system.creatorLeaderboard).length
+    ? list(system.creatorLeaderboard)
+    : list(system.topCreators)
+  const youtubeCreatorTotal = Number(system.readbackTruth?.creatorLeaderboardCount || youtubeCreators.length)
+  const youtubeGradeSummary = Object.entries(system.creatorGradeBuckets || {})
+    .map(([grade, count]) => `${grade}: ${count}`)
+    .join(' · ')
+  els.youtubeSystem.innerHTML = `
+    <section class="yt-runtime ${escapeHtml(systemTone(runtime))}">
+      <div>
+        <span>LIVE PIPELINE</span>
+        <h2>${escapeHtml(runtime)}</h2>
+        <p>${escapeHtml(job.statusDetail || job.scheduleDetail || system.sourceRoute || 'Foundation runtime status is loading.')}</p>
+      </div>
+      <div class="yt-runtime-meta">
+        <span><b>Last job</b>${escapeHtml(shortDate(job.latestRunAt || job.latestRunStartedAt))}</span>
+        <span><b>Next run</b>${escapeHtml(shortDate(job.nextRunAt))}</span>
+        <span><b>Latest batch</b>${escapeHtml(shortDate(latestBatch.updatedAt))}</span>
+        <span><b>Duration</b>${escapeHtml(durationCopy(job.latestRunDurationMs))}</span>
+      </div>
+    </section>
+
+    <section class="yt-stats" aria-label="YouTube intelligence counts">
+      ${renderYoutubeSystemStats(system)}
+    </section>
+
+    <section class="yt-section">
+      <div class="yt-section-head">
+        <span>PIPELINE STAGES</span>
+        <h3>One connected system, not separate chores</h3>
+      </div>
+      <div class="yt-stage-grid">
+        ${list(system.stages).map(renderYoutubeStage).join('') || '<article class="loading-card">No stage readback available.</article>'}
+      </div>
+    </section>
+
+    <section class="yt-two-col">
+      <div class="yt-section">
+        <div class="yt-section-head">
+          <span>NEXT WATCH BATCH</span>
+          <h3>Exact public videos selected</h3>
+        </div>
+        <div class="yt-video-list">
+          ${list(system.selectedVideos).map(renderYoutubeNextVideo).join('') || '<article class="loading-card">No runnable public videos selected right now.</article>'}
+        </div>
+      </div>
+      <div class="yt-section">
 ```
 
 ### P1 lib/foundation-db.js
@@ -455,63 +512,6 @@ function isLocalRequest(req) {
   ) {
 ```
 
-### P1 lib/source-god-mode-youtube-handoff.js
-
-- Lines: 1184
-- Bytes: 45363
-- Reasons: changed_since_baseline, source_health_surface
-
-```
-import crypto from 'node:crypto'
-import path from 'node:path'
-
-import {
-  YOUTUBE_SCOUT_SOURCE_ID,
-} from './youtube-scout-latest-video-vision.js'
-import {
-  runSkoolFreeCommunityGodMode,
-} from './skool-free-community-god-mode-runner.js'
-import {
-  runSourceGodModeExtractor,
-} from './source-god-mode-extractor-runtime.js'
-import {
-  SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
-  evaluateSourceSessionBrokerRequest,
-} from './source-session-broker.js'
-
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_CARD_ID = 'SOURCE-BROWSER-AGENTIC-RUNTIME-001'
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_SCRIPT_PATH = 'scripts/process-source-god-mode-youtube-handoff-check.mjs'
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_ROOT = '.openclaw/source-god-mode-youtube-handoff'
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY = 'source-god-mode-youtube-handoff-runs'
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_SOURCE_ID = YOUTUBE_SCOUT_SOURCE_ID
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_MAX_ITEMS_PER_RUN = 20
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_MAX_RUNTIME_SECONDS = 3900
-
-const DEFAULT_ROW_LIMIT = 0
-const DEV_LANE_PRIORITY_GRADES = ['S', 'A', 'B', 'C', 'D']
-const SHORT_LINK_HOSTS = new Set([
-  'bit.ly',
-  't.co',
-  'tinyurl.com',
-  'lnkd.in',
-  'goo.gl',
-  'buff.ly',
-  'shorturl.at',
-  'rebrand.ly',
-  'cutt.ly',
-  'dub.sh',
-  'linktr.ee',
-  'beacons.ai',
-])
-const SOCIAL_PROFILE_HOSTS = new Set([
-  'instagram.com',
-  'linkedin.com',
-  'x.com',
-  'twitter.com',
-  'tiktok.com',
-  'facebook.com',
-```
-
 ### P1 lib/connector-uptime-monitor.js
 
 - Lines: 1109
@@ -571,8 +571,8 @@ export const CONNECTOR_HEALTH_STATUSES = Object.freeze({
 
 ### P1 scripts/process-dev-team-hub-v0-check.mjs
 
-- Lines: 1033
-- Bytes: 65993
+- Lines: 1098
+- Bytes: 70181
 - Reasons: changed_since_baseline, process_check_surface
 
 ```
@@ -624,120 +624,6 @@ import {
 import {
   DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID,
 } from '../lib/dev-team-intelligence-director.js'
-```
-
-### P1 scripts/process-source-god-mode-youtube-handoff-check.mjs
-
-- Lines: 743
-- Bytes: 30166
-- Reasons: changed_since_baseline, process_check_surface, source_health_surface
-
-```
-#!/usr/bin/env node
-
-import http from 'node:http'
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import process from 'node:process'
-import { fileURLToPath } from 'node:url'
-
-import {
-  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_CARD_ID,
-  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_SCRIPT_PATH,
-  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
-  buildSourceGodModeYoutubeHandoffCrawlItemInput,
-  buildSourceGodModeYoutubeHandoffQueue,
-  persistSourceGodModeYoutubeHandoffBatch,
-  runSourceGodModeYoutubeHandoffBatch,
-} from '../lib/source-god-mode-youtube-handoff.js'
-import {
-  validatePlanApprovalFile,
-} from '../lib/approval-integrity.js'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const repoRoot = path.resolve(__dirname, '..')
-const APPROVAL_REF = 'docs/process/approvals/SOURCE-BROWSER-AGENTIC-RUNTIME-001.json'
-
-function parseArgs(argv = process.argv.slice(2)) {
-  return {
-    json: argv.includes('--json') || argv.includes('--json=true'),
-    headed: argv.includes('--headed') || argv.includes('--headed=true'),
-  }
-}
-
-function addCheck(checks, ok, check, detail = '') {
-  checks.push({ ok: Boolean(ok), check, detail })
-}
-
-function list(value) {
-  return Array.isArray(value) ? value : []
-}
-
-function text(value) {
-  return String(value || '').trim()
-}
-
-async function readRepoFile(relativePath) {
-  return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
-}
-
-```
-
-### P1 scripts/run-source-god-mode-youtube-handoff.mjs
-
-- Lines: 226
-- Bytes: 7978
-- Reasons: changed_since_baseline, source_health_surface
-
-```
-#!/usr/bin/env node
-
-import process from 'node:process'
-
-import {
-  BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
-} from '../lib/build-intel-source-value-grader.js'
-import {
-  closeFoundationDb,
-  getIntelligenceReportBundle,
-  initFoundationDb,
-  listSourceCrawlItems,
-  listYoutubeFullWatchReportArtifacts,
-  upsertIntelligenceReportArtifact,
-  upsertSourceCrawlItem,
-  upsertSourceCrawlTarget,
-} from '../lib/foundation-db.js'
-import {
-  buildYoutubeHandoffEvidenceFromReports,
-} from '../lib/dev-team-hub.js'
-import {
-  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
-  buildSourceGodModeYoutubeHandoffQueue,
-  persistSourceGodModeYoutubeHandoffBatch,
-  runSourceGodModeYoutubeHandoffBatch,
-  selectSourceGodModeYoutubeHandoffRows,
-} from '../lib/source-god-mode-youtube-handoff.js'
-
-function parseArgs(argv = process.argv.slice(2)) {
-  const args = {
-    apply: false,
-    json: false,
-    headed: false,
-    maxRuns: 3,
-    rowLimit: 0,
-    bucketIds: [],
-    actor: process.env.FOUNDATION_JOB_ACTOR || 'source-god-mode-youtube-handoff-runner',
-  }
-  for (const arg of argv) {
-    if (arg === '--apply' || arg === '--apply=true') args.apply = true
-    if (arg === '--json' || arg === '--json=true') args.json = true
-    if (arg === '--headed' || arg === '--headed=true') args.headed = true
-    if (arg.startsWith('--max-runs=')) args.maxRuns = Number(arg.slice('--max-runs='.length))
-    if (arg.startsWith('--row-limit=')) args.rowLimit = Number(arg.slice('--row-limit='.length))
-    if (arg.startsWith('--bucket=')) args.bucketIds.push(...arg.slice('--bucket='.length).split(',').map(text).filter(Boolean))
-    if (arg.startsWith('--actor=')) args.actor = text(arg.slice('--actor='.length)) || args.actor
-  }
-  args.maxRuns = Math.max(1, Math.min(20, Number.isFinite(args.maxRuns) ? args.maxRuns : 3))
 ```
 
 ### P3 lib/foundation-jobs.js
@@ -860,13 +746,13 @@ const MUTATING_PROCESS_CHECK_FLAGS = new Set([
 
 ## Doc / Report Artifact Bloat
 
-- Status: `healthy`
-- Handoff files: 216
-- Handoff hot lines: 19714
-- Nightly artifacts: 18
-- Red/yellow findings: 0/0
+- Status: `watch`
+- Handoff files: 218
+- Handoff hot lines: 20639
+- Nightly artifacts: 20
+- Red/yellow findings: 0/1
 
-- none
+- P1 docs/handoffs is growing past the hot-doc budget: docs/handoffs contains 20639 line(s); budget is 20000/35000 warn/risk.
 
 ## Dogfood Proof
 
@@ -891,7 +777,7 @@ const MUTATING_PROCESS_CHECK_FLAGS = new Set([
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-28T07:01:00.337Z`
+Generated at: `2026-05-28T08:51:02.749Z`
 
 ## Morning Read
 
@@ -906,11 +792,11 @@ Generated at: `2026-05-28T07:01:00.337Z`
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=131ms payload=585368B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=31ms payload=199972B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=564ms payload=625598B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=141ms payload=216789B risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: status=200 latency=37ms payload=33222B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=100ms payload=582887B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=25ms payload=199973B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=556ms payload=624970B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=112ms payload=205917B risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: status=200 latency=28ms payload=33222B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
 
@@ -942,13 +828,13 @@ DOM budget:
 
 Largest files:
 - scripts/foundation-verify.mjs: 4998 LOC, 277372B
-- public/dev.css: 4569 LOC, 81509B
+- public/dev.css: 4707 LOC, 84043B
+- lib/dev-team-hub.js: 3240 LOC, 154345B
 - lib/foundation-build-closeout-source-records.js: 3205 LOC, 273394B
 - lib/foundation-build-closeout-process-gate-records.js: 3133 LOC, 224729B
 - public/foundation.js: 2987 LOC, 113810B
-- lib/dev-team-hub.js: 2894 LOC, 141020B
+- public/dev.js: 2796 LOC, 127329B
 - lib/foundation-db-schema-seed-store.js: 2757 LOC, 141992B
-- public/dev.js: 2725 LOC, 123257B
 
 ## Top Findings
 

@@ -49,6 +49,11 @@ Foundation/system health is green after the repair pass:
 - `foundation:verify -- --json-summary`: 519/519 passed.
 - `process:system-health-nightly-audit-check -- --json`: healthy, 0 red/yellow rollup findings.
 - Scheduled connector, verifier, audit, extractor, synthesis, and action-router jobs have fresh successful runs.
+- Continuation readback after a transient scheduled-verifier red row:
+  - Governed `foundation-verify` job rerun succeeded from the job ledger: 519/519 passed in 45.5s.
+  - System Health then returned to `healthy`, with 0 risk, 0 watch, 0 scheduled-job risk, and 0 scheduled-job watch.
+  - The 2026-05-28 nightly deep audit was rerun report-only through the approved deep-review route and found 0 active findings.
+  - The generated full audit report was kept in `docs/_archive/handoffs/2026-05-28-nightly-deep-audit/` so hot `docs/handoffs` stays under the bloat budget.
 
 ## Completed Work
 
@@ -83,6 +88,9 @@ Foundation/system health is green after the repair pass:
 - Archived the latest 2026-05-28 nightly deep audit artifact out of hot `docs/handoffs/`.
   - Committed and pushed `15735fb3 Archive latest nightly deep audit`.
   - Doc bloat guard and System Health are green after the archive move.
+- Hardened the nightly deep-audit write-report proof.
+  - The check now proves `--write-report` actually leaves non-empty markdown and JSON files on disk before it can pass.
+  - This closes the gap where the audit could prove rendered report text but not prove the generated artifacts existed.
 - Proved Source Session Broker and free-community runner posture without live external side effects.
   - Source Session Broker contract proof passed.
   - Free Skool/community fixture proof passed: auth-needed path fails closed, joined/session fixture reads last-20-day activity, classroom/resources, safe resource candidates, and blocks paid/write/download/profile actions.
