@@ -973,6 +973,7 @@ async function main() {
       Number(sourceRunSummary.repoReadback?.runCount || 0) > 0 &&
       Number(sourceRunSummary.repoReadback?.unsafeSideEffectRows || 0) === 0 &&
       sourceRunSummary.repoReadback?.rawArtifactPathsReturned === false &&
+      ['ready', 'pending_next_repo_run'].includes(sourceRunSummary.repoReadback?.runtimeProofStatus) &&
       list(sourceRunSummary.repoReadback?.topRepos).some(row => row.label && Number(row.pagesRead || 0) > 0) &&
       sourceRunSummary.repoReadback?.plainEnglish?.includes('does not clone') &&
       sourceRunSummary.fileResourceReadback?.status &&
@@ -980,11 +981,14 @@ async function main() {
       Number(sourceRunSummary.fileResourceReadback?.downloadAllowedCount || 0) === 0 &&
       moduleSource.includes('dev-source-run-readback') &&
       sourceRunReadbackSource.includes('buildRepoRunReadback') &&
+      sourceRunReadbackSource.includes('repoReview') &&
       sourceRunReadbackSource.includes('buildFileResourceReadback') &&
       jsSource.includes('renderSourceRunSummary') &&
       jsSource.includes('REPO READBACK') &&
+      jsSource.includes('Repo runtime proof') &&
       jsSource.includes('FILE RESOURCE CANDIDATES') &&
       cssSource.includes('.yt-source-run-summary') &&
+      cssSource.includes('.yt-source-run-grid.compact') &&
       cssSource.includes('.yt-repo-readback') &&
       cssSource.includes('.yt-file-readback'),
     'YouTube source-browser saved-run outputs include repo and file-resource readback without returning raw artifacts',

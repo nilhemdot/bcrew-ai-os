@@ -136,6 +136,7 @@ async function main() {
   const fixture = await startFixtureServer()
   let liveRun = null
   let formOnlyRun = null
+  let repoRun = null
   try {
     liveRun = await runSourceGodModeExtractor({
       url: `${fixture.baseUrl}/youtube-page`,
@@ -159,6 +160,44 @@ async function main() {
       headed: args.headed,
       now: '2026-05-26T20:01:00.000Z',
     })
+    repoRun = await runSourceGodModeExtractor({
+      url: 'https://github.com/acme/agent-memory',
+      sourceType: 'github_docs_public_resources',
+      creatorId: 'fixture-repo-source',
+      creatorName: 'Fixture Repo Source',
+      mode: 'synthetic_fixture',
+      maxPages: 4,
+      maxDepth: 1,
+      now: '2026-05-26T20:02:00.000Z',
+      htmlByUrl: {
+        'https://github.com/acme/agent-memory': page('GitHub - acme/agent-memory: Agent memory system', `
+          <h1>acme/agent-memory</h1>
+          <p>Agent memory system with MCP server, browser automation examples, and Codex/Claude setup.</p>
+          <a href="/">GitHub home</a>
+          <a href="/features/copilot">Copilot marketing</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/login">Sign in</a>
+          <a href="/acme/agent-memory/blob/main/README.md">README</a>
+          <a href="/acme/agent-memory/tree/main/docs">docs</a>
+          <a href="/acme/agent-memory/tree/main/examples">examples</a>
+        `),
+        'https://github.com/acme/agent-memory/blob/main/README.md': page('README.md at main · acme/agent-memory', `
+          <h1>README</h1>
+          <h2>Quickstart</h2>
+          <p>Install notes, usage, architecture, and memory retrieval workflow for agents.</p>
+        `),
+        'https://github.com/acme/agent-memory/tree/main/docs': page('docs · acme/agent-memory', `
+          <h1>docs</h1>
+          <h2>Architecture</h2>
+          <p>Docs explain the source-backed memory architecture, API, and evidence provenance.</p>
+        `),
+        'https://github.com/acme/agent-memory/tree/main/examples': page('examples · acme/agent-memory', `
+          <h1>examples</h1>
+          <h2>MCP workflow</h2>
+          <p>Examples show Claude, Codex, and browser agent integration patterns.</p>
+        `),
+      },
+    })
   } finally {
     await fixture.close()
   }
@@ -171,6 +210,7 @@ async function main() {
     hits: fixture.hits.get(blockedPath) || 0,
   }))
   const pageUrls = new Set((liveRun.pages || []).map(item => item.url))
+  const repoPageUrls = new Set((repoRun.pages || []).map(item => item.url))
   const decisions = liveRun.linkDecisions || []
   const capabilities = liveRun.capabilities || {}
 
@@ -251,6 +291,28 @@ async function main() {
   )
   addCheck(
     checks,
+    repoRun.ok === true &&
+      repoRun.repoReview?.status === 'repo_readback_ready' &&
+      repoRun.repoReview?.globalChromePagesOpened === 0 &&
+      repoRun.repoReview?.localRepoPagesRead >= 3 &&
+      repoRun.repoReview?.hardBlockerCount === 0 &&
+      ['A', 'S'].includes(repoRun.brain?.valueScore?.grade) &&
+      [...repoPageUrls].some(url => url.endsWith('/acme/agent-memory/blob/main/README.md')) &&
+      [...repoPageUrls].some(url => url.endsWith('/acme/agent-memory/tree/main/docs')) &&
+      [...repoPageUrls].some(url => url.endsWith('/acme/agent-memory/tree/main/examples')) &&
+      ![...repoPageUrls].some(url => /\/(?:features\/copilot|pricing|login)$/.test(new URL(url).pathname)) &&
+      repoRun.sideEffects.downloadedFile === false &&
+      repoRun.sideEffects.externalWrites === false,
+    'repo source runtime follows repo-local README/docs/examples and skips GitHub chrome',
+    JSON.stringify({
+      pages: [...repoPageUrls],
+      repoReview: repoRun.repoReview,
+      valueScore: repoRun.brain?.valueScore,
+      handsEvents: repoRun.handsEvents,
+    }),
+  )
+  addCheck(
+    checks,
     (liveRun.newsletterCandidates || []).length >= 1 &&
       liveRun.sideEffects.submittedForm === false &&
       liveRun.sideEffects.optedIn === false,
@@ -325,6 +387,7 @@ async function main() {
       fileResourceCandidates: liveRun.fileResourceCandidates,
       newsletterCandidates: liveRun.newsletterCandidates,
       paidGateEvaluations: liveRun.paidGateEvaluations,
+      repoReview: liveRun.repoReview,
       sourceStackUpdate: liveRun.sourceStackUpdate,
       sideEffects: liveRun.sideEffects,
       artifactReportPath: liveRun.artifacts?.reportPath || '',
@@ -337,6 +400,16 @@ async function main() {
       blockers: formOnlyRun.blockers,
       sideEffects: formOnlyRun.sideEffects,
       artifactReportPath: formOnlyRun.artifacts?.reportPath || '',
+    },
+    repoRun: {
+      status: repoRun.status,
+      ok: repoRun.ok,
+      pagesRead: repoRun.pages?.length || 0,
+      capabilities: repoRun.capabilities,
+      repoReview: repoRun.repoReview,
+      valueScore: repoRun.brain?.valueScore,
+      sideEffects: repoRun.sideEffects,
+      artifactReportPath: repoRun.artifacts?.reportPath || '',
     },
     blockedPathHits,
     checks,

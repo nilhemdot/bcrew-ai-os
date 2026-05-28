@@ -3438,6 +3438,10 @@ button {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.yt-source-run-grid.compact {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .yt-source-run-grid article,
 .yt-source-run-list article {
   display: grid;
@@ -3501,6 +3505,10 @@ button {
 .yt-file-readback > small {
   margin: 0;
   color: var(--grey-d);
+}
+
+.yt-runtime-proof {
+  font-size: var(--t-sm);
 }
 
 .yt-dev-priority {

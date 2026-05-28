@@ -65,6 +65,11 @@ Foundation/system health is green after the repair pass:
   - Source-run summary now includes public repo readback: 86 saved public-code-repo runs grouped into 77 unique repos/gists.
   - The Dev page shows top repo candidates, pages read, resource counts, blockers, and useful signals.
   - This is readback/triage only; it does not claim repo deep review is complete and it does not clone/install/download/import code.
+- Hardened the repo source runtime so public GitHub/GitLab/Gist rows stay inside the target repo.
+  - GitHub/GitLab browser pages such as README/docs/examples are treated as repo pages, not unsafe file downloads.
+  - Repo runs skip global chrome such as GitHub home, pricing, login, features, and marketing pages.
+  - Runtime report output now includes repo-local pages read, chrome pages opened, chrome links skipped, implementation signal count, repo hard blockers, and repo-local Hands follows.
+  - The Dev page repo readback now exposes those runtime-proof fields when saved runs include them; older saved repo rows stay visible as legacy readback.
 - Added metadata-only free-resource file policy to the source God Mode runtime.
   - Public file/download links now become reviewable file-resource candidates with URL, host, label, extension, resource kind, safety posture, and next action.
   - The browser still does not open, fetch, or download those files from the source runtime.
@@ -122,21 +127,30 @@ Foundation/system health is green after the repair pass:
   - `slack-extract-latest`: succeeded, 0 candidates from the checked thread.
   - `intelligence-synthesis-spine-refresh`: succeeded with 2 fresh promoted candidates, 1 embedded chunk, 133 facts, and 8 synthesized items.
   - `intelligence-action-router-proposals`: succeeded proposal-only; 0 new routes selected/applied in that run, existing pending routes remain approval-bound.
+- Repaired the live backlog God Mode contract wording drift through the guarded apply path.
+  - `process:god-mode-extractor-system-contract-check` initially failed because the live `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` row was missing the exact newsletter signup/monitoring source-SOP wording even though the repo seed/doc contract had it.
+  - Reran the check with `--apply`; the guarded live backlog stab succeeded and the no-spend contract proof returned green.
 
 ## Proofs Run
 
 Healthy:
 
+- `npm --silent run process:god-mode-extractor-system-contract-check -- --json --apply`
+  - Repaired the live YouTube catch-up card wording so it blocks video-only God Mode completion and includes the full source SOP.
+- `npm --silent run process:source-family-god-mode-extractors-check -- --json`
+  - Reconfirmed 14 source families, 0 false God Mode ready claims, YouTube comments operator-excluded, and 5 Hands gaps still visible.
 - `npm --silent run process:source-god-mode-youtube-handoff-check -- --json`
 - `npm --silent run process:dev-team-hub-v0-check -- --json`
   - Re-run after session-broker UI proof passed.
   - Re-run after file-resource readback passed: source-browser outputs include repo and file-resource readback, 746 saved runs, 77 repos, 2,533 pages, 23,716 resource captures, 190 file-resource candidates, and no raw artifact paths returned.
 - `npm --silent run process:source-god-mode-extractor-runtime-check -- --json`
   - Re-run after file-resource policy proof passed: file/download resources become metadata-only candidates, `downloadedFile=false`, and blocked PDF/ZIP paths were not opened.
+  - Re-run after repo runtime hardening passed: synthetic GitHub repo fixture read repo root, README, docs, and examples; skipped 4 GitHub chrome links; opened 0 GitHub chrome pages; found 16 implementation signals; produced 0 hard blockers and 0 unsafe side effects.
 - `npm --silent run process:source-session-broker-check -- --json`
 - `npm --silent run process:skool-free-community-god-mode-runner-check -- --json`
 - `npm --silent run process:source-god-mode-youtube-handoff-check -- --json`
 - `npm --silent run process:dev-team-hub-v0-check -- --json`
+  - Re-run after repo runtime proof fields were exposed on the Dev page repo readback.
 - `npm --silent run process:nightly-audit-run-proof-check -- --json`
 - `npm --silent run process:nightly-audit-fleet-check -- --json`
 - `npm --silent run process:synthesis-router-freshness-trigger-check -- --json`

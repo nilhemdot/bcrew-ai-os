@@ -880,6 +880,17 @@ function renderSourceRunSummary(summary = {}) {
             <small>${escapeHtml(compactNumber(repoReadback.uniqueRepoCount || 0))} repos · ${escapeHtml(compactNumber(repoReadback.runCount || 0))} runs · ${escapeHtml(compactNumber(repoReadback.pagesRead || 0))} pages · ${escapeHtml(compactNumber(repoReadback.unsafeSideEffectRows || 0))} unsafe side effects</small>
           </div>
           <p>${escapeHtml(repoReadback.plainEnglish || '')}</p>
+          <p class="yt-runtime-proof">${escapeHtml(repoReadback.runtimeProofPlainEnglish || '')}</p>
+          <div class="yt-source-run-grid compact">
+            <article>
+              <div>
+                <span>Repo runtime proof</span>
+                <strong>${escapeHtml(repoReadback.runtimeProofStatus === 'ready' ? 'Ready' : 'Next run')}</strong>
+              </div>
+              <p>${escapeHtml(`${compactNumber(repoReadback.repoReadbackReadyRuns || 0)} proved runs · ${compactNumber(repoReadback.localRepoPagesRead || 0)} repo-local pages · ${compactNumber(repoReadback.implementationSignalCount || 0)} implementation signals`)}</p>
+              <small>${escapeHtml(`${compactNumber(repoReadback.globalChromeLinksSkipped || 0)} GitHub/GitLab chrome links skipped · ${compactNumber(repoReadback.globalChromePagesOpened || 0)} chrome pages opened · ${compactNumber(repoReadback.repoHardBlockerCount || 0)} repo hard blockers`)}</small>
+            </article>
+          </div>
           <div class="yt-source-run-list">
             ${topRepos.map(repo => `
               <article>
@@ -888,7 +899,7 @@ function renderSourceRunSummary(summary = {}) {
                   <strong>${escapeHtml(repo.label || repo.host || 'repo')}</strong>
                 </div>
                 <p>${escapeHtml(list(repo.usefulSignals).join(' · ') || list(repo.pageTitles).join(' · ') || list(repo.urls)[0] || '')}</p>
-                <small>${escapeHtml(`${compactNumber(repo.runs || 0)} runs · ${compactNumber(repo.pagesRead || 0)} pages · ${compactNumber(repo.freeResourceCaptures || 0)} resources · ${compactNumber(repo.blockers || 0)} blockers`)}</small>
+                <small>${escapeHtml(`${compactNumber(repo.runs || 0)} runs · ${compactNumber(repo.pagesRead || 0)} pages · ${compactNumber(repo.freeResourceCaptures || 0)} resources · ${compactNumber(repo.blockers || 0)} blockers · ${compactNumber(repo.implementationSignalCount || 0)} repo signals`)}</small>
               </article>
             `).join('') || '<article><p>No repo rows returned.</p></article>'}
           </div>
