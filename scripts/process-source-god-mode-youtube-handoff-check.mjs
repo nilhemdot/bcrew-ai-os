@@ -654,7 +654,19 @@ async function main() {
   }, {
     batch: { capturedAt: '2026-05-27T11:00:00.000-04:00' },
   })
+  const legacyFailedReadRepairMetadata = { ...failedReadRepairInput.metadata }
+  delete legacyFailedReadRepairMetadata.sourceHandoffReadbackVersion
   const failedReadRepairQueue = buildSourceGodModeYoutubeHandoffQueue({
+    handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),
+    generatedAt: '2026-05-27T11:05:00.000-04:00',
+    sourceValueGrader: {
+      sourceGrades: [
+        { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+      ],
+    },
+    runItems: [{ ...failedReadRepairInput, status: 'failed', metadata: legacyFailedReadRepairMetadata }],
+  })
+  const currentFailedReadRepairQueue = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),
     generatedAt: '2026-05-27T11:05:00.000-04:00',
     sourceValueGrader: {
@@ -675,6 +687,17 @@ async function main() {
       failedReadRepairQueue.counts.alreadyRunRows === 0,
     'failed read/action-blocker runs stay retryable and are not hidden as completed evidence',
     JSON.stringify(failedReadRepairQueue.rows.find(row => row.url === `${fixture.baseUrl}/resource`) || {}),
+  )
+  addCheck(
+    checks,
+    list(currentFailedReadRepairQueue.rows).some(row =>
+      row.url === `${fixture.baseUrl}/resource` &&
+      row.status === 'previous_source_run_failed_needs_review' &&
+      row.runnable === false &&
+      !text(row.runCommand)
+    ),
+    'current-version failed read repairs park for review instead of looping forever',
+    JSON.stringify(currentFailedReadRepairQueue.rows.find(row => row.url === `${fixture.baseUrl}/resource`) || {}),
   )
   const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),

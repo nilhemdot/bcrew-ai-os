@@ -78,8 +78,8 @@ async function startFixtureServer() {
       </form>
     `),
     '/form-only-resource': page('Public Lead Magnet', `
-      <h1>AIOS browser agent guide</h1>
-      <p>Public implementation notes for agentic browser extraction, source monitoring, and workflow automation.</p>
+      <h1>Public strategy call guide</h1>
+      <p>A simple public page with a visible opt-in form and no implementation links.</p>
       <form action="/form-only-submit" method="post">
         <input type="email" name="email" placeholder="Email">
         <button type="submit">Get the guide</button>
