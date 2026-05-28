@@ -245,6 +245,7 @@ async function main() {
 
   const fixture = await startFixtureServer()
   let queue = null
+  let uncappedQueue = null
   let communityBoundaryQueue = null
   let publicWebBoundaryQueue = null
   let batch = null
@@ -259,6 +260,41 @@ async function main() {
         sourceGrades: [
           { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', devWatchRecommendation: 'watch_heavily', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
           { creatorId: 'fixture-c-source', creator: 'Fixture C Source', devBuildGrade: 'C', devWatchRecommendation: 'sample_only', laneScores: [{ laneId: 'aios_dev_build', grade: 'C', score: 38 }] },
+        ],
+      },
+    })
+    const uncappedItem = (pathName, sourceVideoId = 'fixture-video-1') => ({
+      url: `${fixture.baseUrl}${pathName}`,
+      host: '127.0.0.1',
+      reportArtifactId: 'report:uncapped-public-web-resources',
+      sourceVideoId,
+      creatorId: 'fixture-a-source',
+      creator: 'Fixture A Source',
+      sourceCreatorIds: ['fixture-a-source'],
+      sourceCreators: ['Fixture A Source'],
+      disposition: 'fixture_youtube_handoff',
+    })
+    uncappedQueue = buildSourceGodModeYoutubeHandoffQueue({
+      handoffEvidence: {
+        sourceRoute: 'fixture.youtube.fullWatchReports.uncappedPublicRows',
+        scannedReportCount: 300,
+        buckets: {
+          'public-web-resources': {
+            count: 300,
+            itemLimit: 300,
+            hasMore: false,
+            sampleHosts: ['127.0.0.1'],
+            samples: [uncappedItem('/resource?item=0')],
+            items: Array.from({ length: 300 }, (_, index) =>
+              uncappedItem(`/resource?item=${index}`, `fixture-video-${index}`)
+            ),
+          },
+        },
+      },
+      generatedAt: '2026-05-27T11:00:00.000-04:00',
+      sourceValueGrader: {
+        sourceGrades: [
+          { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
         ],
       },
     })
@@ -418,7 +454,8 @@ async function main() {
     checks,
     devHubSource.includes('buildSourceGodModeYoutubeHandoffQueue') &&
       devHubSource.includes('sourceGodModeHandoffQueue') &&
-      devHubSource.includes('items: rows.slice(0, itemLimit)'),
+      devHubSource.includes('items: rows,') &&
+      !devHubSource.includes('items: rows.slice(0, itemLimit)'),
     'Dev Hub read model exposes runnable source handoff queue from full evidence buckets',
     'lib/dev-team-hub.js',
   )
@@ -433,6 +470,14 @@ async function main() {
       queue.bucketCounts['public-web-resources'].hasMore === false,
     'queue converts YouTube handoff evidence into runnable and parked rows with disclosed limits',
     JSON.stringify(queue.counts),
+  )
+  addCheck(
+    checks,
+    uncappedQueue?.counts?.totalRows === 300 &&
+      uncappedQueue?.bucketCounts?.['public-web-resources']?.queuedRows === 300 &&
+      uncappedQueue?.bucketCounts?.['public-web-resources']?.hasMore === false,
+    'queue does not silently cap source handoff evidence at 250 rows',
+    JSON.stringify(uncappedQueue?.bucketCounts?.['public-web-resources'] || {}),
   )
   addCheck(
     checks,

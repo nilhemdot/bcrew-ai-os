@@ -869,13 +869,15 @@ async function main() {
   addCheck(
     checks,
     sourceGodModeHandoffQueue.status === 'ready' &&
+      Number(sourceGodModeHandoffQueue.counts?.totalRows || 0) === Number(sourceGodModeHandoffQueue.counts?.evidenceRows || 0) &&
+      Object.values(sourceGodModeBucketCounts).every(bucket => bucket.hasMore === false) &&
       Number(sourceGodModeHandoffQueue.counts?.parkedRows || 0) > 0 &&
       sourceGodModeRows.some(row => row.requiresAuth === true && row.runnable === false) &&
       freeCommunitiesParkedForSessionBroker &&
       freeCommunitySessionBrokerDecisionsVisible &&
       (sourceGodModeCleared || sourceGodModeHasRunnableWork),
     'YouTube handoff exposes source-browser run state honestly while paid/auth and session-bound communities stay parked',
-    `ready=${sourceGodModeRunnableCount}; alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
+    `ready=${sourceGodModeRunnableCount}; total=${sourceGodModeHandoffQueue.counts?.totalRows || 0}; evidence=${sourceGodModeHandoffQueue.counts?.evidenceRows || 0}; alreadyRun=${sourceGodModeHandoffQueue.counts?.alreadyRunRows || 0}; parked=${sourceGodModeHandoffQueue.counts?.parkedRows || 0}`,
   )
   addCheck(
     checks,

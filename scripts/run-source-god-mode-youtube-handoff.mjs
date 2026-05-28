@@ -32,7 +32,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     json: false,
     headed: false,
     maxRuns: 3,
-    rowLimit: 250,
+    rowLimit: 0,
     bucketIds: [],
     actor: process.env.FOUNDATION_JOB_ACTOR || 'source-god-mode-youtube-handoff-runner',
   }
@@ -46,7 +46,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     if (arg.startsWith('--actor=')) args.actor = text(arg.slice('--actor='.length)) || args.actor
   }
   args.maxRuns = Math.max(1, Math.min(20, Number.isFinite(args.maxRuns) ? args.maxRuns : 3))
-  args.rowLimit = Math.max(10, Math.min(1000, Number.isFinite(args.rowLimit) ? args.rowLimit : 250))
+  args.rowLimit = Number.isFinite(args.rowLimit) && args.rowLimit > 0
+    ? Math.max(10, Math.min(5000, args.rowLimit))
+    : 0
   return args
 }
 
