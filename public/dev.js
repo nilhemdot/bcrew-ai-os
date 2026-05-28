@@ -703,6 +703,34 @@ function renderYoutubeSourceBucketCards(queue = {}) {
   `
 }
 
+function renderSourceSessionPrepQueue(prep = {}) {
+  if (!prep || !prep.status) return ''
+  const rows = list(prep.rows).slice(0, 8)
+  const counts = prep.counts || {}
+  return `
+    <section class="yt-session-prep">
+      <div class="yt-section-head">
+        <span>SOURCE SESSION PREP</span>
+        <h3>What needs identity or auth next</h3>
+        <small>${escapeHtml(compactNumber(counts.totalRows || 0))} prep rows · ${escapeHtml(compactNumber(counts.skoolFreeCommunityRows || 0))} Skool · ${escapeHtml(compactNumber(counts.newsletterSignupRows || 0))} newsletters · ${escapeHtml(compactNumber(counts.paidAuthRows || 0))} paid/auth · ${escapeHtml(compactNumber(counts.runAllowedNowRows || 0))} runnable now</small>
+      </div>
+      <p>${escapeHtml(prep.plainEnglish || '')}</p>
+      <div class="yt-session-prep-grid">
+        ${rows.map(row => `
+          <article class="${escapeHtml(row.runAllowedNow ? 'ready' : 'blocked')}">
+            <div>
+              <span>${escapeHtml(statusCopy(row.phase || row.status || 'session prep'))}</span>
+              <strong>${escapeHtml(row.host || row.label || 'source')}</strong>
+            </div>
+            <p>${escapeHtml(row.plainEnglish || '')}</p>
+            <small>${escapeHtml([row.account, row.runner, list(row.sourceGrades).slice(0, 2).map(source => `${source.creator}: ${source.devBuildGrade}`).join(' · ')].filter(Boolean).join(' · '))}</small>
+          </article>
+        `).join('') || '<article class="loading-card">No source-session prep rows returned.</article>'}
+      </div>
+    </section>
+  `
+}
+
 function renderYoutubeSourceHandoffRow(row = {}) {
   const tone = row.runnable ? 'live' : 'pending'
   const action = row.runnable ? row.runner || 'source worker' : row.status || 'parked'
@@ -785,6 +813,7 @@ function renderYoutubeSourceHandoffQueue(queue = {}) {
         <small>${escapeHtml(queueCopy)}</small>
       </div>
       ${renderYoutubeSourceBucketCards(queue)}
+      ${renderSourceSessionPrepQueue(queue.sourceSessionPrepQueue)}
       <div class="yt-source-handoff-list">
         ${rows.map(renderYoutubeSourceHandoffRow).join('') || '<article class="loading-card">No source-browser queue rows returned yet.</article>'}
       </div>

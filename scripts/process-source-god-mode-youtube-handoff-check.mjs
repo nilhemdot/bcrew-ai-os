@@ -444,6 +444,7 @@ async function main() {
   addCheck(
     checks,
     moduleSource.includes('buildSourceGodModeYoutubeHandoffQueue') &&
+      moduleSource.includes('buildSourceSessionPrepQueue') &&
       moduleSource.includes('runSourceGodModeYoutubeHandoffBatch') &&
       moduleSource.includes('runSourceGodModeExtractor') &&
       moduleSource.includes('runSkoolFreeCommunityGodMode'),
@@ -520,6 +521,23 @@ async function main() {
       ),
     'free-community queue parks Skool/community rows behind Source Session Broker decisions and parks signup bridge pages',
     list(communityBoundaryQueue?.rows).map(row => `${row.url}:${row.status}:${row.runnable}`).join(', '),
+  )
+  addCheck(
+    checks,
+    queue.sourceSessionPrepQueue?.status === 'session_ready_rows_available' &&
+      queue.sourceSessionPrepQueue?.counts?.freeCommunityRows === 1 &&
+      queue.sourceSessionPrepQueue?.counts?.newsletterSignupRows === 1 &&
+      queue.sourceSessionPrepQueue?.counts?.paidAuthRows === 1 &&
+      queue.sourceSessionPrepQueue?.counts?.runAllowedNowRows === 1 &&
+      queue.sourceSessionPrepQueue?.counts?.rawSecretPrintedRows === 0 &&
+      list(queue.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_skool_session_ready' && row.runAfterSessionCommand) &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_source_identity_session_needed') &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'community_runner_needed'),
+    'source session prep queue exposes next auth/session work without starting it',
+    JSON.stringify({
+      readyPrep: queue.sourceSessionPrepQueue?.counts,
+      parkedPrep: communityBoundaryQueue?.sourceSessionPrepQueue?.counts,
+    }),
   )
   addCheck(
     checks,

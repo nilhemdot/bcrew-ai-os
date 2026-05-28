@@ -3174,6 +3174,69 @@ button {
   font-size: var(--t-xs);
 }
 
+.yt-session-prep {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--grey-line);
+  border-left: 4px solid var(--amber);
+  border-radius: var(--r-sm);
+  background: var(--grey-0);
+}
+
+.yt-session-prep > p {
+  margin: 0;
+  color: var(--grey-d);
+}
+
+.yt-session-prep-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.yt-session-prep-grid article {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-xs);
+  background: var(--white);
+}
+
+.yt-session-prep-grid article.ready {
+  border-left: 3px solid var(--green);
+}
+
+.yt-session-prep-grid article.blocked {
+  border-left: 3px solid var(--amber);
+}
+
+.yt-session-prep-grid article > div {
+  display: grid;
+  gap: 4px;
+}
+
+.yt-session-prep-grid span,
+.yt-session-prep-grid small {
+  color: var(--grey-d);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+
+.yt-session-prep-grid strong,
+.yt-session-prep-grid p,
+.yt-session-prep-grid small {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.yt-session-prep-grid p {
+  margin: 0;
+  color: var(--ink);
+}
+
 .yt-video {
   display: grid;
   gap: 10px;
@@ -4463,6 +4526,7 @@ button {
 	  .yt-stage-grid,
 	  .yt-handoff-grid,
 	  .yt-source-handoff-list,
+	  .yt-session-prep-grid,
 	  .yt-two-col,
 	  .yt-dev-priority-grid,
 	  .yt-dev-priority-samples,

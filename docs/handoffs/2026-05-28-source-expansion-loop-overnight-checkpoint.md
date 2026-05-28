@@ -86,6 +86,10 @@ Foundation/system health is green after the repair pass:
 - Proved Source Session Broker and free-community runner posture without live external side effects.
   - Source Session Broker contract proof passed.
   - Free Skool/community fixture proof passed: auth-needed path fails closed, joined/session fixture reads last-20-day activity, classroom/resources, safe resource candidates, and blocks paid/write/download/profile actions.
+- Added a Source Session Prep Queue to the YouTube source system.
+  - This is a readback/prep layer only; it does not create accounts, submit forms, crawl paid/private/auth sources, download files, post/comment/message, or mutate credentials.
+  - Live Dev Hub readback after the change: 283 prep rows, including 96 free-community rows, 91 Skool free-community rows, 5 non-Skool community rows, 17 newsletter signup rows, and 170 paid/auth rows.
+  - It exposes 91 run-after-session Skool commands for later, but current live `runAllowedNowRows` remains 0 and `rawSecretPrintedRows` remains 0.
 - Caught up internal synthesis freshness.
   - `gmail-extract-latest`: succeeded, 1 candidate upserted.
   - `missive-extract-latest`: succeeded, 1 candidate upserted.
@@ -103,6 +107,8 @@ Healthy:
 - `npm --silent run process:source-god-mode-extractor-runtime-check -- --json`
 - `npm --silent run process:source-session-broker-check -- --json`
 - `npm --silent run process:skool-free-community-god-mode-runner-check -- --json`
+- `npm --silent run process:source-god-mode-youtube-handoff-check -- --json`
+- `npm --silent run process:dev-team-hub-v0-check -- --json`
 - `npm --silent run process:nightly-audit-run-proof-check -- --json`
 - `npm --silent run process:nightly-audit-fleet-check -- --json`
 - `npm --silent run process:synthesis-router-freshness-trigger-check -- --json`
@@ -154,6 +160,7 @@ Final health readback:
 - `process:system-health-nightly-audit-check -- --json`: `healthy`, risk count 0, watch count 0, scheduled-job risk count 0, connector degraded count 0.
 - Synthesis freshness snapshot: `fresh`, no waiting families, no failed extractor jobs.
 - Dev Hub active extraction lanes: YouTube generated, meetings live, email/Missive live, Slack live, synthesis-router live.
+- Source Session Prep Queue: `waiting_for_source_session_or_approval`, 283 prep rows, 91 Skool run-after-session commands, 0 rows allowed to run now, 0 raw-secret rows.
 - After committing the checkpoint update, full verify caught stale served code. Dashboard and worker were restarted, then `foundation:verify -- --json-summary` passed 519/519 again.
 - `connector-uptime-monitor` became due inside the grace window; it was run manually and returned 6/6 connectors healthy. Final System Health after that run: healthy, due count 0, risk/watch 0.
 

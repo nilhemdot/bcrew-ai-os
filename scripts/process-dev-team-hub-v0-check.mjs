@@ -387,6 +387,7 @@ async function main() {
       jsSource.includes('renderYoutubeHandoff') &&
       jsSource.includes('renderYoutubeSourceHandoffQueue') &&
       jsSource.includes('renderYoutubeSourceBucketCards') &&
+      jsSource.includes('renderSourceSessionPrepQueue') &&
       jsSource.includes('sourceHandoffVisibleRows') &&
       jsSource.includes('renderYoutubeCreatorSourceStacks') &&
       jsSource.includes('const rows = list(stacks)') &&
@@ -400,6 +401,7 @@ async function main() {
       cssSource.includes('.yt-source-bucket-grid') &&
       cssSource.includes('.yt-source-stack-grid') &&
       cssSource.includes('.yt-source-handoff-list') &&
+      cssSource.includes('.yt-session-prep-grid') &&
       cssSource.includes('.yt-source-session') &&
       cssSource.includes('.yt-exec-summary'),
 	    'Dev page exposes a separate YouTube Intelligence system view',
@@ -845,6 +847,8 @@ async function main() {
   const sourceGodModeRows = list(sourceGodModeHandoffQueue.rows)
   const sourceGodModeBucketCounts = sourceGodModeHandoffQueue.bucketCounts || {}
   const sourceGodModeRunnableCount = Number(sourceGodModeHandoffQueue.counts?.runnableRows || 0)
+  const sourceSessionPrepQueue = sourceGodModeHandoffQueue.sourceSessionPrepQueue || {}
+  const sourceSessionPrepRows = list(sourceSessionPrepQueue.rows)
   const sourceGodModeCleared = sourceGodModeRunnableCount === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.publicFreeRuntimeRows || 0) === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.freeCommunityRows || 0) === 0 &&
@@ -920,6 +924,22 @@ async function main() {
   )
   addCheck(
     checks,
+    sourceSessionPrepQueue.status === 'waiting_for_source_session_or_approval' &&
+      Number(sourceSessionPrepQueue.counts?.freeCommunityRows || 0) > 0 &&
+      Number(sourceSessionPrepQueue.counts?.newsletterSignupRows || 0) > 0 &&
+      Number(sourceSessionPrepQueue.counts?.paidAuthRows || 0) > 0 &&
+      Number(sourceSessionPrepQueue.counts?.runAllowedNowRows || 0) === 0 &&
+      Number(sourceSessionPrepQueue.counts?.rawSecretPrintedRows || 0) === 0 &&
+      sourceSessionPrepRows.some(row => row.phase === 'free_source_identity_session_needed') &&
+      sourceSessionPrepRows.some(row => row.phase === 'community_runner_needed') &&
+      sourceSessionPrepRows.some(row => row.phase === 'newsletter_signup_lane_needed') &&
+      sourceSessionPrepRows.some(row => row.phase === 'paid_or_auth_packet_needed') &&
+      sourceSessionPrepQueue.sideEffects?.externalWrites === false,
+    'YouTube source-browser queue exposes source-session prep without claiming live signups or auth runs',
+    JSON.stringify(sourceSessionPrepQueue.counts || {}),
+  )
+  addCheck(
+    checks,
     sourceGodModeHandoffQueue.devLanePriorityPreview?.status === 'priority_preview' &&
       sourceGodModeHandoffQueue.devLanePriorityPreview?.plainEnglish?.includes('Priority only') &&
       sourceGodModeRows.some(row => row.devLanePriority?.priorityLabel) &&
@@ -990,6 +1010,10 @@ async function main() {
         sourceGodModeHandoffQueue: payload.youtubeSourceIntelligence.sourceGodModeHandoffQueue ? {
           status: payload.youtubeSourceIntelligence.sourceGodModeHandoffQueue.status,
           counts: payload.youtubeSourceIntelligence.sourceGodModeHandoffQueue.counts,
+          sourceSessionPrepQueue: payload.youtubeSourceIntelligence.sourceGodModeHandoffQueue.sourceSessionPrepQueue ? {
+            status: payload.youtubeSourceIntelligence.sourceGodModeHandoffQueue.sourceSessionPrepQueue.status,
+            counts: payload.youtubeSourceIntelligence.sourceGodModeHandoffQueue.sourceSessionPrepQueue.counts,
+          } : null,
         } : null,
         selectedVideos: list(payload.youtubeSourceIntelligence.selectedVideos).length,
         creatorLeaderboard: list(payload.youtubeSourceIntelligence.creatorLeaderboard).length,
