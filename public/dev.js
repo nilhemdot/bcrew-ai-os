@@ -707,15 +707,29 @@ function renderSourceSessionPrepQueue(prep = {}) {
   if (!prep || !prep.status) return ''
   const rows = list(prep.rows).slice(0, 8)
   const clusters = list(prep.clusters).slice(0, 6)
+  const actionGroups = list(prep.actionGroups).slice(0, 6)
   const counts = prep.counts || {}
   return `
     <section class="yt-session-prep">
       <div class="yt-section-head">
         <span>SOURCE SESSION PREP</span>
         <h3>What needs identity or auth next</h3>
-        <small>${escapeHtml(compactNumber(counts.totalRows || 0))} prep rows · ${escapeHtml(compactNumber(counts.clusterCount || 0))} source clusters · ${escapeHtml(compactNumber(counts.skoolFreeCommunityRows || 0))} Skool · ${escapeHtml(compactNumber(counts.newsletterSignupRows || 0))} newsletters · ${escapeHtml(compactNumber(counts.paidAuthRows || 0))} paid/auth · ${escapeHtml(compactNumber(counts.runAllowedNowRows || 0))} runnable now</small>
+        <small>${escapeHtml(compactNumber(counts.totalRows || 0))} prep rows · ${escapeHtml(compactNumber(counts.actionGroupCount || 0))} action groups · ${escapeHtml(compactNumber(counts.clusterCount || 0))} source clusters · ${escapeHtml(compactNumber(counts.skoolFreeCommunityRows || 0))} Skool · ${escapeHtml(compactNumber(counts.newsletterSignupRows || 0))} newsletters · ${escapeHtml(compactNumber(counts.paidAuthRows || 0))} paid/auth · ${escapeHtml(compactNumber(counts.runAllowedNowRows || 0))} runnable now</small>
       </div>
       <p>${escapeHtml(prep.plainEnglish || '')}</p>
+      ${prep.primaryNextAction ? `<p>${escapeHtml(prep.primaryNextAction)}</p>` : ''}
+      <div class="yt-session-cluster-grid">
+        ${actionGroups.map(group => `
+          <article class="${escapeHtml(Number(group.runAllowedNowRows || 0) ? 'ready' : 'blocked')}">
+            <div>
+              <span>${escapeHtml(statusCopy(group.phase || group.status || 'source action'))}</span>
+              <strong>${escapeHtml(group.label || 'Source-session action')}</strong>
+            </div>
+            <p>${escapeHtml(group.plainEnglish || group.nextAction || '')}</p>
+            <small>${escapeHtml([`${compactNumber(group.totalRows || 0)} rows`, `${compactNumber(group.clusterCount || 0)} clusters`, group.account, group.runner, list(group.topHosts).slice(0, 3).join(' · ')].filter(Boolean).join(' · '))}</small>
+          </article>
+        `).join('') || '<article class="loading-card">No source-session action groups returned.</article>'}
+      </div>
       <div class="yt-session-cluster-grid">
         ${clusters.map(cluster => `
           <article class="${escapeHtml(Number(cluster.runAllowedNowRows || 0) ? 'ready' : 'blocked')}">
@@ -736,7 +750,7 @@ function renderSourceSessionPrepQueue(prep = {}) {
               <strong>${escapeHtml(row.host || row.label || 'source')}</strong>
             </div>
             <p>${escapeHtml(row.plainEnglish || '')}</p>
-            <small>${escapeHtml([row.account, row.runner, list(row.sourceGrades).slice(0, 2).map(source => `${source.creator}: ${source.devBuildGrade}`).join(' · ')].filter(Boolean).join(' · '))}</small>
+            <small>${escapeHtml([row.account, row.runner, row.url, list(row.sourceGrades).slice(0, 2).map(source => `${source.creator}: ${source.devBuildGrade}`).join(' · ')].filter(Boolean).join(' · '))}</small>
           </article>
         `).join('') || '<article class="loading-card">No source-session prep rows returned.</article>'}
       </div>

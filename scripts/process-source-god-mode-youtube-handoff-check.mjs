@@ -686,17 +686,26 @@ async function main() {
       queue.sourceSessionPrepQueue?.counts?.paidAuthRows === 1 &&
       queue.sourceSessionPrepQueue?.counts?.clusterCount === 3 &&
       queue.sourceSessionPrepQueue?.counts?.previewClusters === 3 &&
+      queue.sourceSessionPrepQueue?.counts?.actionGroupCount === 3 &&
       queue.sourceSessionPrepQueue?.counts?.runAllowedNowRows === 1 &&
       queue.sourceSessionPrepQueue?.counts?.rawSecretPrintedRows === 0 &&
+      queue.sourceSessionPrepQueue?.phaseCounts?.free_skool_session_ready === 1 &&
+      queue.sourceSessionPrepQueue?.phaseCounts?.newsletter_signup_lane_needed === 1 &&
+      queue.sourceSessionPrepQueue?.phaseCounts?.paid_or_auth_packet_needed === 1 &&
       list(queue.sourceSessionPrepQueue?.clusters).length === 3 &&
       list(queue.sourceSessionPrepQueue?.clusters).every(cluster => Number(cluster.totalRows || 0) >= 1 && Number(cluster.rawSecretPrintedRows || 0) === 0) &&
+      list(queue.sourceSessionPrepQueue?.actionGroups).length === 3 &&
+      list(queue.sourceSessionPrepQueue?.actionGroups).every(group => Number(group.totalRows || 0) >= 1 && Number(group.rawSecretPrintedRows || 0) === 0 && group.nextAction) &&
+      list(queue.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'free_skool_session_ready' && group.rowsWithRunAfterSessionCommand === 1) &&
       list(queue.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_skool_session_ready' && row.runAfterSessionCommand) &&
       list(queue.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'free_skool_session_ready' && cluster.rowsWithRunAfterSessionCommand === 1 && /chase-ai-community/.test(cluster.label || '')) &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'free_source_identity_session_needed') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.rows).some(row => row.phase === 'community_runner_needed') &&
       list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'free_source_identity_session_needed' && cluster.host === 'skool.com') &&
-      list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'community_runner_needed' && cluster.host === 'community.youreverydayai.com'),
-    'source session prep queue exposes clustered next auth/session work without starting it',
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.clusters).some(cluster => cluster.phase === 'community_runner_needed' && cluster.host === 'community.youreverydayai.com') &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'free_source_identity_session_needed' && group.nextAction?.includes('ai@bensoncrew.ca')) &&
+      list(communityBoundaryQueue?.sourceSessionPrepQueue?.actionGroups).some(group => group.phase === 'community_runner_needed'),
+    'source session prep queue exposes clustered and action-grouped next auth/session work without starting it',
     JSON.stringify({
       readyPrep: queue.sourceSessionPrepQueue?.counts,
       parkedPrep: communityBoundaryQueue?.sourceSessionPrepQueue?.counts,

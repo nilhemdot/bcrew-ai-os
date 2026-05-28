@@ -852,6 +852,7 @@ async function main() {
   const sourceSessionPrepQueue = sourceGodModeHandoffQueue.sourceSessionPrepQueue || {}
   const sourceRunSummary = sourceGodModeHandoffQueue.sourceRunSummary || {}
   const sourceSessionPrepRows = list(sourceSessionPrepQueue.rows)
+  const sourceSessionActionGroups = list(sourceSessionPrepQueue.actionGroups)
   const sourceGodModeCleared = sourceGodModeRunnableCount === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.publicFreeRuntimeRows || 0) === 0 &&
     Number(sourceGodModeHandoffQueue.counts?.freeCommunityRows || 0) === 0 &&
@@ -943,19 +944,30 @@ async function main() {
       Number(sourceSessionPrepQueue.counts?.paidAuthRows || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.clusterCount || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.previewClusters || 0) > 0 &&
+      Number(sourceSessionPrepQueue.counts?.actionGroupCount || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.runAllowedNowRows || 0) === 0 &&
       Number(sourceSessionPrepQueue.counts?.rawSecretPrintedRows || 0) === 0 &&
+      Number(sourceSessionPrepQueue.phaseCounts?.free_source_identity_session_needed || 0) > 0 &&
+      Number(sourceSessionPrepQueue.phaseCounts?.newsletter_signup_lane_needed || 0) > 0 &&
+      Number(sourceSessionPrepQueue.phaseCounts?.paid_or_auth_packet_needed || 0) > 0 &&
       list(sourceSessionPrepQueue.clusters).length === Number(sourceSessionPrepQueue.counts?.previewClusters || 0) &&
       list(sourceSessionPrepQueue.clusters).every(cluster => Number(cluster.totalRows || 0) >= 1 && Number(cluster.rawSecretPrintedRows || 0) === 0) &&
       list(sourceSessionPrepQueue.clusters).some(cluster => /skool\.com\/[^/]+/.test(cluster.label || '')) &&
+      sourceSessionActionGroups.length === Number(sourceSessionPrepQueue.counts?.actionGroupCount || 0) &&
+      sourceSessionActionGroups.some(group => group.phase === 'free_source_identity_session_needed' && group.nextAction?.includes('ai@bensoncrew.ca')) &&
+      sourceSessionActionGroups.some(group => group.phase === 'newsletter_signup_lane_needed' && group.nextAction?.includes('dry-run')) &&
+      sourceSessionActionGroups.some(group => group.phase === 'paid_or_auth_packet_needed' && group.nextAction?.includes('Steve')) &&
+      sourceSessionActionGroups.every(group => Number(group.rawSecretPrintedRows || 0) === 0 && Number(group.totalRows || 0) >= 1 && list(group.topUrls).length >= 1) &&
       sourceSessionPrepRows.some(row => row.phase === 'free_source_identity_session_needed') &&
       sourceSessionPrepRows.some(row => row.phase === 'community_runner_needed') &&
       sourceSessionPrepRows.some(row => row.phase === 'newsletter_signup_lane_needed') &&
       sourceSessionPrepRows.some(row => row.phase === 'paid_or_auth_packet_needed') &&
       sourceSessionPrepQueue.sideEffects?.externalWrites === false &&
+      jsSource.includes('actionGroups') &&
+      jsSource.includes('primaryNextAction') &&
       jsSource.includes('yt-session-cluster-grid') &&
       cssSource.includes('.yt-session-cluster-grid'),
-    'YouTube source-browser queue exposes clustered source-session prep without claiming live signups or auth runs',
+    'YouTube source-browser queue exposes clustered and action-grouped source-session prep without claiming live signups or auth runs',
     JSON.stringify(sourceSessionPrepQueue.counts || {}),
   )
   const repoReadback = sourceRunSummary.repoReadback || {}
