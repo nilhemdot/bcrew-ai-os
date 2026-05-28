@@ -85,6 +85,8 @@ Implementation slice now exists in `lib/source-browser-agent-harness.js`, with f
 
 This slice does not claim full live source extraction. It creates the governing Source Browser Agent harness that accepts an exact source packet, chooses the existing runner, checks page/browser health, routes session/auth work through `SOURCE-SESSION-BROKER-001`, and fails closed before unsafe action. The dogfood proof covers public resource routing, repo routing, newsletter no-submit parking, free Skool session gating, MyICOR Google SSO auth-needed, MyICOR wrong-signup fail-closed, blank browser fail-closed, and purchase/action blocking.
 
+The second slice makes the harness readback-ready. Any plan can now be serialized into the same `source_crawl_items`-style record used by the Dev source-browser summary, including bucket, route, terminal state, blocker, auth-needed, side-effect, and source-stack metadata. `npm run source:browser-agent -- --url=<exact-source-url> --sourceType=<source-type> --crawlItem --json` prints that handoff shape for inspection, and the focused proof verifies that public, repo, newsletter, free-community, paid/auth, and failed-closed states render without unsafe side effects.
+
 1. Promote Source Browser from runtime to agent harness.
    - Use `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` and `AGENT-CAPABILITY-REGISTRY-001` as the governing protocol.
    - Do not create a brand-new protocol unless a concrete missing field is found.
@@ -119,6 +121,7 @@ This slice does not claim full live source extraction. It creates the governing 
 
 6. Persist source-stack output.
    - Creator/source cards must show YouTube, blog/site, repo/docs/resources, newsletter, free community, paid community/course, status, grade contribution, artifacts, blockers, and next action.
+   - V1 readback shape now exists for source-browser agent plans; the remaining work is live DB persistence from real runner output and richer source-stack cards once real rows are saved.
 
 7. Add hosted/browser fallback only after local agent proof exposes the actual failure.
    - Browserbase, Browser Use, OpenAI computer-use, Firecrawl, or another hosted browser path should be evaluated as a fallback/tool choice, not bought blindly as a replacement for the agent protocol.

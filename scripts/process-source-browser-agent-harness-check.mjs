@@ -8,10 +8,14 @@ import { fileURLToPath } from 'node:url'
 import {
   SOURCE_BROWSER_AGENT_CARD_ID,
   SOURCE_BROWSER_AGENT_SCRIPT_PATH,
+  buildSourceBrowserAgentCrawlItemInput,
   buildSourceBrowserAgentDogfoodProof,
   buildSourceBrowserAgentHarnessSnapshot,
   evaluateSourceBrowserAgentHarness,
 } from '../lib/source-browser-agent-harness.js'
+import {
+  buildSourceBrowserRunSummary,
+} from '../lib/dev-source-run-readback.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -65,6 +69,21 @@ async function main() {
   const snapshot = buildSourceBrowserAgentHarnessSnapshot()
   const evaluation = evaluateSourceBrowserAgentHarness(snapshot)
   const dogfood = buildSourceBrowserAgentDogfoodProof()
+  const dogfoodReadbackItems = [
+    dogfood.reports.publicPlan,
+    dogfood.reports.repoPlan,
+    dogfood.reports.newsletterPlan,
+    dogfood.reports.skoolNeedsSession,
+    dogfood.reports.skoolReady,
+    dogfood.reports.myicorMfa,
+    dogfood.reports.myicorWrongSignup,
+    dogfood.reports.badBrowserState,
+  ].map((plan, index) => buildSourceBrowserAgentCrawlItemInput(plan, {
+    batchRunId: 'source-browser-agent-harness-dogfood',
+    capturedAt: `2026-05-28T13:${String(index).padStart(2, '0')}:30.000Z`,
+  }))
+  const dogfoodReadback = buildSourceBrowserRunSummary(dogfoodReadbackItems)
+  const agentReadback = dogfoodReadback.sourceBrowserAgentReadback || {}
 
   addCheck(
     checks,
@@ -75,7 +94,8 @@ async function main() {
   addCheck(
     checks,
     packageJson.scripts?.['source:browser-agent'] === 'node --env-file-if-exists=.env scripts/run-source-browser-agent.mjs' &&
-      /planSourceBrowserAgentRun/.test(runnerSource),
+      /planSourceBrowserAgentRun/.test(runnerSource) &&
+      /buildSourceBrowserAgentCrawlItemInput/.test(runnerSource),
     'source:browser-agent entrypoint uses the agent harness',
     packageJson.scripts?.['source:browser-agent'] || 'missing',
   )
@@ -133,12 +153,43 @@ async function main() {
   )
   addCheck(
     checks,
+    dogfoodReadback.status === 'ready' &&
+      agentReadback.status === 'ready' &&
+      Number(agentReadback.planCount || 0) === dogfoodReadbackItems.length &&
+      Number(agentReadback.readyPlanCount || 0) >= 3 &&
+      Number(agentReadback.authNeededCount || 0) >= 2 &&
+      Number(agentReadback.failedClosedCount || 0) >= 2 &&
+      Number(agentReadback.unsafeSideEffectRows || 0) === 0 &&
+      agentReadback.routeCounts?.['source:god-mode'] >= 1 &&
+      agentReadback.routeCounts?.['repo:deep-review'] >= 1 &&
+      agentReadback.routeCounts?.['skool:free-god-mode'] >= 1,
+    'agent plans serialize into source-run readback with route, auth-needed, failed-closed, and side-effect truth',
+    JSON.stringify({
+      plans: agentReadback.planCount,
+      routes: agentReadback.routeCounts,
+      states: agentReadback.terminalStateCounts,
+      unsafe: agentReadback.unsafeSideEffectRows,
+    }),
+  )
+  addCheck(
+    checks,
+    dogfoodReadback.bucketSummaries?.some(row => row.bucketId === 'public-code-repos') &&
+      dogfoodReadback.bucketSummaries?.some(row => row.bucketId === 'free-communities') &&
+      dogfoodReadback.bucketSummaries?.some(row => row.bucketId === 'creator-newsletters') &&
+      dogfoodReadback.bucketSummaries?.some(row => row.bucketId === 'paid-auth-gates'),
+    'agent crawl items land in the same source-browser buckets the Dev page already renders',
+    dogfoodReadback.bucketSummaries?.map(row => `${row.bucketId}:${row.runs}`).join(', ') || 'missing buckets',
+  )
+  addCheck(
+    checks,
     containsAll(harnessSource, [
       'source:god-mode',
       'repo:deep-review',
       'newsletter:intake',
       'skool:free-god-mode',
       'source-session-broker',
+      'buildSourceBrowserAgentCrawlItemInput',
+      'sourceBrowserAgentPlan',
       'evaluateSourceBrowserPageHealth',
       'evaluateSourceSessionBrokerRequest',
     ]),

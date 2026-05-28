@@ -4,6 +4,7 @@ import process from 'node:process'
 
 import {
   SOURCE_BROWSER_AGENT_ID,
+  buildSourceBrowserAgentCrawlItemInput,
   buildSourceBrowserAgentHarnessSnapshot,
   planSourceBrowserAgentRun,
 } from '../lib/source-browser-agent-harness.js'
@@ -12,6 +13,7 @@ function parseArgs(argv = process.argv.slice(2)) {
   const args = {
     json: argv.includes('--json'),
     snapshot: argv.includes('--snapshot'),
+    crawlItem: argv.includes('--crawlItem') || argv.includes('--crawl-item'),
     packet: {},
     observation: {},
   }
@@ -65,9 +67,10 @@ async function main() {
     packet: args.packet,
     observation: Object.keys(args.observation).length ? args.observation : undefined,
   })
+  const output = args.crawlItem ? buildSourceBrowserAgentCrawlItemInput(report) : report
 
   if (args.json) {
-    console.log(JSON.stringify(report, null, 2))
+    console.log(JSON.stringify(output, null, 2))
     return
   }
 
@@ -78,6 +81,7 @@ async function main() {
   console.log(`Tool: ${report.toolRoute?.toolId}`)
   console.log(`State: ${report.terminalState}`)
   console.log(`Runner: ${report.runnerCommand?.displayCommand || 'none'}`)
+  if (args.crawlItem) console.log(`Readback item: ${output.itemKey}`)
   console.log(`Next: ${report.nextAction}`)
 }
 

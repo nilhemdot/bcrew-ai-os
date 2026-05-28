@@ -858,6 +858,8 @@ function renderSourceRunSummary(summary = {}) {
   const repoImplementationRows = list(repoImplementationPackets.rows).slice(0, 4)
   const fileReadback = summary.fileResourceReadback || {}
   const topFiles = list(fileReadback.topCandidates).slice(0, 6)
+  const agentReadback = summary.sourceBrowserAgentReadback || {}
+  const agentPlans = list(agentReadback.topPlans).slice(0, 6)
   return `
     <section class="yt-source-run-summary">
       <div class="yt-section-head">
@@ -866,6 +868,29 @@ function renderSourceRunSummary(summary = {}) {
         <small>${escapeHtml(compactNumber(summary.totalRuns || 0))} runs · ${escapeHtml(compactNumber(summary.pagesRead || 0))} pages · ${escapeHtml(compactNumber(summary.freeResourceCaptures || 0))} resources · ${escapeHtml(compactNumber(summary.fileResourceCandidates || 0))} files · ${escapeHtml(compactNumber(summary.unsafeSideEffectRows || 0))} unsafe side effects</small>
       </div>
       <p>${escapeHtml(summary.plainEnglish || '')}</p>
+      ${agentReadback.status === 'ready' ? `
+        <div class="yt-source-agent-readback">
+          <div class="yt-section-head">
+            <span>SOURCE BROWSER AGENT</span>
+            <h3>Route, auth, and stop-state readback</h3>
+            <small>${escapeHtml(compactNumber(agentReadback.planCount || 0))} plans · ${escapeHtml(compactNumber(agentReadback.readyPlanCount || 0))} ready · ${escapeHtml(compactNumber(agentReadback.authNeededCount || 0))} auth needed · ${escapeHtml(compactNumber(agentReadback.failedClosedCount || 0))} failed closed · ${escapeHtml(compactNumber(agentReadback.unsafeSideEffectRows || 0))} unsafe side effects</small>
+          </div>
+          <p>${escapeHtml(agentReadback.plainEnglish || '')}</p>
+          <div class="yt-source-run-list">
+            ${agentPlans.map(plan => `
+              <article>
+                <div>
+                  <span>${escapeHtml(plan.route || 'route')} · ${escapeHtml(plan.terminalState || 'state')}</span>
+                  <strong>${escapeHtml(plan.host || plan.sourceId || 'source')}</strong>
+                </div>
+                <p>${escapeHtml(plan.stopReason || plan.nextAction || plan.url || '')}</p>
+                <small>${escapeHtml(`${plan.label || 'source'} · ${compactNumber(plan.stateHistoryCount || 0)} states · ${compactNumber(plan.blockerCount || 0)} blockers`)}</small>
+              </article>
+            `).join('') || '<article><p>No source-browser agent rows returned.</p></article>'}
+          </div>
+          <small>${escapeHtml(agentReadback.nextAction || '')}</small>
+        </div>
+      ` : ''}
       <div class="yt-source-run-grid">
         ${buckets.map(bucket => `
           <article>
