@@ -3195,6 +3195,13 @@ button {
   gap: 10px;
 }
 
+.yt-session-cluster-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.yt-session-cluster-grid article,
 .yt-session-prep-grid article {
   display: grid;
   gap: 8px;
@@ -3205,19 +3212,24 @@ button {
   background: var(--white);
 }
 
+.yt-session-cluster-grid article.ready,
 .yt-session-prep-grid article.ready {
   border-left: 3px solid var(--green);
 }
 
+.yt-session-cluster-grid article.blocked,
 .yt-session-prep-grid article.blocked {
   border-left: 3px solid var(--amber);
 }
 
+.yt-session-cluster-grid article > div,
 .yt-session-prep-grid article > div {
   display: grid;
   gap: 4px;
 }
 
+.yt-session-cluster-grid span,
+.yt-session-cluster-grid small,
 .yt-session-prep-grid span,
 .yt-session-prep-grid small {
   color: var(--grey-d);
@@ -3225,6 +3237,9 @@ button {
   font-size: var(--t-xs);
 }
 
+.yt-session-cluster-grid strong,
+.yt-session-cluster-grid p,
+.yt-session-cluster-grid small,
 .yt-session-prep-grid strong,
 .yt-session-prep-grid p,
 .yt-session-prep-grid small {
@@ -3232,6 +3247,7 @@ button {
   overflow-wrap: break-word;
 }
 
+.yt-session-cluster-grid p,
 .yt-session-prep-grid p {
   margin: 0;
   color: var(--ink);
@@ -4600,6 +4616,7 @@ button {
 	  .yt-stage-grid,
 	  .yt-handoff-grid,
 	  .yt-source-handoff-list,
+	  .yt-session-cluster-grid,
 	  .yt-session-prep-grid,
 	  .yt-two-col,
 	  .yt-dev-priority-grid,

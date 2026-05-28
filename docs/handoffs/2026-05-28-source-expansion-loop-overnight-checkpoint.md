@@ -98,6 +98,8 @@ Foundation/system health is green after the repair pass:
   - This is a readback/prep layer only; it does not create accounts, submit forms, crawl paid/private/auth sources, download files, post/comment/message, or mutate credentials.
   - Live Dev Hub readback after the change: 283 prep rows, including 96 free-community rows, 91 Skool free-community rows, 5 non-Skool community rows, 17 newsletter signup rows, and 170 paid/auth rows.
   - It exposes 91 run-after-session Skool commands for later, but current live `runAllowedNowRows` remains 0 and `rawSecretPrintedRows` remains 0.
+  - Continuation hardening added grouped source-session clusters so Steve can review duplicate-heavy session work by source/community/domain without losing the exact row list.
+  - Latest Dev Hub proof: 283 prep rows, 54 source clusters, 24 preview clusters, 0 runnable-now rows, and 0 raw-secret rows.
 - Caught up internal synthesis freshness.
   - `gmail-extract-latest`: succeeded, 1 candidate upserted.
   - `missive-extract-latest`: succeeded, 1 candidate upserted.
@@ -169,6 +171,7 @@ Final health readback:
 - Synthesis freshness snapshot: `fresh`, no waiting families, no failed extractor jobs.
 - Dev Hub active extraction lanes: YouTube generated, meetings live, email/Missive live, Slack live, synthesis-router live.
 - Source Session Prep Queue: `waiting_for_source_session_or_approval`, 283 prep rows, 91 Skool run-after-session commands, 0 rows allowed to run now, 0 raw-secret rows.
+- Source Session Prep clusters: 54 source clusters with 24 previewed on the Dev page; clusters preserve exact rows and do not start signups/auth/crawls.
 - After committing the checkpoint update, full verify caught stale served code. Dashboard and worker were restarted, then `foundation:verify -- --json-summary` passed 519/519 again.
 - `connector-uptime-monitor` became due inside the grace window; it was run manually and returned 6/6 connectors healthy. Final System Health after that run: healthy, due count 0, risk/watch 0.
 

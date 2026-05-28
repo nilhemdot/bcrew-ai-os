@@ -939,14 +939,21 @@ async function main() {
       Number(sourceSessionPrepQueue.counts?.freeCommunityRows || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.newsletterSignupRows || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.paidAuthRows || 0) > 0 &&
+      Number(sourceSessionPrepQueue.counts?.clusterCount || 0) > 0 &&
+      Number(sourceSessionPrepQueue.counts?.previewClusters || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.runAllowedNowRows || 0) === 0 &&
       Number(sourceSessionPrepQueue.counts?.rawSecretPrintedRows || 0) === 0 &&
+      list(sourceSessionPrepQueue.clusters).length === Number(sourceSessionPrepQueue.counts?.previewClusters || 0) &&
+      list(sourceSessionPrepQueue.clusters).every(cluster => Number(cluster.totalRows || 0) >= 1 && Number(cluster.rawSecretPrintedRows || 0) === 0) &&
+      list(sourceSessionPrepQueue.clusters).some(cluster => /skool\.com\/[^/]+/.test(cluster.label || '')) &&
       sourceSessionPrepRows.some(row => row.phase === 'free_source_identity_session_needed') &&
       sourceSessionPrepRows.some(row => row.phase === 'community_runner_needed') &&
       sourceSessionPrepRows.some(row => row.phase === 'newsletter_signup_lane_needed') &&
       sourceSessionPrepRows.some(row => row.phase === 'paid_or_auth_packet_needed') &&
-      sourceSessionPrepQueue.sideEffects?.externalWrites === false,
-    'YouTube source-browser queue exposes source-session prep without claiming live signups or auth runs',
+      sourceSessionPrepQueue.sideEffects?.externalWrites === false &&
+      jsSource.includes('yt-session-cluster-grid') &&
+      cssSource.includes('.yt-session-cluster-grid'),
+    'YouTube source-browser queue exposes clustered source-session prep without claiming live signups or auth runs',
     JSON.stringify(sourceSessionPrepQueue.counts || {}),
   )
   addCheck(

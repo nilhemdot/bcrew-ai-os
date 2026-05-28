@@ -706,15 +706,28 @@ function renderYoutubeSourceBucketCards(queue = {}) {
 function renderSourceSessionPrepQueue(prep = {}) {
   if (!prep || !prep.status) return ''
   const rows = list(prep.rows).slice(0, 8)
+  const clusters = list(prep.clusters).slice(0, 6)
   const counts = prep.counts || {}
   return `
     <section class="yt-session-prep">
       <div class="yt-section-head">
         <span>SOURCE SESSION PREP</span>
         <h3>What needs identity or auth next</h3>
-        <small>${escapeHtml(compactNumber(counts.totalRows || 0))} prep rows · ${escapeHtml(compactNumber(counts.skoolFreeCommunityRows || 0))} Skool · ${escapeHtml(compactNumber(counts.newsletterSignupRows || 0))} newsletters · ${escapeHtml(compactNumber(counts.paidAuthRows || 0))} paid/auth · ${escapeHtml(compactNumber(counts.runAllowedNowRows || 0))} runnable now</small>
+        <small>${escapeHtml(compactNumber(counts.totalRows || 0))} prep rows · ${escapeHtml(compactNumber(counts.clusterCount || 0))} source clusters · ${escapeHtml(compactNumber(counts.skoolFreeCommunityRows || 0))} Skool · ${escapeHtml(compactNumber(counts.newsletterSignupRows || 0))} newsletters · ${escapeHtml(compactNumber(counts.paidAuthRows || 0))} paid/auth · ${escapeHtml(compactNumber(counts.runAllowedNowRows || 0))} runnable now</small>
       </div>
       <p>${escapeHtml(prep.plainEnglish || '')}</p>
+      <div class="yt-session-cluster-grid">
+        ${clusters.map(cluster => `
+          <article class="${escapeHtml(Number(cluster.runAllowedNowRows || 0) ? 'ready' : 'blocked')}">
+            <div>
+              <span>${escapeHtml(statusCopy(cluster.phase || cluster.status || 'source cluster'))}</span>
+              <strong>${escapeHtml(cluster.label || cluster.host || 'source')}</strong>
+            </div>
+            <p>${escapeHtml(cluster.plainEnglish || '')}</p>
+            <small>${escapeHtml([`${compactNumber(cluster.totalRows || 0)} rows`, cluster.account, cluster.runner, list(cluster.sourceGrades).slice(0, 2).map(source => `${source.creator}: ${source.devBuildGrade}`).join(' · ')].filter(Boolean).join(' · '))}</small>
+          </article>
+        `).join('') || '<article class="loading-card">No source-session clusters returned.</article>'}
+      </div>
       <div class="yt-session-prep-grid">
         ${rows.map(row => `
           <article class="${escapeHtml(row.runAllowedNow ? 'ready' : 'blocked')}">
