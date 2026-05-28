@@ -216,6 +216,8 @@ async function main() {
       fixtureReadiness.counts.missingCredentialCount >= 1 &&
       fixtureChecks.some(check => check.checkId === 'skool-free-source-identity' && check.status === 'present') &&
       fixtureChecks.some(check => check.checkId === 'myicor-mcp-oauth-token' && check.status === 'missing') &&
+      fixtureChecks.some(check => check.checkId === 'myicor-wrong-signup-branch-guard' && check.status === 'guard_required') &&
+      fixtureChecks.some(check => check.checkId === 'myicor-google-sso-mfa-loop' && check.status === 'auth_needed_loop_required') &&
       fixtureChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
       fixtureChecks.some(check => /myicor:mcp-preflight/.test(check.statusCommand || '')) &&
       fixtureChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false),
@@ -231,6 +233,8 @@ async function main() {
       Number(liveReadiness.counts.prepRows || 0) > 0 &&
       liveChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
       liveChecks.some(check => /newsletter:intake/.test(check.statusCommand || '')) &&
+      liveChecks.some(check => check.checkId === 'myicor-wrong-signup-branch-guard') &&
+      liveChecks.some(check => check.checkId === 'myicor-google-sso-mfa-loop') &&
       liveChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false),
     'live source-session prep has metadata-only readiness checks for the parked source expansion queue',
     JSON.stringify(liveReadiness.counts),

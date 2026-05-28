@@ -224,7 +224,7 @@ async function main() {
   addCheck(
     checks,
     dogfood.ok,
-    'dogfood proves session-ready, native MCP, missing credential, MFA, free signup, forbidden action, and no-boundary cases',
+    'dogfood proves session-ready, MyICOR Google SSO/no-signup guard, native MCP, missing credential, MFA, free signup, forbidden action, and no-boundary cases',
     dogfood.cases.filter(item => !item.ok).map(item => item.name).join(', ') || 'all dogfood cases passed',
   )
   addCheck(
@@ -294,6 +294,8 @@ async function main() {
       packageJson.scripts?.['myicor:mcp-call'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs call' &&
       myicorMcpOauthSource.includes('https://mcp.myicor.com/mcp') &&
       myicorMcpOauthSource.includes('https://app.myicor.com/.well-known/oauth-authorization-server') &&
+      myicorMcpOauthSource.includes('EXISTING_GOOGLE_SSO_ACCOUNT') &&
+      myicorMcpOauthSource.includes('WRONG_BRANCH_STOP_TEXT') &&
       myicorMcpOauthSource.includes("DEFAULT_SCOPE = 'mcp:read mcp:tools mcp:progress mcp:inner-circle'") &&
       !/DEFAULT_SCOPE\s*=\s*['"][^'"]*mcp:admin/i.test(myicorMcpOauthSource) &&
       myicorMcpOauthSource.includes('storeKeychainPassword') &&
@@ -309,7 +311,9 @@ async function main() {
       myicorSourceNote.includes('https://app.myicor.com/.well-known/oauth-authorization-server') &&
       myicorSourceNote.includes('https://mcp.myicor.com/sse') &&
       myicorSourceNote.includes('returned `404`') &&
-      myicorSourceNote.includes('not `mcp:admin`'),
+      myicorSourceNote.includes('not `mcp:admin`') &&
+      myicorSourceNote.includes('wrong_signup_branch') &&
+      myicorSourceNote.includes('auth_needed'),
     'MyICOR source note records current MCP endpoint and stale SSE route',
     'docs/source-notes/myicro-training.md',
   )

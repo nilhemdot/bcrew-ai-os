@@ -19,6 +19,8 @@ const DEFAULT_CALLBACK = 'http://127.0.0.1:7777/callback'
 const DEFAULT_ACCOUNT = 'myicor-authorized-member'
 const KEYCHAIN_SOURCE = 'myicor-mcp-oauth'
 const DEFAULT_SCOPE = 'mcp:read mcp:tools mcp:progress mcp:inner-circle'
+const EXISTING_GOOGLE_SSO_ACCOUNT = 'steve.zahnd@bensoncrew.ca'
+const WRONG_BRANCH_STOP_TEXT = 'If myICOR asks you to Start Free, create a profile, onboard, or sign up, stop. Use Log in / Sign in with Google for the existing paid account.'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const [command = 'preflight', ...rest] = argv
@@ -399,6 +401,11 @@ async function authorize({
   })
   const browserOpened = open ? openBrowser(authorizationUrl) : false
   if (!json) {
+    console.log('myICOR account rule:')
+    console.log(`- Existing paid access uses Google SSO: ${EXISTING_GOOGLE_SSO_ACCOUNT}`)
+    console.log(`- ${WRONG_BRANCH_STOP_TEXT}`)
+    console.log('- If Google asks for 2FA/passkey/number match, complete that human verification, then return here.')
+    console.log('')
     console.log('Open this myICOR authorization URL and approve read-only access:')
     console.log(authorizationUrl)
     console.log('')
@@ -428,6 +435,9 @@ async function authorize({
     browserOpened,
     clientId: client.client_id,
     scope: token.scope || scope,
+    existingGoogleSsoAccount: EXISTING_GOOGLE_SSO_ACCOUNT,
+    signupOrProfileCreationAllowed: false,
+    wrongBranchStopCondition: WRONG_BRANCH_STOP_TEXT,
     tokenStoredInKeychain: true,
     rawSecretPrinted: false,
     toolsListStatus: toolsList.status,
