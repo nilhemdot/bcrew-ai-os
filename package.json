@@ -613,7 +613,9 @@
     "process:public-repo-deep-review-runner-check": "node --env-file-if-exists=.env scripts/process-public-repo-deep-review-runner-check.mjs",
     "repo:deep-review": "node --env-file-if-exists=.env scripts/run-public-repo-deep-review.mjs",
     "process:skool-free-community-god-mode-runner-check": "node --env-file-if-exists=.env scripts/process-skool-free-community-god-mode-runner-check.mjs",
-    "skool:free-god-mode": "node --env-file-if-exists=.env scripts/run-skool-free-community-god-mode.mjs"
+    "skool:free-god-mode": "node --env-file-if-exists=.env scripts/run-skool-free-community-god-mode.mjs",
+    "process:creator-newsletter-intake-runner-check": "node --env-file-if-exists=.env scripts/process-creator-newsletter-intake-runner-check.mjs",
+    "newsletter:intake": "node --env-file-if-exists=.env scripts/run-creator-newsletter-intake.mjs"
   },
   "engines": {
     "node": ">=20"

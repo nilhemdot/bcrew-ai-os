@@ -93,6 +93,12 @@ Foundation/system health is green after the repair pass:
 - Cleared the creator-newsletter public page lane.
   - 17 newsletter rows persisted.
   - Signup forms were detected but not submitted.
+- Added the creator newsletter intake dry-run runner and fixture proof.
+  - New operator command: `npm run newsletter:intake -- --url=<newsletter URL>`.
+  - The runner reads a public newsletter page, detects safe email-only signup forms, produces the source identity/inbox packet for `ai@bensoncrew.ca -> AIOS Sources/Newsletters`, and does not submit in dry-run mode.
+  - Local fixture apply proves the form-submit mechanics only against a local server; external newsletter submit remains disabled from this overnight lane.
+  - Paid, phone-required, profile, password, auth, payment, download, purchase, post/message, backlog-write, provider-call, and raw-secret paths fail closed.
+  - YouTube source-session prep now points newsletter rows at the dry-run `newsletter:intake` command so the next builder can verify forms without claiming live subscription.
 - Cleared the public web/resources lane.
   - Final readback: 0 public/free runtime rows.
   - Public pages, docs, tool pages, papers, creator resource pages, and product/read-only pages were processed in bounded batches.
@@ -267,7 +273,8 @@ Post-push audit readback:
   - Paid/auth gates remain parked.
   - MyICOR and paid Skool should wait for Source Session Broker plus exact approved auth/session boundary.
 - External side-effecting source actions:
-  - Newsletter signup, free-account creation, downloads, purchases, posting, commenting, messaging, and paid/private access are still outside the public/read-only handoff lane.
+  - Live newsletter signup, free-account creation, downloads, purchases, posting, commenting, messaging, and paid/private access are still outside the public/read-only handoff lane.
+  - Newsletter dry-run/form verification is now available; live external submit still needs the source-identity signup lane.
   - They need the Source Session Broker/source-specific worker before unattended execution.
 
 ## Next Recommended Order
@@ -281,7 +288,7 @@ Post-push audit readback:
 ## Morning Talk Track
 
 - YouTube baseline and public/read-only source handoff are caught up for currently runnable rows.
-- Full God Mode is still not done because live free-community sessions, newsletter signups, paid/auth extraction, purchases/downloads/posts/messages, and MyICOR/paid Skool are not automatic yet.
+- Full God Mode is still not done because live free-community sessions, live newsletter signups, paid/auth extraction, purchases/downloads/posts/messages, and MyICOR/paid Skool are not automatic yet.
 - Source Session Broker and the free Skool runner have green internal/fixture proofs; next real build is turning that into approved live source-session execution.
 - Synthesis was stale earlier because fresh Gmail/Missive/Slack archives were newer than candidate extraction. That was caught up and now reads fresh.
 - No Scoper promotion was done while Steve was asleep.
