@@ -964,6 +964,8 @@ async function main() {
       list(sourceSessionPrepQueue.clusters).length === Number(sourceSessionPrepQueue.counts?.previewClusters || 0) &&
       list(sourceSessionPrepQueue.clusters).every(cluster => Number(cluster.totalRows || 0) >= 1 && Number(cluster.rawSecretPrintedRows || 0) === 0) &&
       list(sourceSessionPrepQueue.clusters).some(cluster => /skool\.com\/[^/]+/.test(cluster.label || '')) &&
+      list(sourceSessionPrepQueue.clusters).some(cluster => cluster.phase === 'community_runner_needed') &&
+      list(sourceSessionPrepQueue.clusters).some(cluster => cluster.phase === 'paid_or_auth_packet_needed') &&
       sourceSessionActionGroups.length === Number(sourceSessionPrepQueue.counts?.actionGroupCount || 0) &&
       sourceSessionActionGroups.some(group => group.phase === 'free_source_identity_session_needed' && group.nextAction?.includes('ai@bensoncrew.ca')) &&
       sourceSessionActionGroups.some(group => group.phase === 'newsletter_signup_lane_needed' && group.nextAction?.includes('dry-run')) &&
