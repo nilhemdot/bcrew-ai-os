@@ -200,6 +200,13 @@ Final health readback:
 - After committing the checkpoint update, full verify caught stale served code. Dashboard and worker were restarted, then `foundation:verify -- --json-summary` passed 519/519 again.
 - `connector-uptime-monitor` became due inside the grace window; it was run manually and returned 6/6 connectors healthy. Final System Health after that run: healthy, due count 0, risk/watch 0.
 
+05:45 health repair:
+
+- `foundation-lessons-learned-loop` initially failed because its focused proof required a local/private memory signal to exist every day. That was brittle: no-memory-signal days should still prove the privacy boundary by dogfood and by no external/raw writes.
+- Repaired `scripts/process-foundation-lessons-learned-loop-check.mjs` so the metadata-only privacy check passes when the dogfood private-boundary examples pass, external model use is false, and the loop stays `local_private_metadata_only`.
+- Reran the real Foundation job: `npm run foundation:job -- --job=foundation-lessons-learned-loop --force --actor=codex-lessons-loop-repair`; latest run succeeded.
+- Reran `process:foundation-lessons-learned-loop-check`, `process:build-lane-repeated-failure-action-gate-check`, `process:system-health-nightly-audit-check`, `foundation:verify -- --json-summary`, and `process:verify-gate-tiering-check -- --recordProof=true`; all passed.
+
 ## Parked Blockers
 
 - Free-community extraction:

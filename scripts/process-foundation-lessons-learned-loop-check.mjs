@@ -642,7 +642,18 @@ async function main() {
   addCheck(checks, !args.closeCard || nextCard?.lane === 'scoped', 'next P0 backlog reality card exists after close', nextCard ? `${nextCard.lane}/${nextCard.priority}` : 'missing')
   addCheck(checks, dogfood.ok === true, 'dogfood rejects documented-only lessons and private external upload', dogfood.checks.filter(check => !check.ok).map(check => check.check).join(', ') || 'pass')
   addCheck(checks, lessonStatus.status === 'healthy' && lessonStatus.summary?.writesBacklog === false && lessonStatus.summary?.externalModelUse === false, 'live lessons loop routes current lessons without writes or external model use', `status=${lessonStatus.status} lessons=${lessonStatus.summary?.lessonCount || 0} failed=${lessonStatus.summary?.failedCount || 0}`)
-  addCheck(checks, lessonStatus.summary?.privateConversationLessonCount >= 1 && lessonStatus.summary?.privacyPosture === 'local_private_metadata_only', 'local/private conversation review stays metadata-only', `privateSignals=${lessonStatus.summary?.privateConversationLessonCount || 0}`)
+  const localMemoryFileCount = Object.keys(memoryFiles || {}).length
+  const privateBoundaryDogfoodPassed = dogfood.examples?.roleBoundaryDoctrine?.privateConversation === true &&
+    dogfood.examples?.roleBoundaryDoctrine?.ok === true &&
+    dogfood.examples?.privateExternal?.ok === false
+  addCheck(
+    checks,
+    lessonStatus.summary?.privacyPosture === 'local_private_metadata_only' &&
+      lessonStatus.summary?.externalModelUse === false &&
+      privateBoundaryDogfoodPassed,
+    'local/private conversation review stays metadata-only',
+    `memoryFiles=${localMemoryFileCount} privateSignals=${lessonStatus.summary?.privateConversationLessonCount || 0} dogfood=${privateBoundaryDogfoodPassed ? 'pass' : 'fail'}`,
+  )
   addCheck(checks, systemHealthGate.ok, 'System Health remains healthy or only this running lessons job is pending success', systemHealthGate.detail)
   addCheck(checks, repeatedFailureGateStatus.ok, 'repeated-failure gate remains healthy or only this running lessons job is proving recovery', repeatedFailureGateStatus.detail)
   addCheck(checks, packageJson.scripts?.['process:foundation-lessons-learned-loop-check'] === `node --env-file-if-exists=.env ${FOUNDATION_LESSONS_LEARNED_LOOP_SCRIPT_PATH}`, 'package exposes lessons loop focused proof', packageJson.scripts?.['process:foundation-lessons-learned-loop-check'] || 'missing')
