@@ -610,6 +610,25 @@ async function main() {
     'queue readback marks exact rows already run after persistence',
     JSON.stringify(queueAfterRun.counts),
   )
+  const queueAfterRunBuckets = queueAfterRun.bucketCounts || {}
+  const persistedRuntimeBuckets = [
+    'public-web-resources',
+    'public-code-repos',
+    'creator-newsletters',
+    'free-communities',
+  ]
+  addCheck(
+    checks,
+    persistedRuntimeBuckets.every(bucketId =>
+      queueAfterRunBuckets[bucketId]?.runnable === false &&
+      queueAfterRunBuckets[bucketId]?.runnableRows === 0 &&
+      queueAfterRunBuckets[bucketId]?.rowsWithRunCommand === 0 &&
+      queueAfterRunBuckets[bucketId]?.alreadyRunRows > 0 &&
+      queueAfterRunBuckets[bucketId]?.status === 'already_run_source_evidence_saved',
+    ),
+    'bucket readback does not keep persisted source-browser rows falsely ready',
+    JSON.stringify(Object.fromEntries(persistedRuntimeBuckets.map(bucketId => [bucketId, queueAfterRunBuckets[bucketId]]))),
+  )
   addCheck(
     checks,
     batch.sideEffects?.externalWrites === false &&
