@@ -67,7 +67,9 @@ May 28, 2026 recheck confirmed the same safe preflight state:
 - `https://mcp.myicor.com/sse` still returned `404`.
 - Raw secret printed: `false`.
 
-The local helper is `npm run myicor:mcp-preflight`, then `npm run myicor:mcp-authorize -- --account=myicor-authorized-member` once Steve is ready to approve OAuth. Tokens are stored in macOS Keychain under `myicor-mcp-oauth`, not in repo docs or Postgres.
+The local helper is `npm run myicor:mcp-preflight`, then the preferred agent-driven route is `npm run myicor:mcp-authorize-agent -- --account=myicor-authorized-member`. The older `npm run myicor:mcp-authorize -- --account=myicor-authorized-member` remains a human-opened fallback. Tokens are stored in macOS Keychain under `myicor-mcp-oauth`, not in repo docs or Postgres.
+
+2026-05-28 live agent proof: the agent recovered from the bad `/signup` branch to `/login`, clicked `Continue with Google`, filled `steve.zahnd@bensoncrew.ca`, and stopped at `google_sso_password_missing_from_keychain`. That is the correct boundary: the agent should drive login itself, but the one-time Google password must be present in macOS Keychain under `myicor-google-sso / steve.zahnd@bensoncrew.ca`; after that it should only escalate to Steve for Google 2FA/human verification.
 
 ## Extraction Levels
 

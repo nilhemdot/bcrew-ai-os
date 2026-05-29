@@ -30,13 +30,18 @@ function parseArgs(argv = process.argv.slice(2)) {
     command,
     apply: rest.includes('--apply'),
     json: rest.includes('--json'),
-    account: DEFAULT_GEMINI_WORKSPACE_ACCOUNT,
+    account: '',
+    accountExplicit: false,
     source: '',
   }
   for (const arg of rest) {
-    if (arg.startsWith('--account=')) flags.account = arg.slice('--account='.length).trim()
+    if (arg.startsWith('--account=')) {
+      flags.account = arg.slice('--account='.length).trim()
+      flags.accountExplicit = true
+    }
     if (arg.startsWith('--source=')) flags.source = arg.slice('--source='.length).trim()
   }
+  if (!flags.account && command.startsWith('gemini:')) flags.account = DEFAULT_GEMINI_WORKSPACE_ACCOUNT
   return flags
 }
 
@@ -61,9 +66,9 @@ function usage() {
   ].join('\n')
 }
 
-function requireSourceAccount({ source, account }) {
+function requireSourceAccount({ source, account, accountExplicit }) {
   if (!source) throw new Error('--source is required for source vault commands.')
-  if (!account) throw new Error('--account is required for source vault commands.')
+  if (!account || !accountExplicit) throw new Error('--account is required for source vault commands. Put it on the same command line as source:add/status/delete.')
 }
 
 async function getRuntimeRows() {
@@ -145,8 +150,8 @@ async function addGemini({ account, json = false } = {}) {
   return result
 }
 
-async function sourceStatus({ source, account, json = false } = {}) {
-  requireSourceAccount({ source, account })
+async function sourceStatus({ source, account, accountExplicit = false, json = false } = {}) {
+  requireSourceAccount({ source, account, accountExplicit })
   const keychainPresent = await keychainItemExists({ source, account })
   const result = {
     ok: keychainPresent,
@@ -168,8 +173,8 @@ async function sourceStatus({ source, account, json = false } = {}) {
   return result
 }
 
-async function sourceAdd({ source, account, json = false } = {}) {
-  requireSourceAccount({ source, account })
+async function sourceAdd({ source, account, accountExplicit = false, json = false } = {}) {
+  requireSourceAccount({ source, account, accountExplicit })
   const stored = await promptAndStoreKeychainPassword({
     source,
     account,
@@ -197,8 +202,8 @@ async function sourceAdd({ source, account, json = false } = {}) {
   return result
 }
 
-async function sourceDelete({ source, account, json = false } = {}) {
-  requireSourceAccount({ source, account })
+async function sourceDelete({ source, account, accountExplicit = false, json = false } = {}) {
+  requireSourceAccount({ source, account, accountExplicit })
   const deleted = await deleteKeychainPassword({ source, account })
   const result = {
     ok: deleted,

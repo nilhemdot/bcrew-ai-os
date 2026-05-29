@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
 import crypto from 'node:crypto'
+import fs from 'node:fs/promises'
 import http from 'node:http'
+import path from 'node:path'
 import process from 'node:process'
 import { spawn } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 
 import {
   buildKeychainSecretRef,
@@ -11,6 +14,13 @@ import {
   readKeychainPassword,
   storeKeychainPassword,
 } from '../lib/credential-vault.js'
+import {
+  evaluateMyicorBrowserAuthSurface,
+} from '../lib/source-session-auth-guards.js'
+import {
+  SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT,
+  buildSourceSessionBrokerAuthNeededEvent,
+} from '../lib/source-session-broker.js'
 
 const MCP_URL = 'https://mcp.myicor.com/mcp'
 const OLD_SSE_URL = 'https://mcp.myicor.com/sse'
@@ -18,9 +28,11 @@ const AUTH_METADATA_URL = 'https://app.myicor.com/.well-known/oauth-authorizatio
 const DEFAULT_CALLBACK = 'http://127.0.0.1:7777/callback'
 const DEFAULT_ACCOUNT = 'myicor-authorized-member'
 const KEYCHAIN_SOURCE = 'myicor-mcp-oauth'
+const DEFAULT_GOOGLE_CREDENTIAL_SOURCE = 'myicor-google-sso'
 const DEFAULT_SCOPE = 'mcp:read mcp:tools mcp:progress mcp:inner-circle'
 const EXISTING_GOOGLE_SSO_ACCOUNT = 'steve.zahnd@bensoncrew.ca'
 const WRONG_BRANCH_STOP_TEXT = 'If myICOR asks you to Start Free, create a profile, onboard, or sign up, stop. Use Log in / Sign in with Google for the existing paid account.'
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 function parseArgs(argv = process.argv.slice(2)) {
   const [command = 'preflight', ...rest] = argv
@@ -34,6 +46,10 @@ function parseArgs(argv = process.argv.slice(2)) {
     tool: '',
     paramsJson: '{}',
     timeoutMs: 10 * 60 * 1000,
+    googleAccount: EXISTING_GOOGLE_SSO_ACCOUNT,
+    googleCredentialSource: DEFAULT_GOOGLE_CREDENTIAL_SOURCE,
+    profileDir: '',
+    headless: rest.includes('--headless'),
   }
   for (const arg of rest) {
     if (arg.startsWith('--account=')) flags.account = arg.slice('--account='.length).trim()
@@ -43,6 +59,9 @@ function parseArgs(argv = process.argv.slice(2)) {
     if (arg.startsWith('--paramsJson=')) flags.paramsJson = arg.slice('--paramsJson='.length).trim()
     if (arg.startsWith('--params=')) flags.paramsJson = arg.slice('--params='.length).trim()
     if (arg.startsWith('--timeoutMs=')) flags.timeoutMs = Number(arg.slice('--timeoutMs='.length))
+    if (arg.startsWith('--googleAccount=')) flags.googleAccount = arg.slice('--googleAccount='.length).trim()
+    if (arg.startsWith('--googleCredentialSource=')) flags.googleCredentialSource = arg.slice('--googleCredentialSource='.length).trim()
+    if (arg.startsWith('--profileDir=')) flags.profileDir = arg.slice('--profileDir='.length).trim()
   }
   return flags
 }
@@ -147,9 +166,415 @@ function openBrowser(url) {
   return true
 }
 
-function waitForCode({ callback, expectedState, timeoutMs }) {
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function sanitizePathPart(value = '') {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9@._-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function defaultAgentProfileDir({ account = DEFAULT_ACCOUNT } = {}) {
+  return path.join(REPO_ROOT, '.openclaw', 'myicor-mcp-oauth', 'profiles', sanitizePathPart(account || DEFAULT_ACCOUNT))
+}
+
+function defaultAgentRunDir() {
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')
+  return path.join(REPO_ROOT, '.openclaw', 'myicor-mcp-oauth', 'runs', `myicor-mcp-oauth-agent-${stamp}`)
+}
+
+async function inspectPageAuthState(page) {
+  return page.evaluate(() => {
+    const visibleText = element => {
+      const style = window.getComputedStyle(element)
+      if (style.visibility === 'hidden' || style.display === 'none') return ''
+      return (element.innerText || element.textContent || '').trim()
+    }
+    const bodyText = (document.body?.innerText || '').replace(/\s+/g, ' ').trim()
+    const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'))
+      .map(visibleText)
+      .filter(Boolean)
+      .slice(0, 40)
+    const inputs = Array.from(document.querySelectorAll('input')).map(input => ({
+      type: input.getAttribute('type') || '',
+      name: input.getAttribute('name') || '',
+      autocomplete: input.getAttribute('autocomplete') || '',
+      ariaLabel: input.getAttribute('aria-label') || '',
+      placeholder: input.getAttribute('placeholder') || '',
+      visible: Boolean(input.offsetParent || input.getClientRects().length),
+    }))
+    return {
+      url: window.location.href,
+      title: document.title || '',
+      bodyTextPreview: bodyText.slice(0, 2000),
+      loginButtons: buttons,
+      hasEmailInput: inputs.some(input => input.visible && /email|text/.test(input.type || 'text') && /email|identifier|username|login/i.test(`${input.name} ${input.autocomplete} ${input.ariaLabel} ${input.placeholder}`)),
+      hasPasswordInput: inputs.some(input => input.visible && input.type === 'password'),
+      inputs: inputs.slice(0, 20),
+    }
+  }).catch(error => ({
+    url: page.url(),
+    title: '',
+    bodyTextPreview: `inspect_failed:${error instanceof Error ? error.message : String(error)}`,
+    loginButtons: [],
+    hasEmailInput: false,
+    hasPasswordInput: false,
+    inputs: [],
+  }))
+}
+
+async function clickFirstVisible(page, selectors = [], timeout = 1200) {
+  for (const selector of selectors) {
+    const locator = page.locator(selector).first()
+    if (await locator.isVisible({ timeout }).catch(() => false)) {
+      await locator.click({ timeout })
+      return selector
+    }
+  }
+  return ''
+}
+
+async function fillFirstVisible(page, selectors = [], value = '', timeout = 1200) {
+  for (const selector of selectors) {
+    const locator = page.locator(selector).first()
+    if (await locator.isVisible({ timeout }).catch(() => false)) {
+      await locator.fill(value, { timeout })
+      return selector
+    }
+  }
+  return ''
+}
+
+async function pressNext(page) {
+  const clicked = await clickFirstVisible(page, [
+    'button:has-text("Next")',
+    'div[role="button"]:has-text("Next")',
+    'button:has-text("Continue")',
+    'div[role="button"]:has-text("Continue")',
+    'button[type="submit"]',
+    '[role="button"]:has-text("Next")',
+  ], 1500)
+  if (clicked) return clicked
+  await page.keyboard.press('Enter').catch(() => {})
+  return 'keyboard:Enter'
+}
+
+async function clickGoogleAccountChoice(page, googleAccount = '') {
+  const account = String(googleAccount || '').trim().toLowerCase()
+  if (!account) return ''
+  return page.evaluate(accountValue => {
+    const candidates = Array.from(document.querySelectorAll('[data-identifier], [role="link"], [role="button"], li, div, a, button'))
+    const visible = element => {
+      const rect = element.getBoundingClientRect()
+      const style = window.getComputedStyle(element)
+      return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none'
+    }
+    const score = element => {
+      const text = (element.innerText || element.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase()
+      const dataIdentifier = String(element.getAttribute('data-identifier') || '').toLowerCase()
+      if (dataIdentifier === accountValue) return 100
+      if (text.includes(accountValue) && /steve|zahnd|choose an account|sign in with google/.test(document.body.innerText || '')) return 80
+      if (text.includes('steve zahnd') && text.includes(accountValue.split('@')[0])) return 70
+      return 0
+    }
+    const row = candidates
+      .filter(visible)
+      .map(element => ({ element, score: score(element) }))
+      .filter(item => item.score > 0)
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score
+        return a.element.getBoundingClientRect().width - b.element.getBoundingClientRect().width
+      })[0]?.element
+    if (!row) return ''
+    row.scrollIntoView({ block: 'center', inline: 'center' })
+    row.click()
+    return row.getAttribute('data-identifier') || row.getAttribute('role') || 'account-choice-dom-click'
+  }, account).catch(() => '')
+}
+
+async function readGooglePassword({ source = DEFAULT_GOOGLE_CREDENTIAL_SOURCE, account = EXISTING_GOOGLE_SSO_ACCOUNT } = {}) {
+  const present = await keychainItemExists({ source, account }).catch(() => false)
+  if (!present) return { ok: false, source, account, secretRef: buildKeychainSecretRef({ source, account }) }
+  const secret = await readKeychainPassword({ source, account })
+  return { ok: true, source, account, secretRef: buildKeychainSecretRef({ source, account }), secret }
+}
+
+async function writeAuthNeededReport({
+  runDir,
+  account = '',
+  reason = '',
+  authState = {},
+  setupCommand = '',
+  resumeCommand = '',
+} = {}) {
+  await fs.mkdir(runDir, { recursive: true })
+  const artifactRef = path.join(runDir, 'auth-needed.json')
+  const event = buildSourceSessionBrokerAuthNeededEvent({
+    sourceSystem: 'myicor',
+    accountLabel: account || EXISTING_GOOGLE_SSO_ACCOUNT,
+    blocker: reason || 'myICOR OAuth needs human auth',
+    jobId: 'myicor-mcp-oauth-agent',
+    artifactRef,
+  })
+  const report = {
+    ok: false,
+    status: 'auth_needed',
+    reason,
+    account,
+    authMethodRequired: 'google_oauth_sign_in',
+    expectedGoogleAccount: EXISTING_GOOGLE_SSO_ACCOUNT,
+    setupCommand,
+    resumeCommand,
+    authState: {
+      url: authState.url || '',
+      title: authState.title || '',
+      bodyTextPreview: String(authState.bodyTextPreview || '').slice(0, 1000),
+      loginButtons: Array.isArray(authState.loginButtons) ? authState.loginButtons.slice(0, 20) : [],
+      hasEmailInput: Boolean(authState.hasEmailInput),
+      hasPasswordInput: Boolean(authState.hasPasswordInput),
+    },
+    harlanEvent: event,
+    rawSecretPrinted: false,
+    sideEffects: {
+      tokenStoredInKeychain: false,
+      submittedExternalApproval: false,
+      mutatedCredentials: false,
+      normalChromeProfileUsed: false,
+    },
+  }
+  await fs.writeFile(artifactRef, JSON.stringify(report, null, 2))
+  return { report, artifactRef }
+}
+
+function codeFromCallbackResolved(codePromise) {
+  return Promise.race([
+    codePromise.then(code => ({ done: true, code })).catch(error => ({ done: true, error })),
+    sleep(1).then(() => ({ done: false })),
+  ])
+}
+
+async function driveMyicorOauthAgent({
+  page,
+  codePromise,
+  googleAccount,
+  googleCredentialSource,
+  runDir,
+  authorizationUrl,
+  timeoutMs,
+} = {}) {
+  const startedAt = Date.now()
+  const actions = []
+  let passwordAttempted = false
+  let emailAttempted = false
+  let wrongBranchRecoveryAttempted = false
+  let humanVerificationNotified = false
+  let lastHumanVerificationState = null
+
+  await page.goto(authorizationUrl, { waitUntil: 'domcontentloaded', timeout: 45000 })
+  await page.waitForTimeout(1500).catch(() => {})
+
+  while (Date.now() - startedAt < timeoutMs) {
+    const callback = await codeFromCallbackResolved(codePromise)
+    if (callback.done) {
+      if (callback.error) {
+        const authState = await inspectPageAuthState(page)
+        const reason = /Timed out waiting for myICOR OAuth callback/i.test(callback.error.message || '')
+          ? 'myicor_oauth_callback_timeout'
+          : 'myicor_oauth_callback_error'
+        const { report, artifactRef } = await writeAuthNeededReport({
+          runDir,
+          account: googleAccount,
+          reason,
+          authState,
+          resumeCommand: 'npm run myicor:mcp-authorize-agent -- --account=myicor-authorized-member',
+        })
+        return { ok: false, status: 'auth_needed', reason, authState, authNeededReport: report, artifactRef, actions, rawSecretPrinted: false }
+      }
+      return { ok: true, status: 'oauth_callback_received', code: callback.code, actions, rawSecretPrinted: false }
+    }
+
+    const authState = await inspectPageAuthState(page)
+    const guard = evaluateMyicorBrowserAuthSurface({ account: googleAccount, authState })
+    if (guard.reason === 'myicor_wrong_signup_branch_existing_google_sso_required') {
+      if (!wrongBranchRecoveryAttempted) {
+        wrongBranchRecoveryAttempted = true
+        const current = new URL(authState.url || authorizationUrl)
+        const returnUrl = current.searchParams.get('returnUrl') || `${new URL(authorizationUrl).pathname}${new URL(authorizationUrl).search}`
+        const loginUrl = new URL('https://app.myicor.com/login')
+        if (returnUrl) loginUrl.searchParams.set('returnUrl', returnUrl)
+        await page.context().clearCookies().catch(() => {})
+        await page.goto(loginUrl.toString(), { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {})
+        actions.push({ action: 'wrong_signup_branch_recovered_to_login', url: loginUrl.toString() })
+        await page.waitForTimeout(2000)
+        continue
+      }
+      const { report, artifactRef } = await writeAuthNeededReport({
+        runDir,
+        account: googleAccount,
+        reason: guard.reason,
+        authState,
+        resumeCommand: 'npm run myicor:mcp-authorize-agent -- --account=myicor-authorized-member',
+      })
+      return { ok: false, status: 'auth_needed', reason: guard.reason, authState, authNeededReport: report, artifactRef, actions, rawSecretPrinted: false }
+    }
+    if (guard.reason === 'myicor_google_sso_mfa_or_human_verification_required') {
+      if (!humanVerificationNotified) {
+        const { artifactRef } = await writeAuthNeededReport({
+          runDir,
+          account: googleAccount,
+          reason: guard.reason,
+          authState,
+          resumeCommand: 'npm run myicor:mcp-authorize-agent -- --account=myicor-authorized-member',
+        })
+        actions.push({ action: 'wait_for_google_human_verification', artifactRef })
+        humanVerificationNotified = true
+        lastHumanVerificationState = authState
+      }
+      await page.waitForTimeout(2500)
+      continue
+    }
+
+    const url = authState.url || page.url()
+    const surface = `${url}\n${authState.title}\n${authState.bodyTextPreview}\n${(authState.loginButtons || []).join('\n')}`.toLowerCase()
+
+    if (/accounts\.google\.com/.test(url)) {
+      if (authState.hasPasswordInput || /enter your password|show password/.test(surface)) {
+        if (passwordAttempted) {
+          await page.waitForTimeout(1500)
+          continue
+        }
+        const password = await readGooglePassword({ source: googleCredentialSource, account: googleAccount })
+        if (!password.ok) {
+          const setupCommand = `npm run credentials:vault -- source:add --source=${googleCredentialSource} --account=${googleAccount}`
+          const { report, artifactRef } = await writeAuthNeededReport({
+            runDir,
+            account: googleAccount,
+            reason: 'google_sso_password_missing_from_keychain',
+            authState,
+            setupCommand,
+            resumeCommand: 'npm run myicor:mcp-authorize-agent -- --account=myicor-authorized-member',
+          })
+          return { ok: false, status: 'auth_needed', reason: 'google_sso_password_missing_from_keychain', authState, authNeededReport: report, artifactRef, actions, setupCommand, rawSecretPrinted: false }
+        }
+        const passwordFilled = await fillFirstVisible(page, [
+          'input[type="password"]',
+          'input[name="password"]',
+          'input[autocomplete="current-password"]',
+        ], password.secret, 1500).catch(() => '')
+        password.secret = ''
+        if (passwordFilled) {
+          passwordAttempted = true
+          actions.push({ action: 'fill_google_password_from_keychain', selector: passwordFilled, secretRef: password.secretRef })
+          const next = await pressNext(page)
+          actions.push({ action: 'press_next_after_password', selector: next })
+          await page.waitForTimeout(3500)
+          continue
+        }
+      }
+
+      const accountClicked = await clickFirstVisible(page, [
+        `[data-identifier="${googleAccount}"]`,
+        `[role="link"]:has-text("${googleAccount}")`,
+        `[role="button"]:has-text("${googleAccount}")`,
+        `[role="link"]:has-text("Steve Zahnd")`,
+        `[role="button"]:has-text("Steve Zahnd")`,
+        `text="${googleAccount}"`,
+        `div:has-text("${googleAccount}")`,
+      ], 1000).catch(() => '')
+      if (accountClicked) {
+        actions.push({ action: 'click_google_account', selector: accountClicked })
+        await page.waitForTimeout(1800)
+        continue
+      }
+      const accountDomClicked = await clickGoogleAccountChoice(page, googleAccount)
+      if (accountDomClicked) {
+        actions.push({ action: 'click_google_account_dom', selector: accountDomClicked })
+        await page.waitForTimeout(2200)
+        continue
+      }
+
+      if (!emailAttempted && (/email|identifier|sign in/.test(surface) || authState.hasEmailInput)) {
+        const emailFilled = await fillFirstVisible(page, [
+          'input[type="email"]',
+          'input[name="identifier"]',
+          'input[autocomplete="username"]',
+          'input[type="text"]',
+        ], googleAccount, 1500).catch(() => '')
+        if (emailFilled) {
+          emailAttempted = true
+          actions.push({ action: 'fill_google_email', selector: emailFilled, account: googleAccount })
+          const next = await pressNext(page)
+          actions.push({ action: 'press_next_after_email', selector: next })
+          await page.waitForTimeout(2500)
+          continue
+        }
+      }
+    }
+
+    const googleClicked = await clickFirstVisible(page, [
+      'button:has-text("Log in with Google")',
+      'a:has-text("Log in with Google")',
+      'button:has-text("Sign in with Google")',
+      'a:has-text("Sign in with Google")',
+      'button:has-text("Continue with Google")',
+      'a:has-text("Continue with Google")',
+      'button:has-text("Google")',
+      'a:has-text("Google")',
+    ], 900).catch(() => '')
+    if (googleClicked) {
+      actions.push({ action: 'click_google_sso', selector: googleClicked })
+      await page.waitForTimeout(2500)
+      continue
+    }
+
+    const approveClicked = await clickFirstVisible(page, [
+      'button:has-text("Authorize")',
+      'button:has-text("Allow")',
+      'button:has-text("Approve")',
+      'button:has-text("Continue")',
+      'button:has-text("Connect")',
+      'a:has-text("Authorize")',
+      'a:has-text("Allow")',
+      'a:has-text("Approve")',
+      'a:has-text("Continue")',
+      'a:has-text("Connect")',
+    ], 900).catch(() => '')
+    if (approveClicked) {
+      actions.push({ action: 'click_oauth_approval', selector: approveClicked })
+      await page.waitForTimeout(2500)
+      continue
+    }
+
+    await page.waitForTimeout(1000)
+  }
+
+  const authState = await inspectPageAuthState(page)
+  const { report, artifactRef } = await writeAuthNeededReport({
+    runDir,
+    account: googleAccount,
+    reason: humanVerificationNotified ? 'myicor_google_sso_mfa_or_human_verification_timeout' : 'myicor_oauth_agent_timeout',
+    authState: humanVerificationNotified ? (lastHumanVerificationState || authState) : authState,
+    resumeCommand: 'npm run myicor:mcp-authorize-agent -- --account=myicor-authorized-member',
+  })
+  return {
+    ok: false,
+    status: 'auth_needed',
+    reason: humanVerificationNotified ? 'myicor_google_sso_mfa_or_human_verification_timeout' : 'myicor_oauth_agent_timeout',
+    authState: humanVerificationNotified ? (lastHumanVerificationState || authState) : authState,
+    authNeededReport: report,
+    artifactRef,
+    actions,
+    rawSecretPrinted: false,
+  }
+}
+
+function waitForCode({ callback, expectedState, timeoutMs, controller = null }) {
   const callbackUrl = new URL(callback)
   return new Promise((resolve, reject) => {
+    let settled = false
     const server = http.createServer((req, res) => {
       try {
         const requestUrl = new URL(req.url || '/', callbackUrl.origin)
@@ -167,17 +592,28 @@ function waitForCode({ callback, expectedState, timeoutMs }) {
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
         res.end('<html><body><h1>myICOR connected</h1><p>You can close this tab and return to Codex.</p></body></html>')
         server.close()
+        settled = true
         resolve(code)
       } catch (error) {
         res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' })
         res.end(error instanceof Error ? error.message : String(error))
         server.close()
+        settled = true
         reject(error)
       }
     })
+    if (controller) {
+      controller.close = () => {
+        if (settled) return
+        settled = true
+        server.close()
+      }
+    }
     server.on('error', reject)
     server.listen(Number(callbackUrl.port || 80), callbackUrl.hostname, () => {})
     setTimeout(() => {
+      if (settled) return
+      settled = true
       server.close()
       reject(new Error('Timed out waiting for myICOR OAuth callback.'))
     }, timeoutMs).unref()
@@ -454,6 +890,144 @@ async function authorize({
   return result
 }
 
+async function authorizeAgent({
+  account,
+  callback,
+  scope,
+  timeoutMs,
+  googleAccount = EXISTING_GOOGLE_SSO_ACCOUNT,
+  googleCredentialSource = DEFAULT_GOOGLE_CREDENTIAL_SOURCE,
+  profileDir = '',
+  headless = false,
+  json = false,
+} = {}) {
+  if (googleAccount !== SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT) {
+    throw new Error(`myICOR MCP OAuth must use existing Google SSO account ${SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT}.`)
+  }
+  const metadata = await fetchJson(AUTH_METADATA_URL)
+  if (!metadata.ok) throw new Error(`OAuth metadata fetch failed: ${metadata.status}`)
+  const pkce = makePkce()
+  const state = b64url(crypto.randomBytes(24))
+  const client = await registerClient({ callback, scope })
+  const authorizationUrl = buildAuthUrl({
+    authorizationEndpoint: metadata.json.authorization_endpoint,
+    clientId: client.client_id,
+    callback,
+    scope,
+    challenge: pkce.challenge,
+    state,
+  })
+  const resolvedProfileDir = path.resolve(profileDir || defaultAgentProfileDir({ account }))
+  const runDir = defaultAgentRunDir()
+  await fs.mkdir(runDir, { recursive: true })
+
+  const codeController = {}
+  const codePromise = waitForCode({
+    callback,
+    expectedState: state,
+    timeoutMs,
+    controller: codeController,
+  })
+
+  const { chromium } = await import('playwright')
+  const context = await chromium.launchPersistentContext(resolvedProfileDir, {
+    headless,
+    viewport: { width: 1440, height: 1000 },
+    acceptDownloads: false,
+    args: [
+      '--disable-session-crashed-bubble',
+      '--disable-features=Translate,AutomationControlled',
+      '--no-first-run',
+      '--no-default-browser-check',
+    ],
+  })
+  let page = context.pages()[0] || await context.newPage()
+  try {
+    const agent = await driveMyicorOauthAgent({
+      page,
+      codePromise,
+      googleAccount,
+      googleCredentialSource,
+      runDir,
+      authorizationUrl,
+      timeoutMs,
+    })
+    if (!agent.ok) {
+      codeController.close?.()
+      const result = {
+        ok: false,
+        status: agent.status,
+        reason: agent.reason,
+        account,
+        profileDir: resolvedProfileDir,
+        runDir,
+        expectedGoogleAccount: googleAccount,
+        googleCredentialSource,
+        setupCommand: agent.setupCommand || '',
+        authNeededReportPath: agent.artifactRef || '',
+        actions: agent.actions || [],
+        rawSecretPrinted: false,
+      }
+      if (json) printJson(result)
+      else {
+        console.log(`myICOR MCP agent authorization: ${agent.status}`)
+        console.log(`reason: ${agent.reason}`)
+        if (agent.setupCommand) console.log(`setup: ${agent.setupCommand}`)
+        if (agent.artifactRef) console.log(`auth-needed: ${agent.artifactRef}`)
+        console.log('raw secret: never printed')
+      }
+      return result
+    }
+
+    const token = await exchangeToken({
+      tokenEndpoint: metadata.json.token_endpoint,
+      clientId: client.client_id,
+      code: agent.code,
+      callback,
+      verifier: pkce.verifier,
+    })
+    const stored = await storeOAuthToken({
+      account,
+      token,
+      clientId: client.client_id,
+      scope,
+    })
+    const toolsList = await callMcp('tools/list', { token: token.access_token, id: 30 })
+    const tools = toolsList.json?.result?.tools || []
+    const result = {
+      ok: Boolean(stored.secretRef && toolsList.ok && !toolsList.json?.error),
+      status: toolsList.ok && !toolsList.json?.error ? 'stored_and_verified' : 'stored_but_unverified',
+      account,
+      secretRef: stored.secretRef,
+      mcpUrl: MCP_URL,
+      profileDir: resolvedProfileDir,
+      runDir,
+      drivenByAgent: true,
+      existingGoogleSsoAccount: googleAccount,
+      googleCredentialSource,
+      signupOrProfileCreationAllowed: false,
+      wrongBranchStopCondition: WRONG_BRANCH_STOP_TEXT,
+      tokenStoredInKeychain: true,
+      rawSecretPrinted: false,
+      toolsListStatus: toolsList.status,
+      toolCount: tools.length,
+      toolNames: tools.map(tool => tool.name).slice(0, 50),
+      actions: agent.actions || [],
+    }
+    if (json) printJson(result)
+    else {
+      console.log(`myICOR MCP agent authorization: ${result.status}`)
+      console.log(`secretRef: ${result.secretRef}`)
+      console.log(`tools: ${result.toolCount}`)
+      console.log('raw secret: never printed')
+    }
+    return result
+  } finally {
+    codeController.close?.()
+    await context.close().catch(() => {})
+  }
+}
+
 async function tools({ account, json = false } = {}) {
   const present = await keychainItemExists({ source: KEYCHAIN_SOURCE, account })
   if (!present) {
@@ -569,6 +1143,11 @@ async function main() {
     process.exitCode = result.ok ? 0 : 1
     return
   }
+  if (args.command === 'authorize-agent') {
+    const result = await authorizeAgent(args)
+    process.exitCode = result.ok ? 0 : 1
+    return
+  }
   if (args.command === 'tools') {
     const result = await tools(args)
     process.exitCode = result.ok ? 0 : 1
@@ -578,7 +1157,7 @@ async function main() {
     await callTool(args)
     return
   }
-  console.error('Usage: node scripts/myicor-mcp-oauth.mjs <preflight|authorize|tools|call> [--account=myicor-authorized-member] [--tool=name] [--paramsJson={}] [--json]')
+  console.error('Usage: node scripts/myicor-mcp-oauth.mjs <preflight|authorize|authorize-agent|tools|call> [--account=myicor-authorized-member] [--tool=name] [--paramsJson={}] [--json]')
   process.exitCode = 2
 }
 

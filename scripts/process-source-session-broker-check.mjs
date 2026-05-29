@@ -303,12 +303,16 @@ async function main() {
     checks,
       packageJson.scripts?.['myicor:mcp-preflight'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs preflight' &&
       packageJson.scripts?.['myicor:mcp-authorize'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs authorize' &&
+      packageJson.scripts?.['myicor:mcp-authorize-agent'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs authorize-agent' &&
       packageJson.scripts?.['myicor:mcp-tools'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs tools' &&
       packageJson.scripts?.['myicor:mcp-call'] === 'node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs call' &&
       myicorMcpOauthSource.includes('https://mcp.myicor.com/mcp') &&
       myicorMcpOauthSource.includes('https://app.myicor.com/.well-known/oauth-authorization-server') &&
       myicorMcpOauthSource.includes('EXISTING_GOOGLE_SSO_ACCOUNT') &&
       myicorMcpOauthSource.includes('WRONG_BRANCH_STOP_TEXT') &&
+      myicorMcpOauthSource.includes('driveMyicorOauthAgent') &&
+      myicorMcpOauthSource.includes('wrong_signup_branch_recovered_to_login') &&
+      myicorMcpOauthSource.includes('google_sso_password_missing_from_keychain') &&
       myicorMcpOauthSource.includes("DEFAULT_SCOPE = 'mcp:read mcp:tools mcp:progress mcp:inner-circle'") &&
       !/DEFAULT_SCOPE\s*=\s*['"][^'"]*mcp:admin/i.test(myicorMcpOauthSource) &&
       myicorMcpOauthSource.includes('storeKeychainPassword') &&

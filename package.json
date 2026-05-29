@@ -113,6 +113,7 @@
     "process:foundation-data-sources-v2-check": "node --env-file-if-exists=.env scripts/process-foundation-data-sources-v2-check.mjs",
     "myicor:mcp-preflight": "node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs preflight",
     "myicor:mcp-authorize": "node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs authorize",
+    "myicor:mcp-authorize-agent": "node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs authorize-agent",
     "myicor:mcp-tools": "node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs tools",
     "myicor:mcp-call": "node --env-file-if-exists=.env scripts/myicor-mcp-oauth.mjs call",
     "codex:usage": "node scripts/codex-usage.mjs",
