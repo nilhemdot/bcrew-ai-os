@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-26T02:10:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/youtube-god-mode-autonomous-watch-scheduler-001-plan.md",
-  "approvedPlanSha256": "ab547049bcdf02e0db2b1c210bc6f304f535e49e744c8e7a870f0765399f1d07",
+  "approvedPlanSha256": "5d007ec0c33300bb3556893e54e0bcd5948d21e324a768dd21bc8fbe373c7e0b",
   "approvedRepoHead": "61fe31f6ab2d6d0352f0122b4a58ba771344376b",
   "approvalSource": "Steve May 25-26 overnight God Mode extractor sprint approval: keep public YouTube extraction moving without babysitting, obey budget caps, keep private/auth/comment sources blocked, and move to the next card when live budget is exhausted.",
-  "approvalDigest": "cdfd371d31bdc946f4240fedd2597c8c464bd409014aaf6ca20c3471c2aedcce"
+  "approvalDigest": "57fa39e0e8ffed425f7d8400110fbe8033c85cc7857ccdfa85db2a1e4122c256"
 }
