@@ -219,9 +219,11 @@ async function main() {
       fixtureChecks.some(check => check.checkId === 'myicor-wrong-signup-branch-guard' && check.status === 'guard_required') &&
       fixtureChecks.some(check => check.checkId === 'myicor-google-sso-mfa-loop' && check.status === 'auth_needed_loop_required') &&
       fixtureChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
+      fixtureChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /skool_free_community/.test(check.statusCommand || '')) &&
+      fixtureChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /paid_course_training_platforms/.test(check.statusCommand || '') && /--url=https:\/\/myicor\.com\//.test(check.statusCommand || '')) &&
       fixtureChecks.some(check => /myicor:mcp-preflight/.test(check.statusCommand || '')) &&
       fixtureChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false),
-    'dogfood fixture proves present/missing credentials, myICOR MCP command, and no external/secret side effects',
+    'dogfood fixture proves present/missing credentials, session-probe commands, myICOR MCP command, and no external/secret side effects',
     JSON.stringify(fixtureReadiness.counts),
   )
   addCheck(
@@ -232,11 +234,13 @@ async function main() {
       Number(liveReadiness.counts.checkCount || 0) > 0 &&
       Number(liveReadiness.counts.prepRows || 0) > 0 &&
       liveChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
+      liveChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /skool_free_community/.test(check.statusCommand || '')) &&
+      liveChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /paid_course_training_platforms/.test(check.statusCommand || '') && /myicor\.com/.test(check.statusCommand || '')) &&
       liveChecks.some(check => /newsletter:intake/.test(check.statusCommand || '')) &&
       liveChecks.some(check => check.checkId === 'myicor-wrong-signup-branch-guard') &&
       liveChecks.some(check => check.checkId === 'myicor-google-sso-mfa-loop') &&
       liveChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false),
-    'live source-session prep has metadata-only readiness checks for the parked source expansion queue',
+    'live source-session prep has metadata-only readiness checks and source-session probe commands for the parked source expansion queue',
     JSON.stringify(liveReadiness.counts),
   )
   addCheck(

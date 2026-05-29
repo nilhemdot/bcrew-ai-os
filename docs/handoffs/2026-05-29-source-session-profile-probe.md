@@ -29,3 +29,7 @@ Dogfood fixtures cover a ready free-community page, a login wall, a MyICOR Start
 ## Next
 
 Use this probe before the first real Skool free-community or MyICOR source-session run. If it returns ready, run the bounded source-specific worker. If it returns auth-needed, use the dry-run Harlan packet and reverify before resuming. If it returns wrong-signup or blocked, clear only the isolated source profile and retry the exact approved login path.
+
+## Follow-Up
+
+The source-session readiness readback now points Skool free-community and MyICOR session prep at `source:session-probe` before the full source runner. Skool prep uses the exact community/about URL with `skool_free_community`; MyICOR prep uses an exact myICOR URL or `https://myicor.com/` with `paid_course_training_platforms` and Steve's Google SSO account. This keeps the queue honest: profile probe first, full extraction only after ready.
