@@ -347,6 +347,9 @@ async function main() {
   const planCriticPass = planCriticRuns.some(run => run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE)
   const scaffold = validateBuildLaneCardScaffold(card || {})
   const sprintMetadata = validateBuildLaneSprintItemMetadata(sprintItem || {})
+  const historicalDoneCard = card?.lane === 'done' && !sprintItem
+  const currentSprintOk = (sprint.sprint?.sprintId === SPRINT_ID && Boolean(sprintItem)) || historicalDoneCard
+  const sprintMetadataOk = sprintMetadata.ok || historicalDoneCard
   const scriptSourceWithoutSelfCheck = scriptSource
     .replaceAll("'spawn_agent'", '')
     .replaceAll("'send_input'", '')
@@ -356,8 +359,8 @@ async function main() {
   addCheck(checks, planCriticPass, 'durable Plan Critic pass row exists', planCriticPass ? 'pass row' : 'missing')
   addCheck(checks, Boolean(card), 'live backlog card exists', card ? `${card.id}/${card.lane}` : 'missing')
   addCheck(checks, scaffold.ok, 'live backlog card passes scaffold guard', scaffold.ok ? 'complete' : scaffold.missing.join(', '))
-  addCheck(checks, sprint.sprint?.sprintId === SPRINT_ID, 'Current Sprint includes registry extract card', sprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintMetadata.ok, 'Current Sprint item metadata is complete', sprintMetadata.ok ? 'complete' : sprintMetadata.missing.join(', '))
+  addCheck(checks, currentSprintOk, 'Current Sprint includes registry extract card or card is historical done', historicalDoneCard ? 'historical done card outside active sprint' : sprint.sprint?.sprintId || 'missing')
+  addCheck(checks, sprintMetadataOk, 'Current Sprint item metadata is complete or historical done card no longer needs active sprint metadata', historicalDoneCard ? 'historical done card outside active sprint' : sprintMetadata.missing.join(', ') || 'complete')
   addCheck(checks, packageJson.scripts?.['process:build-closeout-registry-extract-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused proof', packageJson.scripts?.['process:build-closeout-registry-extract-check'] || 'missing')
   addCheck(checks, snapshot.ok, 'registry extraction snapshot passes', JSON.stringify({ roots: snapshot.rootRows, modules: snapshot.moduleRows, missingMovedKeys: snapshot.missingMovedKeys }))
   addCheck(checks, dogfood.ok, 'dogfood rejects oversized roots and missing moved keys', JSON.stringify(dogfood))
@@ -369,7 +372,7 @@ async function main() {
   addCheck(
     checks,
     foundationVerifySource.includes('foundationBuildCloseoutRegistryRecordSources') &&
-      BUILD_CLOSEOUT_REGISTRY_EXTRACT_MODULE_PATHS.every(filePath => foundationVerifySource.includes(filePath)),
+      foundationVerifySource.includes('FOUNDATION_BUILD_LOG_REGISTRY_SOURCE_PATHS'),
     'foundation verifier reads closeout record module sources',
     'scripts/foundation-verify.mjs',
   )

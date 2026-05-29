@@ -1222,6 +1222,7 @@ import {
   FOUNDATION_BUILD_LOG_BEHAVIOR_PATH,
   FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY,
 } from '../lib/foundation-build-log-monolith-slice.js'
+import { FOUNDATION_BUILD_LOG_REGISTRY_SOURCE_PATHS } from '../lib/foundation-build-log-source.js'
 import {
   FOUNDATION_BUILD_CLOSEOUT_CONTROL_PLANE_PATH,
   FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID,
@@ -1810,26 +1811,9 @@ async function main() {
   const foundationBuildCloseoutCleanupRecordsSource = await readRepoFile('lib/foundation-build-closeout-cleanup-records.js')
   const foundationBuildCloseoutOvernightRecordsSource = await readRepoFile('lib/foundation-build-closeout-overnight-records.js')
   const foundationBuildCloseoutTighteningRecordsSource = await readRepoFile('lib/foundation-build-closeout-tightening-records.js')
-  const foundationBuildCloseoutRegistryRecordSources = await Promise.all([
-    'lib/foundation-build-closeout-action-route-records.js',
-    'lib/foundation-build-closeout-agent-feedback-records.js',
-    'lib/foundation-build-closeout-build-lane-records.js',
-    'lib/foundation-build-closeout-cleanup-records.js',
-    'lib/foundation-build-closeout-control-plane-records.js',
-    'lib/foundation-build-closeout-control-layer-records.js',
-    'lib/foundation-build-closeout-db-process-records.js',
-    'lib/foundation-build-closeout-doctrine-cleanup-records.js',
-    'lib/foundation-build-closeout-foundation-surface-records.js',
-    'lib/foundation-build-closeout-overnight-records.js',
-    'lib/foundation-build-closeout-process-gate-records.js',
-    'lib/foundation-build-closeout-records.js',
-    'lib/foundation-build-closeout-route-frontend-records.js',
-    'lib/foundation-build-closeout-size-records.js',
-    'lib/foundation-build-closeout-source-once-over-records.js',
-    'lib/foundation-build-closeout-source-records.js',
-    'lib/foundation-build-closeout-tightening-records.js',
-    'lib/foundation-build-closeout-verifier-runtime-records.js',
-  ].map(relativePath => readRepoFile(relativePath)))
+  const foundationBuildCloseoutRegistryRecordSources = await Promise.all(
+    FOUNDATION_BUILD_LOG_REGISTRY_SOURCE_PATHS.map(relativePath => readRepoFile(relativePath)),
+  )
   const foundationEngineeringFitnessGatesSource = await readRepoFile('lib/foundation-engineering-fitness-gates.js')
   const foundationEngineeringFitnessGatesScriptSource = await readRepoFile('scripts/process-foundation-engineering-fitness-gates-check.mjs')
   const planCriticPlanSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_PLAN_PATH)
