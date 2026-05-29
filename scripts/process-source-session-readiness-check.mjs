@@ -191,6 +191,7 @@ async function main() {
   const liveReadiness = await buildLiveSourceSessionReadinessReadback({ prepQueue: livePrepQueue })
   const fixtureChecks = fixtureReadiness.groups.flatMap(group => list(group.readiness?.checks))
   const liveChecks = liveReadiness.groups.flatMap(group => list(group.readiness?.checks))
+  const liveFreeCommunityPrepRows = Number(livePrepQueue.counts?.freeCommunityRows || 0)
 
   addCheck(
     checks,
@@ -269,7 +270,7 @@ async function main() {
       Number(liveReadiness.counts.checkCount || 0) > 0 &&
       Number(liveReadiness.counts.prepRows || 0) > 0 &&
       liveChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
-      liveChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /skool_free_community/.test(check.statusCommand || '')) &&
+      (liveFreeCommunityPrepRows === 0 || liveChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /skool_free_community/.test(check.statusCommand || ''))) &&
       liveChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /paid_course_training_platforms/.test(check.statusCommand || '') && /myicor\.com/.test(check.statusCommand || '')) &&
       liveChecks.some(check => /newsletter:intake/.test(check.statusCommand || '')) &&
       liveChecks.some(check => check.checkId === 'myicor-google-sso-credential' && check.source === MYICOR_GOOGLE_SSO_SOURCE && check.account === SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT) &&

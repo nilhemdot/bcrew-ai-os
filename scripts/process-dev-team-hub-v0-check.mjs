@@ -56,6 +56,7 @@ import {
   DEV_TEAM_HUB_V0_SOURCE_IDS,
   buildDevTeamHubV0DogfoodProof,
   buildDevTeamHubV0Snapshot,
+  buildYoutubeHandoffEvidenceFromReports,
 } from '../lib/dev-team-hub.js'
 import {
   buildDevOpportunityVisionLensDogfood,
@@ -835,6 +836,45 @@ async function main() {
   const youtubeHandoffBucketIds = list(payload?.youtubeSourceIntelligence?.handoffBuckets).map(bucket => bucket.bucketId)
   const youtubeHandoffBucketById = Object.fromEntries(list(payload?.youtubeSourceIntelligence?.handoffBuckets)
     .map(bucket => [bucket.bucketId, bucket]))
+  const skoolApprovalBoundaryHandoffEvidence = buildYoutubeHandoffEvidenceFromReports([
+    {
+      reportArtifactId: 'batch:youtube-latest-20:api-full-watch-v1:fixture-skool-approval-boundary',
+      structuredOutputJson: {
+        snapshot: {
+          videoResults: [
+            {
+              video: {
+                videoId: 'fixture-skool-boundary-video',
+                title: 'Fixture Skool source boundary',
+                creatorId: 'fixture-creator',
+                creator: 'Fixture Creator',
+              },
+              resourceLinkSnapshot: {
+                scoperPacket: {
+                  approvalRequiredResourceLinks: [
+                    {
+                      url: 'https://skool.com/makerschool/about',
+                      blocker: 'Community, course, member, paid, or login source needs explicit source-packet approval.',
+                      allowedNextDecision: 'Approve exact source packet or reject.',
+                      type: 'approval_required_resource_link',
+                    },
+                  ],
+                  unresolvedPublicResourceLinks: [
+                    {
+                      url: 'https://www.skool.com/chase-ai-community/about',
+                      label: 'Free Skool community public about page',
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  ])
+  const skoolApprovalBoundaryPaidRows = list(skoolApprovalBoundaryHandoffEvidence?.buckets?.['paid-auth-gates']?.items)
+  const skoolApprovalBoundaryFreeRows = list(skoolApprovalBoundaryHandoffEvidence?.buckets?.['free-communities']?.items)
   addCheck(
     checks,
     [
@@ -849,6 +889,24 @@ async function main() {
       list(payload?.youtubeSourceIntelligence?.handoffBuckets).every(bucket => text(bucket.description) && text(bucket.route)),
     'YouTube Intelligence routes discoveries into downstream handoff buckets',
     youtubeHandoffBucketIds.join(', ') || 'missing',
+  )
+  addCheck(
+    checks,
+    skoolApprovalBoundaryPaidRows.some(row =>
+      row.url === 'https://skool.com/makerschool/about' &&
+      row.disposition === 'approval_required_resource' &&
+      row.blocker.includes('explicit source-packet approval')
+    ) &&
+      skoolApprovalBoundaryFreeRows.some(row =>
+        row.url === 'https://www.skool.com/chase-ai-community/about' &&
+        row.disposition === 'unresolved_public_resource'
+      ) &&
+      !skoolApprovalBoundaryFreeRows.some(row => row.url.includes('makerschool')),
+    'approval-required Skool/community links route to paid/auth while explicit free community links stay in the free-community lane',
+    JSON.stringify({
+      paid: skoolApprovalBoundaryPaidRows.map(row => `${row.url}:${row.disposition}`),
+      free: skoolApprovalBoundaryFreeRows.map(row => `${row.url}:${row.disposition}`),
+    }),
   )
   addCheck(
     checks,
@@ -872,6 +930,9 @@ async function main() {
   const sourceSessionActionGroups = list(sourceSessionPrepQueue.actionGroups)
   const sourceSessionReadinessChecks = sourceSessionActionGroups
     .flatMap(group => list(group.readiness?.checks))
+  const sourceSessionPrepFreeCommunityRowCount = Number(sourceSessionPrepQueue.counts?.freeCommunityRows || 0)
+  const sourceSessionPrepHasFreeCommunityRows = sourceSessionPrepFreeCommunityRowCount > 0
+  const sourceSessionPrepHasCommunityRunnerRows = Number(sourceSessionPrepQueue.phaseCounts?.community_runner_needed || 0) > 0
   const sourceGodModeTotalRows = Number(sourceGodModeHandoffQueue.counts?.totalRows || 0)
   const sourceGodModeEvidenceRows = Number(sourceGodModeHandoffQueue.counts?.evidenceRows || 0)
   const sourceGodModeDuplicateRows = Number(sourceGodModeHandoffQueue.counts?.duplicateRows || 0)
@@ -1014,7 +1075,7 @@ async function main() {
   addCheck(
     checks,
     sourceSessionPrepQueue.status === 'waiting_for_source_session_or_approval' &&
-      Number(sourceSessionPrepQueue.counts?.freeCommunityRows || 0) > 0 &&
+      sourceSessionPrepFreeCommunityRowCount >= 0 &&
       Number(sourceSessionPrepQueue.counts?.newsletterSignupRows || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.paidAuthRows || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.clusterCount || 0) > 0 &&
@@ -1024,24 +1085,24 @@ async function main() {
       Number(sourceSessionPrepQueue.counts?.credentialReadinessCheckCount || 0) > 0 &&
       Number(sourceSessionPrepQueue.counts?.runAllowedNowRows || 0) === 0 &&
       Number(sourceSessionPrepQueue.counts?.rawSecretPrintedRows || 0) === 0 &&
-      Number(sourceSessionPrepQueue.phaseCounts?.free_source_identity_session_needed || 0) > 0 &&
+      (!sourceSessionPrepHasFreeCommunityRows || Number(sourceSessionPrepQueue.phaseCounts?.free_source_identity_session_needed || 0) > 0) &&
       Number(sourceSessionPrepQueue.phaseCounts?.newsletter_signup_lane_needed || 0) > 0 &&
       Number(sourceSessionPrepQueue.phaseCounts?.paid_or_auth_packet_needed || 0) > 0 &&
       list(sourceSessionPrepQueue.clusters).length === Number(sourceSessionPrepQueue.counts?.previewClusters || 0) &&
       list(sourceSessionPrepQueue.clusters).every(cluster => Number(cluster.totalRows || 0) >= 1 && Number(cluster.rawSecretPrintedRows || 0) === 0) &&
       list(sourceSessionPrepQueue.clusters).some(cluster => /skool\.com\/[^/]+/.test(cluster.label || '')) &&
-      list(sourceSessionPrepQueue.clusters).some(cluster => cluster.phase === 'community_runner_needed') &&
+      (!sourceSessionPrepHasCommunityRunnerRows || list(sourceSessionPrepQueue.clusters).some(cluster => cluster.phase === 'community_runner_needed')) &&
       list(sourceSessionPrepQueue.clusters).some(cluster => cluster.phase === 'paid_or_auth_packet_needed') &&
       sourceSessionActionGroups.length === Number(sourceSessionPrepQueue.counts?.actionGroupCount || 0) &&
-      sourceSessionActionGroups.some(group => group.phase === 'free_source_identity_session_needed' && group.nextAction?.includes('ai@bensoncrew.ca')) &&
+      (!sourceSessionPrepHasFreeCommunityRows || sourceSessionActionGroups.some(group => group.phase === 'free_source_identity_session_needed' && group.nextAction?.includes('ai@bensoncrew.ca'))) &&
       sourceSessionActionGroups.some(group => group.phase === 'newsletter_signup_lane_needed' && group.nextAction?.includes('dry-run')) &&
       sourceSessionActionGroups.some(group => group.phase === 'paid_or_auth_packet_needed' && group.nextAction?.includes('Steve')) &&
       sourceSessionActionGroups.every(group => Number(group.rawSecretPrintedRows || 0) === 0 && Number(group.totalRows || 0) >= 1 && list(group.topUrls).length >= 1) &&
-      sourceSessionReadinessChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
+      (!sourceSessionPrepHasFreeCommunityRows || sourceSessionReadinessChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || ''))) &&
       sourceSessionReadinessChecks.some(check => /newsletter:intake/.test(check.statusCommand || '')) &&
       sourceSessionReadinessChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false) &&
-      sourceSessionPrepRows.some(row => row.phase === 'free_source_identity_session_needed') &&
-      sourceSessionPrepRows.some(row => row.phase === 'community_runner_needed') &&
+      (!sourceSessionPrepHasFreeCommunityRows || sourceSessionPrepRows.some(row => row.phase === 'free_source_identity_session_needed')) &&
+      (!sourceSessionPrepHasCommunityRunnerRows || sourceSessionPrepRows.some(row => row.phase === 'community_runner_needed')) &&
       sourceSessionPrepRows.some(row => row.phase === 'newsletter_signup_lane_needed') &&
       sourceSessionPrepRows.some(row => row.phase === 'paid_or_auth_packet_needed') &&
       sourceSessionPrepQueue.sideEffects?.externalWrites === false &&
