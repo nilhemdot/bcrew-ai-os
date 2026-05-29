@@ -616,6 +616,7 @@
     "process:source-browser-fallback-executor-check": "node --env-file-if-exists=.env scripts/process-source-browser-fallback-executor-check.mjs",
     "process:source-browser-runtime-cost-guardrails-check": "node --env-file-if-exists=.env scripts/process-source-browser-runtime-cost-guardrails-check.mjs",
     "process:source-browser-brain-route-policy-check": "node --env-file-if-exists=.env scripts/process-source-browser-brain-route-policy-check.mjs",
+    "process:browserbase-one-month-bakeoff-check": "node --env-file-if-exists=.env scripts/process-browserbase-one-month-bakeoff-check.mjs",
     "process:agentic-codebase-map-check": "node --env-file-if-exists=.env scripts/process-agentic-codebase-map-check.mjs",
     "source:god-mode": "node --env-file-if-exists=.env scripts/run-source-god-mode-extractor.mjs",
     "source:youtube-handoff": "node --env-file-if-exists=.env scripts/run-source-god-mode-youtube-handoff.mjs",

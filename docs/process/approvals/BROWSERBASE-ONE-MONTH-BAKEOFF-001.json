@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BROWSERBASE-ONE-MONTH-BAKEOFF-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-29T06:30:45-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/browserbase-one-month-bakeoff-001-plan.md",
+  "approvedPlanSha256": "10e0178569557049b4592fcf5fc1bd185133f2194048834d4a4ac0fe5dbc2064",
+  "approvedRepoHead": "7088c45eb6dc1081349d4dddaeaac5c3492e946c",
+  "approvalSource": "Steve approved the overnight source-browser work plan: keep Browserbase as a one-month measured bakeoff only, prefer local virtual browser hands, cap API/model spend, park blockers, and move to the next scoped card if blocked.",
+  "notes": "Approval is for report-only guardrails and a future tiny one-task-at-a-time bakeoff contract. It does not approve broad Browserbase extraction, paid/auth/private extraction, login/signup/purchase/download/post/comment/message actions, normal Chrome profile use, raw secret exposure, or Scoper promotion.",
+  "approvalDigest": "3a33c6eea6f4277a4daf34cd98c0de7ec16703d9cda5cc4878689aaed5165435"
+}
