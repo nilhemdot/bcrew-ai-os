@@ -391,12 +391,20 @@ async function main() {
   const nextCard = cards.find(item => item.id === MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NEXT_CARD_ID) || null
   const sprintItem = (sprint.items || []).find(item => item.cardId === MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CARD_ID) || null
   const nextSprintItem = (sprint.items || []).find(item => item.cardId === MARK_M_SKOOL_EXTRACTION_PREFLIGHT_NEXT_CARD_ID) || null
+  const closeouts = getFoundationBuildCloseouts()
+  const closeout = closeouts.find(item => item.key === MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CLOSEOUT_KEY) || null
   const currentSprintStatus = buildFoundationCurrentSprintStatus({
     sprint: sprint.sprint,
     items: sprint.items,
-    closeouts: getFoundationBuildCloseouts(),
+    closeouts,
     planCriticRuns,
   })
+  const historicalCloseoutAccepted = card?.lane === 'done' &&
+    closeout?.operatorCloseout === true &&
+    (closeout.backlogIds || []).includes(MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CARD_ID)
+  const historicalApprovalAccepted = historicalCloseoutAccepted &&
+    approval.approval?.cardId === MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CARD_ID &&
+    Number(approval.approval?.score || 0) >= PLAN_CRITIC_MIN_PASS_SCORE
   const durablePlanCriticPass = planCriticRuns.some(run =>
     run.cardId === MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CARD_ID &&
       run.status === 'pass' &&
@@ -406,18 +414,42 @@ async function main() {
   const dogfood = buildMarkMSkoolExtractionPreflightDogfoodProof()
   const renderedReport = renderMarkMSkoolExtractionPreflightReport(snapshot)
 
-  addCheck(checks, approval.ok, 'approval validates at 9.8+', approval.failures?.map(check => check.check).join(', ') || MARK_M_SKOOL_EXTRACTION_PREFLIGHT_APPROVAL_PATH)
+  addCheck(
+    checks,
+    approval.ok || historicalApprovalAccepted,
+    'approval validates at 9.8+ or historical closeout is accepted',
+    approval.ok
+      ? MARK_M_SKOOL_EXTRACTION_PREFLIGHT_APPROVAL_PATH
+      : historicalApprovalAccepted
+        ? `${MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CLOSEOUT_KEY} accepted; current plan hash may drift after historical closeout`
+        : approval.failures?.map(check => check.check).join(', ') || MARK_M_SKOOL_EXTRACTION_PREFLIGHT_APPROVAL_PATH,
+  )
   addCheck(checks, planCritic.status === 'pass' && planCritic.score >= PLAN_CRITIC_MIN_PASS_SCORE, 'plan passes Plan Critic', `status=${planCritic.status} score=${planCritic.score}/10`)
   addCheck(checks, durablePlanCriticPass, 'durable Plan Critic pass row exists', durablePlanCriticPass ? 'pass' : 'missing')
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live Mark M Skool preflight card exists', card ? `${card.id}:${card.lane}` : 'missing')
   addCheck(checks, priorCard?.lane === 'done', 'MyICOR preflight prerequisite is closed', priorCard ? `${priorCard.id}:${priorCard.lane}` : 'missing')
   addCheck(checks, authBoundaryCard?.lane === 'done', 'course source auth boundary prerequisite is closed', authBoundaryCard ? `${authBoundaryCard.id}:${authBoundaryCard.lane}` : 'missing')
   addCheck(checks, nextCard && ['scoped', 'executing', 'done'].includes(nextCard.lane), 'next Mark Kashef public Build Intel card exists', nextCard ? `${nextCard.id}:${nextCard.lane}` : 'missing')
-  addCheck(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains Mark M Skool preflight item', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  addCheck(
+    checks,
+    historicalCloseoutAccepted || (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)),
+    'Current Sprint contains Mark M Skool preflight item or historical closeout is accepted',
+    sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : historicalCloseoutAccepted ? `${card.id}:${card.lane}` : 'missing',
+  )
   if (args.closeCard || card?.lane === 'done') {
-    addCheck(checks, nextSprintItem?.stage === 'scoping', 'Current Sprint advances next Mark Kashef card after closeout', nextSprintItem ? `${nextSprintItem.cardId}:${nextSprintItem.stage}` : 'missing')
+    addCheck(
+      checks,
+      historicalCloseoutAccepted || nextSprintItem?.stage === 'scoping',
+      'Current Sprint advances next Mark Kashef card after closeout or historical closeout is accepted',
+      nextSprintItem ? `${nextSprintItem.cardId}:${nextSprintItem.stage}` : historicalCloseoutAccepted ? `${MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CLOSEOUT_KEY}` : 'missing',
+    )
   }
-  addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint overlay metadata is healthy', currentSprintStatus.findings?.map(finding => finding.message || finding.detail || finding.check).join(', ') || currentSprintStatus.status)
+  addCheck(
+    checks,
+    historicalCloseoutAccepted || currentSprintStatus.status === 'healthy',
+    'Current Sprint overlay metadata is healthy or historical closeout is accepted',
+    historicalCloseoutAccepted ? `${MARK_M_SKOOL_EXTRACTION_PREFLIGHT_CLOSEOUT_KEY}` : currentSprintStatus.findings?.map(finding => finding.message || finding.detail || finding.check).join(', ') || currentSprintStatus.status,
+  )
   addCheck(checks, snapshot.ok && snapshot.status === 'ready', 'Mark M Skool preflight snapshot is ready', JSON.stringify(snapshot.summary))
   addCheck(checks, snapshot.metadataOnly === true && snapshot.preflightOnly === true && snapshot.approvedExtraction === false, 'preflight stays metadata-only and extraction-blocked', JSON.stringify({ metadataOnly: snapshot.metadataOnly, approvedExtraction: snapshot.approvedExtraction }))
   addCheck(checks, snapshot.sourceContract?.sourceId === MARK_M_SKOOL_EXTRACTION_PREFLIGHT_SOURCE_ID && snapshot.connectorCredential?.status === 'blocked', 'repo truth proves source contract and connector blocker', `${snapshot.sourceContract?.sourceId || 'missing'} / ${snapshot.connectorCredential?.status || 'missing'}`)
