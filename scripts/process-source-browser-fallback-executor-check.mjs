@@ -78,7 +78,7 @@ async function main() {
     sourceType: 'public_or_free_source',
     host: 'example.com',
     label: 'Agent browser guide',
-    reason: 'Saved run saw a browser challenge instead of source content.',
+    reason: 'Saved run saw Just a moment... checking your browser instead of source content.',
     fallbackPlan: {
       status: 'browser_challenge_fallback_required',
       route: 'clean_isolated_retry_then_hosted_browser_fallback',
@@ -160,6 +160,28 @@ async function main() {
     },
   }
   const skoolPacket = buildSourceBrowserFallbackRetryPacket({ row: skoolRow })
+  const paidAuthPacket = buildSourceBrowserFallbackRetryPacket({
+    row: {
+      rowId: 'fallback-paid-auth',
+      url: 'https://platform.openai.com/playground',
+      bucketId: 'paid-auth-gates',
+      sourceType: 'paid_or_auth_source',
+      host: 'platform.openai.com',
+      label: 'OpenAI Playground',
+      reason: 'Auth gate surfaced from YouTube evidence.',
+    },
+  })
+  const registerPacket = buildSourceBrowserFallbackRetryPacket({
+    row: {
+      rowId: 'fallback-register',
+      url: 'https://dashboard.example.com/register',
+      bucketId: 'public-web-resources',
+      sourceType: 'public_or_free_source',
+      host: 'dashboard.example.com',
+      label: 'Dashboard register',
+      reason: 'Register URL surfaced from YouTube evidence.',
+    },
+  })
   const skoolBlocked = await runSourceBrowserFallbackRetry({
     row: skoolRow,
     apply: true,
@@ -194,10 +216,12 @@ async function main() {
     batchRunnerSource.includes('loadFallbackBatch') &&
       batchRunnerSource.includes('retryBatch.selectedRows') &&
       batchRunnerSource.includes('Dry run first') &&
+      batchRunnerSource.includes('buildSourceBrowserFallbackRetryPacket') &&
+      batchRunnerSource.includes('cleanRetry?.allowedNow') &&
       batchRunnerSource.includes('runSourceBrowserFallbackRetry') &&
       batchRunnerSource.includes('completed_with_safe_parked_rows') &&
       batchRunnerSource.includes('unsafeRows'),
-    'fallback batch CLI selects bounded clean retries, defaults to dry-run readback, and treats safe parked rows as terminal',
+    'fallback batch CLI selects bounded clean retries, excludes session-bound rows by default, and treats safe parked rows as terminal',
     'scripts/run-source-browser-fallback-batch.mjs',
   )
   addCheck(
@@ -213,12 +237,16 @@ async function main() {
     publicPacket.status === 'ready_for_clean_isolated_retry' &&
       publicPacket.cleanRetry.allowedNow === true &&
       publicPacket.cleanRetry.command.includes('source:browser-agent') &&
+      !/just a moment|checking your browser/i.test(publicPacket.sourcePacket.preview || '') &&
+      /just a moment|checking your browser/i.test(publicPacket.fallbackPlan.previousBlocker || '') &&
       publicPacket.cleanRetry.normalChromeProfileAllowed === false &&
       publicPacket.hostedFallback.status === 'pending_approval',
-    'public challenge row becomes exact clean-isolated retry packet',
+    'public challenge row becomes exact clean-isolated retry packet without poisoning current page health',
     JSON.stringify({
       status: publicPacket.status,
       commandReady: Boolean(publicPacket.cleanRetry.command),
+      preview: publicPacket.sourcePacket.preview,
+      previousBlockerKept: Boolean(publicPacket.fallbackPlan.previousBlocker),
       hostedFallback: publicPacket.hostedFallback.status,
     }),
   )
@@ -274,6 +302,31 @@ async function main() {
   )
   addCheck(
     checks,
+    paidAuthPacket.status === 'waiting_for_source_session' &&
+      paidAuthPacket.sourcePacket.sourceFamily === 'paid_or_auth_gates' &&
+      paidAuthPacket.cleanRetry.allowedNow === false &&
+      paidAuthPacket.afterSourceSession.required === true,
+    'paid/auth fallback rows cannot masquerade as public-free clean retries',
+    JSON.stringify({
+      status: paidAuthPacket.status,
+      sourceFamily: paidAuthPacket.sourcePacket.sourceFamily,
+      cleanRetryAllowedNow: paidAuthPacket.cleanRetry.allowedNow,
+    }),
+  )
+  addCheck(
+    checks,
+    registerPacket.status === 'waiting_for_source_session' &&
+      registerPacket.sourcePacket.sourceFamily === 'paid_or_auth_gates' &&
+      registerPacket.cleanRetry.allowedNow === false,
+    'signup/register/account fallback URLs cannot run as public-free clean retries',
+    JSON.stringify({
+      status: registerPacket.status,
+      sourceFamily: registerPacket.sourcePacket.sourceFamily,
+      cleanRetryAllowedNow: registerPacket.cleanRetry.allowedNow,
+    }),
+  )
+  addCheck(
+    checks,
     skoolBlocked.status === 'source_browser_fallback_retry_blocked_before_run' &&
       skoolBlocked.execution === null &&
       hasUnsafeSideEffect(skoolBlocked) === false,
@@ -299,7 +352,7 @@ async function main() {
     'lib/source-god-mode-youtube-handoff.js',
   )
 
-  const serialized = JSON.stringify({ publicPacket, cleanRetry, challengeAgain, skoolPacket, skoolBlocked, dryRun })
+  const serialized = JSON.stringify({ publicPacket, cleanRetry, challengeAgain, skoolPacket, paidAuthPacket, registerPacket, skoolBlocked, dryRun })
   addCheck(
     checks,
     !/(rawPassword|password"\s*:|"access_token"\s*:|"refresh_token"\s*:|"token"\s*:)/i.test(serialized),

@@ -957,6 +957,7 @@ async function main() {
       'blocked_short_link_expansion_needed',
       'previous_source_run_failed_needs_review',
       'previous_source_run_browser_challenge_needs_fallback',
+      'previous_clean_retry_hosted_fallback_required',
     ].includes(row.status))
   const freeCommunityRowsRequiringSessionBroker = sourceGodModeRows
     .filter(row => row.bucketId === 'free-communities')

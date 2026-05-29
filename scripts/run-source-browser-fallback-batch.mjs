@@ -26,6 +26,7 @@ import {
   SOURCE_BROWSER_AGENT_TARGET_KEY,
 } from '../lib/source-browser-agent-harness.js'
 import {
+  buildSourceBrowserFallbackRetryPacket,
   runSourceBrowserFallbackRetry,
 } from '../lib/source-browser-fallback-executor.js'
 
@@ -81,21 +82,29 @@ function filterRows(rows = [], args = {}) {
   return list(rows).filter(row => {
     if (bucketIds.size && !bucketIds.has(row.bucketId)) return false
     if (hosts.size && !hosts.has(text(row.host).replace(/^www\./, '').toLowerCase())) return false
+    const retryPacket = buildSourceBrowserFallbackRetryPacket({ row, fallbackPlan: row.fallbackPlan })
+    if (retryPacket.cleanRetry?.allowedNow !== true && args.allowSourceSessionRun !== true) return false
     return true
   })
 }
 
 function summarizeRows(rows = []) {
-  return list(rows).map(row => ({
-    rowId: row.rowId,
-    bucketId: row.bucketId,
-    host: row.host,
-    url: row.url,
-    sourceType: row.sourceType,
-    sourceFamily: row.sourceFamily,
-    bestDevBuildGrade: row.bestDevBuildGrade,
-    command: row.command,
-  }))
+  return list(rows).map(row => {
+    const retryPacket = buildSourceBrowserFallbackRetryPacket({ row, fallbackPlan: row.fallbackPlan })
+    return {
+      rowId: row.rowId,
+      bucketId: row.bucketId,
+      host: row.host,
+      url: row.url,
+      sourceType: retryPacket.sourcePacket?.sourceType || row.sourceType,
+      sourceFamily: retryPacket.sourcePacket?.sourceFamily || row.sourceFamily,
+      retryStatus: retryPacket.status,
+      cleanRetryAllowedNow: retryPacket.cleanRetry?.allowedNow === true,
+      sourceSessionRequired: retryPacket.afterSourceSession?.required === true,
+      bestDevBuildGrade: row.bestDevBuildGrade,
+      command: row.command,
+    }
+  })
 }
 
 async function loadFallbackBatch(args = {}) {
