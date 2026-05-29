@@ -245,7 +245,7 @@ async function clickFirstVisible(page, selectors = [], timeout = 1200) {
   for (const selector of selectors) {
     const locator = page.locator(selector).first()
     if (await locator.isVisible({ timeout }).catch(() => false)) {
-      await locator.click({ timeout })
+      await locator.click({ timeout, noWaitAfter: true })
       return selector
     }
   }
@@ -280,7 +280,13 @@ async function pressNext(page) {
 async function clickGoogleAccountChoice(page, googleAccount = '') {
   const account = String(googleAccount || '').trim().toLowerCase()
   if (!account) return ''
-  return page.evaluate(accountValue => {
+  const exactIdentifier = page.locator(`[data-identifier="${googleAccount}"]`).first()
+  const exactBox = await exactIdentifier.boundingBox({ timeout: 1500 }).catch(() => null)
+  if (exactBox && exactBox.width > 0 && exactBox.height > 0) {
+    await page.mouse.click(exactBox.x + exactBox.width / 2, exactBox.y + exactBox.height / 2)
+    return 'data-identifier-coordinate-click'
+  }
+  const box = await page.evaluate(accountValue => {
     const candidates = Array.from(document.querySelectorAll('[data-identifier], [role="link"], [role="button"], li, div, a, button'))
     const visible = element => {
       const rect = element.getBoundingClientRect()
@@ -304,10 +310,20 @@ async function clickGoogleAccountChoice(page, googleAccount = '') {
         return a.element.getBoundingClientRect().width - b.element.getBoundingClientRect().width
       })[0]?.element
     if (!row) return ''
-    row.scrollIntoView({ block: 'center', inline: 'center' })
-    row.click()
-    return row.getAttribute('data-identifier') || row.getAttribute('role') || 'account-choice-dom-click'
+    const clickable = row.closest('[role="link"], [role="button"], a, button, li') || row
+    clickable.scrollIntoView({ block: 'center', inline: 'center' })
+    const rect = clickable.getBoundingClientRect()
+    return {
+      label: clickable.getAttribute('data-identifier') || clickable.getAttribute('role') || 'account-choice-coordinate-click',
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+      width: rect.width,
+      height: rect.height,
+    }
   }, account).catch(() => '')
+  if (!box || !box.width || !box.height) return ''
+  await page.mouse.click(box.x, box.y)
+  return box.label || 'account-choice-coordinate-click'
 }
 
 async function readGooglePassword({ source = DEFAULT_GOOGLE_CREDENTIAL_SOURCE, account = EXISTING_GOOGLE_SSO_ACCOUNT } = {}) {
@@ -364,6 +380,34 @@ async function writeAuthNeededReport({
   return { report, artifactRef }
 }
 
+async function writeLiveStateReport({
+  page,
+  runDir,
+  authState = {},
+  actions = [],
+  status = 'running',
+} = {}) {
+  await fs.mkdir(runDir, { recursive: true })
+  const statePath = path.join(runDir, 'live-state.json')
+  const screenshotPath = path.join(runDir, 'live-screenshot.png')
+  await fs.writeFile(statePath, JSON.stringify({
+    status,
+    updatedAt: new Date().toISOString(),
+    url: authState.url || page?.url?.() || '',
+    title: authState.title || '',
+    bodyTextPreview: String(authState.bodyTextPreview || '').slice(0, 1000),
+    loginButtons: Array.isArray(authState.loginButtons) ? authState.loginButtons.slice(0, 20) : [],
+    hasEmailInput: Boolean(authState.hasEmailInput),
+    hasPasswordInput: Boolean(authState.hasPasswordInput),
+    actionCount: actions.length,
+    lastActions: actions.slice(-8),
+    screenshotPath,
+    rawSecretPrinted: false,
+  }, null, 2))
+  await page.screenshot({ path: screenshotPath, fullPage: false }).catch(() => {})
+  return { statePath, screenshotPath }
+}
+
 function codeFromCallbackResolved(codePromise) {
   return Promise.race([
     codePromise.then(code => ({ done: true, code })).catch(error => ({ done: true, error })),
@@ -384,6 +428,9 @@ async function driveMyicorOauthAgent({
   const actions = []
   let passwordAttempted = false
   let emailAttempted = false
+  let accountChoiceAttempts = 0
+  let lastAccountChoiceUrl = ''
+  let mcpAuthorizeRetryAfterLoginAttempted = false
   let wrongBranchRecoveryAttempted = false
   let humanVerificationNotified = false
   let lastHumanVerificationState = null
@@ -412,6 +459,7 @@ async function driveMyicorOauthAgent({
     }
 
     const authState = await inspectPageAuthState(page)
+    await writeLiveStateReport({ page, runDir, authState, actions, status: 'running' }).catch(() => {})
     const guard = evaluateMyicorBrowserAuthSurface({ account: googleAccount, authState })
     if (guard.reason === 'myicor_wrong_signup_branch_existing_google_sso_required') {
       if (!wrongBranchRecoveryAttempted) {
@@ -455,6 +503,17 @@ async function driveMyicorOauthAgent({
     const url = authState.url || page.url()
     const surface = `${url}\n${authState.title}\n${authState.bodyTextPreview}\n${(authState.loginButtons || []).join('\n')}`.toLowerCase()
 
+    if (/^https:\/\/app\.myicor\.com\//i.test(url) &&
+      !/\/mcp\/authorize/i.test(url) &&
+      !mcpAuthorizeRetryAfterLoginAttempted &&
+      (/steve zahnd|my icor journey|myicor|your icor journey/i.test(surface))) {
+      mcpAuthorizeRetryAfterLoginAttempted = true
+      actions.push({ action: 'revisit_mcp_authorize_after_app_login', url: authorizationUrl })
+      await page.goto(authorizationUrl, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {})
+      await page.waitForTimeout(2500)
+      continue
+    }
+
     if (/accounts\.google\.com/.test(url)) {
       if (authState.hasPasswordInput || /enter your password|show password/.test(surface)) {
         if (passwordAttempted) {
@@ -490,25 +549,52 @@ async function driveMyicorOauthAgent({
         }
       }
 
-      const accountClicked = await clickFirstVisible(page, [
-        `[data-identifier="${googleAccount}"]`,
-        `[role="link"]:has-text("${googleAccount}")`,
-        `[role="button"]:has-text("${googleAccount}")`,
-        `[role="link"]:has-text("Steve Zahnd")`,
-        `[role="button"]:has-text("Steve Zahnd")`,
-        `text="${googleAccount}"`,
-        `div:has-text("${googleAccount}")`,
-      ], 1000).catch(() => '')
-      if (accountClicked) {
-        actions.push({ action: 'click_google_account', selector: accountClicked })
-        await page.waitForTimeout(1800)
-        continue
+      if (/signin\/oauth\/.*consent|requestpath=%2fsignin%2foauth%2fconsent/i.test(url) ||
+        (/wants to access your google account|request for permission|by clicking allow/i.test(surface) && /\ballow\b/.test(surface))) {
+        const consentClicked = await clickFirstVisible(page, [
+          'button:has-text("Allow")',
+          'div[role="button"]:has-text("Allow")',
+          '[role="button"]:has-text("Allow")',
+          'button:has-text("Continue")',
+          '[role="button"]:has-text("Continue")',
+        ], 1500).catch(() => '')
+        if (consentClicked) {
+          actions.push({ action: 'click_google_consent_allow', selector: consentClicked })
+          await page.waitForTimeout(3000)
+          continue
+        }
       }
-      const accountDomClicked = await clickGoogleAccountChoice(page, googleAccount)
-      if (accountDomClicked) {
-        actions.push({ action: 'click_google_account_dom', selector: accountDomClicked })
-        await page.waitForTimeout(2200)
-        continue
+
+      if (/choose an account|to continue to|use another account|sign in with google/i.test(surface)) {
+        const accountClicked = await clickFirstVisible(page, [
+          `[data-identifier="${googleAccount}"]`,
+          `[role="link"]:has-text("${googleAccount}")`,
+          `[role="button"]:has-text("${googleAccount}")`,
+        ], 1000).catch(() => '')
+        if (accountClicked) {
+          actions.push({ action: 'click_google_account', selector: accountClicked })
+          await page.waitForTimeout(1800)
+          continue
+        }
+        const accountDomClicked = await clickGoogleAccountChoice(page, googleAccount)
+        if (accountDomClicked) {
+          actions.push({ action: 'click_google_account_dom', selector: accountDomClicked })
+          const sameChoiceUrl = lastAccountChoiceUrl === url
+          accountChoiceAttempts = sameChoiceUrl ? accountChoiceAttempts + 1 : 1
+          lastAccountChoiceUrl = url
+          if (accountChoiceAttempts >= 3) {
+            const { report, artifactRef } = await writeAuthNeededReport({
+              runDir,
+              account: googleAccount,
+              reason: 'google_account_choice_click_not_advancing',
+              authState,
+              resumeCommand: 'npm run myicor:mcp-authorize-agent -- --account=myicor-authorized-member --headless',
+            })
+            return { ok: false, status: 'auth_needed', reason: 'google_account_choice_click_not_advancing', authState, authNeededReport: report, artifactRef, actions, rawSecretPrinted: false }
+          }
+          await page.waitForTimeout(2200)
+          continue
+        }
       }
 
       if (!emailAttempted && (/email|identifier|sign in/.test(surface) || authState.hasEmailInput)) {

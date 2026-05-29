@@ -1,0 +1,56 @@
+{
+  "cardId": "MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001",
+  "sourceId": "SRC-MYICRO-001",
+  "sourceName": "MyICOR",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-29T00:00:00.000-04:00",
+  "approvalBasis": "Steve approved the exact MyICOR source packet in the May 29 main session after MCP metadata confirmed the resource but not full article body.",
+  "exactSourceApproval": true,
+  "targetTitle": "Stop Managing Your AI Agents. Build the One That Manages Them for You.",
+  "targetUrl": "https://app.myicor.com/resources/stop-managing-your-ai-agents-build-the-one-that-manages-them-for-you",
+  "allowedAccount": "steve.zahnd@bensoncrew.ca via source-owned isolated MyICOR profile",
+  "purpose": "Extract one exact MyICOR resource as evidence for the Human Web Agent / agentic OS / memory sprint.",
+  "allowedArtifacts": [
+    "MCP metadata match",
+    "exact approved page DOM/text read",
+    "headings and link inventory",
+    "local-only raw text artifact",
+    "local-only screenshot artifact",
+    "content hash and screenshot hash",
+    "source_crawl_target/source_crawl_item proof rows",
+    "intelligence_report_artifacts proof row"
+  ],
+  "forbiddenActions": [
+    "broad_crawl",
+    "adjacent_navigation",
+    "clicks",
+    "forms",
+    "comments",
+    "likes",
+    "bookmarks",
+    "downloads",
+    "purchases",
+    "post_comment_message",
+    "profile_account_credential_mutation",
+    "normal_chrome",
+    "browserbase",
+    "external_writes",
+    "atom_vector_writes"
+  ],
+  "stopConditions": [
+    "login wall or MFA prompt",
+    "purchase or checkout page",
+    "download prompt",
+    "comment/message/form surface",
+    "profile/account/credential mutation prompt",
+    "redirect outside app.myicor.com",
+    "any page other than the exact approved resource URL"
+  ],
+  "costPolicy": {
+    "llmCallsAllowed": false,
+    "browserbaseAllowed": false,
+    "normalChromeProfileAllowed": false,
+    "maxPages": 1,
+    "maxRuntimeSeconds": 120
+  }
+}

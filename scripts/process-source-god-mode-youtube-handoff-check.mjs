@@ -146,7 +146,7 @@ async function startFixtureServer() {
     '/chase-ai-community/resources': page('Chase AI Community - Resources', `
       <h1>Resources</h1>
       <p>Pinned resources: free Claude Code SOP, browser skill checklist, and source-stack template.</p>
-      <a href="https://docs.browserbase.com/integrations/skills/introduction">Browserbase skills docs</a>
+      <a href="https://playwright.dev/docs/locators">Playwright locator docs</a>
       <a href="/chase-ai-community/template.zip">Download zip</a>
     `),
     '/checkout': page('Checkout', '<h1>Checkout</h1><p>Payment required.</p>'),
@@ -1120,16 +1120,16 @@ async function main() {
     },
     runItems: [{ ...savedChallengeInput, status: 'succeeded', metadata: savedChallengeInput.metadata }],
   })
-  const hostedFallbackRequiredInput = {
+  const operatorEscalationRequiredInput = {
     itemKey: 'source-browser-agent-runs:youtube-handoff-free-communities-community-yreverydayai-clean-retry-failed',
     targetKey: 'source-browser-agent-runs',
     sourceId: 'SRC-YOUTUBE-INTEL-001',
     externalId: 'youtube-handoff:free-communities:https:-community-youreverydayai-com:https://community.youreverydayai.com/',
     itemType: 'source_browser_agent_execution',
     status: 'failed',
-    fingerprint: 'fixture-hosted-fallback-required-after-clean-retry',
+    fingerprint: 'fixture-operator-escalation-required-after-clean-retry',
     lastError: 'browser_state_blocked',
-    artifactId: 'source-browser-agent-runs:fixture-hosted-fallback-required',
+    artifactId: 'source-browser-agent-runs:fixture-operator-escalation-required',
     discoveredAt: '2026-05-27T11:10:00.000-04:00',
     processedAt: '2026-05-27T11:10:00.000-04:00',
     metadata: {
@@ -1152,16 +1152,16 @@ async function main() {
           url: 'https://community.youreverydayai.com/',
           type: 'browser_challenge_not_source_content',
           reason: 'Clean isolated retry still saw a Cloudflare browser challenge instead of source content.',
-          nextAction: 'route to approved hosted/browser-agent fallback; do not retry the same clean local path again',
+          nextAction: 'prepare Harlan/operator escalation; do not retry the same clean local path again',
         },
       ],
       fallbackPlan: {
         status: 'browser_challenge_fallback_required',
         trigger: 'browser_challenge_not_source_content',
-        route: 'clean_isolated_retry_then_hosted_browser_fallback',
+        route: 'clean_isolated_retry_then_harlan_operator',
         sourceSessionRequired: false,
         normalChromeProfileAllowed: false,
-        nextAction: 'Route to hosted/browser-agent fallback with read-only extraction policy.',
+        nextAction: 'Prepare Harlan/operator escalation or source-specific session repair with read-only extraction policy.',
       },
       sourceBrowserAgentPlan: {
         agentId: 'source-browser-agent',
@@ -1184,20 +1184,20 @@ async function main() {
       },
     },
   }
-  const hostedFallbackRuntimeRepairInput = {
-    ...hostedFallbackRequiredInput,
+  const operatorEscalationRuntimeRepairInput = {
+    ...operatorEscalationRequiredInput,
     itemKey: 'source-browser-agent-runs:youtube-handoff-free-communities-community-yreverydayai-clean-retry-runtime-repair',
-    fingerprint: 'fixture-hosted-fallback-runtime-repair-after-clean-retry',
+    fingerprint: 'fixture-operator-escalation-runtime-repair-after-clean-retry',
     lastError: 'source_god_mode_runtime_needs_repair',
     processedAt: '2026-05-27T11:11:00.000-04:00',
     metadata: {
-      ...hostedFallbackRequiredInput.metadata,
+      ...operatorEscalationRequiredInput.metadata,
       status: 'source_god_mode_runtime_needs_repair',
       terminalState: 'completed',
       stopReason: '',
       pagesRead: 4,
       sourceBrowserAgentPlan: {
-        ...hostedFallbackRequiredInput.metadata.sourceBrowserAgentPlan,
+        ...operatorEscalationRequiredInput.metadata.sourceBrowserAgentPlan,
         status: 'ready_to_run_source_tool',
         terminalState: 'completed',
         stopReason: '',
@@ -1205,7 +1205,7 @@ async function main() {
       fallbackPlan: null,
     },
   }
-  const hostedFallbackAfterRetryQueue = buildSourceGodModeYoutubeHandoffQueue({
+  const operatorEscalationAfterRetryQueue = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence: communityBoundaryQueue.handoffEvidence || {
       sourceRoute: 'fixture.youtube.fullWatchReports.communityBoundary',
       scannedReportCount: 1,
@@ -1231,10 +1231,10 @@ async function main() {
     },
     runItems: [
       { ...savedChallengeInput, status: 'succeeded', metadata: savedChallengeInput.metadata },
-      hostedFallbackRequiredInput,
+      operatorEscalationRequiredInput,
     ],
   })
-  const hostedFallbackRuntimeRepairQueue = buildSourceGodModeYoutubeHandoffQueue({
+  const operatorEscalationRuntimeRepairQueue = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence: communityBoundaryQueue.handoffEvidence || {
       sourceRoute: 'fixture.youtube.fullWatchReports.communityBoundary',
       scannedReportCount: 1,
@@ -1260,7 +1260,7 @@ async function main() {
     },
     runItems: [
       { ...savedChallengeInput, status: 'succeeded', metadata: savedChallengeInput.metadata },
-      hostedFallbackRuntimeRepairInput,
+      operatorEscalationRuntimeRepairInput,
     ],
   })
   addCheck(
@@ -1307,7 +1307,7 @@ async function main() {
       savedChallengeQueue.browserChallengeFallbackReview?.status === 'needs_source_browser_fallback' &&
       savedChallengeQueue.browserChallengeFallbackReview?.totalRows === 1 &&
       savedChallengeQueue.browserChallengeFallbackReview?.sourceSessionRequiredRows === 0 &&
-      savedChallengeQueue.browserChallengeFallbackReview?.fallbackRouteCounts?.clean_isolated_retry_then_hosted_browser_fallback === 1 &&
+      savedChallengeQueue.browserChallengeFallbackReview?.fallbackRouteCounts?.clean_isolated_retry_then_harlan_operator === 1 &&
       savedChallengeQueue.browserChallengeFallbackReview?.retryBatch?.status === 'ready_for_bounded_clean_retry' &&
       savedChallengeQueue.browserChallengeFallbackReview?.retryBatch?.cleanRetryReadyRows === 1 &&
       savedChallengeQueue.browserChallengeFallbackReview?.retryBatch?.selectedRowCount === 1 &&
@@ -1321,11 +1321,11 @@ async function main() {
         row.runnable === false &&
         row.parked === true &&
         text(row.reason) &&
-        /fallback|hosted\/browser-agent|source-specific/i.test(row.nextAction || '') &&
+        /fallback|Harlan|operator|source-specific/i.test(row.nextAction || '') &&
         row.fallbackPlan?.status === 'browser_challenge_fallback_required' &&
         row.fallbackPlan?.sourceSessionRequired === false &&
         row.fallbackPlan?.normalChromeProfileAllowed === false &&
-        row.fallbackPlan?.route === 'clean_isolated_retry_then_hosted_browser_fallback' &&
+        row.fallbackPlan?.route === 'clean_isolated_retry_then_harlan_operator' &&
         text(row.fallbackPlan?.firstStep) &&
         row.fallbackPlan?.recoveryPolicy?.mode === 'bounded_self_recovery_then_human_escalation' &&
         row.fallbackPlan?.recoveryPolicy?.maxAutomaticAttempts === 2 &&
@@ -1343,46 +1343,46 @@ async function main() {
   )
   addCheck(
     checks,
-    list(hostedFallbackAfterRetryQueue.rows).some(row =>
+    list(operatorEscalationAfterRetryQueue.rows).some(row =>
       row.url === 'https://community.youreverydayai.com/' &&
-      row.status === 'previous_clean_retry_hosted_fallback_required' &&
+      row.status === 'previous_clean_retry_operator_escalation_required' &&
       row.runnable === false &&
       row.parked === true &&
       !text(row.runCommand) &&
       row.existingRunStatus === 'failed' &&
       row.existingRunRuntimeStatus === 'failed_closed_browser_state_blocked' &&
-      row.existingRunLastError === 'hosted_browser_fallback_required_after_clean_retry' &&
+      row.existingRunLastError === 'operator_escalation_required_after_clean_retry' &&
       list(row.previousRunBlockers).some(blocker => blocker.type === 'browser_challenge_not_source_content')
     ) &&
-      hostedFallbackAfterRetryQueue.counts.browserChallengeFallbackRows === 0 &&
-      hostedFallbackAfterRetryQueue.browserChallengeFallbackReview?.retryBatch?.selectedRowCount === 0,
+      operatorEscalationAfterRetryQueue.counts.browserChallengeFallbackRows === 0 &&
+      operatorEscalationAfterRetryQueue.browserChallengeFallbackReview?.retryBatch?.selectedRowCount === 0,
     'clean-retry failures are not reselected for the same fallback batch loop',
     JSON.stringify({
-      counts: hostedFallbackAfterRetryQueue.counts,
-      row: list(hostedFallbackAfterRetryQueue.rows).find(row => row.url === 'https://community.youreverydayai.com/') || null,
-      retryBatch: hostedFallbackAfterRetryQueue.browserChallengeFallbackReview?.retryBatch || null,
+      counts: operatorEscalationAfterRetryQueue.counts,
+      row: list(operatorEscalationAfterRetryQueue.rows).find(row => row.url === 'https://community.youreverydayai.com/') || null,
+      retryBatch: operatorEscalationAfterRetryQueue.browserChallengeFallbackReview?.retryBatch || null,
     }),
   )
   addCheck(
     checks,
-    list(hostedFallbackRuntimeRepairQueue.rows).some(row =>
+    list(operatorEscalationRuntimeRepairQueue.rows).some(row =>
       row.url === 'https://community.youreverydayai.com/' &&
-      row.status === 'previous_clean_retry_hosted_fallback_required' &&
+      row.status === 'previous_clean_retry_operator_escalation_required' &&
       row.runnable === false &&
       row.parked === true &&
       !text(row.runCommand) &&
       row.existingRunStatus === 'failed' &&
       row.existingRunRuntimeStatus === 'source_god_mode_runtime_needs_repair' &&
-      row.existingRunLastError === 'hosted_browser_fallback_required_after_clean_retry' &&
+      row.existingRunLastError === 'operator_escalation_required_after_clean_retry' &&
       list(row.previousRunBlockers).some(blocker => blocker.type === 'browser_challenge_not_source_content')
     ) &&
-      hostedFallbackRuntimeRepairQueue.counts.browserChallengeFallbackRows === 0 &&
-      hostedFallbackRuntimeRepairQueue.browserChallengeFallbackReview?.retryBatch?.selectedRowCount === 0,
+      operatorEscalationRuntimeRepairQueue.counts.browserChallengeFallbackRows === 0 &&
+      operatorEscalationRuntimeRepairQueue.browserChallengeFallbackReview?.retryBatch?.selectedRowCount === 0,
     'clean-retry runtime-repair browser challenges are not returned to the normal handoff loop',
     JSON.stringify({
-      counts: hostedFallbackRuntimeRepairQueue.counts,
-      row: list(hostedFallbackRuntimeRepairQueue.rows).find(row => row.url === 'https://community.youreverydayai.com/') || null,
-      retryBatch: hostedFallbackRuntimeRepairQueue.browserChallengeFallbackReview?.retryBatch || null,
+      counts: operatorEscalationRuntimeRepairQueue.counts,
+      row: list(operatorEscalationRuntimeRepairQueue.rows).find(row => row.url === 'https://community.youreverydayai.com/') || null,
+      retryBatch: operatorEscalationRuntimeRepairQueue.browserChallengeFallbackReview?.retryBatch || null,
     }),
   )
   const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({

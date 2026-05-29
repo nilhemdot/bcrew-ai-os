@@ -2747,6 +2747,216 @@ button {
   letter-spacing: 0;
 }
 
+.truth-head {
+  align-items: flex-end;
+}
+
+.truth-head-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.truth-head-stats span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  min-height: 28px;
+  padding: 5px 9px;
+  border-radius: var(--r-sm);
+  background: var(--grey-1);
+  color: var(--grey-d);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  line-height: 1.1;
+}
+
+.truth-head-stats b {
+  color: var(--ink);
+  font-size: var(--t-sm);
+}
+
+.system-truth {
+  display: grid;
+  gap: 14px;
+}
+
+.truth-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.truth-summary article,
+.truth-system-card,
+.truth-blockers {
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-sm);
+  background: var(--white);
+  box-shadow: 0 1px 3px rgba(10, 15, 26, 0.04);
+}
+
+.truth-summary article {
+  min-height: 136px;
+  padding: 16px;
+}
+
+.truth-summary span,
+.truth-system-top span,
+.truth-blocker-head span,
+.truth-blocker-list span {
+  color: var(--blue);
+  font-family: var(--display);
+  font-size: var(--t-xs);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.truth-summary h3,
+.truth-system-card h3 {
+  margin: 7px 0 8px;
+  font-family: var(--display);
+  font-size: var(--t-lg);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.truth-summary p,
+.truth-system-card p,
+.truth-blocker-list p {
+  margin: 0;
+  color: var(--grey-d);
+  font-size: var(--t-sm);
+  line-height: 1.45;
+}
+
+.truth-system-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.truth-system-card {
+  display: flex;
+  min-height: 252px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  border-left: 3px solid var(--blue);
+  overflow: hidden;
+}
+
+.truth-system-card.running,
+.truth-system-card.built {
+  border-left-color: var(--green);
+}
+
+.truth-system-card.blocked {
+  border-left-color: var(--amber);
+}
+
+.truth-system-top {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.truth-system-top small {
+  max-width: 58%;
+  overflow: hidden;
+  color: var(--grey-d);
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  line-height: 1.25;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.truth-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: auto;
+}
+
+.truth-counts span {
+  display: flex;
+  min-height: 48px;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px;
+  border-radius: var(--r-sm);
+  background: var(--grey-1);
+  color: var(--grey-d);
+  font-size: var(--t-micro);
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.truth-counts b {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: var(--t-lg);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.truth-next {
+  min-height: 42px;
+  padding-top: 10px;
+  border-top: 1px solid var(--grey-line);
+  color: var(--ink);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.truth-blockers {
+  padding: 16px;
+}
+
+.truth-blocker-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.truth-blocker-head small {
+  color: var(--grey-d);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+
+.truth-blocker-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.truth-blocker-list article {
+  min-height: 124px;
+  padding: 12px;
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-sm);
+  background: var(--grey-1);
+}
+
+.truth-blocker-list strong {
+  display: block;
+  margin: 6px 0;
+  font-size: var(--t-sm);
+  line-height: 1.2;
+}
+
 .extractor-grid,
 .evidence-grid,
 .parity-grid,
@@ -4665,6 +4875,9 @@ button {
 
   .source-grid,
   .leader-columns,
+  .truth-summary,
+  .truth-system-grid,
+  .truth-blocker-list,
   .extractor-grid,
   .parity-grid,
   .evidence-grid,
@@ -4703,6 +4916,10 @@ button {
   }
 
   .director-head-stats {
+    justify-content: flex-start;
+  }
+
+  .truth-head-stats {
     justify-content: flex-start;
   }
 

@@ -189,7 +189,7 @@ async function main() {
     const unsafeResults = results.filter(result => result.unsafeSideEffectDetected === true)
     const safelyTerminalRows = results.filter(result =>
       result.ok === true ||
-      result.hostedFallbackRequired === true ||
+      result.operatorEscalationRequired === true ||
       /failed_closed|blocked_before_run/.test(String(result.status || ''))
     )
     const systemOk = unsafeResults.length === 0 && safelyTerminalRows.length === results.length
@@ -204,7 +204,7 @@ async function main() {
       counts: {
         selectedRows: loaded.selectedRows.length,
         completedRows: results.filter(result => result.ok === true).length,
-        hostedFallbackRequiredRows: results.filter(result => result.hostedFallbackRequired === true).length,
+        operatorEscalationRequiredRows: results.filter(result => result.operatorEscalationRequired === true).length,
         safelyParkedRows: safelyTerminalRows.filter(result => result.ok !== true).length,
         unsafeRows: unsafeResults.length,
       },
@@ -213,7 +213,7 @@ async function main() {
         ok: result.ok,
         url: result.packet?.sourcePacket?.url || '',
         sourceFamily: result.packet?.sourcePacket?.sourceFamily || '',
-        hostedFallbackRequired: result.hostedFallbackRequired === true,
+        operatorEscalationRequired: result.operatorEscalationRequired === true,
         unsafeSideEffectDetected: result.unsafeSideEffectDetected === true,
         pagesRead: result.execution?.crawlItem?.metadata?.pagesRead || 0,
       })),

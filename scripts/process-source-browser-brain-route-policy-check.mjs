@@ -133,15 +133,15 @@ async function main() {
   addCheck(
     checks,
     dogfood.ok,
-    'dogfood proves deterministic, local hands, source-session, API model, Browserbase bakeoff, and blocked action routing',
+    'dogfood proves deterministic, local hands, source-session, API model, hosted-browser block, and blocked action routing',
     dogfood.cases.filter(testCase => !testCase.ok).map(testCase => `${testCase.name}:${testCase.routeId}/${testCase.status}`).join(', ') || 'all dogfood cases passed',
   )
   addCheck(
     checks,
     dogfood.cases.some(testCase => testCase.name === 'subscription_label_blocks_before_stagehand' && testCase.ok) &&
-      dogfood.cases.some(testCase => testCase.name === 'browserbase_blocks_without_bakeoff' && testCase.ok) &&
-      dogfood.cases.some(testCase => testCase.name === 'browserbase_bakeoff_allowed_only_tiny' && testCase.ok),
-    'policy blocks subscription-label Stagehand routes and keeps Browserbase bakeoff-only',
+      dogfood.cases.some(testCase => testCase.name === 'hosted_browser_blocks_even_when_requested' && testCase.ok) &&
+      dogfood.cases.some(testCase => testCase.name === 'stale_browserbase_bakeoff_flag_still_blocks' && testCase.ok),
+    'policy blocks subscription-label Stagehand routes and blocks hosted Browserbase even if stale flags exist',
     dogfood.cases.map(testCase => `${testCase.name}:${testCase.routeId}`).join(', '),
   )
   addCheck(
@@ -166,7 +166,7 @@ async function main() {
       liveCard.lane !== 'done' &&
       includesAll(`${liveCard.nextAction || ''} ${liveCard.statusNote || ''} ${liveCard.summary || ''}`, [
         'deterministic',
-        'Browserbase',
+        'Hosted',
         'Harlan',
       ]),
     'live backlog card exists and keeps brain route policy open as P0 scoped work',
@@ -186,9 +186,9 @@ async function main() {
       'local_hands_source_specific_runner',
       'source_session_broker_harlan_auth',
       'stagehand_local_api_brain',
-      'browserbase_bakeoff_fallback',
+      'blocked_hosted_browser_not_approved_for_sprint',
       'blocked_unsupported_model_route',
-      'blocked_browserbase_bakeoff_not_approved',
+      'browserbase_parked_outside_human_web_agent_v1',
     ]),
     'policy source covers all approved source-browser brain routes',
     'lib/source-browser-brain-route-policy.js',
@@ -223,7 +223,7 @@ async function main() {
       'deterministic worker first',
       'local virtual browser hands',
       'Source Session Broker',
-      'Browserbase bakeoff',
+      'Browserbase parked',
       'unsupported subscription-style',
     ]),
     'plan documents route order, cost posture, and subscription/API boundary',
@@ -233,7 +233,7 @@ async function main() {
     checks,
     sourceNote.includes('brain route policy') &&
       sourceNote.includes('deterministic worker first') &&
-      sourceNote.includes('Browserbase bakeoff'),
+      sourceNote.includes('Browserbase is parked'),
     'source note documents the route policy in the source-browser protocol',
     'docs/source-notes/source-browser-agent-protocol-scope-2026-05-28.md',
   )

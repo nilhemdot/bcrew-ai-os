@@ -75,16 +75,16 @@ async function main() {
     rowId: 'fallback-public-guide',
     url: 'https://example.com/agent-browser-guide',
     bucketId: 'public-web-resources',
-    sourceType: 'public_or_free_source',
-    host: 'example.com',
-    label: 'Agent browser guide',
-    reason: 'Saved run saw Just a moment... checking your browser instead of source content.',
-    fallbackPlan: {
-      status: 'browser_challenge_fallback_required',
-      route: 'clean_isolated_retry_then_hosted_browser_fallback',
-      sourceSessionRequired: false,
-      normalChromeProfileAllowed: false,
-    },
+      sourceType: 'public_or_free_source',
+      host: 'example.com',
+      label: 'Agent browser guide',
+      reason: 'Saved run saw Just a moment... checking your browser instead of source content.',
+      fallbackPlan: {
+        status: 'browser_challenge_fallback_required',
+        route: 'clean_isolated_retry_then_harlan_operator',
+        sourceSessionRequired: false,
+        normalChromeProfileAllowed: false,
+      },
   }
   const publicPacket = buildSourceBrowserFallbackRetryPacket({
     row: publicRow,
@@ -98,14 +98,14 @@ async function main() {
       bucketId: 'free-communities',
       sourceType: 'public_community_bridge',
       host: 'community.example.com',
-      label: 'Public community bridge',
-      reason: 'Public bridge hit an interstitial and should retry clean before any source-session path.',
-      fallbackPlan: {
-        status: 'browser_challenge_fallback_required',
-        route: 'clean_isolated_retry_then_hosted_browser_fallback',
-        sourceSessionRequired: false,
-        normalChromeProfileAllowed: false,
-      },
+        label: 'Public community bridge',
+        reason: 'Public bridge hit an interstitial and should retry clean before any source-session path.',
+        fallbackPlan: {
+          status: 'browser_challenge_fallback_required',
+          route: 'clean_isolated_retry_then_harlan_operator',
+          sourceSessionRequired: false,
+          normalChromeProfileAllowed: false,
+        },
     },
     mode: 'synthetic_fixture',
     persist: true,
@@ -150,14 +150,14 @@ async function main() {
     bucketId: 'free-communities',
     sourceType: 'skool_free_community',
     host: 'skool.com',
-    label: 'Chase AI community',
-    reason: 'Skool free community needs isolated source-session proof.',
-    fallbackPlan: {
-      status: 'browser_challenge_fallback_required',
-      route: 'source_specific_session_then_hosted_browser_fallback',
-      sourceSessionRequired: true,
-      normalChromeProfileAllowed: false,
-    },
+      label: 'Chase AI community',
+      reason: 'Skool free community needs isolated source-session proof.',
+      fallbackPlan: {
+        status: 'browser_challenge_fallback_required',
+        route: 'source_specific_session_then_harlan_operator',
+        sourceSessionRequired: true,
+        normalChromeProfileAllowed: false,
+      },
   }
   const skoolPacket = buildSourceBrowserFallbackRetryPacket({ row: skoolRow })
   const paidAuthPacket = buildSourceBrowserFallbackRetryPacket({
@@ -227,9 +227,9 @@ async function main() {
   addCheck(
     checks,
     fallbackSource.includes('executeSourceBrowserAgentRun') &&
-      fallbackSource.includes('source_browser_fallback_hosted_fallback_required') &&
+      fallbackSource.includes('source_browser_fallback_operator_escalation_required') &&
       fallbackSource.includes('normalChromeProfileAllowed: false'),
-    'fallback executor reuses Source Browser Agent and fails to hosted fallback when clean retry still hits challenge',
+    'fallback executor reuses Source Browser Agent and parks for Harlan/operator escalation when clean retry still hits challenge',
     'lib/source-browser-fallback-executor.js',
   )
   addCheck(
@@ -240,14 +240,14 @@ async function main() {
       !/just a moment|checking your browser/i.test(publicPacket.sourcePacket.preview || '') &&
       /just a moment|checking your browser/i.test(publicPacket.fallbackPlan.previousBlocker || '') &&
       publicPacket.cleanRetry.normalChromeProfileAllowed === false &&
-      publicPacket.hostedFallback.status === 'pending_approval',
+      publicPacket.operatorEscalation.status === 'pending_harlan_operator_or_source_session',
     'public challenge row becomes exact clean-isolated retry packet without poisoning current page health',
     JSON.stringify({
       status: publicPacket.status,
       commandReady: Boolean(publicPacket.cleanRetry.command),
       preview: publicPacket.sourcePacket.preview,
       previousBlockerKept: Boolean(publicPacket.fallbackPlan.previousBlocker),
-      hostedFallback: publicPacket.hostedFallback.status,
+      operatorEscalation: publicPacket.operatorEscalation.status,
     }),
   )
   addCheck(
@@ -277,14 +277,14 @@ async function main() {
   )
   addCheck(
     checks,
-    challengeAgain.status === 'source_browser_fallback_hosted_fallback_required' &&
-      challengeAgain.hostedFallbackRequired === true &&
+    challengeAgain.status === 'source_browser_fallback_operator_escalation_required' &&
+      challengeAgain.operatorEscalationRequired === true &&
       challengeAgain.ok === false &&
       hasUnsafeSideEffect(challengeAgain) === false,
     'clean retry that still sees a browser challenge does not count as extraction',
     JSON.stringify({
       status: challengeAgain.status,
-      hostedFallbackRequired: challengeAgain.hostedFallbackRequired,
+      operatorEscalationRequired: challengeAgain.operatorEscalationRequired,
       unsafe: hasUnsafeSideEffect(challengeAgain),
     }),
   )

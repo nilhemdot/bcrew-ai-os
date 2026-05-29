@@ -104,6 +104,7 @@ async function main() {
 
   const liveQueue = buildLinkApprovalSourcePacketQueue(liveLinks)
   const livePackets = liveQueue.map(item => item.sourcePacketPreview)
+  const dogfoodPackets = list(dogfood.cases).map(item => item.packet).filter(Boolean)
   const validationFailures = liveQueue.filter(item => !item.sourcePacketValidation?.ok)
   const runtimeFailures = livePackets.filter(packet => (
     !packet.runtimePlan ||
@@ -120,16 +121,24 @@ async function main() {
     packageJson.scripts?.['process:build-intel-link-approval-source-packets-check'] || 'missing',
   )
   addCheck(checks, /record_source_packet_only_no_crawl/.test(moduleSource) && /startsCrawler: false/.test(moduleSource), 'module blocks crawl-on-approval', 'lib/build-intel-link-approval-source-packets.js')
-  addCheck(checks, /local_playwright_first/.test(moduleSource) && /browserbase_or_browse_skill_only_if_local_reliability_fails/.test(moduleSource), 'module defines local-first runtime plan with hosted fallback only after reliability failure', 'lib/build-intel-link-approval-source-packets.js')
+  addCheck(
+    checks,
+    /local_playwright_first/.test(moduleSource) &&
+      /source_session_broker_or_harlan_operator_escalation_after_local_retries/.test(moduleSource) &&
+      /externalBrowserSpendAllowed: false/.test(moduleSource) &&
+      !/browserbase_or_browse_skill_only_if_local_reliability_fails/.test(moduleSource),
+    'module defines local-first runtime plan with source-session/operator escalation and no external browser spend',
+    'lib/build-intel-link-approval-source-packets.js',
+  )
   addCheck(checks, /Free\/public Skool is not treated the same as paid\/private Skool/i.test(planSource), 'plan distinguishes free/public and paid/private Skool', BUILD_INTEL_LINK_APPROVAL_SOURCE_PACKETS_PLAN_PATH)
   addCheck(checks, /Do not start a worker from the approval action/i.test(planSource), 'plan states approval does not start a worker', BUILD_INTEL_LINK_APPROVAL_SOURCE_PACKETS_PLAN_PATH)
-  addCheck(checks, /local Playwright first/i.test(planSource) && /Browserbase\/Browse-style fallback/i.test(planSource), 'plan documents runtime lane and fallback boundary', BUILD_INTEL_LINK_APPROVAL_SOURCE_PACKETS_PLAN_PATH)
+  addCheck(checks, /local Playwright first/i.test(planSource) && /Source Session Broker\/Harlan operator escalation/i.test(planSource) && /no hosted-browser spend/i.test(planSource), 'plan documents runtime lane and no-spend escalation boundary', BUILD_INTEL_LINK_APPROVAL_SOURCE_PACKETS_PLAN_PATH)
   addCheck(checks, /loadLiveApprovalLinks/.test(scriptSource) && !/fetch\(/.test(scriptSource), 'proof reads live records without browsing external links', BUILD_INTEL_LINK_APPROVAL_SOURCE_PACKETS_SCRIPT_PATH)
   addCheck(checks, dogfood.ok, 'dogfood covers GitHub, Skool, paid/private, short-link, social, and bad broad approvals', JSON.stringify(dogfood.cases.map(item => ({ name: item.name, ok: item.ok }))))
   addCheck(checks, liveLinks.length >= 1, 'live reports expose approval-required links', `${liveLinks.length}`)
   addCheck(checks, livePackets.every(packet => packet.startsCrawler === false && packet.externalWrites === false && packet.writesBacklog === false), 'live source packet previews are no-crawl/no-write', `${livePackets.length}`)
   addCheck(checks, runtimeFailures.length === 0, 'live source packet previews include no-start runtime plans', runtimeFailures.map(packet => packet.exactUrl).join(', ') || 'ok')
-  addCheck(checks, livePackets.some(packet => packet.runtimePlan?.adapter === 'local_playwright_first' && packet.runtimePlan?.runnableAfterPacket === true), 'live queue includes exact public runtime candidates', livePackets.map(packet => `${packet.sourceFamily}:${packet.runtimePlan?.stage}`).slice(0, 8).join(', '))
+  addCheck(checks, dogfoodPackets.some(packet => packet.runtimePlan?.adapter === 'local_playwright_first' && packet.runtimePlan?.runnableAfterPacket === true), 'dogfood includes exact public runtime candidates', dogfoodPackets.map(packet => `${packet.sourceFamily}:${packet.runtimePlan?.stage}`).slice(0, 8).join(', '))
   addCheck(checks, livePackets.some(packet => packet.runtimePlan?.sourceSpecificApprovalRequired === true || packet.runtimePlan?.worker === 'purchase_candidate_scoreboard'), 'live queue includes source-specific or parked runtime boundaries', livePackets.map(packet => `${packet.sourceFamily}:${packet.runtimePlan?.stage}`).slice(0, 8).join(', '))
   addCheck(checks, validationFailures.length === 0, 'live source packet previews validate required boundaries', validationFailures.map(item => item.url).join(', ') || 'ok')
   addCheck(checks, livePackets.some(packet => packet.sourceFamily === 'skool' || packet.proposedDecision === 'hold_paid_private' || packet.proposedDecision === 'manual_source_packet'), 'live queue includes real source-packet review boundaries', livePackets.map(packet => `${packet.sourceFamily}:${packet.proposedDecision}`).slice(0, 8).join(', '))

@@ -50,6 +50,18 @@ import {
   BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
 } from '../lib/build-intel-source-value-grader.js'
 import {
+  DEV_DIRECTOR_DAILY_SOURCE_REVIEW_LOOP_REPORT_ARTIFACT_ID,
+} from '../lib/dev-director-daily-source-review-loop.js'
+import {
+  SOURCE_EXTRACTION_STATE_LEDGER_REPORT_ARTIFACT_ID,
+} from '../lib/source-extraction-state-ledger.js'
+import {
+  MYICOR_MCP_CATALOG_REPORT_ARTIFACT_ID,
+} from '../lib/myicor-mcp-catalog-snapshot.js'
+import {
+  SKOOL_SOURCE_SYSTEM_MAP_REPORT_ARTIFACT_ID,
+} from '../lib/skool-source-system-map.js'
+import {
   DEV_TEAM_HUB_V0_API_ROUTE,
   DEV_TEAM_HUB_V0_CARD_ID,
   DEV_TEAM_HUB_V0_PAGE_ROUTE,
@@ -238,6 +250,10 @@ async function loadLiveSnapshot() {
     markBaselineApiFullWatchBundle,
     directorBundle,
     sourceValueGraderBundle,
+    devDirectorDailySourceReviewBundle,
+    sourceExtractionLedgerBundle,
+    myicorCatalogBundle,
+    skoolSourceSystemMapBundle,
     geminiVideoReviewCalls,
     sourceGodModeHandoffRunItems,
     sourceBrowserAgentRunItems,
@@ -258,6 +274,10 @@ async function loadLiveSnapshot() {
     getIntelligenceReportBundle(MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID, { atomLimit: 300, hitLimit: 300 }),
     getIntelligenceReportBundle(DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID, { atomLimit: 50, hitLimit: 100 }),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
+    getIntelligenceReportBundle(DEV_DIRECTOR_DAILY_SOURCE_REVIEW_LOOP_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
+    getIntelligenceReportBundle(SOURCE_EXTRACTION_STATE_LEDGER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
+    getIntelligenceReportBundle(MYICOR_MCP_CATALOG_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
+    getIntelligenceReportBundle(SKOOL_SOURCE_SYSTEM_MAP_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
     listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 }),
     listSourceCrawlItems({ targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
     listSourceCrawlItems({ targetKey: SOURCE_BROWSER_AGENT_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
@@ -291,6 +311,10 @@ async function loadLiveSnapshot() {
     latestApiFullWatchBundle,
     directorBundle,
     sourceValueGraderBundle,
+    devDirectorDailySourceReviewBundle,
+    sourceExtractionLedgerBundle,
+    myicorCatalogBundle,
+    skoolSourceSystemMapBundle,
     geminiVideoReviewCalls,
     youtubeFullWatchReports,
     sourceGodModeHandoffRunItems: [
@@ -958,6 +982,7 @@ async function main() {
       'blocked_short_link_expansion_needed',
       'previous_source_run_failed_needs_review',
       'previous_source_run_browser_challenge_needs_fallback',
+      'previous_clean_retry_operator_escalation_required',
       'previous_clean_retry_hosted_fallback_required',
     ].includes(row.status))
   const freeCommunityRowsRequiringSessionBroker = sourceGodModeRows
@@ -1088,16 +1113,24 @@ async function main() {
       Number(sourceSessionPrepQueue.counts?.runAllowedNowRows || 0) === 0 &&
       Number(sourceSessionPrepQueue.counts?.rawSecretPrintedRows || 0) === 0 &&
       (!sourceSessionPrepHasFreeCommunityRows || Number(sourceSessionPrepQueue.phaseCounts?.free_source_identity_session_needed || 0) > 0) &&
-      Number(sourceSessionPrepQueue.phaseCounts?.newsletter_signup_lane_needed || 0) > 0 &&
+      (
+        Number(sourceSessionPrepQueue.phaseCounts?.newsletter_signup_lane_needed || 0) > 0 ||
+        Number(sourceSessionPrepQueue.phaseCounts?.newsletter_live_signup_approval_needed || 0) > 0 ||
+        Number(sourceSessionPrepQueue.phaseCounts?.newsletter_intake_review_needed || 0) > 0
+      ) &&
       Number(sourceSessionPrepQueue.phaseCounts?.paid_or_auth_packet_needed || 0) > 0 &&
       list(sourceSessionPrepQueue.clusters).length === Number(sourceSessionPrepQueue.counts?.previewClusters || 0) &&
       list(sourceSessionPrepQueue.clusters).every(cluster => Number(cluster.totalRows || 0) >= 1 && Number(cluster.rawSecretPrintedRows || 0) === 0) &&
-      list(sourceSessionPrepQueue.clusters).some(cluster => /skool\.com\/[^/]+/.test(cluster.label || '')) &&
+      (!sourceSessionPrepHasFreeCommunityRows || list(sourceSessionPrepQueue.clusters).some(cluster => /skool\.com\/[^/]+/.test(cluster.label || ''))) &&
       (!sourceSessionPrepHasCommunityRunnerRows || list(sourceSessionPrepQueue.clusters).some(cluster => cluster.phase === 'community_runner_needed')) &&
       list(sourceSessionPrepQueue.clusters).some(cluster => cluster.phase === 'paid_or_auth_packet_needed') &&
       sourceSessionActionGroups.length === Number(sourceSessionPrepQueue.counts?.actionGroupCount || 0) &&
       (!sourceSessionPrepHasFreeCommunityRows || sourceSessionActionGroups.some(group => group.phase === 'free_source_identity_session_needed' && group.nextAction?.includes('ai@bensoncrew.ca'))) &&
-      sourceSessionActionGroups.some(group => group.phase === 'newsletter_signup_lane_needed' && group.nextAction?.includes('dry-run')) &&
+      sourceSessionActionGroups.some(group =>
+        (group.phase === 'newsletter_signup_lane_needed' && group.nextAction?.includes('dry-run')) ||
+        (group.phase === 'newsletter_live_signup_approval_needed' && group.nextAction?.includes('Steve')) ||
+        (group.phase === 'newsletter_intake_review_needed' && group.nextAction?.includes('Review'))
+      ) &&
       sourceSessionActionGroups.some(group => group.phase === 'paid_or_auth_packet_needed' && group.nextAction?.includes('Steve')) &&
       sourceSessionActionGroups.every(group => Number(group.rawSecretPrintedRows || 0) === 0 && Number(group.totalRows || 0) >= 1 && list(group.topUrls).length >= 1) &&
       (!sourceSessionPrepHasFreeCommunityRows || sourceSessionReadinessChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || ''))) &&
@@ -1105,7 +1138,11 @@ async function main() {
       sourceSessionReadinessChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false) &&
       (!sourceSessionPrepHasFreeCommunityRows || sourceSessionPrepRows.some(row => row.phase === 'free_source_identity_session_needed')) &&
       (!sourceSessionPrepHasCommunityRunnerRows || sourceSessionPrepRows.some(row => row.phase === 'community_runner_needed')) &&
-      sourceSessionPrepRows.some(row => row.phase === 'newsletter_signup_lane_needed') &&
+      sourceSessionPrepRows.some(row => [
+        'newsletter_signup_lane_needed',
+        'newsletter_live_signup_approval_needed',
+        'newsletter_intake_review_needed',
+      ].includes(row.phase)) &&
       sourceSessionPrepRows.some(row => row.phase === 'paid_or_auth_packet_needed') &&
       sourceSessionPrepQueue.sideEffects?.externalWrites === false &&
       jsSource.includes('actionGroups') &&

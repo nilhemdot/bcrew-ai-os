@@ -125,6 +125,8 @@ const els = {
   evidenceGrid: document.getElementById('evidence-grid'),
   approvalReview: document.getElementById('approval-review'),
   sourceLeaderboard: document.getElementById('source-leaderboard'),
+  systemTruth: document.getElementById('system-truth'),
+  truthHeadStats: document.getElementById('truth-head-stats'),
   directorPanel: document.getElementById('director-panel'),
   directorHeadStats: document.getElementById('director-head-stats'),
   youtubeSystem: document.getElementById('youtube-system'),
@@ -2694,6 +2696,97 @@ function renderEvidence(snapshot = {}) {
   `).join('')
 }
 
+function systemTruthTone(value = '') {
+  const normalized = text(value).toLowerCase()
+  if (normalized.includes('blocked')) return 'blocked'
+  if (normalized.includes('running')) return 'running'
+  if (normalized.includes('built')) return 'built'
+  return 'planned'
+}
+
+function renderTruthCountPills(counts = []) {
+  return list(counts).slice(0, 4).map(item => `
+    <span>
+      <b>${escapeHtml(compactNumber(item.value))}</b>
+      ${escapeHtml(item.label)}
+    </span>
+  `).join('')
+}
+
+function renderSystemTruth(snapshot = {}) {
+  if (!els.systemTruth) return
+  const truth = snapshot.systemTruth || {}
+  const summary = truth.summary || {}
+  const systems = list(truth.systems)
+  const blockers = list(truth.blockedApprovalQueue)
+
+  if (els.truthHeadStats) {
+    els.truthHeadStats.innerHTML = `
+      <span><b>${escapeHtml(compactNumber(summary.systemCount || systems.length))}</b> systems</span>
+      <span><b>${escapeHtml(compactNumber(summary.reportCount || list(truth.reports).length))}</b> reports</span>
+      <span><b>${escapeHtml(compactNumber(summary.blockedApprovalCount || blockers.length))}</b> blockers</span>
+    `
+  }
+
+  if (!systems.length) {
+    els.systemTruth.innerHTML = '<article class="loading-card">System truth is not wired into the Dev Hub payload yet.</article>'
+    return
+  }
+
+  els.systemTruth.innerHTML = `
+    <section class="truth-summary">
+      <article>
+        <span>Current sprint</span>
+        <h3>${escapeHtml(truth.activeSprint?.activeBlockerCardId || 'No active blocker')}</h3>
+        <p>${escapeHtml(truth.activeSprint?.activeCardTitle || truth.activeSprint?.nextAction || 'Sprint readback is available from Foundation Current Sprint.')}</p>
+      </article>
+      <article>
+        <span>Source ledger</span>
+        <h3>${escapeHtml(compactNumber(summary.sourceLedgerItemCount || 0))} items</h3>
+        <p>${escapeHtml(`${compactNumber(summary.myicorPriorityPacketCount || 0)} MyICOR packet candidates · ${compactNumber(summary.skoolTargetCount || 0)} Skool targets · ${compactNumber(summary.directorCandidateCount || 0)} Director candidates`)}</p>
+      </article>
+      <article>
+        <span>Guardrails</span>
+        <h3>No hidden runs</h3>
+        <p>Read-only page. No Browserbase default, no normal Chrome profile, no extraction start, no external write, no auto-promotion.</p>
+      </article>
+    </section>
+
+    <section class="truth-system-grid">
+      ${systems.map(system => `
+        <article class="truth-system-card ${escapeHtml(systemTruthTone(system.state || system.label))}">
+          <div class="truth-system-top">
+            <span>${escapeHtml(system.label || system.state || 'system')}</span>
+            <small>${escapeHtml(system.reportArtifactId || system.sourceRoute || 'runtime readback')}</small>
+          </div>
+          <h3>${escapeHtml(system.title)}</h3>
+          <p>${escapeHtml(system.summary)}</p>
+          <div class="truth-counts">
+            ${renderTruthCountPills(system.counts)}
+          </div>
+          <div class="truth-next">${escapeHtml(system.nextAction)}</div>
+        </article>
+      `).join('')}
+    </section>
+
+    <section class="truth-blockers">
+      <div class="truth-blocker-head">
+        <span>Blocked / approval-bound</span>
+        <small>${escapeHtml(compactNumber(blockers.length))} exact packets or boundaries</small>
+      </div>
+      <div class="truth-blocker-list">
+        ${blockers.slice(0, 6).map(row => `
+          <article>
+            <span>${escapeHtml(row.status || row.sourceFamily || 'blocked')}</span>
+            <strong>${escapeHtml(row.title)}</strong>
+            <p>${escapeHtml(row.nextAction || row.targetKey || 'Needs exact source packet before action.')}</p>
+          </article>
+        `).join('') || '<article><span>Clear</span><strong>No approval-bound source rows returned.</strong><p>The daily source review did not expose blocked packet rows.</p></article>'}
+      </div>
+    </section>
+  `
+}
+
 function renderSources() {
   const sources = state.sources
   els.grid.innerHTML = sources.map((source, index) => `
@@ -2866,6 +2959,7 @@ function renderSnapshot(snapshot = {}) {
   renderExtractors(snapshot)
   renderGodModeParity(snapshot)
   renderEvidence(snapshot)
+  renderSystemTruth(snapshot)
   renderApprovalReview(snapshot)
   renderSourceLeaderboard(snapshot)
   renderYoutubeSourceIntelligence(snapshot)
@@ -2882,6 +2976,7 @@ function renderError(error) {
   if (els.godModeParity) els.godModeParity.innerHTML = html
   if (els.approvalReview) els.approvalReview.innerHTML = html
   if (els.sourceLeaderboard) els.sourceLeaderboard.innerHTML = html
+  if (els.systemTruth) els.systemTruth.innerHTML = html
   if (els.youtubeSystem) els.youtubeSystem.innerHTML = html
   if (els.rankingsSystem) els.rankingsSystem.innerHTML = html
   els.grid.innerHTML = html

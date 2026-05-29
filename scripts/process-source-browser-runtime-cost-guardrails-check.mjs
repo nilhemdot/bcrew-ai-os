@@ -90,7 +90,7 @@ async function main() {
       runnerSource.includes('--allowBrowserbase') &&
       runnerSource.includes('--budgetApproved') &&
       runnerSource.includes('--maxEstimatedModelCalls='),
-    'source:agentic-browser CLI exposes explicit Browserbase and model-call budget flags',
+    'source:agentic-browser CLI keeps old Browserbase flags visible but policy blocks them in this sprint',
     packageJson.scripts?.['source:agentic-browser'] || 'missing',
   )
   addCheck(
@@ -103,7 +103,7 @@ async function main() {
   addCheck(
     checks,
     dogfood.ok,
-    'dogfood proves Browserbase opt-in, unsupported model block, proof caps, and tiny bakeoff allowance',
+    'dogfood proves Browserbase is parked, unsupported model block, proof caps, and stale bakeoff flags still block',
     dogfood.cases.filter(testCase => !testCase.ok).map(testCase => `${testCase.name}:${testCase.status}`).join(', ') || 'all guardrail cases passed',
   )
   addCheck(
@@ -142,8 +142,8 @@ async function main() {
   addCheck(
     checks,
     browserbasePolicy.ok === false &&
-      browserbasePolicy.findings.some(finding => finding.check === 'browserbase_requires_explicit_allow_flag'),
-    'Browserbase cannot run from env keys alone',
+      browserbasePolicy.findings.some(finding => finding.check === 'browserbase_parked_outside_human_web_agent_v1'),
+    'Browserbase cannot run from env keys, CLI flags, or stale bakeoff approval',
     JSON.stringify(browserbasePolicy.findings),
   )
   addCheck(

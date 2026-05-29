@@ -32,6 +32,14 @@ Plain English: when an approved source needs an account, the extractor should no
 8. Human-agent loop notifies Steve, waits for DONE, silently reverifies the session, then resumes or fails closed.
 9. Every run records status, artifact ref, source/account labels, stop reason, and raw-secret-hidden posture.
 
+## Operator Visibility Mode
+
+The default approved browser-hands auth route is a local isolated Chrome/Playwright profile that Steve can watch when needed. For MyICOR OAuth, the visible run is:
+
+`npm run myicor:mcp-authorize-agent -- --account=myicor-authorized-member --json --timeoutMs=300000`
+
+Headless is optional and must be explicit with `--headless`. Both modes use the same isolated source profile under `.openclaw`, not Steve's normal Chrome profile, and both write local live-state artifacts (`live-state.json` and `live-screenshot.png`) so an unattended run can still be inspected after the fact. Browserbase/hosted-browser fallback is not part of this route.
+
 ## MyICOR Route
 
 MyICOR/myICOR is one paid course/training platform instance, not its own source family.

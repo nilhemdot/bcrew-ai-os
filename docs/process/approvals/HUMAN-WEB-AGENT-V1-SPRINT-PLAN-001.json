@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "HUMAN-WEB-AGENT-V1-SPRINT-PLAN-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-29T15:28:49.952Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/human-web-agent-v1-sprint-plan-001-plan.md",
+  "approvedPlanSha256": "db6d1953c0061ac84de9184ddbe3c3f5b8d8797e84e89930a939e3341ee8eb56",
+  "approvedRepoHead": "e402593e80b85b3463ab646c41adcdc6d91f20be",
+  "approvalSource": "Steve 2026-05-29 direct instruction: follow the process, create a sprint plan, clear/update Current Sprint if needed, put Human Web Agent V1 into the queue, and start sprinting from the Dev Director top-three evidence.",
+  "notes": "Approves the sprint reset and Steve-requested visible isolated-browser auth observability. No login, purchase, download, post/comment/message, credential mutation, Browserbase work, hosted-browser spend, external write, or auto backlog promotion is approved by this file.",
+  "approvalDigest": "63b2595c17c10868babb302d20c19421e8f6931e65a75fb236177c6a731b26bb"
+}

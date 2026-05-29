@@ -239,6 +239,22 @@ async function main() {
   )
   addCheck(
     checks,
+    myicorMcpSource.includes('writeLiveStateReport') &&
+      myicorMcpSource.includes('live-state.json') &&
+      myicorMcpSource.includes('live-screenshot.png') &&
+      myicorMcpSource.includes("headless: rest.includes('--headless')") &&
+      myicorMcpSource.includes('launchPersistentContext') &&
+      myicorMcpSource.includes('headless,') &&
+      myicorMcpSource.includes('revisit_mcp_authorize_after_app_login') &&
+      myicorMcpSource.includes('click_google_consent_allow') &&
+      myicorMcpSource.indexOf('click_google_consent_allow') < myicorMcpSource.indexOf('click_google_account_dom') &&
+      myicorMcpSource.includes('google_account_choice_click_not_advancing') &&
+      myicorMcpSource.includes('signupOrProfileCreationAllowed: false'),
+    'myICOR OAuth agent has visible-by-default isolated-browser mode, observable live state, and avoids the Google consent/account-choice loop',
+    'scripts/myicor-mcp-oauth.mjs',
+  )
+  addCheck(
+    checks,
     handoffSource.includes('buildSourceSessionActionGroupReadiness') &&
       handoffSource.includes('readinessCheckCount') &&
       handoffSource.includes('credentialReadinessCheckCount'),

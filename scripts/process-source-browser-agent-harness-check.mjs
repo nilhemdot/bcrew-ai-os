@@ -165,9 +165,9 @@ async function main() {
   )
   addCheck(
     checks,
-    dogfood.reports.browserChallengeState.terminalState === 'failed_closed' &&
+      dogfood.reports.browserChallengeState.terminalState === 'failed_closed' &&
       dogfood.reports.browserChallengeState.fallbackPlan?.status === 'browser_challenge_fallback_required' &&
-      dogfood.reports.browserChallengeState.fallbackPlan?.route === 'source_specific_session_then_hosted_browser_fallback' &&
+      dogfood.reports.browserChallengeState.fallbackPlan?.route === 'source_specific_session_then_harlan_operator' &&
       dogfood.reports.browserChallengeState.fallbackPlan?.normalChromeProfileAllowed === false &&
       dogfood.reports.browserChallengeState.fallbackPlan?.recoveryPolicy?.mode === 'bounded_self_recovery_then_human_escalation' &&
       dogfood.reports.browserChallengeState.fallbackPlan?.recoveryPolicy?.humanEscalation?.channel === 'harlan_telegram_operator_lane' &&

@@ -2,11 +2,12 @@
   "approvalSchemaVersion": 2,
   "cardId": "SOURCE-SESSION-BROKER-001",
   "approvedBy": "Steve",
-  "approvedAt": "2026-05-26T13:39:43-04:00",
+  "approvedAt": "2026-05-29T15:29:15.788Z",
   "score": 10,
   "approvedPlanRef": "docs/process/source-session-broker-001-plan.md",
-  "approvedPlanSha256": "eeb63acab1d47ca109d3dd3e6d999b70ac866fe43d32774b73c0eaa437e0c859",
+  "approvedPlanSha256": "c35fa1a17616eb8f0914530a7d35573aa5db41530e76b6c7e623a4b46a1b7fdc",
   "approvedRepoHead": "8cada6d2508b977e0aac0df3491a4ff0372b21c1",
   "approvalSource": "Steve May 26 direct closed-loop source-session correction: approved gold standard is try existing source session, use vaulted credentials/source identities, emit auth-needed to the human agent when MFA or verification blocks, wait/resume/fail closed, use ai@bensoncrew.ca for free-source identities, and prefer MyICOR read-only MCP/connector if available before browser fallback.",
-  "approvalDigest": "5ada553cb0edb38ce8c02bed3bad60047140f8adef7e3b55a8895653a8322d9b"
+  "notes": "Approves Source Session Broker V1 and Steve-requested visible isolated-browser auth observability. No raw secret logging, live external signup, purchase, download, post/comment/message, credential mutation, Browserbase work, hosted-browser spend, or broad paid/private extraction is approved by this file.",
+  "approvalDigest": "9ac3965a8780dd10aee553722e1fbfd431f9f38e9ae8be12775d2afe02df858f"
 }
