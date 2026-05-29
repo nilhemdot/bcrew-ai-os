@@ -933,6 +933,11 @@ function renderSourceRunSummary(summary = {}) {
   const topFiles = list(fileReadback.topCandidates).slice(0, 6)
   const agentReadback = summary.sourceBrowserAgentReadback || {}
   const agentPlans = list(agentReadback.topPlans).slice(0, 6)
+  const brainRouteSummary = Object.entries(agentReadback.brainRouteCounts || {})
+    .filter(([, count]) => Number(count || 0) > 0)
+    .slice(0, 5)
+    .map(([route, count]) => `${route}: ${compactNumber(count || 0)}`)
+    .join(' · ')
   return `
     <section class="yt-source-run-summary">
       <div class="yt-section-head">
@@ -949,11 +954,12 @@ function renderSourceRunSummary(summary = {}) {
             <small>${escapeHtml(compactNumber(agentReadback.planCount || 0))} plans · ${escapeHtml(compactNumber(agentReadback.readyPlanCount || 0))} ready · ${escapeHtml(compactNumber(agentReadback.authNeededCount || 0))} auth needed · ${escapeHtml(compactNumber(agentReadback.failedClosedCount || 0))} failed closed · ${escapeHtml(compactNumber(agentReadback.fallbackPlanCount || 0))} fallback plans · ${escapeHtml(compactNumber(agentReadback.operatorEscalationPreparedCount || 0))} Harlan drafts · ${escapeHtml(compactNumber(agentReadback.unsafeSideEffectRows || 0))} unsafe side effects</small>
           </div>
           <p>${escapeHtml(agentReadback.plainEnglish || '')}</p>
+          ${brainRouteSummary ? `<small>Brain routes: ${escapeHtml(brainRouteSummary)}</small>` : ''}
           <div class="yt-source-run-list">
             ${agentPlans.map(plan => `
               <article>
                 <div>
-                  <span>${escapeHtml(plan.fallbackPlan?.route || plan.route || 'route')} · ${escapeHtml(plan.terminalState || 'state')}</span>
+                  <span>${escapeHtml(plan.brainRoute || plan.fallbackPlan?.route || plan.route || 'route')} · ${escapeHtml(plan.selectedBrain || plan.route || 'brain')}</span>
                   <strong>${escapeHtml(plan.host || plan.sourceId || 'source')}</strong>
                 </div>
                 <p>${escapeHtml(plan.fallbackPlan?.firstStep || plan.stopReason || plan.nextAction || plan.url || '')}</p>
