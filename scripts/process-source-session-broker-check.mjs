@@ -12,6 +12,7 @@ import {
   getBacklogItemsByIds,
   initFoundationDb,
 } from '../lib/foundation-db.js'
+import { readFoundationBuildLogRegistrySource } from '../lib/foundation-build-log-source.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,
@@ -171,7 +172,7 @@ async function main() {
     planSource,
     myicorSourceNote,
     seedSource,
-    closeoutSource,
+    closeoutRegistrySource,
     approval,
   ] = await Promise.all([
     readRepoJson('package.json'),
@@ -185,7 +186,7 @@ async function main() {
     readRepoFile(SOURCE_SESSION_BROKER_PLAN_PATH),
     readRepoFile('docs/source-notes/myicro-training.md'),
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
-    readRepoFile('lib/foundation-build-closeout-source-records.js'),
+    readFoundationBuildLogRegistrySource(repoRoot),
     validatePlanApprovalFile({
       repoRoot,
       approvalRef: SOURCE_SESSION_BROKER_APPROVAL_PATH,
@@ -206,6 +207,9 @@ async function main() {
   const evaluation = evaluateSourceSessionBrokerContract(snapshot)
   const dogfood = buildSourceSessionBrokerDogfoodProof()
   const myicorAuthGuardDogfood = buildMyicorAuthGuardDogfoodProof()
+  const liveCardDone = liveCard?.lane === 'done'
+  const closeoutRecordPresent = closeoutRegistrySource.includes(SOURCE_SESSION_BROKER_CLOSEOUT_KEY) &&
+    closeoutRegistrySource.includes(SOURCE_SESSION_BROKER_CARD_ID)
 
   addCheck(
     checks,
@@ -285,10 +289,15 @@ async function main() {
   )
   addCheck(
     checks,
-    closeoutSource.includes(SOURCE_SESSION_BROKER_CLOSEOUT_KEY) &&
-      closeoutSource.includes(SOURCE_SESSION_BROKER_CARD_ID),
-    'closeout registry contains source-session-broker-v1 record',
-    'lib/foundation-build-closeout-source-records.js',
+    liveCardDone ? closeoutRecordPresent : true,
+    'closeout registry state matches Source Session Broker live lane',
+    liveCardDone
+      ? (closeoutRecordPresent
+          ? `${SOURCE_SESSION_BROKER_CLOSEOUT_KEY} found in split closeout registry`
+          : `${SOURCE_SESSION_BROKER_CLOSEOUT_KEY} missing while live card is done`)
+      : (closeoutRecordPresent
+          ? `${SOURCE_SESSION_BROKER_CLOSEOUT_KEY} already present while card is ${liveCard?.lane || 'missing'}`
+          : `live card is ${liveCard?.lane || 'missing'}; closeout record is required only when done`),
   )
   addCheck(
     checks,
