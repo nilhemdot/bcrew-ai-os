@@ -1184,6 +1184,27 @@ async function main() {
       },
     },
   }
+  const hostedFallbackRuntimeRepairInput = {
+    ...hostedFallbackRequiredInput,
+    itemKey: 'source-browser-agent-runs:youtube-handoff-free-communities-community-yreverydayai-clean-retry-runtime-repair',
+    fingerprint: 'fixture-hosted-fallback-runtime-repair-after-clean-retry',
+    lastError: 'source_god_mode_runtime_needs_repair',
+    processedAt: '2026-05-27T11:11:00.000-04:00',
+    metadata: {
+      ...hostedFallbackRequiredInput.metadata,
+      status: 'source_god_mode_runtime_needs_repair',
+      terminalState: 'completed',
+      stopReason: '',
+      pagesRead: 4,
+      sourceBrowserAgentPlan: {
+        ...hostedFallbackRequiredInput.metadata.sourceBrowserAgentPlan,
+        status: 'ready_to_run_source_tool',
+        terminalState: 'completed',
+        stopReason: '',
+      },
+      fallbackPlan: null,
+    },
+  }
   const hostedFallbackAfterRetryQueue = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence: communityBoundaryQueue.handoffEvidence || {
       sourceRoute: 'fixture.youtube.fullWatchReports.communityBoundary',
@@ -1211,6 +1232,35 @@ async function main() {
     runItems: [
       { ...savedChallengeInput, status: 'succeeded', metadata: savedChallengeInput.metadata },
       hostedFallbackRequiredInput,
+    ],
+  })
+  const hostedFallbackRuntimeRepairQueue = buildSourceGodModeYoutubeHandoffQueue({
+    handoffEvidence: communityBoundaryQueue.handoffEvidence || {
+      sourceRoute: 'fixture.youtube.fullWatchReports.communityBoundary',
+      scannedReportCount: 1,
+      buckets: {
+        'free-communities': {
+          count: 1,
+          items: [{
+            url: 'https://community.youreverydayai.com/sign_up?request_host=community.youreverydayai.com',
+            host: 'community.youreverydayai.com',
+            reportArtifactId: 'report:bad-free-community',
+            sourceVideoId: 'fixture-video-community-boundary',
+            creatorId: 'fixture-a-source',
+            creator: 'Fixture A Source',
+          }],
+        },
+      },
+    },
+    generatedAt: '2026-05-27T11:16:00.000-04:00',
+    sourceValueGrader: {
+      sourceGrades: [
+        { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+      ],
+    },
+    runItems: [
+      { ...savedChallengeInput, status: 'succeeded', metadata: savedChallengeInput.metadata },
+      hostedFallbackRuntimeRepairInput,
     ],
   })
   addCheck(
@@ -1311,6 +1361,28 @@ async function main() {
       counts: hostedFallbackAfterRetryQueue.counts,
       row: list(hostedFallbackAfterRetryQueue.rows).find(row => row.url === 'https://community.youreverydayai.com/') || null,
       retryBatch: hostedFallbackAfterRetryQueue.browserChallengeFallbackReview?.retryBatch || null,
+    }),
+  )
+  addCheck(
+    checks,
+    list(hostedFallbackRuntimeRepairQueue.rows).some(row =>
+      row.url === 'https://community.youreverydayai.com/' &&
+      row.status === 'previous_clean_retry_hosted_fallback_required' &&
+      row.runnable === false &&
+      row.parked === true &&
+      !text(row.runCommand) &&
+      row.existingRunStatus === 'failed' &&
+      row.existingRunRuntimeStatus === 'source_god_mode_runtime_needs_repair' &&
+      row.existingRunLastError === 'hosted_browser_fallback_required_after_clean_retry' &&
+      list(row.previousRunBlockers).some(blocker => blocker.type === 'browser_challenge_not_source_content')
+    ) &&
+      hostedFallbackRuntimeRepairQueue.counts.browserChallengeFallbackRows === 0 &&
+      hostedFallbackRuntimeRepairQueue.browserChallengeFallbackReview?.retryBatch?.selectedRowCount === 0,
+    'clean-retry runtime-repair browser challenges are not returned to the normal handoff loop',
+    JSON.stringify({
+      counts: hostedFallbackRuntimeRepairQueue.counts,
+      row: list(hostedFallbackRuntimeRepairQueue.rows).find(row => row.url === 'https://community.youreverydayai.com/') || null,
+      retryBatch: hostedFallbackRuntimeRepairQueue.browserChallengeFallbackReview?.retryBatch || null,
     }),
   )
   const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({
