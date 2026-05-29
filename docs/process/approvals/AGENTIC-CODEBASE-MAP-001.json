@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AGENTIC-CODEBASE-MAP-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-29T04:13:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/agentic-codebase-map-001-plan.md",
+  "approvedPlanSha256": "b6eab43e2803734e2fbf99847cc8bbf79f0e7d84ac83e1f7bca3a41d3b1c9c8e",
+  "approvedRepoHead": "59997d8ea12b95a870ed6c8f5b7debb8ee077306",
+  "approvalSource": "Steve asked for a codebase map for agentic use and told Codex to keep going, park blockers, and pick the next best scoped card. Approval is for a read-only AIOS-owned repo-map proof only: no third-party plugin install, no generated graph commit, no private/local file scan, no source extraction, no provider call, and no external write.",
+  "constraints": [
+    "Read-only deterministic repo-map proof only",
+    "Exclude MEMORY.md, USER.md, TOOLS.md, memory/, .openclaw/, .claude/, .env, docs/_archive/, and docs/conversation-archive/",
+    "Do not install Understand-Anything or any third-party plugin",
+    "Do not create symlinks or generated knowledge graph artifacts",
+    "Do not run model/provider calls, browser/source extraction, backlog writes, or external writes"
+  ],
+  "approvalDigest": "4188a412fe7b608b6a84e8d920ed568bfb781421b5a69af02b6cb6d126a49993"
+}
