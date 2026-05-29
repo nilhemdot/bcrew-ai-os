@@ -33,6 +33,11 @@ npm run process:foundation-ship -- --card=FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001
 - `recentHandoffFileCount=100`
 - `handoffLineTotal=6620`
 
+## Maintenance
+
+- 2026-05-26: archived 39 additional cold handoff/report files under `docs/_archive/handoffs/2026-05-26-hot-doc-refresh/`.
+- 2026-05-29: archived 12 cold May 18 source-maturity routing closeouts under `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/` after the monthly hot-file count returned to the warning line.
+
 ## Not Done Here
 
 - File-size watch rows remain for `FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001`.
