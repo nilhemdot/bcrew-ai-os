@@ -136,3 +136,35 @@ Best case by morning:
 - Local virtual browser hands first proof built or clearly parked with exact blocker.
 - Browserbase remains a measured fallback, not an uncontrolled cost center.
 - Steve can decide whether to keep Browserbase after a real bakeoff instead of guessing.
+
+## Overnight Implementation Result
+
+Built and proven:
+
+- `SOURCE-BROWSER-RUNTIME-COST-GUARDRAILS-001`
+  - `source:agentic-browser` now defaults to `LOCAL`; Browserbase cannot become default just because keys exist.
+  - Browserbase requires explicit opt-in and proof-sized caps unless a budget approval is passed.
+  - Unsupported subscription-style Stagehand routes such as `codex/gpt-5.5` fail before Stagehand starts.
+  - Cost policy reports browser mode, browser-hour metering, estimated model calls, and model/API-token cap posture.
+  - Proof: `npm run process:source-browser-runtime-cost-guardrails-check -- --json`.
+
+- `LOCAL-VIRTUAL-BROWSER-HANDS-RUNTIME-001` first proof slice
+  - New local no-model/no-Browserbase hands runner: `npm run source:local-browser-hands -- --url=<exact-url> --json`.
+  - Uses isolated Playwright source profiles, not the normal Chrome profile.
+  - Captures DOM/text/screenshot/page-health evidence.
+  - Can make one bounded safe anchor navigation when explicitly requested.
+  - Blocks auth/login/signup/join/checkout/download/form/button/post/message/profile/credential actions before click.
+  - Fails closed on restore/blank/browser-control pages.
+  - Proof: `npm run process:local-virtual-browser-hands-runtime-check -- --json`.
+
+- Source Browser Agent contract/readback wiring
+  - The harness now exposes `source:local-browser-hands` as the local no-model/no-Browserbase adapter.
+  - Proof: `npm run process:source-browser-agent-harness-check -- --json`.
+
+Still not done:
+
+- Real MyICOR/Skool paid extraction.
+- Real free Skool joined/session run.
+- Harlan Telegram live send/resume.
+- Browserbase bakeoff.
+- Broad source-browser autopilot.

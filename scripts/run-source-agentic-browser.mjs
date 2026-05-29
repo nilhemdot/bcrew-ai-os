@@ -23,6 +23,8 @@ function parseArgs(argv = process.argv.slice(2)) {
     json: argv.includes('--json'),
     noAgent: argv.includes('--no-agent'),
     noClick: argv.includes('--no-click'),
+    allowBrowserbase: argv.includes('--allowBrowserbase'),
+    budgetApproved: argv.includes('--budgetApproved'),
   }
   for (const arg of argv) {
     if (arg.startsWith('--target=')) args.target = arg.slice('--target='.length)
@@ -31,6 +33,8 @@ function parseArgs(argv = process.argv.slice(2)) {
     if (arg.startsWith('--model=')) args.model = arg.slice('--model='.length)
     if (arg.startsWith('--env=')) args.env = arg.slice('--env='.length)
     if (arg.startsWith('--maxSteps=')) args.maxSteps = Number(arg.slice('--maxSteps='.length))
+    if (arg.startsWith('--maxBrowserMinutes=')) args.maxBrowserMinutes = Number(arg.slice('--maxBrowserMinutes='.length))
+    if (arg.startsWith('--maxEstimatedModelCalls=')) args.maxEstimatedModelCalls = Number(arg.slice('--maxEstimatedModelCalls='.length))
     if (arg.startsWith('--root=')) args.root = arg.slice('--root='.length)
     if (arg.startsWith('--instruction=')) args.instruction = arg.slice('--instruction='.length)
   }
@@ -53,9 +57,13 @@ async function main() {
     env: args.env || undefined,
     headed: args.headed,
     maxSteps: Number.isFinite(args.maxSteps) ? args.maxSteps : undefined,
+    maxBrowserMinutes: Number.isFinite(args.maxBrowserMinutes) ? args.maxBrowserMinutes : undefined,
+    maxEstimatedModelCalls: Number.isFinite(args.maxEstimatedModelCalls) ? args.maxEstimatedModelCalls : undefined,
     rootDir: args.root ? path.resolve(args.root) : undefined,
     clickFirstSafeObservedAction: !args.noClick,
     runAgent: !args.noAgent,
+    allowBrowserbase: args.allowBrowserbase,
+    budgetApproved: args.budgetApproved,
   })
 
   if (args.json) {

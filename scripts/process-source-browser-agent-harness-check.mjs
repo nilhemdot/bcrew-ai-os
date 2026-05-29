@@ -114,6 +114,17 @@ async function main() {
   )
   addCheck(
     checks,
+    snapshot.runtimeAdapters?.some(adapter =>
+      adapter.adapterId === 'source:local-browser-hands' &&
+      adapter.proofCommand === 'npm run process:local-virtual-browser-hands-runtime-check -- --json' &&
+      /no_model_no_browserbase/.test(adapter.posture || '') &&
+      adapter.forbiddenActions?.includes('normal_chrome_profile')
+    ),
+    'harness includes local virtual browser hands adapter as no-model/no-Browserbase proof route',
+    JSON.stringify(snapshot.runtimeAdapters || []),
+  )
+  addCheck(
+    checks,
     dogfood.ok,
     'dogfood routes public, repo, newsletter, free Skool, MyICOR, browser-state, and dangerous-action cases correctly',
     dogfood.cases.filter(testCase => !testCase.ok).map(testCase => `${testCase.name}:${testCase.status}`).join(', ') || 'all dogfood cases passed',
@@ -218,6 +229,8 @@ async function main() {
       'newsletter:intake',
       'skool:free-god-mode',
       'source-session-broker',
+      'source:local-browser-hands',
+      'LOCAL_VIRTUAL_BROWSER_HANDS_CARD_ID',
       'buildSourceBrowserAgentCrawlItemInput',
       'sourceBrowserAgentPlan',
       'evaluateSourceBrowserPageHealth',
@@ -242,6 +255,7 @@ async function main() {
       'skool:free-god-mode',
       'Newsletter intake',
       'Source Session Broker',
+      'source:local-browser-hands',
     ]),
     'source note documents the same harness and build order Steve approved',
     'docs/source-notes/source-browser-agent-protocol-scope-2026-05-28.md',
