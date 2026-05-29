@@ -262,6 +262,7 @@ async function main() {
       fixtureReadiness.counts.missingCredentialCount >= 1 &&
       fixtureChecks.some(check => check.checkId === 'skool-free-source-identity' && check.status === 'present') &&
       fixtureChecks.some(check => check.checkId === 'newsletter-source-identity' && check.kind === 'source_identity_mailbox_metadata' && check.status === 'delegated_mailbox_ready' && check.source === CREATOR_NEWSLETTER_SOURCE && check.secretRef === CREATOR_NEWSLETTER_MAILBOX_SOURCE_ID && check.blocksReadiness === false) &&
+      fixtureChecks.some(check => check.checkId === 'newsletter-confirmation-readback' && check.kind === 'archive_confirmation_readback' && check.status === 'readback_available_after_submit' && /newsletter:confirmation-readback/.test(check.statusCommand || '') && /SRC-GMAIL-001/.test(check.secretRef || '')) &&
       fixtureChecks.some(check => check.checkId === 'myicor-google-sso-credential' && check.status === 'present' && check.account === SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT) &&
       fixtureChecks.some(check => check.checkId === 'myicor-mcp-oauth-token' && check.status === 'missing') &&
       fixtureChecks.some(check => check.checkId === 'myicor-google-sso-free-account-row-ignored' && check.account === SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT && check.blocksReadiness === false) &&
@@ -287,6 +288,7 @@ async function main() {
       liveChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /paid_course_training_platforms/.test(check.statusCommand || '') && /myicor\.com/.test(check.statusCommand || '')) &&
       liveChecks.some(check => /newsletter:intake/.test(check.statusCommand || '')) &&
       liveChecks.some(check => check.checkId === 'newsletter-source-identity' && check.kind === 'source_identity_mailbox_metadata' && check.status === 'delegated_mailbox_ready' && check.source === CREATOR_NEWSLETTER_SOURCE && check.secretRef === CREATOR_NEWSLETTER_MAILBOX_SOURCE_ID && check.blocksReadiness === false && /google:health/.test(check.statusCommand || '')) &&
+      liveChecks.some(check => check.checkId === 'newsletter-confirmation-readback' && check.kind === 'archive_confirmation_readback' && /newsletter:confirmation-readback/.test(check.statusCommand || '') && /--json/.test(check.statusCommand || '') && check.secretRef === CREATOR_NEWSLETTER_MAILBOX_SOURCE_ID) &&
       liveChecks.some(check => check.checkId === 'myicor-google-sso-credential' && check.source === MYICOR_GOOGLE_SSO_SOURCE && check.account === SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT) &&
       liveChecks.some(check => check.checkId === 'myicor-mcp-oauth-token' && check.source === MYICOR_MCP_OAUTH_SOURCE && check.account === MYICOR_MCP_OAUTH_ACCOUNT) &&
       liveChecks.some(check => check.checkId === 'myicor-google-sso-free-account-row-ignored' && check.blocksReadiness === false) &&
