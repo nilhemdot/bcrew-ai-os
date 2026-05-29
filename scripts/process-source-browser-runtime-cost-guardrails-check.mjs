@@ -7,9 +7,18 @@ import { fileURLToPath } from 'node:url'
 
 import {
   SOURCE_AGENTIC_BROWSER_CARD_ID,
+  SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_MODEL,
+  SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_ROUTE_KEY,
+  SOURCE_AGENTIC_BROWSER_UNSUPPORTED_SUBSCRIPTION_ROUTE_MODEL,
   buildSourceAgenticBrowserCostGuardrailDogfood,
   buildSourceAgenticBrowserCostPolicy,
 } from '../lib/source-agentic-browser-runtime.js'
+import {
+  buildRuntimeModelLiteralPolicyFindingInput,
+} from '../lib/llm-runtime-model-literal-policy.js'
+import {
+  DEFAULT_LLM_ROUTES,
+} from '../lib/llm-router.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -42,27 +51,29 @@ function sourceContainsRawSecretLeak(source = '') {
 async function main() {
   const args = parseArgs()
   const checks = []
-  const [packageJson, runtimeSource, runnerSource, checkpointSource] = await Promise.all([
+  const [packageJson, runtimeSource, runnerSource, checkpointSource, llmRouterSource] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile('lib/source-agentic-browser-runtime.js'),
     readRepoFile('scripts/run-source-agentic-browser.mjs'),
     readRepoFile('docs/handoffs/2026-05-28-source-browser-cost-virtual-desktop-checkpoint.md'),
+    readRepoFile('lib/llm-router.js'),
   ])
   const dogfood = buildSourceAgenticBrowserCostGuardrailDogfood()
+  const stagehandProofRoute = DEFAULT_LLM_ROUTES.find(route => route.routeKey === SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_ROUTE_KEY)
   const defaultPolicy = buildSourceAgenticBrowserCostPolicy({
-    model: 'openai/gpt-4.1-mini',
+    model: SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_MODEL,
     maxSteps: 1,
     runAgent: false,
   })
   const browserbasePolicy = buildSourceAgenticBrowserCostPolicy({
     env: 'BROWSERBASE',
-    model: 'openai/gpt-4.1-mini',
+    model: SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_MODEL,
     maxSteps: 1,
     runAgent: false,
   })
   const codexPolicy = buildSourceAgenticBrowserCostPolicy({
     env: 'LOCAL',
-    model: 'codex/gpt-5.5',
+    model: SOURCE_AGENTIC_BROWSER_UNSUPPORTED_SUBSCRIPTION_ROUTE_MODEL,
     maxSteps: 1,
     runAgent: false,
   })
@@ -94,6 +105,26 @@ async function main() {
     dogfood.ok,
     'dogfood proves Browserbase opt-in, unsupported model block, proof caps, and tiny bakeoff allowance',
     dogfood.cases.filter(testCase => !testCase.ok).map(testCase => `${testCase.name}:${testCase.status}`).join(', ') || 'all guardrail cases passed',
+  )
+  addCheck(
+    checks,
+    SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_MODEL &&
+      stagehandProofRoute?.provider &&
+      stagehandProofRoute?.model &&
+      `${stagehandProofRoute.provider}/${stagehandProofRoute.model}` === SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_MODEL &&
+      runtimeSource.includes(SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_ROUTE_KEY) &&
+      llmRouterSource.includes('DEFAULT_SOURCE_AGENTIC_BROWSER_STAGEHAND_MODEL'),
+    'Stagehand proof model is read from the LLM router-owned route key',
+    `${SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_ROUTE_KEY} -> ${SOURCE_AGENTIC_BROWSER_STAGEHAND_PROOF_MODEL}`,
+  )
+  addCheck(
+    checks,
+    buildRuntimeModelLiteralPolicyFindingInput({
+      relativePath: 'scripts/process-source-browser-runtime-cost-guardrails-check.mjs',
+      text: await readRepoFile('scripts/process-source-browser-runtime-cost-guardrails-check.mjs'),
+    }).risk === false,
+    'cost guardrail proof script does not own exact runtime model literals',
+    'model route imported from source-agentic browser runtime/LLM router',
   )
   addCheck(
     checks,
