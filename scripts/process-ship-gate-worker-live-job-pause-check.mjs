@@ -98,7 +98,7 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/process/foundation-ship-gate.md',
-      'docs/handoffs/2026-05-18-source-maturity-fub-monitoring-gap-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-fub-monitoring-gap-repair-closeout.md',
     ],
     existingScripts: [
       'scripts/process-foundation-ship.mjs',

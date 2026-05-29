@@ -102,8 +102,8 @@ function buildExistingWorkCheck() {
       'lib/intelligence-synthesis-facts.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md',
-      'docs/handoffs/2026-05-18-source-maturity-atom-flow-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-atom-flow-repair-closeout.md',
       'docs/strategy/bhag-model.md',
       'docs/source-registry.md',
     ],

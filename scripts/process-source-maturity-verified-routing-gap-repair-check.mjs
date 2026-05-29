@@ -123,8 +123,8 @@ function buildExistingWorkCheck() {
       'lib/action-route-promotion-workflow.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-18-source-maturity-verified-evidence-gap-repair-closeout.md',
-      'docs/handoffs/2026-05-18-source-maturity-verified-atom-flow-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-verified-evidence-gap-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-verified-atom-flow-repair-closeout.md',
       'docs/strategy/bhag-model.md',
       'docs/source-registry.md',
     ],

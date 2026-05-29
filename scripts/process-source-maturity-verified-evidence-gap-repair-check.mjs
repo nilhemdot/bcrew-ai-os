@@ -109,8 +109,8 @@ function buildExistingWorkCheck() {
       'docs/source-notes/freedom-marketing.md',
       'docs/source-registry.md',
       'docs/rebuild/current-state.md',
-      'docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md',
-      'docs/handoffs/2026-05-18-source-maturity-verified-monitoring-gap-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-verified-monitoring-gap-repair-closeout.md',
     ],
     existingScripts: [
       'scripts/process-source-maturity-evidence-gap-repair-check.mjs',
@@ -386,7 +386,7 @@ async function runRepair({ apply = false } = {}) {
   const selection = selectVerifiedEvidenceRepairCandidates({
     sourceContracts: getSourceContracts(),
     sourceMaturityGrid: beforeGrid,
-    monitoringCloseout: await readRepoFile('docs/handoffs/2026-05-18-source-maturity-verified-monitoring-gap-repair-closeout.md'),
+    monitoringCloseout: await readRepoFile('docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-verified-monitoring-gap-repair-closeout.md'),
     sourceRegistry: await readRepoFile('docs/source-registry.md'),
     currentState: await readRepoFile('docs/rebuild/current-state.md'),
   })

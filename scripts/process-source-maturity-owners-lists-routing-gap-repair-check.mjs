@@ -115,9 +115,9 @@ function buildExistingWorkCheck() {
       'lib/action-route-review-inbox.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-18-source-maturity-evidence-gap-repair-closeout.md',
-      'docs/handoffs/2026-05-18-source-maturity-atom-flow-repair-closeout.md',
-      'docs/handoffs/2026-05-18-source-maturity-routing-gap-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-evidence-gap-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-atom-flow-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-routing-gap-repair-closeout.md',
     ],
     existingScripts: [
       'scripts/process-source-maturity-atom-flow-repair-check.mjs',

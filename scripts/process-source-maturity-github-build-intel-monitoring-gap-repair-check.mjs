@@ -103,7 +103,7 @@ function buildExistingWorkCheck() {
       'docs/source-registry.md',
       'docs/source-notes/github-build-intel.md',
       'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-gstack-build-intel-extraction.md',
-      'docs/handoffs/2026-05-18-source-maturity-github-build-intel-trust-gap-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-github-build-intel-trust-gap-repair-closeout.md',
     ],
     existingScripts: [
       'scripts/sync-source-contract-registry.mjs',

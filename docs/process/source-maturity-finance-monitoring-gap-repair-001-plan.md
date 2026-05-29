@@ -23,7 +23,7 @@ Useful operator behavior: Foundation should say finance is manually/on-demand mo
 - The source maturity grid treats `updateMethod`, `refreshSchedule`, or `manualRefresh` as a valid monitoring boundary only when the contract states one.
 - Continuous finance automation, payment reconciliation, and approved finance range reads are not in scope for this card.
 - Existing code is reused: `lib/source-contracts.js`, `lib/source-maturity-grid.js`, `lib/source-maturity-gap-followup.js`, and `lib/source-contract-validation-layer.js`.
-- Existing docs are reused: `docs/source-registry.md`, `docs/rebuild/current-state.md`, and `docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md`.
+- Existing docs are reused: `docs/source-registry.md`, `docs/rebuild/current-state.md`, and `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md`.
 - Existing scripts are reused: `scripts/process-source-maturity-gap-followup-check.mjs`, `scripts/foundation-verify.mjs`, backlog hygiene, and `process:foundation-ship`.
 - Live backlog and Current Sprint truth are reused through the build-lane scaffold path before building_now.
 
@@ -73,7 +73,7 @@ Useful operator behavior: Foundation should say finance is manually/on-demand mo
 - `docs/rebuild/current-state.md`
 - `docs/rebuild/current-plan.md`
 - `docs/process/approvals/SOURCE-MATURITY-FINANCE-MONITORING-GAP-REPAIR-001.json`
-- `docs/handoffs/2026-05-18-source-maturity-finance-monitoring-gap-repair-closeout.md`
+- `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-finance-monitoring-gap-repair-closeout.md`
 
 ## Risks
 

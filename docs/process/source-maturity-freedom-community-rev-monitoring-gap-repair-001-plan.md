@@ -25,7 +25,7 @@ Operator value: this unlocks cleaner source-queue quality for Steve and the team
 - The source maturity grid treats `updateMethod`, `refreshSchedule`, or `manualRefresh` as a valid monitoring boundary only when the contract states one.
 - Continuous Freedom Community Revenue automation, Google Sheets read/write, extraction target creation, and live Google Sheets checks are not in scope for this card.
 - Existing code is reused: `lib/source-contracts.js`, `lib/source-maturity-grid.js`, `lib/source-maturity-gap-followup.js`, and `lib/source-contract-validation-layer.js`.
-- Existing docs are reused: `docs/source-registry.md`, `docs/rebuild/current-state.md`, and `docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md`.
+- Existing docs are reused: `docs/source-registry.md`, `docs/rebuild/current-state.md`, and `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md`.
 - Existing scripts are reused: `scripts/process-source-maturity-gap-followup-check.mjs`, `scripts/foundation-verify.mjs`, backlog hygiene, and `process:foundation-ship`.
 - Live backlog and Current Sprint truth are reused through the build-lane scaffold path before building_now.
 
@@ -76,7 +76,7 @@ Operator value: this unlocks cleaner source-queue quality for Steve and the team
 - `docs/rebuild/current-state.md`
 - `docs/rebuild/current-plan.md`
 - `docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-REV-MONITORING-GAP-REPAIR-001.json`
-- `docs/handoffs/2026-05-18-source-maturity-freedom-community-rev-monitoring-gap-repair-closeout.md`
+- `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-freedom-community-rev-monitoring-gap-repair-closeout.md`
 
 ## Risks
 

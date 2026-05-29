@@ -31,7 +31,7 @@ This unlocks a real operator workflow for Steve and future builders: the source 
 ## Existing Work
 
 - Existing code reused: `lib/source-contracts.js`, `lib/source-contracts-marketing.js`, `lib/source-maturity-grid.js`, `lib/source-maturity-gap-followup.js`, `lib/source-contract-validation-layer.js`, and `lib/build-lane-failure-telemetry.js`.
-- Existing docs reused: `docs/source-registry.md`, `docs/rebuild/current-state.md`, `docs/rebuild/current-plan.md`, and `docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md`.
+- Existing docs reused: `docs/source-registry.md`, `docs/rebuild/current-state.md`, `docs/rebuild/current-plan.md`, and `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md`.
 - Existing scripts reused: `scripts/process-source-maturity-gap-followup-check.mjs`, existing monitoring-gap repair focused scripts, `scripts/foundation-verify.mjs`, backlog hygiene, and `process:foundation-ship`.
 - Live backlog and Current Sprint truth are reused through the build-lane scaffold path before `building_now`.
 - `SOURCE-MATURITY-GAP-FOLLOWUP-001` scoped safe source maturity child-card repairs from live truth.
@@ -91,7 +91,7 @@ This unlocks a real operator workflow for Steve and future builders: the source 
 - `docs/rebuild/current-state.md`
 - `docs/rebuild/current-plan.md`
 - `docs/process/approvals/SOURCE-MATURITY-VERIFIED-MONITORING-GAP-REPAIR-001.json`
-- `docs/handoffs/2026-05-18-source-maturity-verified-monitoring-gap-repair-closeout.md`
+- `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-verified-monitoring-gap-repair-closeout.md`
 
 ## Risks
 

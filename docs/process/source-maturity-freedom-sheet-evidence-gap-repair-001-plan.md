@@ -60,7 +60,7 @@ Add:
 - `scripts/process-source-maturity-freedom-sheet-evidence-gap-repair-check.mjs`
 - `docs/process/source-maturity-freedom-sheet-evidence-gap-repair-001-plan.md`
 - `docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001.json`
-- `docs/handoffs/2026-05-18-source-maturity-freedom-sheet-evidence-gap-repair-closeout.md`
+- `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-freedom-sheet-evidence-gap-repair-closeout.md`
 
 Update:
 

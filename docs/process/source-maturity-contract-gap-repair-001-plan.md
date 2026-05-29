@@ -33,7 +33,7 @@ Operator value for Steve: the useful thing this unlocks is cleaner source maturi
 
 Reuse existing code: `lib/source-contracts.js`, `lib/source-contract-validation-layer.js`, `lib/source-maturity-grid.js`, `lib/source-extraction-coverage.js`, `lib/source-coverage-closeout.js`, `lib/source-maturity-gap-followup.js`, build-lane Current Sprint helpers, Plan Critic, approval integrity, process write guard, source contract registry sync, and closeout records.
 
-Reuse existing docs: `docs/source-notes/video-link-inventory.md`, `docs/source-registry.md`, `docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md`, `docs/rebuild/current-state.md`, and `docs/rebuild/current-plan.md`.
+Reuse existing docs: `docs/source-notes/video-link-inventory.md`, `docs/source-registry.md`, `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md`, `docs/rebuild/current-state.md`, and `docs/rebuild/current-plan.md`.
 
 Reuse existing scripts: `scripts/process-source-maturity-gap-followup-check.mjs`, `scripts/process-source-contract-validation-layer-check.mjs`, `scripts/process-source-maturity-grid-check.mjs`, `scripts/process-source-extraction-coverage-check.mjs`, `scripts/process-source-coverage-closeout-check.mjs`, `npm run source-contract-registry:sync`, backlog hygiene, `foundation:verify`, and `process:foundation-ship`.
 

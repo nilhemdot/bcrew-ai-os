@@ -115,8 +115,8 @@ function buildExistingWorkCheck() {
       'lib/action-route-review-inbox.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-18-source-maturity-freedom-engine-atom-flow-repair-closeout.md',
-      'docs/handoffs/2026-05-18-source-maturity-owners-lists-routing-gap-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-freedom-engine-atom-flow-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-owners-lists-routing-gap-repair-closeout.md',
       'docs/strategy/bhag-model.md',
       'docs/source-registry.md',
     ],

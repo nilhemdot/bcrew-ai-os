@@ -105,7 +105,7 @@ function buildExistingWorkCheck() {
       'docs/source-notes/bhag-builder-lists.md',
       'docs/source-registry.md',
       'docs/rebuild/current-state.md',
-      'docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md',
     ],
     existingScripts: [
       'scripts/process-source-maturity-gap-followup-check.mjs',

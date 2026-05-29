@@ -16,7 +16,7 @@ The card adds one governed `intelligence_synthesis_facts` source fact for each s
 - source contracts in `lib/source-contracts.js` and `lib/source-contracts-marketing.js`
 - source registry rows in `docs/source-registry.md`
 - current-state closeout truth in `docs/rebuild/current-state.md`
-- monitoring repair closeout `docs/handoffs/2026-05-18-source-maturity-verified-monitoring-gap-repair-closeout.md`
+- monitoring repair closeout `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-verified-monitoring-gap-repair-closeout.md`
 
 Existing code/docs/scripts/backlog truth reused:
 
@@ -63,7 +63,7 @@ Add:
 - `scripts/process-source-maturity-verified-evidence-gap-repair-check.mjs`
 - `docs/process/source-maturity-verified-evidence-gap-repair-001-plan.md`
 - `docs/process/approvals/SOURCE-MATURITY-VERIFIED-EVIDENCE-GAP-REPAIR-001.json`
-- `docs/handoffs/2026-05-18-source-maturity-verified-evidence-gap-repair-closeout.md`
+- `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-verified-evidence-gap-repair-closeout.md`
 
 Update:
 

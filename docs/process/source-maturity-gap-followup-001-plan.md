@@ -16,7 +16,7 @@ Foundation now shows source maturity and source coverage closeout truth, but non
 - Each triage row has source ID, next maturity gap, bucket, proposed child repair card, operator action, evidence refs when present, and a not-next boundary.
 - The proof dogfoods a synthetic missing maturity row and fails closed if the triage omits it.
 - Scoped child repair cards are created for atom-flow, contract, source-evidence, and routing maturity gaps without marking them executing.
-- The report is written to `docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md` and states that it is not live extraction or external write work.
+- The report is written to `docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md` and states that it is not live extraction or external write work.
 - `foundation:verify` and full `process:foundation-ship` remain green.
 
 ## Definition Of Done

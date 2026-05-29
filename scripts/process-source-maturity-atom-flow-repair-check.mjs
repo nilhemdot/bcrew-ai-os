@@ -104,8 +104,8 @@ function buildExistingWorkCheck() {
       'lib/source-maturity-evidence-gap-repair.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md',
-      'docs/handoffs/2026-05-18-source-maturity-evidence-gap-repair-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-evidence-gap-repair-closeout.md',
       'docs/source-notes/bhag-builder-lists.md',
       'docs/source-registry.md',
     ],

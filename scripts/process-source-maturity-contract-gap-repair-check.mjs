@@ -108,8 +108,8 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/source-notes/video-link-inventory.md',
       'docs/source-registry.md',
-      'docs/handoffs/2026-05-18-source-maturity-gap-followup-triage.md',
-      'docs/handoffs/2026-05-18-source-maturity-gap-followup-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md',
+      'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-closeout.md',
     ],
     existingScripts: [
       'scripts/process-source-maturity-gap-followup-check.mjs',
