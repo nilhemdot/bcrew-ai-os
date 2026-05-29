@@ -23,6 +23,7 @@ import {
   initFoundationDb,
   updateBacklogItem,
 } from '../lib/foundation-db.js'
+import { readFoundationBuildLogRegistrySource } from '../lib/foundation-build-log-source.js'
 import { Pool } from 'pg'
 
 const execFile = promisify(execFileCallback)
@@ -155,7 +156,7 @@ async function main() {
     currentStateText,
     sprintText,
     buildLogText,
-    buildCloseoutProcessGateRecordsText,
+    buildCloseoutRegistryText,
     hookText,
     packageText,
   ] = await Promise.all([
@@ -164,7 +165,7 @@ async function main() {
     readRepoFile(repoRoot, 'docs/rebuild/current-state.md'),
     readRepoFile(repoRoot, 'lib/foundation-current-sprint.js'),
     readRepoFile(repoRoot, 'lib/foundation-build-log.js'),
-    readRepoFile(repoRoot, 'lib/foundation-build-closeout-process-gate-records.js'),
+    readFoundationBuildLogRegistrySource(repoRoot),
     readRepoFile(repoRoot, 'lib/process-git-hooks.js'),
     readRepoFile(repoRoot, 'package.json'),
   ])
@@ -202,8 +203,8 @@ async function main() {
     ],
   })
   assertIncludes({
-    filePath: 'lib/foundation-build-closeout-process-gate-records.js',
-    text: buildCloseoutProcessGateRecordsText,
+    filePath: 'Foundation build closeout registry',
+    text: buildCloseoutRegistryText,
     needles: [
       'verify-gate-tiering-v1',
       VERIFY_GATE_TIERING_CARD_ID,
