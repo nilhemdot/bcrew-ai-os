@@ -4,7 +4,7 @@ Date: 2026-05-28
 
 ## Current Truth
 
-Steve bought Browserbase, then moved it back to the free plan. Treat Browserbase as a one-month proof/bakeoff, not the default architecture.
+Steve bought the Browserbase Startup plan for one month. Treat that paid month as a proof/bakeoff window, not the default architecture. After the paid month, downgrade/cancel unless the bakeoff proves Browserbase is worth renewing.
 
 The preferred architecture is:
 
@@ -56,7 +56,7 @@ Required behavior:
 - Stagehand cannot default to unsupported `codex` and then fail late.
 - Any API/browser run must show provider, model, env, browser mode, estimated cap, and run cap.
 - Broad overnight Browserbase loops fail closed unless an explicit approved cap exists.
-- Free-plan Browserbase stays proof-only until the bakeoff card says otherwise.
+- Browserbase Startup stays proof-only during the paid month until the bakeoff card says otherwise.
 
 ### 3. Build Local Virtual Browser Hands Proof
 
