@@ -34,6 +34,21 @@ const EXISTING_GOOGLE_SSO_ACCOUNT = 'steve.zahnd@bensoncrew.ca'
 const WRONG_BRANCH_STOP_TEXT = 'If myICOR asks you to Start Free, create a profile, onboard, or sign up, stop. Use Log in / Sign in with Google for the existing paid account.'
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
+function myicorMcpAuthorizeAgentCommand(account = DEFAULT_ACCOUNT) {
+  return `npm run myicor:mcp-authorize-agent -- --account=${account || DEFAULT_ACCOUNT}`
+}
+
+function myicorMcpAuthorizeManualCommand(account = DEFAULT_ACCOUNT) {
+  return `npm run myicor:mcp-authorize -- --account=${account || DEFAULT_ACCOUNT}`
+}
+
+function sourceCredentialStatusCommand({
+  source = DEFAULT_GOOGLE_CREDENTIAL_SOURCE,
+  account = EXISTING_GOOGLE_SSO_ACCOUNT,
+} = {}) {
+  return `npm run credentials:vault -- source:status --source=${source} --account=${account}`
+}
+
 function parseArgs(argv = process.argv.slice(2)) {
   const [command = 'preflight', ...rest] = argv
   const flags = {
@@ -1031,12 +1046,19 @@ async function authorizeAgent({
 async function tools({ account, json = false } = {}) {
   const present = await keychainItemExists({ source: KEYCHAIN_SOURCE, account })
   if (!present) {
+    const agentAuthorizeCommand = myicorMcpAuthorizeAgentCommand(account)
     const result = {
       ok: false,
       account,
       secretRef: buildKeychainSecretRef({ source: KEYCHAIN_SOURCE, account }),
       keychainPresent: false,
-      next: 'Run npm run myicor:mcp-authorize -- --account=myicor-authorized-member',
+      next: `Run ${agentAuthorizeCommand}`,
+      agentAuthorizeCommand,
+      manualAuthorizeCommand: myicorMcpAuthorizeManualCommand(account),
+      googleCredentialSource: DEFAULT_GOOGLE_CREDENTIAL_SOURCE,
+      expectedGoogleAccount: EXISTING_GOOGLE_SSO_ACCOUNT,
+      googleCredentialStatusCommand: sourceCredentialStatusCommand(),
+      wrongBranchStopCondition: WRONG_BRANCH_STOP_TEXT,
       rawSecretPrinted: false,
     }
     if (json) printJson(result)
@@ -1086,12 +1108,19 @@ async function callTool({ account, tool, paramsJson = '{}', json = false } = {})
   }
   const present = await keychainItemExists({ source: KEYCHAIN_SOURCE, account })
   if (!present) {
+    const agentAuthorizeCommand = myicorMcpAuthorizeAgentCommand(account)
     const result = {
       ok: false,
       account,
       secretRef: buildKeychainSecretRef({ source: KEYCHAIN_SOURCE, account }),
       keychainPresent: false,
-      next: 'Run npm run myicor:mcp-authorize -- --account=myicor-authorized-member',
+      next: `Run ${agentAuthorizeCommand}`,
+      agentAuthorizeCommand,
+      manualAuthorizeCommand: myicorMcpAuthorizeManualCommand(account),
+      googleCredentialSource: DEFAULT_GOOGLE_CREDENTIAL_SOURCE,
+      expectedGoogleAccount: EXISTING_GOOGLE_SSO_ACCOUNT,
+      googleCredentialStatusCommand: sourceCredentialStatusCommand(),
+      wrongBranchStopCondition: WRONG_BRANCH_STOP_TEXT,
       rawSecretPrinted: false,
     }
     if (json) printJson(result)

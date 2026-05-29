@@ -24,10 +24,17 @@ import {
   buildSourceGodModeYoutubeHandoffQueue,
 } from '../lib/source-god-mode-youtube-handoff.js'
 import {
+  MYICOR_GOOGLE_SSO_SOURCE,
+  MYICOR_MCP_OAUTH_ACCOUNT,
+  MYICOR_MCP_OAUTH_SOURCE,
   SOURCE_SESSION_READINESS_SCRIPT_PATH,
   buildLiveSourceSessionReadinessReadback,
   buildSourceSessionActionGroupReadiness,
 } from '../lib/source-session-readiness-readback.js'
+import {
+  SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+  SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT,
+} from '../lib/source-session-broker.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -145,7 +152,9 @@ async function buildFixtureReadiness() {
   }
   return buildLiveSourceSessionReadinessReadback({
     prepQueue,
-    keychainExists: async ({ source }) => source === 'skool',
+    keychainExists: async ({ source, account }) =>
+      source === 'skool' ||
+      (source === MYICOR_GOOGLE_SSO_SOURCE && account === SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT),
   })
 }
 
@@ -160,12 +169,16 @@ async function main() {
   const [
     packageJson,
     readinessSource,
+    myicorMcpSource,
+    authResumeSource,
     handoffSource,
     devPageSource,
     devCssSource,
   ] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile('lib/source-session-readiness-readback.js'),
+    readRepoFile('scripts/myicor-mcp-oauth.mjs'),
+    readRepoFile('lib/source-session-auth-resume-packet.js'),
     readRepoFile('lib/source-god-mode-youtube-handoff.js'),
     readRepoFile('public/dev.js'),
     readRepoFile('public/dev.css'),
@@ -193,6 +206,26 @@ async function main() {
   )
   addCheck(
     checks,
+    readinessSource.includes(MYICOR_GOOGLE_SSO_SOURCE) &&
+      readinessSource.includes('myicor-google-sso-credential') &&
+      readinessSource.includes('keychain_optional_metadata') &&
+      readinessSource.includes('blocksReadiness'),
+    'readiness module distinguishes myICOR Google SSO credential, MCP token, and optional ignored rows',
+    'lib/source-session-readiness-readback.js',
+  )
+  addCheck(
+    checks,
+    myicorMcpSource.includes('agentAuthorizeCommand') &&
+      myicorMcpSource.includes('myicor:mcp-authorize-agent') &&
+      myicorMcpSource.includes('manualAuthorizeCommand') &&
+      myicorMcpSource.includes('googleCredentialStatusCommand') &&
+      authResumeSource.includes("command('myicor:mcp-authorize-agent'") &&
+      authResumeSource.includes('runs_agent_driven_readonly_myicor_oauth_and_stops_for_human_verification'),
+    'myICOR missing-token and auth-resume guidance points to agent-driven OAuth first',
+    'scripts/myicor-mcp-oauth.mjs + lib/source-session-auth-resume-packet.js',
+  )
+  addCheck(
+    checks,
     handoffSource.includes('buildSourceSessionActionGroupReadiness') &&
       handoffSource.includes('readinessCheckCount') &&
       handoffSource.includes('credentialReadinessCheckCount'),
@@ -215,7 +248,9 @@ async function main() {
       fixtureReadiness.counts.presentCredentialCount >= 1 &&
       fixtureReadiness.counts.missingCredentialCount >= 1 &&
       fixtureChecks.some(check => check.checkId === 'skool-free-source-identity' && check.status === 'present') &&
+      fixtureChecks.some(check => check.checkId === 'myicor-google-sso-credential' && check.status === 'present' && check.account === SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT) &&
       fixtureChecks.some(check => check.checkId === 'myicor-mcp-oauth-token' && check.status === 'missing') &&
+      fixtureChecks.some(check => check.checkId === 'myicor-google-sso-free-account-row-ignored' && check.account === SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT && check.blocksReadiness === false) &&
       fixtureChecks.some(check => check.checkId === 'myicor-wrong-signup-branch-guard' && check.status === 'guard_required') &&
       fixtureChecks.some(check => check.checkId === 'myicor-google-sso-mfa-loop' && check.status === 'auth_needed_loop_required') &&
       fixtureChecks.some(check => /credentials:vault -- source:status/.test(check.statusCommand || '')) &&
@@ -237,6 +272,9 @@ async function main() {
       liveChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /skool_free_community/.test(check.statusCommand || '')) &&
       liveChecks.some(check => /source:session-probe/.test(check.statusCommand || '') && /paid_course_training_platforms/.test(check.statusCommand || '') && /myicor\.com/.test(check.statusCommand || '')) &&
       liveChecks.some(check => /newsletter:intake/.test(check.statusCommand || '')) &&
+      liveChecks.some(check => check.checkId === 'myicor-google-sso-credential' && check.source === MYICOR_GOOGLE_SSO_SOURCE && check.account === SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT) &&
+      liveChecks.some(check => check.checkId === 'myicor-mcp-oauth-token' && check.source === MYICOR_MCP_OAUTH_SOURCE && check.account === MYICOR_MCP_OAUTH_ACCOUNT) &&
+      liveChecks.some(check => check.checkId === 'myicor-google-sso-free-account-row-ignored' && check.blocksReadiness === false) &&
       liveChecks.some(check => check.checkId === 'myicor-wrong-signup-branch-guard') &&
       liveChecks.some(check => check.checkId === 'myicor-google-sso-mfa-loop') &&
       liveChecks.every(check => check.rawSecretPrinted === false && check.externalActionStarted === false),
@@ -279,6 +317,7 @@ async function main() {
           account: check.account,
           statusCommand: check.statusCommand,
           setupCommand: check.setupCommand,
+          blocksReadiness: check.blocksReadiness,
           rawSecretPrinted: check.rawSecretPrinted,
           externalActionStarted: check.externalActionStarted,
         })),
