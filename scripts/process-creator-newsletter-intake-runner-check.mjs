@@ -7,6 +7,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import {
+  CREATOR_NEWSLETTER_LIVE_SIGNUP_REQUIRED_FLAGS,
   CREATOR_NEWSLETTER_INTAKE_CARD_ID,
   CREATOR_NEWSLETTER_INTAKE_CLI_PATH,
   CREATOR_NEWSLETTER_INTAKE_INBOX_LABEL,
@@ -211,6 +212,50 @@ async function main() {
     },
     now: '2026-05-28T14:05:00.000Z',
   })
+  const externalPolicyCalls = []
+  const externalPolicyBlocked = await runCreatorNewsletterIntake({
+    url: 'https://example.com/newsletter',
+    apply: true,
+    allowExternalSignup: true,
+    fetchImpl: async (url, options = {}) => {
+      externalPolicyCalls.push({ url: String(url), method: options.method || 'GET' })
+      return new Response(page('External Newsletter', `
+        <h1>External Newsletter</h1>
+        <form action="https://example.com/newsletter/subscribe" method="post">
+          <input type="email" name="email">
+          <button type="submit">Subscribe</button>
+        </form>
+      `), { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } })
+    },
+    now: '2026-05-28T14:06:00.000Z',
+  })
+  const externalLiveCalls = []
+  const externalLiveSubmitted = await runCreatorNewsletterIntake({
+    url: 'https://example.com/newsletter',
+    apply: true,
+    allowExternalSignup: true,
+    standingPolicyApproved: true,
+    confirmationReadbackRequired: true,
+    fetchImpl: async (url, options = {}) => {
+      const method = options.method || 'GET'
+      externalLiveCalls.push({
+        url: String(url),
+        method,
+        body: String(options.body || ''),
+      })
+      if (method === 'POST') {
+        return new Response(page('Check Your Inbox', '<h1>Confirm your email</h1>'), { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } })
+      }
+      return new Response(page('External Newsletter', `
+        <h1>External Newsletter</h1>
+        <form action="https://example.com/newsletter/subscribe" method="post">
+          <input type="email" name="email">
+          <button type="submit">Subscribe</button>
+        </form>
+      `), { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } })
+    },
+    now: '2026-05-28T14:07:00.000Z',
+  })
 
   const evaluation = evaluateCreatorNewsletterIntakeReport(dryRun)
   const fixtureHits = Object.fromEntries(fixture.hits.entries())
@@ -224,7 +269,9 @@ async function main() {
   addCheck(
     checks,
     packageJson.scripts?.['newsletter:intake'] === `node --env-file-if-exists=.env ${CREATOR_NEWSLETTER_INTAKE_CLI_PATH}` &&
-      /runCreatorNewsletterIntake/.test(cliSource),
+      /runCreatorNewsletterIntake/.test(cliSource) &&
+      cliSource.includes('--standing-policy-approved') &&
+      cliSource.includes('--confirmation-readback-required'),
     'package exposes operator newsletter intake runner',
     packageJson.scripts?.['newsletter:intake'] || 'missing',
   )
@@ -291,6 +338,32 @@ async function main() {
   )
   addCheck(
     checks,
+    externalPolicyBlocked.status === 'blocked' &&
+      externalPolicyBlocked.reason === 'standing_newsletter_policy_not_approved_for_run' &&
+      externalPolicyBlocked.sideEffects?.externalSignupSubmitted === false &&
+      externalPolicyCalls.length === 1 &&
+      externalPolicyCalls.every(call => call.method === 'GET') &&
+      externalPolicyBlocked.plainEnglish.includes(CREATOR_NEWSLETTER_LIVE_SIGNUP_REQUIRED_FLAGS.join(' ')),
+    'external signup requires explicit policy and confirmation flags before submit',
+    JSON.stringify({ status: externalPolicyBlocked.status, reason: externalPolicyBlocked.reason, calls: externalPolicyCalls, flags: CREATOR_NEWSLETTER_LIVE_SIGNUP_REQUIRED_FLAGS }),
+  )
+  addCheck(
+    checks,
+    externalLiveSubmitted.status === 'external_newsletter_signup_submitted_waiting_confirmation' &&
+      externalLiveSubmitted.ok === true &&
+      externalLiveSubmitted.submitAllowedNow === true &&
+      externalLiveSubmitted.sideEffects?.externalSignupSubmitted === true &&
+      externalLiveSubmitted.sideEffects?.submittedForm === true &&
+      externalLiveSubmitted.sideEffects?.confirmationEmailRead === false &&
+      externalLiveSubmitted.signupPacket?.subscribedStatus === 'pending_confirmation' &&
+      externalLiveSubmitted.signupPacket?.confirmationReadback?.status === 'pending_confirmation_email' &&
+      externalLiveCalls.length === 2 &&
+      externalLiveCalls.some(call => call.method === 'POST' && /email=ai%40bensoncrew\.ca/.test(call.body)),
+    'approved external signup path submits only in fixture fetch and stays pending confirmation readback',
+    JSON.stringify({ status: externalLiveSubmitted.status, sideEffects: externalLiveSubmitted.sideEffects, calls: externalLiveCalls, confirmation: externalLiveSubmitted.signupPacket?.confirmationReadback }),
+  )
+  addCheck(
+    checks,
     handoffSource.includes("runner: 'newsletter:intake'") &&
       handoffSource.includes('npm run newsletter:intake'),
     'YouTube handoff prep points newsletter rows at the dry-run intake command',
@@ -326,6 +399,8 @@ async function main() {
       paid: paidBlocked.reason,
       profile: profileBlocked.reason,
       externalApply: externalApplyBlocked.reason,
+      externalPolicy: externalPolicyBlocked.reason,
+      externalLive: externalLiveSubmitted.status,
     },
     checks,
     failures,

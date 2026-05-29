@@ -16,6 +16,8 @@ function parseArgs(argv = process.argv.slice(2)) {
     apply: argv.includes('--apply'),
     allowLocalFixture: argv.includes('--allowLocalFixture') || argv.includes('--allow-local-fixture'),
     allowExternalSignup: argv.includes('--allowExternalSignup') || argv.includes('--allow-external-signup'),
+    standingPolicyApproved: argv.includes('--standingPolicyApproved') || argv.includes('--standing-policy-approved'),
+    confirmationReadbackRequired: argv.includes('--confirmationReadbackRequired') || argv.includes('--confirmation-readback-required'),
   }
   for (const arg of argv) {
     if (arg.startsWith('--url=')) args.url = arg.slice('--url='.length)
@@ -37,6 +39,8 @@ async function main() {
     apply: args.apply,
     allowLocalFixture: args.allowLocalFixture,
     allowExternalSignup: args.allowExternalSignup,
+    standingPolicyApproved: args.standingPolicyApproved,
+    confirmationReadbackRequired: args.confirmationReadbackRequired,
     maxBytes: Number.isFinite(args.maxBytes) ? args.maxBytes : undefined,
   })
   const packet = buildCreatorNewsletterIntakePacket(report)
@@ -53,6 +57,8 @@ async function main() {
   console.log(`Safe form: ${Boolean(report.selectedForm)}`)
   console.log(`Submit allowed now: ${Boolean(report.submitAllowedNow)}`)
   console.log(`External signup submitted: ${Boolean(report.sideEffects?.externalSignupSubmitted)}`)
+  console.log(`Subscribed status: ${packet.subscribedStatus}`)
+  console.log(`Confirmation readback: ${packet.confirmationReadback?.status || 'missing'}`)
   console.log(report.plainEnglish || packet.nextAction)
 
   if (report.ok !== true) process.exitCode = 1
