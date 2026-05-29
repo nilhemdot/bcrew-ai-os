@@ -65,6 +65,9 @@ import {
   SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
   SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
 } from '../lib/source-god-mode-youtube-handoff.js'
+import {
+  SOURCE_BROWSER_AGENT_TARGET_KEY,
+} from '../lib/source-browser-agent-harness.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -236,6 +239,7 @@ async function loadLiveSnapshot() {
     sourceValueGraderBundle,
     geminiVideoReviewCalls,
     sourceGodModeHandoffRunItems,
+    sourceBrowserAgentRunItems,
   ] = await Promise.all([
     getFoundationSnapshot(),
     listYoutubeFullWatchReportArtifacts({ limit: 500 }),
@@ -255,6 +259,7 @@ async function loadLiveSnapshot() {
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
     listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 }),
     listSourceCrawlItems({ targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
+    listSourceCrawlItems({ targetKey: SOURCE_BROWSER_AGENT_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
   ])
   const target = list(extractionControl.targets)
     .find(item => item.targetKey === YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY) || null
@@ -287,7 +292,10 @@ async function loadLiveSnapshot() {
     sourceValueGraderBundle,
     geminiVideoReviewCalls,
     youtubeFullWatchReports,
-    sourceGodModeHandoffRunItems,
+    sourceGodModeHandoffRunItems: [
+      ...list(sourceGodModeHandoffRunItems),
+      ...list(sourceBrowserAgentRunItems),
+    ],
     actionRouter: foundationSnapshot.intelligenceActionRouter || {},
     currentSprint: activeFoundationSprint,
     extractionControl,

@@ -26,6 +26,9 @@ import {
   runSourceGodModeYoutubeHandoffBatch,
   selectSourceGodModeYoutubeHandoffRows,
 } from '../lib/source-god-mode-youtube-handoff.js'
+import {
+  SOURCE_BROWSER_AGENT_TARGET_KEY,
+} from '../lib/source-browser-agent-harness.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {
@@ -61,6 +64,10 @@ function list(value) {
   return Array.isArray(value) ? value : []
 }
 
+function combineRunItems(...groups) {
+  return groups.flatMap(group => list(group))
+}
+
 function sourceValueGraderFromBundle(bundle = {}) {
   const report = bundle.report || bundle
   return report?.structuredOutputJson || report?.structured_output_json || {}
@@ -94,19 +101,21 @@ async function loadQueue(args = {}) {
     youtubeFullWatchReports,
     sourceValueGraderBundle,
     sourceGodModeHandoffRunItems,
+    sourceBrowserAgentRunItems,
   ] = await Promise.all([
     listYoutubeFullWatchReportArtifacts({ limit: 800 }),
     getIntelligenceReportBundle(BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID, { atomLimit: 10, hitLimit: 10 }),
     listSourceCrawlItems({ targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
+    listSourceCrawlItems({ targetKey: SOURCE_BROWSER_AGENT_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
   ])
   const handoffEvidence = buildYoutubeHandoffEvidenceFromReports(youtubeFullWatchReports || [])
   const queue = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence,
     rowLimit: args.rowLimit,
     sourceValueGrader: sourceValueGraderFromBundle(sourceValueGraderBundle),
-    runItems: sourceGodModeHandoffRunItems,
+    runItems: combineRunItems(sourceGodModeHandoffRunItems, sourceBrowserAgentRunItems),
   })
-  return { queue, handoffEvidence, sourceGodModeHandoffRunItems }
+  return { queue, handoffEvidence, sourceGodModeHandoffRunItems, sourceBrowserAgentRunItems }
 }
 
 async function main() {

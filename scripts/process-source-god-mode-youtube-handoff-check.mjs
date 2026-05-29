@@ -1120,6 +1120,99 @@ async function main() {
     },
     runItems: [{ ...savedChallengeInput, status: 'succeeded', metadata: savedChallengeInput.metadata }],
   })
+  const hostedFallbackRequiredInput = {
+    itemKey: 'source-browser-agent-runs:youtube-handoff-free-communities-community-yreverydayai-clean-retry-failed',
+    targetKey: 'source-browser-agent-runs',
+    sourceId: 'SRC-YOUTUBE-INTEL-001',
+    externalId: 'youtube-handoff:free-communities:https:-community-youreverydayai-com:https://community.youreverydayai.com/',
+    itemType: 'source_browser_agent_execution',
+    status: 'failed',
+    fingerprint: 'fixture-hosted-fallback-required-after-clean-retry',
+    lastError: 'browser_state_blocked',
+    artifactId: 'source-browser-agent-runs:fixture-hosted-fallback-required',
+    discoveredAt: '2026-05-27T11:10:00.000-04:00',
+    processedAt: '2026-05-27T11:10:00.000-04:00',
+    metadata: {
+      sourceBrowserAgentReadbackVersion: 'source-browser-agent-readback-v1',
+      sourceBrowserAgentExecutionVersion: 'source-browser-agent-executor-v1',
+      rowId: 'youtube-handoff:free-communities:https:-community-youreverydayai-com:https://community.youreverydayai.com/',
+      bucketId: 'free-communities',
+      runner: 'source:god-mode',
+      sourceType: 'public_community_bridge',
+      sourceFamily: 'public_free_resources',
+      url: 'https://community.youreverydayai.com/',
+      host: 'community.youreverydayai.com',
+      status: 'failed_closed_browser_state_blocked',
+      terminalState: 'failed_closed',
+      stopReason: 'browser_state_blocked',
+      pagesRead: 0,
+      handsEvents: 0,
+      blockers: [
+        {
+          url: 'https://community.youreverydayai.com/',
+          type: 'browser_challenge_not_source_content',
+          reason: 'Clean isolated retry still saw a Cloudflare browser challenge instead of source content.',
+          nextAction: 'route to approved hosted/browser-agent fallback; do not retry the same clean local path again',
+        },
+      ],
+      fallbackPlan: {
+        status: 'browser_challenge_fallback_required',
+        trigger: 'browser_challenge_not_source_content',
+        route: 'clean_isolated_retry_then_hosted_browser_fallback',
+        sourceSessionRequired: false,
+        normalChromeProfileAllowed: false,
+        nextAction: 'Route to hosted/browser-agent fallback with read-only extraction policy.',
+      },
+      sourceBrowserAgentPlan: {
+        agentId: 'source-browser-agent',
+        sourceFamily: 'public_free_resources',
+        toolRoute: 'source:god-mode',
+        terminalState: 'failed_closed',
+        status: 'failed_closed_browser_state_blocked',
+        stopReason: 'browser_state_blocked',
+      },
+      sideEffects: {
+        externalWrites: false,
+        writesBacklog: false,
+        submittedForm: false,
+        downloadedFile: false,
+        purchased: false,
+        postedOrMessaged: false,
+        mutatesCredentials: false,
+        normalChromeProfileUsed: false,
+        rawSecretPrinted: false,
+      },
+    },
+  }
+  const hostedFallbackAfterRetryQueue = buildSourceGodModeYoutubeHandoffQueue({
+    handoffEvidence: communityBoundaryQueue.handoffEvidence || {
+      sourceRoute: 'fixture.youtube.fullWatchReports.communityBoundary',
+      scannedReportCount: 1,
+      buckets: {
+        'free-communities': {
+          count: 1,
+          items: [{
+            url: 'https://community.youreverydayai.com/sign_up?request_host=community.youreverydayai.com',
+            host: 'community.youreverydayai.com',
+            reportArtifactId: 'report:bad-free-community',
+            sourceVideoId: 'fixture-video-community-boundary',
+            creatorId: 'fixture-a-source',
+            creator: 'Fixture A Source',
+          }],
+        },
+      },
+    },
+    generatedAt: '2026-05-27T11:15:00.000-04:00',
+    sourceValueGrader: {
+      sourceGrades: [
+        { creatorId: 'fixture-a-source', creator: 'Fixture A Source', devBuildGrade: 'A', laneScores: [{ laneId: 'aios_dev_build', grade: 'A', score: 76 }] },
+      ],
+    },
+    runItems: [
+      { ...savedChallengeInput, status: 'succeeded', metadata: savedChallengeInput.metadata },
+      hostedFallbackRequiredInput,
+    ],
+  })
   addCheck(
     checks,
     list(failedReadRepairQueue.rows).some(row =>
@@ -1197,6 +1290,28 @@ async function main() {
       /not counted as completed source evidence/i.test(savedChallengeQueue.browserChallengeFallbackReview?.plainEnglish || ''),
     'saved browser challenge fallback rows have a visible structured fallback plan, retry batch, and next action',
     JSON.stringify(savedChallengeQueue.browserChallengeFallbackReview || {}),
+  )
+  addCheck(
+    checks,
+    list(hostedFallbackAfterRetryQueue.rows).some(row =>
+      row.url === 'https://community.youreverydayai.com/' &&
+      row.status === 'previous_clean_retry_hosted_fallback_required' &&
+      row.runnable === false &&
+      row.parked === true &&
+      !text(row.runCommand) &&
+      row.existingRunStatus === 'failed' &&
+      row.existingRunRuntimeStatus === 'failed_closed_browser_state_blocked' &&
+      row.existingRunLastError === 'hosted_browser_fallback_required_after_clean_retry' &&
+      list(row.previousRunBlockers).some(blocker => blocker.type === 'browser_challenge_not_source_content')
+    ) &&
+      hostedFallbackAfterRetryQueue.counts.browserChallengeFallbackRows === 0 &&
+      hostedFallbackAfterRetryQueue.browserChallengeFallbackReview?.retryBatch?.selectedRowCount === 0,
+    'clean-retry failures are not reselected for the same fallback batch loop',
+    JSON.stringify({
+      counts: hostedFallbackAfterRetryQueue.counts,
+      row: list(hostedFallbackAfterRetryQueue.rows).find(row => row.url === 'https://community.youreverydayai.com/') || null,
+      retryBatch: hostedFallbackAfterRetryQueue.browserChallengeFallbackReview?.retryBatch || null,
+    }),
   )
   const queueAfterRun = buildSourceGodModeYoutubeHandoffQueue({
     handoffEvidence: buildFixtureHandoffEvidence(fixture.baseUrl),
