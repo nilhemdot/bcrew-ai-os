@@ -675,6 +675,10 @@ async function main() {
     `active=${youtubeActiveCreatorCount}; graded=${youtubeCreatorLeaderboardCount}; sourceGrades=${sourceGradeCount}; ungraded=${youtubeUngradedCreatorCount}; preview=${list(payload?.youtubeSourceIntelligence?.topCreators).length}`,
   )
   const creatorSourceStacks = list(payload?.youtubeSourceIntelligence?.creatorSourceStacks)
+  const creatorStacksWithSavedEvidence = creatorSourceStacks.filter(row => Number(row.savedEvidenceCount || 0) > 0)
+  const creatorStackSurfacesWithSavedEvidence = creatorSourceStacks.flatMap(row =>
+    Object.values(row.surfaces || {}).filter(surface => Number(surface.savedEvidenceCount || 0) > 0)
+  )
   addCheck(
     checks,
     creatorSourceStacks.length === Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || creatorSourceStacks.length) &&
@@ -684,9 +688,12 @@ async function main() {
         Number(row.surfaces?.newsletters?.count || 0) > 0 ||
         Number(row.surfaces?.githubRepos?.count || 0) > 0 ||
         Number(row.surfaces?.freeCommunities?.count || 0) > 0
-    ),
-    'live YouTube source intelligence exposes creator source stacks across YouTube, repos, newsletters, and communities',
-    `${creatorSourceStacks.length}/${payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0} creator stacks`,
+      ) &&
+      creatorStacksWithSavedEvidence.length > 0 &&
+      creatorStackSurfacesWithSavedEvidence.some(surface => surface.bestEvidence?.runner || Number(surface.pagesRead || 0) > 0) &&
+      creatorSourceStacks.every(row => row.sourceStackPersistence?.noRawArtifactPaths === true),
+    'live YouTube source intelligence exposes persisted creator source-stack evidence across YouTube, repos, newsletters, and communities',
+    `${creatorSourceStacks.length}/${payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0} creator stacks; saved=${creatorStacksWithSavedEvidence.length}`,
   )
   addCheck(
     checks,
