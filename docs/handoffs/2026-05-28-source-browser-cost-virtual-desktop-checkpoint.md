@@ -14,6 +14,8 @@ The preferred architecture is:
 
 The immediate risk is cost confusion. Stagehand/Browserbase does not automatically use Codex or Claude subscription credits. The successful Browserbase smoke proof used an API-style model route (`openai/gpt-4.1-mini`). The default `codex` route failed because Stagehand expects a provider/model it supports. So broad Browserbase automation must not run until model routing and spend caps are explicit.
 
+Important cost truth: Browserbase browser hours and model/API token spend are separate. The Startup plan can make browser infrastructure available, but every observe/act/extract/agent loop may still call a paid model. A full-plan monthly run without per-run, daily, and monthly model caps could burn hundreds or thousands of dollars in API tokens. Treat Browserbase as an isolated bakeoff tool until the system proves exact cost controls.
+
 ## Backlog Cards Stabbed
 
 - `SOURCE-BROWSER-RUNTIME-COST-GUARDRAILS-001`
@@ -55,6 +57,8 @@ Required behavior:
 - Browserbase cannot become default just because env keys exist.
 - Stagehand cannot default to unsupported `codex` and then fail late.
 - Any API/browser run must show provider, model, env, browser mode, estimated cap, and run cap.
+- Any Browserbase/Stagehand run must separate browser-hours cap from model/API-token cap.
+- Default caps must be tiny: proof-sized task count, max steps, max pages, max minutes, and max estimated model spend.
 - Broad overnight Browserbase loops fail closed unless an explicit approved cap exists.
 - Browserbase Startup stays proof-only during the paid month until the bakeoff card says otherwise.
 
@@ -96,6 +100,7 @@ Measure:
 - Manual intervention needed.
 - Browser hours.
 - API/model spend route.
+- Estimated model/API spend and actual ledgered calls.
 - Evidence quality.
 - Recovery quality.
 
