@@ -221,6 +221,9 @@ const PARKED_CARDS = [
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
+  const flags = new Set(argv
+    .filter(arg => String(arg || '').startsWith('--'))
+    .map(arg => String(arg).slice(2).split('=')[0]))
   return {
     json: argv.includes('--json') || argv.includes('--json=true'),
     apply: isProcessCheckWriteRequested({
@@ -231,6 +234,7 @@ function parseArgs(argv = process.argv.slice(2)) {
         PROCESS_CHECK_WRITE_FLAGS.mutateSprint,
       ],
     }),
+    closeCard: flags.has('close-card') || flags.has('closeCard'),
   }
 }
 
@@ -436,21 +440,25 @@ async function upsertPlanCriticRows({ sprintPlanReview, activePlanReview }) {
   }
 }
 
-async function upsertBacklogRows() {
+async function upsertBacklogRows({ closeCard = false } = {}) {
   const pool = createPool()
   const client = await pool.connect()
   const planCard = {
     id: CARD_ID,
     title: 'Promote Human Web Agent V1 into Current Sprint',
-    lane: 'executing',
+    lane: closeCard ? 'done' : 'executing',
     priority: 'P0',
     rank: 0,
     owner: 'Orchestrator',
     source: PLAN_PATH,
     summary: 'Reset the live Current Sprint from stale YouTube execution order to the evidence-backed Human Web Agent V1 sprint.',
     whyItMatters: 'The Director top-three evidence must drive the sprint board so builders work on the browser/extractor system Steve asked for.',
-    nextAction: `Apply ${SPRINT_ID}, then build ${ACTIVE_CARD_ID}.`,
-    statusNote: `Open sprint reset card for ${SPRINT_ID}; scope/proof requires focused sprint proof, Current Sprint readback, backlog hygiene, and ship closeout before any lane change.`,
+    nextAction: closeCard
+      ? `${SPRINT_ID} is live; continue ${ACTIVE_CARD_ID} as Building Now.`
+      : `Apply ${SPRINT_ID}, then build ${ACTIVE_CARD_ID}.`,
+    statusNote: closeCard
+      ? `Closed under human-web-agent-v1-sprint-plan; ${SPRINT_ID} is live with ${ACTIVE_CARD_ID} Building Now and Browserbase parked outside sprint.`
+      : `Open sprint reset card for ${SPRINT_ID}; scope/proof requires focused sprint proof, Current Sprint readback, backlog hygiene, and ship closeout before any lane change.`,
   }
   const backlogCards = [
     planCard,
@@ -534,7 +542,7 @@ async function upsertBacklogRows() {
   }
 }
 
-async function applyLiveState({ sprintPlanReview, activePlanReview }) {
+async function applyLiveState({ sprintPlanReview, activePlanReview, closeCard = false }) {
   assertProcessCheckWriteAllowed({
     argv: process.argv.slice(2),
     scriptPath: SCRIPT_PATH,
@@ -548,7 +556,7 @@ async function applyLiveState({ sprintPlanReview, activePlanReview }) {
 
   const currentHead = git(['rev-parse', 'HEAD'])
   const previous = await getActiveFoundationCurrentSprint()
-  await upsertBacklogRows()
+  await upsertBacklogRows({ closeCard })
   await upsertPlanCriticRows({ sprintPlanReview, activePlanReview })
   await upsertFoundationCurrentSprintOverlay(
     {
@@ -665,7 +673,7 @@ async function main() {
       if (activePlanReview.status !== 'pass' || Number(activePlanReview.score) < PLAN_CRITIC_MIN_PASS_SCORE) {
         throw new Error(`Active source-browser plan gate did not pass: ${buildPlanCriticResultSummary(activePlanReview)}`)
       }
-      await applyLiveState({ sprintPlanReview, activePlanReview })
+      await applyLiveState({ sprintPlanReview, activePlanReview, closeCard: args.closeCard })
     }
 
     const activeSprint = await getActiveFoundationCurrentSprint()
