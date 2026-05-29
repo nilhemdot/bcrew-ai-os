@@ -11,6 +11,9 @@ import {
   evaluateSourceSessionProfileProbeReport,
   runSourceSessionProfileProbe,
 } from '../lib/source-session-profile-probe.js'
+import {
+  SOURCE_SESSION_BROKER_MYICOR_GOOGLE_SSO_SOURCE,
+} from '../lib/source-session-broker.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -210,6 +213,18 @@ async function main() {
       evaluations.myicorSignup.ok,
     'myICOR signup/profile branch fails closed instead of creating a new account',
     reports.myicorSignup.brokerDecision?.reason || 'missing',
+  )
+  addCheck(
+    checks,
+    reports.myicorSignup.credentialSource === SOURCE_SESSION_BROKER_MYICOR_GOOGLE_SSO_SOURCE &&
+      reports.myicorSignup.secretRef?.includes(`/${SOURCE_SESSION_BROKER_MYICOR_GOOGLE_SSO_SOURCE}/`) &&
+      reports.myicorSignup.brokerDecision?.secretRef?.includes(`/${SOURCE_SESSION_BROKER_MYICOR_GOOGLE_SSO_SOURCE}/`),
+    'myICOR profile probe uses the Google SSO credential source instead of the logical source id',
+    JSON.stringify({
+      credentialSource: reports.myicorSignup.credentialSource,
+      secretRef: reports.myicorSignup.secretRef,
+      brokerSecretRef: reports.myicorSignup.brokerDecision?.secretRef,
+    }),
   )
   addCheck(
     checks,
