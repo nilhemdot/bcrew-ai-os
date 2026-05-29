@@ -630,7 +630,8 @@
     "process:local-virtual-browser-hands-runtime-check": "node --env-file-if-exists=.env scripts/process-local-virtual-browser-hands-runtime-check.mjs",
     "skool:free-god-mode": "node --env-file-if-exists=.env scripts/run-skool-free-community-god-mode.mjs",
     "process:creator-newsletter-intake-runner-check": "node --env-file-if-exists=.env scripts/process-creator-newsletter-intake-runner-check.mjs",
-    "newsletter:intake": "node --env-file-if-exists=.env scripts/run-creator-newsletter-intake.mjs"
+    "newsletter:intake": "node --env-file-if-exists=.env scripts/run-creator-newsletter-intake.mjs",
+    "newsletter:confirmation-readback": "node --env-file-if-exists=.env scripts/run-creator-newsletter-confirmation-readback.mjs"
   },
   "engines": {
     "node": ">=20"

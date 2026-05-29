@@ -8,11 +8,15 @@ import { fileURLToPath } from 'node:url'
 
 import {
   CREATOR_NEWSLETTER_LIVE_SIGNUP_REQUIRED_FLAGS,
+  CREATOR_NEWSLETTER_CONFIRMATION_READBACK_SOURCE_ID,
+  CREATOR_NEWSLETTER_CONFIRMATION_ARTIFACT_TYPE,
   CREATOR_NEWSLETTER_INTAKE_CARD_ID,
   CREATOR_NEWSLETTER_INTAKE_CLI_PATH,
   CREATOR_NEWSLETTER_INTAKE_INBOX_LABEL,
   CREATOR_NEWSLETTER_INTAKE_SCRIPT_PATH,
+  buildCreatorNewsletterConfirmationReadback,
   evaluateCreatorNewsletterIntakeReport,
+  evaluateCreatorNewsletterConfirmationReadback,
   runCreatorNewsletterIntake,
 } from '../lib/creator-newsletter-intake-runner.js'
 import {
@@ -150,10 +154,11 @@ function sourceContainsForbiddenRuntimeAction(source = '') {
 async function main() {
   const args = parseArgs()
   const checks = []
-  const [packageJson, runnerSource, cliSource, handoffSource] = await Promise.all([
+  const [packageJson, runnerSource, cliSource, confirmationCliSource, handoffSource] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile('lib/creator-newsletter-intake-runner.js'),
     readRepoFile(CREATOR_NEWSLETTER_INTAKE_CLI_PATH),
+    readRepoFile('scripts/run-creator-newsletter-confirmation-readback.mjs'),
     readRepoFile('lib/source-god-mode-youtube-handoff.js'),
   ])
 
@@ -256,8 +261,66 @@ async function main() {
     },
     now: '2026-05-28T14:07:00.000Z',
   })
+  const confirmationActionRequired = buildCreatorNewsletterConfirmationReadback({
+    url: 'https://example.com/newsletter',
+    account: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+    submittedAt: '2026-05-28T14:07:00.000Z',
+    now: '2026-05-28T14:09:00.000Z',
+    searchResults: [
+      {
+        artifactId: 'gmail:example-confirm-action',
+        sourceId: CREATOR_NEWSLETTER_CONFIRMATION_READBACK_SOURCE_ID,
+        artifactType: CREATOR_NEWSLETTER_CONFIRMATION_ARTIFACT_TYPE,
+        title: 'Confirm your subscription to Example Newsletter',
+        sourceAccount: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+        sourceContainer: `Gmail / ${CREATOR_NEWSLETTER_INTAKE_INBOX_LABEL}`,
+        excerpt: 'Please confirm your email for the example.com newsletter. Click to confirm your subscription.',
+        artifactUpdatedAt: '2026-05-28T14:08:00.000Z',
+        ingestedAt: '2026-05-28T14:08:30.000Z',
+      },
+    ],
+  })
+  const confirmationSubscribed = buildCreatorNewsletterConfirmationReadback({
+    url: 'https://example.com/newsletter',
+    account: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+    submittedAt: '2026-05-28T14:07:00.000Z',
+    now: '2026-05-28T14:10:00.000Z',
+    searchResults: [
+      {
+        artifactId: 'gmail:example-welcome',
+        sourceId: CREATOR_NEWSLETTER_CONFIRMATION_READBACK_SOURCE_ID,
+        artifactType: CREATOR_NEWSLETTER_CONFIRMATION_ARTIFACT_TYPE,
+        title: 'Welcome to Example Newsletter',
+        sourceAccount: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+        sourceContainer: `Gmail / ${CREATOR_NEWSLETTER_INTAKE_INBOX_LABEL}`,
+        excerpt: "You're subscribed to the example.com newsletter. Welcome to the weekly implementation notes.",
+        artifactUpdatedAt: '2026-05-28T14:09:00.000Z',
+        ingestedAt: '2026-05-28T14:09:30.000Z',
+      },
+    ],
+  })
+  const confirmationNotFound = buildCreatorNewsletterConfirmationReadback({
+    url: 'https://example.com/newsletter',
+    account: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+    submittedAt: '2026-05-28T14:07:00.000Z',
+    now: '2026-05-28T14:11:00.000Z',
+    searchResults: [
+      {
+        artifactId: 'gmail:wrong-account',
+        sourceId: CREATOR_NEWSLETTER_CONFIRMATION_READBACK_SOURCE_ID,
+        artifactType: CREATOR_NEWSLETTER_CONFIRMATION_ARTIFACT_TYPE,
+        title: 'Random vendor digest',
+        sourceAccount: 'someone@bensoncrew.ca',
+        sourceContainer: 'Gmail / newer_than:2d',
+        excerpt: 'This unrelated thread does not confirm a newsletter subscription.',
+        artifactUpdatedAt: '2026-05-28T14:09:00.000Z',
+        ingestedAt: '2026-05-28T14:09:30.000Z',
+      },
+    ],
+  })
 
   const evaluation = evaluateCreatorNewsletterIntakeReport(dryRun)
+  const confirmationEvaluation = evaluateCreatorNewsletterConfirmationReadback(confirmationActionRequired)
   const fixtureHits = Object.fromEntries(fixture.hits.entries())
 
   addCheck(
@@ -274,6 +337,14 @@ async function main() {
       cliSource.includes('--confirmation-readback-required'),
     'package exposes operator newsletter intake runner',
     packageJson.scripts?.['newsletter:intake'] || 'missing',
+  )
+  addCheck(
+    checks,
+    packageJson.scripts?.['newsletter:confirmation-readback'] === 'node --env-file-if-exists=.env scripts/run-creator-newsletter-confirmation-readback.mjs' &&
+      confirmationCliSource.includes('searchSharedCommunicationArtifactsForContext') &&
+      confirmationCliSource.includes('buildCreatorNewsletterConfirmationReadback'),
+    'package exposes read-only newsletter confirmation readback runner',
+    packageJson.scripts?.['newsletter:confirmation-readback'] || 'missing',
   )
   addCheck(
     checks,
@@ -364,6 +435,35 @@ async function main() {
   )
   addCheck(
     checks,
+    confirmationEvaluation.ok &&
+      confirmationActionRequired.status === 'confirmation_email_found_action_may_be_required' &&
+      confirmationActionRequired.confirmationEmailRead === true &&
+      confirmationActionRequired.bestMatch?.actionRequired === true &&
+      confirmationActionRequired.sideEffects?.submittedForm === false &&
+      confirmationActionRequired.sideEffects?.externalSignupSubmitted === false &&
+      confirmationActionRequired.sideEffects?.mailboxLabelMutated === false,
+    'confirmation readback finds archived confirmation email without clicking or mutating mailbox',
+    JSON.stringify({ status: confirmationActionRequired.status, best: confirmationActionRequired.bestMatch, failed: confirmationEvaluation.failed }),
+  )
+  addCheck(
+    checks,
+    confirmationSubscribed.status === 'subscribed_confirmation_read_back' &&
+      confirmationSubscribed.subscribedStatus === 'confirmed' &&
+      confirmationSubscribed.bestMatch?.actionRequired === false &&
+      confirmationSubscribed.sideEffects?.confirmationEmailRead === true,
+    'confirmation readback can distinguish confirmed welcome issue from action-required confirmation',
+    JSON.stringify({ status: confirmationSubscribed.status, subscribedStatus: confirmationSubscribed.subscribedStatus, best: confirmationSubscribed.bestMatch }),
+  )
+  addCheck(
+    checks,
+    confirmationNotFound.status === 'confirmation_email_not_found_in_candidates' &&
+      confirmationNotFound.confirmationEmailRead === false &&
+      confirmationNotFound.sideEffects?.confirmationEmailRead === false,
+    'confirmation readback keeps pending status when archive candidates do not match source account/source',
+    JSON.stringify({ status: confirmationNotFound.status, best: confirmationNotFound.bestMatch }),
+  )
+  addCheck(
+    checks,
     handoffSource.includes("runner: 'newsletter:intake'") &&
       handoffSource.includes('npm run newsletter:intake'),
     'YouTube handoff prep points newsletter rows at the dry-run intake command',
@@ -372,7 +472,8 @@ async function main() {
   addCheck(
     checks,
     !sourceContainsForbiddenRuntimeAction(runnerSource) &&
-      !sourceContainsForbiddenRuntimeAction(cliSource),
+      !sourceContainsForbiddenRuntimeAction(cliSource) &&
+      !sourceContainsForbiddenRuntimeAction(confirmationCliSource),
     'runner and CLI do not spawn commands, write backlog, write files, or touch DB',
     'static source scan',
   )
@@ -401,6 +502,9 @@ async function main() {
       externalApply: externalApplyBlocked.reason,
       externalPolicy: externalPolicyBlocked.reason,
       externalLive: externalLiveSubmitted.status,
+      confirmationActionRequired: confirmationActionRequired.status,
+      confirmationSubscribed: confirmationSubscribed.status,
+      confirmationNotFound: confirmationNotFound.status,
     },
     checks,
     failures,
