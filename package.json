@@ -631,7 +631,8 @@
     "skool:free-god-mode": "node --env-file-if-exists=.env scripts/run-skool-free-community-god-mode.mjs",
     "process:creator-newsletter-intake-runner-check": "node --env-file-if-exists=.env scripts/process-creator-newsletter-intake-runner-check.mjs",
     "newsletter:intake": "node --env-file-if-exists=.env scripts/run-creator-newsletter-intake.mjs",
-    "newsletter:confirmation-readback": "node --env-file-if-exists=.env scripts/run-creator-newsletter-confirmation-readback.mjs"
+    "newsletter:confirmation-readback": "node --env-file-if-exists=.env scripts/run-creator-newsletter-confirmation-readback.mjs",
+    "newsletter:issue-extraction": "node --env-file-if-exists=.env scripts/run-creator-newsletter-issue-extraction.mjs"
   },
   "engines": {
     "node": ">=20"

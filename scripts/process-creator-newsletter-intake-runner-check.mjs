@@ -12,11 +12,14 @@ import {
   CREATOR_NEWSLETTER_CONFIRMATION_ARTIFACT_TYPE,
   CREATOR_NEWSLETTER_INTAKE_CARD_ID,
   CREATOR_NEWSLETTER_INTAKE_CLI_PATH,
+  CREATOR_NEWSLETTER_ISSUE_EXTRACTION_CLI_PATH,
   CREATOR_NEWSLETTER_INTAKE_INBOX_LABEL,
   CREATOR_NEWSLETTER_INTAKE_SCRIPT_PATH,
   buildCreatorNewsletterConfirmationReadback,
+  buildCreatorNewsletterIssueExtraction,
   evaluateCreatorNewsletterIntakeReport,
   evaluateCreatorNewsletterConfirmationReadback,
+  evaluateCreatorNewsletterIssueExtraction,
   runCreatorNewsletterIntake,
 } from '../lib/creator-newsletter-intake-runner.js'
 import {
@@ -154,11 +157,12 @@ function sourceContainsForbiddenRuntimeAction(source = '') {
 async function main() {
   const args = parseArgs()
   const checks = []
-  const [packageJson, runnerSource, cliSource, confirmationCliSource, handoffSource] = await Promise.all([
+  const [packageJson, runnerSource, cliSource, confirmationCliSource, issueCliSource, handoffSource] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile('lib/creator-newsletter-intake-runner.js'),
     readRepoFile(CREATOR_NEWSLETTER_INTAKE_CLI_PATH),
     readRepoFile('scripts/run-creator-newsletter-confirmation-readback.mjs'),
+    readRepoFile(CREATOR_NEWSLETTER_ISSUE_EXTRACTION_CLI_PATH),
     readRepoFile('lib/source-god-mode-youtube-handoff.js'),
   ])
 
@@ -318,6 +322,63 @@ async function main() {
       },
     ],
   })
+  const issueWaitingForConfirmation = buildCreatorNewsletterIssueExtraction({
+    url: 'https://example.com/newsletter',
+    account: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+    now: '2026-05-28T14:12:00.000Z',
+    searchResults: [
+      {
+        artifactId: 'gmail:example-issue',
+        sourceId: CREATOR_NEWSLETTER_CONFIRMATION_READBACK_SOURCE_ID,
+        artifactType: CREATOR_NEWSLETTER_CONFIRMATION_ARTIFACT_TYPE,
+        title: 'Example weekly implementation notes',
+        sourceAccount: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+        sourceContainer: `Gmail / ${CREATOR_NEWSLETTER_INTAKE_INBOX_LABEL}`,
+        excerpt: 'This newsletter issue explains how to build a browser agent workflow and links to https://github.com/browserbase/stagehand for implementation patterns.',
+        contentText: 'This newsletter issue explains how to build a browser agent workflow and links to https://github.com/browserbase/stagehand for implementation patterns.',
+        artifactUpdatedAt: '2026-05-28T14:12:00.000Z',
+      },
+    ],
+  })
+  const issueExtraction = buildCreatorNewsletterIssueExtraction({
+    url: 'https://example.com/newsletter',
+    account: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+    confirmationReadback: confirmationSubscribed,
+    now: '2026-05-28T14:13:00.000Z',
+    searchResults: [
+      {
+        artifactId: 'gmail:example-issue',
+        externalId: 'thread-example-issue',
+        sourceId: CREATOR_NEWSLETTER_CONFIRMATION_READBACK_SOURCE_ID,
+        artifactType: CREATOR_NEWSLETTER_CONFIRMATION_ARTIFACT_TYPE,
+        title: 'Example weekly implementation notes',
+        sourceAccount: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+        sourceContainer: `Gmail / ${CREATOR_NEWSLETTER_INTAKE_INBOX_LABEL}`,
+        excerpt: 'This newsletter issue explains how to build a browser agent workflow and links to https://github.com/browserbase/stagehand for implementation patterns.',
+        contentText: [
+          'This newsletter issue explains how to build a browser agent workflow that can observe a page, decide the safe next action, click only allowed controls, and record evidence.',
+          'Use the repo at https://github.com/browserbase/stagehand as an implementation pattern for resilient browser actions.',
+          'If a page asks for pricing or a paid course, route the link to approval instead of buying anything.',
+          'Unsubscribe or manage preferences if the issue becomes sponsor-only noise.',
+        ].join(' '),
+        artifactUpdatedAt: '2026-05-28T14:12:00.000Z',
+        ingestedAt: '2026-05-28T14:12:30.000Z',
+      },
+      {
+        artifactId: 'gmail:example-confirm-action',
+        sourceId: CREATOR_NEWSLETTER_CONFIRMATION_READBACK_SOURCE_ID,
+        artifactType: CREATOR_NEWSLETTER_CONFIRMATION_ARTIFACT_TYPE,
+        title: 'Confirm your subscription to Example Newsletter',
+        sourceAccount: SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
+        sourceContainer: `Gmail / ${CREATOR_NEWSLETTER_INTAKE_INBOX_LABEL}`,
+        excerpt: 'Please confirm your email for the example.com newsletter. Click to confirm your subscription.',
+        contentText: 'Please confirm your email for the example.com newsletter. Click to confirm your subscription.',
+        artifactUpdatedAt: '2026-05-28T14:08:00.000Z',
+      },
+    ],
+  })
+  const issueWaitingEvaluation = evaluateCreatorNewsletterIssueExtraction(issueWaitingForConfirmation)
+  const issueEvaluation = evaluateCreatorNewsletterIssueExtraction(issueExtraction)
 
   const evaluation = evaluateCreatorNewsletterIntakeReport(dryRun)
   const confirmationEvaluation = evaluateCreatorNewsletterConfirmationReadback(confirmationActionRequired)
@@ -345,6 +406,15 @@ async function main() {
       confirmationCliSource.includes('buildCreatorNewsletterConfirmationReadback'),
     'package exposes read-only newsletter confirmation readback runner',
     packageJson.scripts?.['newsletter:confirmation-readback'] || 'missing',
+  )
+  addCheck(
+    checks,
+    packageJson.scripts?.['newsletter:issue-extraction'] === `node --env-file-if-exists=.env ${CREATOR_NEWSLETTER_ISSUE_EXTRACTION_CLI_PATH}` &&
+      issueCliSource.includes('searchSharedCommunicationArtifactsForContext') &&
+      issueCliSource.includes('buildCreatorNewsletterIssueExtraction') &&
+      issueCliSource.includes('--confirmed'),
+    'package exposes read-only newsletter issue extraction runner',
+    packageJson.scripts?.['newsletter:issue-extraction'] || 'missing',
   )
   addCheck(
     checks,
@@ -464,6 +534,35 @@ async function main() {
   )
   addCheck(
     checks,
+    issueWaitingEvaluation.ok &&
+      issueWaitingForConfirmation.status === 'waiting_for_confirmation_readback' &&
+      issueWaitingForConfirmation.issueCount === 0 &&
+      issueWaitingForConfirmation.sideEffects?.issueEmailsRead === false,
+    'newsletter issue extraction waits for confirmed subscription evidence',
+    JSON.stringify({ status: issueWaitingForConfirmation.status, failed: issueWaitingEvaluation.failed }),
+  )
+  addCheck(
+    checks,
+    issueEvaluation.ok &&
+      issueExtraction.status === 'newsletter_issues_extracted_from_archive' &&
+      issueExtraction.issueCount === 1 &&
+      issueExtraction.implementationIdeaCount >= 1 &&
+      issueExtraction.resourceLinks.some(link => link.type === 'public_code_repo' && /github\.com\/browserbase\/stagehand/.test(link.url)) &&
+      issueExtraction.sideEffects?.issueEmailsRead === true &&
+      issueExtraction.sideEffects?.submittedForm === false &&
+      issueExtraction.sideEffects?.externalSignupSubmitted === false &&
+      issueExtraction.sideEffects?.mailboxLabelMutated === false,
+    'confirmed newsletter issue extraction reads ideas and links without clicking or mutating',
+    JSON.stringify({
+      status: issueExtraction.status,
+      issueCount: issueExtraction.issueCount,
+      ideas: issueExtraction.implementationIdeaCount,
+      links: issueExtraction.resourceLinks,
+      failed: issueEvaluation.failed,
+    }),
+  )
+  addCheck(
+    checks,
     handoffSource.includes("runner: 'newsletter:intake'") &&
       handoffSource.includes('npm run newsletter:intake'),
     'YouTube handoff prep points newsletter rows at the dry-run intake command',
@@ -473,7 +572,8 @@ async function main() {
     checks,
     !sourceContainsForbiddenRuntimeAction(runnerSource) &&
       !sourceContainsForbiddenRuntimeAction(cliSource) &&
-      !sourceContainsForbiddenRuntimeAction(confirmationCliSource),
+      !sourceContainsForbiddenRuntimeAction(confirmationCliSource) &&
+      !sourceContainsForbiddenRuntimeAction(issueCliSource),
     'runner and CLI do not spawn commands, write backlog, write files, or touch DB',
     'static source scan',
   )
@@ -505,6 +605,8 @@ async function main() {
       confirmationActionRequired: confirmationActionRequired.status,
       confirmationSubscribed: confirmationSubscribed.status,
       confirmationNotFound: confirmationNotFound.status,
+      issueWaitingForConfirmation: issueWaitingForConfirmation.status,
+      issueExtraction: issueExtraction.status,
     },
     checks,
     failures,
