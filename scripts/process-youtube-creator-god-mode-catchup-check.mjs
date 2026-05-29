@@ -32,6 +32,13 @@ import {
 import {
   SOURCE_PACKET_WORKER_RUNNER_TARGET_KEY,
 } from '../lib/source-packet-worker-runner.js'
+import {
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
+} from '../lib/source-god-mode-youtube-handoff.js'
+import {
+  SOURCE_BROWSER_AGENT_TARGET_KEY,
+} from '../lib/source-browser-agent-harness.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -205,6 +212,8 @@ async function loadLiveSnapshot() {
     sourceValueGraderBundle,
     youtubeFullWatchReports,
     sourcePacketWorkerRuns,
+    sourceGodModeHandoffRunItems,
+    sourceBrowserAgentRunItems,
   ] = await Promise.all([
     listSourceCrawlItems({
       targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
@@ -219,6 +228,16 @@ async function loadLiveSnapshot() {
       limit: 500,
       order: 'desc',
     }),
+    listSourceCrawlItems({
+      targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
+      limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
+      order: 'desc',
+    }),
+    listSourceCrawlItems({
+      targetKey: SOURCE_BROWSER_AGENT_TARGET_KEY,
+      limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
+      order: 'desc',
+    }),
   ])
   return buildYoutubeCreatorGodModeCatchupSnapshot({
     watchPlan: buildYoutubeCreatorDailyWatchPlan(),
@@ -227,6 +246,10 @@ async function loadLiveSnapshot() {
     sourceValueGrader: normalizeSourceValueGraderReport(sourceValueGraderBundle),
     youtubeFullWatchReports,
     sourcePacketWorkerRuns,
+    sourceFollowupRuns: [
+      ...list(sourceGodModeHandoffRunItems),
+      ...list(sourceBrowserAgentRunItems),
+    ],
   })
 }
 
@@ -268,6 +291,8 @@ async function main() {
 
   const dogfood = buildYoutubeCreatorGodModeCatchupDogfoodProof()
   const targetItemCount = await countSourceCrawlItemsForTarget(YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY)
+  const sourceGodModeRunCount = await countSourceCrawlItemsForTarget(SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY)
+  const sourceBrowserAgentRunCount = await countSourceCrawlItemsForTarget(SOURCE_BROWSER_AGENT_TARGET_KEY)
   const representedOrBlocked = list(snapshot.creators)
     .filter(row => row.representationStatus === 'represented' || row.blockedReason)
 
@@ -285,12 +310,21 @@ async function main() {
       moduleSource.includes('youtubeSopStatus') &&
       moduleSource.includes('buildYoutubeCreatorSourceSopEvidence') &&
       moduleSource.includes('buildSourcePacketPreview') &&
-      moduleSource.includes('sourcePacketReviewQueue'),
+      moduleSource.includes('sourcePacketReviewQueue') &&
+      moduleSource.includes('sourceFollowupRuns') &&
+      moduleSource.includes('sourceFollowupRunCount'),
     'module reports full YouTube source SOP status per creator',
     'lib/youtube-creator-god-mode-catchup.js',
   )
   addCheck(checks, moduleSource.includes('majorBuildPromotionAllowed') && moduleSource.includes('blocked_source_sop_incomplete'), 'module exposes Scoper/build-promotion baseline plus SOP gate', 'buildPromotionReadiness')
-  addCheck(checks, devHubSource.includes('youtubeCreatorGodModeCatchup') && devHubSource.includes('buildYoutubeCreatorGodModeCatchupSnapshot'), 'Dev Hub API consumes catch-up readback payload', 'lib/dev-team-hub.js')
+  addCheck(
+    checks,
+    devHubSource.includes('youtubeCreatorGodModeCatchup') &&
+      devHubSource.includes('buildYoutubeCreatorGodModeCatchupSnapshot') &&
+      devHubSource.includes('sourceFollowupRuns'),
+    'Dev Hub API consumes catch-up readback payload including source-browser follow-up runs',
+    'lib/dev-team-hub.js',
+  )
   addCheck(checks, devHubProofSource.includes('youtubeCreatorGodModeCatchup'), 'Dev Hub focused proof checks catch-up readback visibility', 'scripts/process-dev-team-hub-v0-check.mjs')
   addCheck(checks, publicDevSource.includes('youtubeCreatorGodModeCatchup') && publicDevSource.includes('baseline'), 'Dev page can render catch-up baseline state in the source leaderboard/card', 'public/dev.js')
   addCheck(
@@ -356,6 +390,13 @@ async function main() {
   )
   addCheck(
     checks,
+    (sourceGodModeRunCount + sourceBrowserAgentRunCount) === 0 ||
+      Number(snapshot.summary?.sourceFollowupRunCount || 0) >= 1,
+    'catch-up readback includes source-browser handoff/agent follow-up run ledgers',
+    `sourceGodMode=${sourceGodModeRunCount}; sourceBrowserAgent=${sourceBrowserAgentRunCount}; readback=${snapshot.summary?.sourceFollowupRunCount || 0}`,
+  )
+  addCheck(
+    checks,
     list(snapshot.creators).some(row => Number(row.sourceSopEvidence?.evidenceVideoCount || 0) >= 1) &&
       list(snapshot.creators).some(row => String(row.fullPageExtractionStatus || '').startsWith('partial_') || row.fullPageExtractionStatus === 'complete'),
     'creator rows expose evidence-backed SOP progress instead of watched-count placeholders',
@@ -417,6 +458,8 @@ async function main() {
       status: snapshot.status,
       summary: snapshot.summary,
       targetItemCount,
+      sourceGodModeRunCount,
+      sourceBrowserAgentRunCount,
       buildPromotionReadiness: snapshot.buildPromotionReadiness,
       nextWatchRows: list(snapshot.creators)
         .filter(row => row.baselineGap > 0 || row.deepBaselineGap > 0 || row.pendingStandardVideoCount > 0)

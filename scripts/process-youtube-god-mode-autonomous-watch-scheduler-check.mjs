@@ -28,6 +28,13 @@ import {
   SOURCE_PACKET_WORKER_RUNNER_TARGET_KEY,
 } from '../lib/source-packet-worker-runner.js'
 import {
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
+  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
+} from '../lib/source-god-mode-youtube-handoff.js'
+import {
+  SOURCE_BROWSER_AGENT_TARGET_KEY,
+} from '../lib/source-browser-agent-harness.js'
+import {
   YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_CARD_ID,
   YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_JOB_KEY,
   YOUTUBE_GOD_MODE_AUTONOMOUS_WATCH_SCHEDULER_PLAN_PATH,
@@ -405,6 +412,8 @@ async function loadLiveSchedulerInputs(args = {}) {
 	      sourceValueGraderBundle,
 	      youtubeFullWatchReports,
 	      sourcePacketWorkerRuns,
+	      sourceGodModeHandoffRunItems,
+	      sourceBrowserAgentRunItems,
 	    ] = await Promise.all([
       listSourceCrawlItems({
         targetKey: YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY,
@@ -419,15 +428,29 @@ async function loadLiveSchedulerInputs(args = {}) {
         limit: 500,
         order: 'desc',
       }),
+      listSourceCrawlItems({
+        targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
+        limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
+        order: 'desc',
+      }),
+      listSourceCrawlItems({
+        targetKey: SOURCE_BROWSER_AGENT_TARGET_KEY,
+        limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
+        order: 'desc',
+      }),
     ])
     sourceValueGrader = normalizeSourceValueGraderReport(sourceValueGraderBundle)
     catchupSnapshot = buildYoutubeCreatorGodModeCatchupSnapshot({
 	      watchPlan: buildYoutubeCreatorDailyWatchPlan(),
 	      poolItems,
 	      fullWatchedVideoIds: persistedFullWatchedVideoIds,
-	      sourceValueGrader,
+      sourceValueGrader,
       youtubeFullWatchReports,
       sourcePacketWorkerRuns,
+      sourceFollowupRuns: [
+        ...list(sourceGodModeHandoffRunItems),
+        ...list(sourceBrowserAgentRunItems),
+      ],
     })
   } finally {
     await closeFoundationDb()

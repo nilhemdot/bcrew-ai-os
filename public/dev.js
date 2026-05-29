@@ -401,11 +401,15 @@ function creatorTargetFromCatchup(row = {}) {
   const packetCopy = packetCount
     ? ` Packets: ${compactNumber(packetCount)} review, ${compactNumber(evidence.runnablePublicSourcePacketCount || 0)} public, ${compactNumber(evidence.freeCommunityPacketCount || 0)} community, ${compactNumber(evidence.paidGatePacketCount || 0)} paid/gate.`
     : ''
+  const followupCount = Number(evidence.sourceFollowupRunCount || evidence.sourcePacketWorkerRunCount || 0)
+  const followupCopy = followupCount
+    ? ` Follow-up runs: ${compactNumber(followupCount)}.`
+    : ''
   const stackCopy = ' Source stack: YouTube tracked; newsletter, blog/site, GitHub/resources, Skool/community, and paid course/training platform status pending source-stack lane.'
   return [
     text(row.creator || creatorNameFromId(row.creatorId), 'Unknown creator'),
     `${grade} Dev build · ${status} · ${sopCopy}`,
-    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}.${evidenceCopy}${packetCopy}${stackCopy} ${statusCopy(row.nextWatchAction || '')}`,
+    `${watched}/${baseline} watched · ${tracked} tracked${longCourseCopy}. Resources: ${resourceCopy}; gates: ${gateCopy}.${evidenceCopy}${packetCopy}${followupCopy}${stackCopy} ${statusCopy(row.nextWatchAction || '')}`,
     creatorRepresentationLabel(row),
   ]
 }
@@ -514,6 +518,8 @@ function buildEvidenceCards(snapshot = {}) {
   const gradedVideos = gradedSources.reduce((sum, source) => sum + Number(source.watchedVideos || 0), 0)
   const gradedCandidates = gradedSources.reduce((sum, source) => sum + Number(source.buildCandidates || 0), 0)
   const sourcePacketCount = Number(snapshot.youtubeCreatorGodModeCatchup?.summary?.sourcePacketActionCount || 0)
+  const sourceFollowupRunCount = Number(snapshot.youtubeCreatorGodModeCatchup?.summary?.sourceFollowupRunCount || 0)
+  const sourceFollowupRunMappedVideoCount = Number(snapshot.youtubeCreatorGodModeCatchup?.summary?.sourceFollowupRunMappedVideoCount || 0)
   const approvalReviewCount = list(snapshot.approvalReviewQueue).length || sourcePacketCount || counts.apiFullWatchApprovalLinks || counts.approvalRequiredLinks
   const inventoryCount = Number(catchup.summary?.trackedMetadataCount || counts.researchPool || 0)
   const fullReviewCount = Number(catchup.summary?.videoAudioVisualWatchedCount || gradedVideos || counts.apiFullWatchVideos || 0)
@@ -552,7 +558,7 @@ function buildEvidenceCards(snapshot = {}) {
       label: 'Links to review',
       tone: approvalReviewCount ? 'pending' : 'live',
       summary: `${compactNumber(approvalReviewCount || 0)} source-packet decisions are held until Steve approves, holds, or rejects the exact follow-up.`,
-      meta: `${compactNumber(sourcePacketCount || 0)} from YouTube SOP evidence`,
+      meta: `${compactNumber(sourcePacketCount || 0)} from YouTube SOP evidence · ${compactNumber(sourceFollowupRunCount)} source follow-up runs · ${compactNumber(sourceFollowupRunMappedVideoCount)} mapped videos`,
     },
     {
       value: counts.apiFullWatchTimestampedVisualEvidence || counts.eyesTimestampedVisualEvidence,
