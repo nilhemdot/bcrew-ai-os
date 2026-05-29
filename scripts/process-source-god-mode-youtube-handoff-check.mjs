@@ -1402,6 +1402,19 @@ async function main() {
     'queue readback marks exact rows already run after persistence',
     JSON.stringify(queueAfterRun.counts),
   )
+  const repoAlreadyRunRow = queueAfterRun.rows.find(row =>
+    row.bucketId === 'public-code-repos' &&
+    row.status === 'already_run_source_evidence_saved'
+  )
+  addCheck(
+    checks,
+    repoAlreadyRunRow?.existingRunEvidence?.repoReviewPacket?.implementationPatternCount >= 3 &&
+      list(repoAlreadyRunRow?.existingRunEvidence?.implementationPatterns).length >= 3 &&
+      /repo:deep-review evidence saved/i.test(repoAlreadyRunRow?.plainEnglish || '') &&
+      /implementation pattern/i.test(repoAlreadyRunRow?.plainEnglish || ''),
+    'already-run repo rows expose saved repo packet and implementation-pattern evidence',
+    JSON.stringify(repoAlreadyRunRow || {}),
+  )
   const queueAfterRunBuckets = queueAfterRun.bucketCounts || {}
   const persistedRuntimeBuckets = [
     'public-web-resources',

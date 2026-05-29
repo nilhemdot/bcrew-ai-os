@@ -1067,7 +1067,7 @@ function renderSourceRunSummary(summary = {}) {
           ${repoImplementationPackets.status === 'ready' ? `
             <div class="yt-section-head">
               <span>REPO IMPLEMENTATION PACKETS</span>
-              <h3>What a repo review would inspect</h3>
+              <h3>What repo reviews already found</h3>
               <small>${escapeHtml(compactNumber(repoImplementationPackets.readyCount || 0))} ready · ${escapeHtml(compactNumber(repoImplementationPackets.needsMoreEvidenceCount || 0))} need more evidence · ${escapeHtml(repoImplementationPackets.policy || '')}</small>
             </div>
             <p>${escapeHtml(repoImplementationPackets.plainEnglish || '')}</p>

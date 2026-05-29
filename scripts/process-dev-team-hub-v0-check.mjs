@@ -821,6 +821,7 @@ async function main() {
   addCheck(
     checks,
     list(payload?.youtubeSourceIntelligence?.executiveSummary?.currentState).some(item => text(item).includes('Working now')) &&
+      list(payload?.youtubeSourceIntelligence?.executiveSummary?.currentState).some(item => text(item).includes('Repo readback')) &&
       list(payload?.youtubeSourceIntelligence?.executiveSummary?.currentState).some(item => text(item).includes('Not yet automatic')) &&
       list(payload?.youtubeSourceIntelligence?.executiveSummary?.openGaps).some(item => text(item).includes('Director does not yet hand')) &&
       list(payload?.youtubeSourceIntelligence?.executiveSummary?.workingSteps).some(item => text(item.label).includes('New Creator Intake')) &&
