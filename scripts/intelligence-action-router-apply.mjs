@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
 import {
+  closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   approveActionRoute,
   applyApprovedActionRoute,
-  closeFoundationDb,
   getActionRoute,
   getActionRouterSnapshot,
-  initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}

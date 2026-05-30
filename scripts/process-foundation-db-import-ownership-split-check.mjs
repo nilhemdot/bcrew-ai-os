@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 436
+const DIRECT_IMPORT_LIMIT = 420
 
 const DOMAIN_MODULES = [
   {
@@ -894,6 +894,125 @@ const MIGRATED_IMPORTERS = [
     expectedImports: [
       '../lib/foundation-db-session.js',
       '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/credentials-vault.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-runtime-jobs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/intelligence-action-router-apply.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-intelligence-db.js',
+    ],
+  },
+  {
+    path: 'scripts/intelligence-action-router-proposals.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-intelligence-db.js',
+    ],
+  },
+  {
+    path: 'scripts/intelligence-atom-spine-proof.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-shared-comms-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/intelligence-hybrid-retrieval-proof.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+    ],
+  },
+  {
+    path: 'scripts/intelligence-retrieval-proof.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+    ],
+  },
+  {
+    path: 'scripts/inventory-drive-linked-files.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-source-crawl-db.js',
+    ],
+  },
+  {
+    path: 'scripts/mirror-meeting-archive-to-drive.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-crawl-run-ledger-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-intelligence-spine-god-mode-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-runtime-jobs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/report-backlog-seed-drift.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/run-creator-newsletter-confirmation-readback.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'scripts/run-source-browser-agent.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-source-crawl-db.js',
+    ],
+  },
+  {
+    path: 'scripts/run-source-browser-fallback.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-source-crawl-db.js',
+    ],
+  },
+  {
+    path: 'scripts/run-youtube-creator-daily-watch.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-source-crawl-db.js',
+    ],
+  },
+  {
+    path: 'scripts/sync-calendar-events.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-source-crawl-db.js',
+      '../lib/foundation-shared-comms-db.js',
     ],
   },
 ]

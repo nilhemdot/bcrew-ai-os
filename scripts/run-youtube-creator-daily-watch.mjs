@@ -4,17 +4,21 @@ import process from 'node:process'
 
 import {
   closeFoundationDb,
-  finishSourceCrawlTargetRun,
-  getSourceCrawlItemsByExternalId,
   initFoundationDb,
-  leaseSourceCrawlTarget,
-  listSourceCrawlItems,
+} from '../lib/foundation-db-session.js'
+import {
   recordIntelligenceAtomHit,
   upsertIntelligenceAtom,
   upsertIntelligenceReportArtifact,
+} from '../lib/foundation-intelligence-db.js'
+import {
+  finishSourceCrawlTargetRun,
+  getSourceCrawlItemsByExternalId,
+  leaseSourceCrawlTarget,
+  listSourceCrawlItems,
   upsertSourceCrawlItem,
   upsertSourceCrawlTarget,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
 import {
   YOUTUBE_CREATOR_DAILY_WATCH_JOB_KEY,
   YOUTUBE_CREATOR_DAILY_WATCH_MAX_BASELINE_DEPTH,

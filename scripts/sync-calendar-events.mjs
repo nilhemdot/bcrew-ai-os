@@ -6,9 +6,13 @@ import process from 'node:process'
 import {
   closeFoundationDb,
   initFoundationDb,
-  upsertSharedCommunicationArtifact,
+} from '../lib/foundation-db-session.js'
+import {
   upsertSourceCrawlItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import {
+  upsertSharedCommunicationArtifact,
+} from '../lib/foundation-shared-comms-db.js'
 import { listCalendarEvents } from '../lib/google-delegated.js'
 
 const SOURCE_ID = 'SRC-GCAL-001'

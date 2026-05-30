@@ -3,9 +3,11 @@
 import process from 'node:process';
 import {
   closeFoundationDb,
-  getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-db-session.js'
+import {
+  getSharedCommunicationArchiveSnapshot,
+} from '../lib/foundation-shared-comms-db.js'
 
 const DEFAULT_ROOT_FOLDER_ID = process.env.CREWBERT_MEETING_ARCHIVE_ROOT_FOLDER_ID || '';
 const DEFAULT_CREWBERT_EMAIL = process.env.CREWBERT_ARCHIVE_EMAIL || 'crewbert@bensoncrew.ca';

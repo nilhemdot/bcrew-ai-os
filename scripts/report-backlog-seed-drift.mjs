@@ -3,9 +3,11 @@
 import process from 'node:process'
 import {
   closeFoundationDb,
-  getBacklogSeedDriftSnapshot,
   initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import {
+  getBacklogSeedDriftSnapshot,
+} from '../lib/foundation-backlog-sprint-db.js'
 
 function parseArgs(argv) {
   const result = {}

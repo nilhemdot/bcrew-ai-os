@@ -2,13 +2,17 @@
 
 import {
   closeFoundationDb,
-  getIntelligenceRetrievalSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  updateBacklogItem,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getIntelligenceRetrievalSnapshot,
   promoteSharedCommunicationCandidatesToAtoms,
   recordRetrievalRun,
   searchIntelligenceChunks,
-  updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 
 function pickSearchQuery(promoted, snapshot) {
   const promotedTitle = promoted?.[0]?.title || ''

@@ -2,8 +2,10 @@
 
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   searchSharedCommunicationArtifactsForContext,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-shared-comms-db.js'
 import {
   buildCreatorNewsletterConfirmationReadback,
 } from '../lib/creator-newsletter-intake-runner.js'

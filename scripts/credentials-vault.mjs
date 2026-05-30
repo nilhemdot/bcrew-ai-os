@@ -4,11 +4,13 @@ import process from 'node:process'
 
 import {
   closeFoundationDb,
-  getLlmRuntimeSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getLlmRuntimeSnapshot,
   upsertLlmCredential,
   upsertLlmRoute,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-runtime-jobs-db.js'
 import {
   DEFAULT_GEMINI_WORKSPACE_ACCOUNT,
   GEMINI_WORKSPACE_CREDENTIAL_KEY,

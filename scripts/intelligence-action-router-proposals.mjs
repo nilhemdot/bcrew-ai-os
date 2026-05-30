@@ -2,10 +2,12 @@
 
 import {
   closeFoundationDb,
-  getActionRouterSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getActionRouterSnapshot,
   proposeActionRoutes,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}

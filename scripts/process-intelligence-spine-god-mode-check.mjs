@@ -2,10 +2,12 @@
 
 import {
   closeFoundationDb,
-  getLlmRuntimeSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getLlmRuntimeSnapshot,
   upsertLlmRoute,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-runtime-jobs-db.js'
 import {
   INTELLIGENCE_SPINE_GOD_MODE_CARD_ID,
   buildIntelligenceSpineGodModeDogfood,

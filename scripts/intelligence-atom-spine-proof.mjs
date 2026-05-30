@@ -2,16 +2,24 @@
 
 import {
   closeFoundationDb,
-  getFoundationSnapshot,
-  getIntelligenceAtomSpineSnapshot,
-  getSharedCommunicationSynthesisSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  updateBacklogItem,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getIntelligenceAtomSpineSnapshot,
   queryIntelligenceAtomsForScoper,
   recordIntelligenceAtomHit,
-  updateBacklogItem,
   upsertIntelligenceAtom,
   upsertIntelligenceReportArtifact,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import {
+  getSharedCommunicationSynthesisSnapshot,
+} from '../lib/foundation-shared-comms-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 
 function uniqueText(values) {
   return Array.from(new Set(
