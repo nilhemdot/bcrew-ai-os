@@ -93,7 +93,17 @@ async function readReports() {
   }
 }
 
-async function readBacklogCards() {
+function currentSprintCardIds(currentSprint = {}) {
+  return list(currentSprint.items)
+    .map(item => String(item.cardId || item.backlogId || item.backlog_id || '').trim())
+    .filter(Boolean)
+}
+
+async function readBacklogCards(currentSprint = {}) {
+  const ids = Array.from(new Set([
+    ...BUILDER_MEMORY_RELEVANT_CARD_IDS,
+    ...currentSprintCardIds(currentSprint),
+  ]))
   const pool = createPool()
   try {
     const result = await pool.query(
@@ -103,7 +113,7 @@ async function readBacklogCards() {
         WHERE id = ANY($1::text[])
         ORDER BY array_position($1::text[], id)
       `,
-      [BUILDER_MEMORY_RELEVANT_CARD_IDS],
+      [ids],
     )
     return result.rows
   } finally {
@@ -257,7 +267,7 @@ async function main() {
   currentSprint = await getActiveFoundationCurrentSprint()
   const [reports, backlogCards] = await Promise.all([
     readReports(),
-    readBacklogCards(),
+    readBacklogCards(currentSprint),
   ])
   const packet = buildBuilderMemoryStartupPacket({
     currentSprint,
@@ -324,7 +334,13 @@ async function main() {
     `${packageJson.scripts?.['process:builder-memory-system-check'] || 'missing'} / ${packageJson.scripts?.['builder:startup-packet'] || 'missing'}`,
   )
   addCheck(checks, reports.foundIds.length >= BUILDER_MEMORY_INPUT_REPORT_IDS.length, 'required builder memory input reports exist', reports.foundIds.join(', '))
-  addCheck(checks, backlogCards.length >= 6, 'relevant backlog cards are loaded from live backlog', `${backlogCards.length} cards`)
+  addCheck(checks, backlogCards.length >= Math.min(6, BUILDER_MEMORY_RELEVANT_CARD_IDS.length), 'relevant backlog cards are loaded from live backlog', `${backlogCards.length} cards`)
+  addCheck(
+    checks,
+    currentSprintCardIds(currentSprint).every(id => backlogCards.some(card => card.id === id)),
+    'builder startup packet includes active Current Sprint cards',
+    currentSprintCardIds(currentSprint).join(', ') || 'no active sprint cards',
+  )
   addCheck(checks, evaluation.ok, 'live builder startup packet passes evaluation', evaluation.failed.map(item => item.check).join('; ') || 'healthy')
   addCheck(
     checks,
