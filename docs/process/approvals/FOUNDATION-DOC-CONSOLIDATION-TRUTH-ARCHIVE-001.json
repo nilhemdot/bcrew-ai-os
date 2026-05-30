@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001",
+  "approvedPlanRef": "docs/process/foundation-doc-consolidation-truth-archive-001-plan.md",
+  "approvedPlanSha256": "cbe46d259a423d5f3b9f05b21a4bd14d74738f203ebd2e9ce5ec4295d5f51859",
+  "approvedRepoHead": "4160f611a9050b54896a2a23ce3affff50b114f3",
+  "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
+  "approvedAt": "2026-05-30T08:45:00.000Z",
+  "score": 10,
+  "notes": "Approved bounded doc-consolidation V1. Scope is classification and proof only: identify canonical truth, supporting docs, active handoffs/audits, plan history, and preserved archive material without deleting, moving, archiving, or shrinking docs. Preserve source/browser proof lanes, Dev Hub System Truth, codex-status, and no per-hub restructure.",
+  "approvalDigest": "4175d4c2263d4ac3eaebb6be041fd24cfbb9fd2434b970e5ed02ef695ac7dbf1"
+}
