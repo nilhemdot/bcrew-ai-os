@@ -5,7 +5,8 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
-import { closeFoundationDb, initFoundationDb, upsertSharedCommunicationArtifact } from '../lib/foundation-db.js';
+import { closeFoundationDb, initFoundationDb } from '../lib/foundation-db-session.js';
+import { upsertSharedCommunicationArtifact } from '../lib/foundation-shared-comms-db.js';
 import { classifyMeetingShape } from '../lib/meeting-classification.js';
 import { buildMeetingArtifactExternalId, transcriptTextHash } from '../lib/meeting-transcripts.js';
 import {

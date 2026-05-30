@@ -6,7 +6,7 @@ import {
   buildDecisionAutoEmitSummary,
   scanDecisionAutoEmitCandidates,
 } from '../lib/decision-auto-emit.js'
-import { closeFoundationDb } from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 
 function parseArgs(argv) {
   const result = {}

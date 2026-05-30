@@ -2,7 +2,7 @@
 
 import fs from 'node:fs'
 import process from 'node:process'
-import { closeFoundationDb } from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 
 const LOCAL_KPI_ENV = 'store/kpi-audit.env'
 const PAGE_SIZE = 1000

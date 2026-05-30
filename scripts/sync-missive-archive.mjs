@@ -4,12 +4,16 @@ import process from 'node:process';
 import { getMissiveThread, listMissiveInbox } from '../lib/missive.js';
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js';
+import {
   getSharedCommunicationExistingArtifactsByExternalId,
   getSharedCommunicationArchiveSnapshot,
-  initFoundationDb,
-  upsertSourceCrawlItem,
   upsertSharedCommunicationArtifact,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-shared-comms-db.js';
+import {
+  upsertSourceCrawlItem,
+} from '../lib/foundation-source-crawl-db.js';
 import {
   formatFoundationGateRetryMessage,
   runWithFoundationGateRetry,

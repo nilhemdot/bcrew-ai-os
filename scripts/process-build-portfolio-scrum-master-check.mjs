@@ -16,7 +16,7 @@ import {
   buildPortfolioReview,
   buildPortfolioDogfoodProof,
 } from '../lib/build-portfolio-scrum-master.js'
-import { closeFoundationDb } from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import { DEV_BUILD_SCOPER_STATUS } from '../lib/dev-build-opportunity-scoper.js'
 import {
   buildDevBuildOpportunityEvidenceTrace,

@@ -2,7 +2,7 @@
 
 import process from 'node:process'
 
-import { closeFoundationDb } from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
   DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID,
 } from '../lib/dev-team-intelligence-director.js'

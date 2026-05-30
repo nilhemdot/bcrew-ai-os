@@ -9,11 +9,15 @@ import {
 } from '../lib/slack.js';
 import {
   closeFoundationDb,
-  getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
-  upsertSourceCrawlItem,
+} from '../lib/foundation-db-session.js';
+import {
+  getSharedCommunicationArchiveSnapshot,
   upsertSharedCommunicationArtifact,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-shared-comms-db.js';
+import {
+  upsertSourceCrawlItem,
+} from '../lib/foundation-source-crawl-db.js';
 import { transcriptTextHash } from '../lib/meeting-transcripts.js';
 
 function parseArgs(argv) {

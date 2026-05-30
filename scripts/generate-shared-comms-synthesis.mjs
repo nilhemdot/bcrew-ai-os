@@ -9,8 +9,10 @@ import { Pool } from 'pg';
 import {
   closeFoundationDb,
   initFoundationDb,
+} from '../lib/foundation-db-session.js';
+import {
   recordSharedCommunicationSynthesisRun,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-shared-comms-db.js';
 import { callLlm } from '../lib/llm-router.js';
 import { getSourceContracts } from '../lib/source-contracts.js';
 import { shorten } from '../lib/shared-candidate-extraction.js';

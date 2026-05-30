@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 538
+const DIRECT_IMPORT_LIMIT = 530
 
 const DOMAIN_MODULES = [
   {
@@ -41,6 +41,24 @@ const DOMAIN_MODULES = [
       'getIntelligenceJobLedgerSnapshot',
       'searchIntelligenceEvidenceHybrid',
       'proposeActionRoutes',
+    ],
+  },
+  {
+    path: 'lib/foundation-source-crawl-db.js',
+    expectedExports: [
+      'getSourceContractRegistrySnapshot',
+      'listSourceCrawlItems',
+      'upsertSourceCrawlItem',
+      'upsertSourceCrawlTarget',
+    ],
+  },
+  {
+    path: 'lib/foundation-shared-comms-db.js',
+    expectedExports: [
+      'getSharedCommunicationArchiveSnapshot',
+      'getSharedCommunicationCoverageSnapshot',
+      'recordSharedCommunicationSynthesisRun',
+      'upsertSharedCommunicationArtifact',
     ],
   },
 ]
@@ -125,6 +143,66 @@ const MIGRATED_IMPORTERS = [
   {
     path: 'scripts/process-agent-feedback-reminder-cadence-check.mjs',
     expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/process-dev-build-scoper-evidence-trace-check.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/process-build-portfolio-scrum-master-check.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/audit-kpi-shopping-list-quality.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/decision-auto-emit.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/transcribe-zoom-audio-archive.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'scripts/sync-zoom-text-archive.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'scripts/sync-slack-archive.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-shared-comms-db.js',
+      '../lib/foundation-source-crawl-db.js',
+    ],
+  },
+  {
+    path: 'scripts/sync-missive-archive.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-shared-comms-db.js',
+      '../lib/foundation-source-crawl-db.js',
+    ],
+  },
+  {
+    path: 'scripts/report-shared-comms-coverage.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'scripts/generate-shared-comms-synthesis.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-shared-comms-db.js',
+    ],
   },
 ]
 

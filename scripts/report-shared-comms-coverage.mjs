@@ -3,9 +3,11 @@
 import process from 'node:process';
 import {
   closeFoundationDb,
-  getSharedCommunicationCoverageSnapshot,
   initFoundationDb,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-db-session.js';
+import {
+  getSharedCommunicationCoverageSnapshot,
+} from '../lib/foundation-shared-comms-db.js';
 
 function formatDate(value) {
   if (!value) return 'unknown';
