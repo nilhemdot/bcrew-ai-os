@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-IMPORT-OWNERSHIP-SPLIT-001",
+  "approvedPlanRef": "docs/process/foundation-tuneup-roadmap-001-plan.md",
+  "approvedPlanSha256": "f7ffa8c34f91ea99dd3680988a38e64a1254c7ec811bc9f0bdb85258cd96c6e0",
+  "approvedRepoHead": "475846d320a045f2d6d6ae9a11f02c62931e18e9",
+  "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
+  "approvedAt": "2026-05-30T04:20:00.000Z",
+  "score": 10,
+  "notes": "Approved bounded Foundation DB import ownership split. Keep lib/foundation-db.js as a stable pass-through facade, migrate import ownership incrementally to domain modules, preserve proof lane and Dev Hub System Truth, do not delete verifier/approval/plan/check files, do not mutate Drive permissions, and checkpoint before per-hub folder restructuring.",
+  "approvalDigest": "f14962da1730323f739cf5664eec135341f5f413d5302a33b71955a0a920cc6a"
+}

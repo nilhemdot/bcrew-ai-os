@@ -17,16 +17,22 @@ import {
   buildSystemFlowMapSnapshot,
 } from '../lib/foundation-control-compression.js'
 import {
-  captureFoundationFeedbackItem,
   closeFoundationDb,
-  getActiveFoundationCurrentSprint,
-  getFoundationSnapshot,
   initFoundationDb,
-  listFoundationAcknowledgedStates,
+} from '../lib/foundation-db-session.js'
+import {
+  getActiveFoundationCurrentSprint,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  captureFoundationFeedbackItem,
   listFoundationFeedbackItems,
+} from '../lib/foundation-people-sales-db.js'
+import {
+  getFoundationSnapshot,
+  listFoundationAcknowledgedStates,
   recordFoundationIncrementalVerifierRun,
   upsertFoundationAcknowledgedState,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-strategy-docs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'

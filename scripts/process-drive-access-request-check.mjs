@@ -23,11 +23,17 @@ import {
 import {
   closeFoundationDb,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  updateBacklogItem,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
   listFoundationUsers,
+} from '../lib/foundation-people-sales-db.js'
+import {
   listMeetingRawDriveFileCandidates,
   recordDriveAccessPreflightRun,
-  updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
 import {
   buildMeetingRawFileInventory,
 } from '../lib/meeting-vault-acl.js'

@@ -3997,5 +3997,87 @@
       "./foundation-people-sales-db.js",
       "./foundation-strategy-docs-db.js"
     ]
+  },
+  {
+    "path": "scripts/apply-meeting-vault-acl-batch.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/apply-meeting-vault-acl-front-office-batch.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/apply-meeting-vault-acl-originals-add-crewbert-batch.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-people-sales-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/apply-meeting-vault-acl-public-link-batch.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-people-sales-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/foundation-verify.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-intelligence-db.js",
+      "../lib/foundation-shared-comms-db.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-runtime-jobs-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-drive-access-request-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-people-sales-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-foundation-control-compression-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-people-sales-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-meeting-vault-acl-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-people-sales-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-meeting-vault-auto-enforcement-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-people-sales-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
   }
 ]

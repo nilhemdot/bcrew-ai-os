@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 17
+const DIRECT_IMPORT_LIMIT = 8
 
 const DOMAIN_MODULES = [
   {
@@ -47,6 +47,7 @@ const DOMAIN_MODULES = [
     path: 'lib/foundation-source-crawl-db.js',
     expectedExports: [
       'getExtractionControlSnapshot',
+      'listMeetingRawDriveFileCandidates',
       'getSourceContractRegistrySnapshot',
       'listSourceCrawlItems',
       'upsertSourceCrawlItem',
@@ -87,6 +88,7 @@ const DOMAIN_MODULES = [
       'getFoundationSnapshot',
       'getStrategyGoalTruthSnapshot',
       'getStrategyOperatingTruthSnapshot',
+      'listFoundationAcknowledgedStates',
     ],
   },
 ]

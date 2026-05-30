@@ -862,33 +862,45 @@ import {
   PROTECTED_FOUNDATION_PATH_PATTERNS,
 } from '../lib/process-git-hooks.js'
 import {
-  BACKLOG_STORE_CONCURRENCY_CARD_ID,
-  CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
   FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
-  buildCurrentSprintMutationGuardsDogfoodProof,
   assertFoundationDbReadyForReadOnlyGate,
   buildFoundationDbInitSeedSplitDogfoodProof,
   closeFoundationDb,
-  getActionRouterSnapshot,
+  getFoundationDbConstraintAudit,
+} from '../lib/foundation-db-session.js'
+import {
+  BACKLOG_STORE_CONCURRENCY_CARD_ID,
+  CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
+  buildCurrentSprintMutationGuardsDogfoodProof,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getBacklogSeedDriftSnapshot,
-  getFoundationDbConstraintAudit,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getActionRouterSnapshot,
   getIntelligenceAtomSpineSnapshot,
   getIntelligenceJobLedgerSnapshot,
   getIntelligenceRetrievalSnapshot,
   getSynthesisEngineSnapshot,
   getSynthesisFactsSnapshot,
+} from '../lib/foundation-intelligence-db.js'
+import {
   getSharedCommunicationProcessingProvenanceGaps,
+} from '../lib/foundation-shared-comms-db.js'
+import {
   getStaleSourceCrawlTargetRuns,
-  getStaleLlmCalls,
   getLatestDriveAccessPreflightRun,
   getLatestMeetingVaultAclAudit,
   getLatestMeetingVaultAutoEnforcementRun,
+} from '../lib/foundation-source-crawl-db.js'
+import {
+  getStaleLlmCalls,
+} from '../lib/foundation-runtime-jobs-db.js'
+import {
   getStrategyGoalTruthSnapshot,
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   FOUNDATION_DB_STORE_SPLIT_CARD_ID,
   FOUNDATION_DB_STORE_SPLIT_CLOSEOUT_KEY,
