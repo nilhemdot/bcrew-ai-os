@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-TUNEUP-REMAP-PROOF-001",
+  "approvedPlanRef": "docs/process/foundation-tuneup-remap-proof-001-plan.md",
+  "approvedPlanSha256": "27a096bed4ef4549e9717e712a7d5872ab16515835045c85fd99d58eeae5d8d6",
+  "approvedRepoHead": "b143d9fc56a27ac794a38f878db6cab71e84f6d5",
+  "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
+  "approvedAt": "2026-05-30T09:08:00.000Z",
+  "score": 10,
+  "notes": "Approved bounded tune-up remap V1. Scope is read-only before/after proof: rerun the AIOS-owned codebase map, compare audit baselines to live repo facts, close the remap card, register the per-hub checkpoint as a later Foundation progression blocker, and leave per-hub folder isolation checkpoint-only. No generated graph, no plugin install, no private memory, no docs/file deletion, no source/browser mutation, and no per-hub implementation.",
+  "approvalDigest": "4d741ed76ef01365105f53ff83570c5982fbb06276ca16395ee0467874d10c4f"
+}
