@@ -13,11 +13,15 @@ import {
 } from '../lib/foundation-review-sprint.js'
 import {
   closeFoundationDb,
-  getActionRouterSnapshot,
-  getFoundationSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getActionRouterSnapshot,
   recordActionRouteCuration,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import { buildBacklogHygieneSnapshot } from '../lib/backlog-hygiene.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 

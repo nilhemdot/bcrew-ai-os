@@ -9,9 +9,11 @@ import {
 } from '../lib/foundation-ship-preflight.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getFoundationJobRunSnapshot,
   getLlmRuntimeSnapshot,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-runtime-jobs-db.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}

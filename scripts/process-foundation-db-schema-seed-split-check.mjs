@@ -12,10 +12,12 @@ import {
   FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
   buildFoundationDbInitSeedSplitDogfoodProof,
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   FOUNDATION_DB_SCHEMA_SEED_SPLIT_APPROVAL_PATH,
   FOUNDATION_DB_SCHEMA_SEED_SPLIT_CARD_ID,

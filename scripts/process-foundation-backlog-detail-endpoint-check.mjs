@@ -6,11 +6,15 @@ import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationCoreSnapshot,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getFoundationCoreSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   FOUNDATION_BACKLOG_DETAIL_ENDPOINT_APPROVAL_PATH,
   FOUNDATION_BACKLOG_DETAIL_ENDPOINT_BUDGET_BYTES,

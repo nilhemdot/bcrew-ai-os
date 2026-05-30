@@ -26,10 +26,12 @@ import {
 } from '../lib/foundation-merge-queue.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   evaluatePlanCriticPlan,

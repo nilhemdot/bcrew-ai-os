@@ -20,7 +20,7 @@ import {
 import {
   getActiveFoundationCurrentSprint,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 
 const repoRoot = process.cwd()
 

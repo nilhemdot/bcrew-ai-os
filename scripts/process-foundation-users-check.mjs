@@ -9,13 +9,17 @@ import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  initFoundationDb,
-  listFoundationUsers,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  listFoundationUsers,
+} from '../lib/foundation-people-sales-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { findRoutePosture, authorizeRouteAccess } from '../lib/security-access.js'
 import {

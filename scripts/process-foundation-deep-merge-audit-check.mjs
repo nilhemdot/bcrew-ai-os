@@ -24,8 +24,10 @@ import {
 } from '../lib/nightly-deep-audit-upgrade.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getBacklogItemsByIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,

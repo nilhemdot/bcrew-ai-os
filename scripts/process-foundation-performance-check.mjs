@@ -15,10 +15,12 @@ import {
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = { json: false, baseUrl: process.env.BCREW_FOUNDATION_BASE_URL || 'http://localhost:3000' }

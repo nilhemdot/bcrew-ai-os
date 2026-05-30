@@ -10,8 +10,10 @@ import {
 } from '../lib/foundation-data-sources-v2.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getFoundationSnapshot,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   getFoundationJobDefinitions,
 } from '../lib/foundation-jobs.js'

@@ -16,11 +16,13 @@ import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   FOUNDATION_AGENT_USEFULNESS_NOT_NEXT_BOUNDARIES as NOT_NEXT,
   FOUNDATION_AGENT_USEFULNESS_RUNTIME_GATES_APPROVAL_PATH as APPROVAL_PATH,

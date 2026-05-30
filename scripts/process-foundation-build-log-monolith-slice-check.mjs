@@ -19,10 +19,12 @@ import {
   evaluateFoundationBuildLogRegistrySplit,
 } from '../lib/foundation-build-log-monolith-slice.js'
 import {
+  closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getPlanCriticRunsByCardIds,
-  closeFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 
 const __filename = fileURLToPath(import.meta.url)

@@ -9,10 +9,12 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { buildCodeQualityNightlyAudit, detectHardcodedLiveTruthInText } from '../lib/code-quality-nightly-audit.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_APPROVAL_PATH,

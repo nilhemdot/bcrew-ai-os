@@ -12,14 +12,20 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationJobRunSnapshot,
-  getFoundationSnapshot,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getFoundationJobRunSnapshot,
+} from '../lib/foundation-runtime-jobs-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import { getFoundationJobDefinition } from '../lib/foundation-jobs.js'
 import {
   FOUNDATION_LESSONS_LEARNED_LOOP_APPROVAL_PATH,

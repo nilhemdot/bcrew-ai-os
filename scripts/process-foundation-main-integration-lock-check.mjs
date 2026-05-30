@@ -28,12 +28,14 @@ import {
 } from '../lib/foundation-main-integration-lock.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   evaluatePlanCriticPlan,
