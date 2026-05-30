@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-VERIFY-GATE-TIERING-FINISH-001",
+  "approvedPlanRef": "docs/process/foundation-verify-gate-tiering-finish-001-plan.md",
+  "approvedPlanSha256": "e40b2bfe6b71f4295c8e5ba19ee48aff04bbd49d0207baf4fbf4d3546b0e931c",
+  "approvedRepoHead": "05e9566d07fcf6dd0e4e18a6a94221a077395790",
+  "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
+  "approvedAt": "2026-05-30T04:39:00.000Z",
+  "score": 10,
+  "notes": "Approved bounded verifier gate tiering finish. Scope is deletion-aware protected-file classification and HEAD-diff proof only. Do not archive verifier/approval/plan/check files in this card, keep focused paths fast, require full ship/repoint path for protected deletions, preserve source/browser proof lane and Dev Hub System Truth, and checkpoint before per-hub restructuring.",
+  "approvalDigest": "e0fd9906b0a58301bb610006df89c51c72a03cabcc25c8c223de1479c4f0ad7f"
+}
