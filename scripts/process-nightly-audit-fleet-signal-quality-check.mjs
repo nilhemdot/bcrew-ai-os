@@ -27,6 +27,7 @@ import {
   NIGHTLY_AUDIT_FLEET_SIGNAL_QUALITY_PLAN_PATH,
   NIGHTLY_AUDIT_FLEET_SIGNAL_QUALITY_SCRIPT_PATH,
   buildNightlyAuditFleetRuntimeScan,
+  buildNightlyAuditFleetHardeningProof,
   buildNightlyAuditFleetSignalQualityProof,
 } from '../lib/nightly-audit-fleet-runtime-scan.js'
 
@@ -53,6 +54,12 @@ async function readRepoJson(relativePath) {
 
 function includesAll(source = '', markers = []) {
   return markers.every(marker => String(source || '').includes(marker))
+}
+
+const cardIdPattern = /^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+-\d{3}$/
+
+function unique(values = []) {
+  return Array.from(new Set(values.map(value => String(value || '').trim()).filter(Boolean)))
 }
 
 async function main() {
@@ -93,11 +100,21 @@ async function main() {
 
   const scan = await buildNightlyAuditFleetRuntimeScan({ repoRoot })
   const proof = buildNightlyAuditFleetSignalQualityProof()
+  const hardeningProof = buildNightlyAuditFleetHardeningProof()
   const closeout = getFoundationBuildCloseouts().find(item => item.key === NIGHTLY_AUDIT_FLEET_SIGNAL_QUALITY_CLOSEOUT_KEY)
   const card = backlogRows.find(item => item.id === NIGHTLY_AUDIT_FLEET_SIGNAL_QUALITY_CARD_ID)
   const activeFindings = scan.activeFindings || []
-  const activeRefs = activeFindings.map(finding => finding.evidenceRefs?.[0] || '')
-  const evidenceOnlyActive = activeRefs.filter(ref =>
+  const activeRouteIds = unique(activeFindings
+    .map(finding => finding.proposedOwnerOrCard)
+    .filter(routeId => cardIdPattern.test(routeId)))
+  const activeRouteRows = activeRouteIds.length ? await getBacklogItemsByIds(activeRouteIds) : []
+  const activeRouteBacklogIds = new Set(activeRouteRows.map(row => row.id))
+  const unroutedActiveFindings = activeFindings.filter(finding => !cardIdPattern.test(finding.proposedOwnerOrCard))
+  const missingRouteIds = activeRouteIds.filter(routeId => !activeRouteBacklogIds.has(routeId))
+  const nonCodeQualityActiveRefs = activeFindings
+    .filter(finding => finding.laneId !== 'code_quality')
+    .map(finding => finding.evidenceRefs?.[0] || '')
+  const evidenceOnlyActive = nonCodeQualityActiveRefs.filter(ref =>
     ref.startsWith('lib/foundation-backlog-seed-chunks/') ||
       ref.startsWith('lib/foundation-build-closeout-') ||
       ref.startsWith('lib/foundation-verify-coverage-card-ids.js') ||
@@ -128,11 +145,13 @@ async function main() {
       'buildRuntimeModelLiteralPolicyFindingInput',
       'classifyProcessCheckSource',
       'buildProcessCheckReportOutputPolicyFindingInput',
+      'scanCodeQualityRefactorOpportunities',
       'isEvidenceOnlyRuntimePath',
       'isAuditProofFixturePath',
+      'buildNightlyAuditFleetHardeningProof',
       'buildNightlyAuditFleetSignalQualityProof',
     ]),
-    'runtime scan reuses shared model/process classifiers and proof-fixture boundaries',
+    'runtime scan reuses shared classifiers and owns refactor/hardcoded hardening proof',
     'lib/nightly-audit-fleet-runtime-scan.js',
   )
   addCheck(
@@ -161,9 +180,37 @@ async function main() {
   )
   addCheck(
     checks,
+    hardeningProof.ok === true,
+    'hardening dogfood proves refactor scanner, source-browser model-policy ownership, and active card routes',
+    JSON.stringify(hardeningProof.cases || []),
+  )
+  addCheck(
+    checks,
+    scan.summary?.executedLaneCount >= 5 &&
+      scan.summary?.packetOnlyLaneCount <= 3 &&
+      scan.lanePackets?.some(lane => lane.laneId === 'code_quality' && lane.status !== 'packet_only'),
+    'code-quality refactor lane now executes instead of staying packet-only',
+    JSON.stringify(scan.summary || {}),
+  )
+  addCheck(
+    checks,
     evidenceOnlyActive.length === 0,
     'real scan does not page seed/closeout/verifier/proof fixtures as active findings',
     evidenceOnlyActive.slice(0, 10).join(', ') || 'none',
+  )
+  addCheck(
+    checks,
+    activeFindings.length > 0 &&
+      unroutedActiveFindings.length === 0 &&
+      missingRouteIds.length === 0 &&
+      activeRouteIds.length > 0,
+    'active audit-fleet findings route to live backlog cards',
+    JSON.stringify({
+      activeFindingCount: activeFindings.length,
+      activeRouteIds,
+      unrouted: unroutedActiveFindings.map(finding => finding.findingId),
+      missingRouteIds,
+    }),
   )
   addCheck(
     checks,
@@ -240,8 +287,10 @@ async function main() {
     scanStatus: scan.scanStatus,
     summary: scan.summary,
     evidenceOnlyActiveCount: evidenceOnlyActive.length,
+    activeRouteIds,
     activeFindings: activeFindings.slice(0, 20),
     proof,
+    hardeningProof,
     checks,
     failed,
   }
