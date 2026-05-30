@@ -9,9 +9,11 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
-  getBacklogItemsByIds,
   initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import {
+  getBacklogItemsByIds,
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   NIGHTLY_AUDIT_FLEET_RUNTIME_SCAN_APPROVAL_PATH,
   NIGHTLY_AUDIT_FLEET_RUNTIME_SCAN_CARD_ID,

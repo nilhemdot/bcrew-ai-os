@@ -8,11 +8,15 @@ import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationJobRunSnapshot,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getFoundationJobRunSnapshot,
+} from '../lib/foundation-runtime-jobs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { getFoundationJobDefinition } from '../lib/foundation-jobs.js'
 import {

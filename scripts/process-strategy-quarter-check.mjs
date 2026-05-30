@@ -11,14 +11,20 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
-  syncSourceContractRegistryTable,
   upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  syncSourceContractRegistryTable,
+} from '../lib/foundation-source-crawl-db.js'
+import {
   upsertSynthesisFactsBundle,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   buildPlanCriticResultSummary,

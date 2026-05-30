@@ -13,16 +13,22 @@ import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
-  getActionRouterSnapshot,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getIntelligenceRetrievalSnapshot,
   getPlanCriticRunsByCardIds,
+  upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getActionRouterSnapshot,
+  getIntelligenceRetrievalSnapshot,
+} from '../lib/foundation-intelligence-db.js'
+import {
   getStrategyGoalTruthSnapshot,
   getStrategyOperatingTruthSnapshot,
-  initFoundationDb,
-  upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   buildPlanCriticResultSummary,

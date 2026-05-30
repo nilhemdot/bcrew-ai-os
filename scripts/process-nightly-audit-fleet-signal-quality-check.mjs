@@ -13,9 +13,11 @@ import {
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
-  getBacklogItemsByIds,
   initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import {
+  getBacklogItemsByIds,
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   NIGHTLY_AUDIT_FLEET_RUNTIME_SCAN_SCRIPT_PATH,
   NIGHTLY_AUDIT_FLEET_SIGNAL_QUALITY_APPROVAL_PATH,

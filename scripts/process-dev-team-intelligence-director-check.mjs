@@ -9,15 +9,19 @@ import { Pool } from 'pg'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getIntelligenceReportBundle,
-  initFoundationDb,
-  recordIntelligenceAtomHit,
   updateBacklogItem,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getIntelligenceReportBundle,
+  recordIntelligenceAtomHit,
   upsertIntelligenceAtom,
   upsertIntelligenceReportArtifact,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   buildPlanCriticResultSummary,

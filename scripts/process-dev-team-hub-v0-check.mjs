@@ -7,15 +7,25 @@ import { fileURLToPath } from 'node:url'
 
 import {
   closeFoundationDb,
-  getActiveFoundationCurrentSprint,
-  getExtractionControlSnapshot,
-  getFoundationSnapshot,
-  getIntelligenceReportBundle,
   initFoundationDb,
-  listLlmCalls,
+} from '../lib/foundation-db-session.js'
+import {
+  getActiveFoundationCurrentSprint,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getExtractionControlSnapshot,
   listSourceCrawlItems,
+} from '../lib/foundation-source-crawl-db.js'
+import {
+  getIntelligenceReportBundle,
   listYoutubeFullWatchReportArtifacts,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
+import {
+  listLlmCalls,
+} from '../lib/foundation-runtime-jobs-db.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
 import { buildCreatorWatchlistSnapshot } from '../lib/build-intel-watchlist.js'
 import {

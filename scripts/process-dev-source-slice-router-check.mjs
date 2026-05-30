@@ -9,8 +9,10 @@ import { Pool } from 'pg'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getIntelligenceReportBundle,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 import {
   DEV_SOURCE_SLICE_ROUTER_APPROVAL_PATH,
   DEV_SOURCE_SLICE_ROUTER_CARD_ID,
