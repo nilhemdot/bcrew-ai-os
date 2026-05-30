@@ -96,6 +96,11 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-dev-team-hub-v0-check.mjs'
+const DEV_CSS_PATHS = [
+  'public/dev.css',
+  'public/dev-youtube-source.css',
+  'public/dev-source-approval.css',
+]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
 
@@ -142,6 +147,11 @@ async function readRepoFile(relativePath) {
 
 async function readRepoJson(relativePath) {
   return JSON.parse(await readRepoFile(relativePath))
+}
+
+async function readDevCssBundle() {
+  const sources = await Promise.all(DEV_CSS_PATHS.map(readRepoFile))
+  return sources.join('\n')
 }
 
 function includesAll(source = '', markers = []) {
@@ -403,7 +413,7 @@ async function main() {
     readRepoFile('server.js'),
     readRepoFile('public/dev.html'),
     readRepoFile('public/dev.js'),
-    readRepoFile('public/dev.css'),
+    readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
   ])
@@ -496,7 +506,8 @@ async function main() {
       jsSource.includes('state.dataPoolLoadInFlight') &&
 	      jsSource.includes("document.visibilityState === 'hidden'") &&
 	      jsSource.includes("window.addEventListener('focus', refreshDevDataPoolFromBackend)") &&
-	      htmlSource.includes('20260528-ranking-process-v1'),
+	      htmlSource.includes('/dev-youtube-source.css?v=20260530-oversized-v1') &&
+	      htmlSource.includes('/dev-source-approval.css?v=20260530-oversized-v1'),
     'Dev page automatically refetches source-backed dashboard data after extraction writes',
     '30s no-store polling + focus refresh + in-flight guard',
   )

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001",
+  "approvedPlanRef": "docs/process/foundation-oversized-file-split-wave-001-plan.md",
+  "approvedPlanSha256": "35522a5e535db0a9d0f37f262d9bbaecdf89333f099e0f9106855a2a94659b15",
+  "approvedRepoHead": "2f10517c9a0e63fa443e0fa9c85a44086456ca07",
+  "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
+  "approvedAt": "2026-05-30T06:24:00.000Z",
+  "score": 10,
+  "notes": "Approved bounded oversized-file split V1. Scope is public/dev.css ownership split into ordered CSS assets, proof-script CSS bundle readback, and the minimal progression-registry update needed so closing the card does not regress historical Foundation checks. Do not redesign Dev page, delete verifier/approval/plan/check files, mutate source/extraction/browser/atom/Drive/external systems, weaken source/browser proof lane, or start FOUNDATION-HUB-FOLDER-ISOLATION-001/per-hub folders.",
+  "approvalDigest": "e1bddfd83f76d1a5d29feea2a0cd8556762f3049d79b3bd7bc09c8d6adc6be9a"
+}

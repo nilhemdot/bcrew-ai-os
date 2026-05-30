@@ -49,6 +49,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const ACTOR = 'codex-dev-page-system-truth-cleanup'
 const DIRECTOR_REPORT_ID = 'director:dev-team-intelligence-director-001:aios-mission-v0'
+const DEV_CSS_PATHS = [
+  'public/dev.css',
+  'public/dev-youtube-source.css',
+  'public/dev-source-approval.css',
+]
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -75,6 +80,11 @@ async function readRepoFile(relativePath) {
 
 async function readRepoJson(relativePath) {
   return JSON.parse(await readRepoFile(relativePath))
+}
+
+async function readDevCssBundle() {
+  const sources = await Promise.all(DEV_CSS_PATHS.map(readRepoFile))
+  return sources.join('\n')
 }
 
 function createPool() {
@@ -287,7 +297,7 @@ async function main() {
     readRepoFile('lib/foundation-build-intel-routes.js'),
     readRepoFile('public/dev.html'),
     readRepoFile('public/dev.js'),
-    readRepoFile('public/dev.css'),
+    readDevCssBundle(),
     readRepoFile(DEV_PAGE_SYSTEM_TRUTH_CLEANUP_SCRIPT_PATH),
     readRepoFile(DEV_PAGE_SYSTEM_TRUTH_CLEANUP_PLAN_PATH),
     readRepoFile('docs/rebuild/current-plan.md'),

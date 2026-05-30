@@ -28,6 +28,11 @@ import {
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..')
+const DEV_CSS_PATHS = [
+  'public/dev.css',
+  'public/dev-youtube-source.css',
+  'public/dev-source-approval.css',
+]
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -41,6 +46,11 @@ async function readRepoFile(relativePath) {
 
 async function readRepoJson(relativePath) {
   return JSON.parse(await readRepoFile(relativePath))
+}
+
+async function readDevCssBundle() {
+  const sources = await Promise.all(DEV_CSS_PATHS.map(readRepoFile))
+  return sources.join('\n')
 }
 
 function addCheck(checks, ok, check, detail = '') {
@@ -127,7 +137,7 @@ async function main() {
     readRepoFile(SOURCE_FAMILY_GOD_MODE_EXTRACTORS_SCRIPT_PATH),
     readRepoFile('lib/dev-team-hub.js'),
     readRepoFile('public/dev.js'),
-    readRepoFile('public/dev.css'),
+    readDevCssBundle(),
     readRepoFile('docs/process/source-family-god-mode-extractors-001-plan.md'),
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),

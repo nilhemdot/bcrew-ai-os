@@ -44,6 +44,11 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
+const DEV_CSS_PATHS = [
+  'public/dev.css',
+  'public/dev-youtube-source.css',
+  'public/dev-source-approval.css',
+]
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -69,6 +74,11 @@ async function readRepoFile(relativePath) {
 
 async function readRepoJson(relativePath) {
   return JSON.parse(await readRepoFile(relativePath))
+}
+
+async function readDevCssBundle() {
+  const sources = await Promise.all(DEV_CSS_PATHS.map(readRepoFile))
+  return sources.join('\n')
 }
 
 function sourceValueGraderFromBundle(bundle = {}) {
@@ -187,7 +197,7 @@ async function main() {
     readRepoFile('lib/source-session-auth-resume-packet.js'),
     readRepoFile('lib/source-god-mode-youtube-handoff.js'),
     readRepoFile('public/dev.js'),
-    readRepoFile('public/dev.css'),
+    readDevCssBundle(),
   ])
 
   const [fixtureReadiness, livePrepQueue] = await Promise.all([
