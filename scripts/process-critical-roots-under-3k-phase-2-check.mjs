@@ -8,11 +8,11 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   CRITICAL_ROOTS_UNDER_3K_PHASE_2_APPROVAL_PATH,
   CRITICAL_ROOTS_UNDER_3K_PHASE_2_CARD_ID,

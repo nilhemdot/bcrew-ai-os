@@ -8,16 +8,20 @@ import { Pool } from 'pg'
 
 import {
   closeFoundationDb,
-  getActiveFoundationCurrentSprint,
-  getIntelligenceReportBundle,
-  getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
-  recordIntelligenceAtomHit,
+} from '../lib/foundation-db-session.js'
+import {
+  getActiveFoundationCurrentSprint,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getIntelligenceReportBundle,
+  recordIntelligenceAtomHit,
   upsertIntelligenceAtom,
   upsertIntelligenceReportArtifact,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import { getSharedCommunicationArchiveSnapshot } from '../lib/foundation-shared-comms-db.js'
 import {
   MARK_KASHEF_BASELINE_REPORT_ARTIFACT_ID,
   MARK_KASHEF_BASELINE_SOURCE_ID,
