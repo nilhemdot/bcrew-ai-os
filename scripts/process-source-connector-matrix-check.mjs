@@ -8,10 +8,14 @@ import {
 } from '../lib/source-connector-matrix.js'
 import {
   closeFoundationDb,
-  getFoundationSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   getSourceConnectors,
   getSourceContracts,

@@ -9,9 +9,11 @@ import { Pool } from 'pg'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
-  getBacklogItemsByIds,
   initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import {
+  getBacklogItemsByIds,
+} from '../lib/foundation-backlog-sprint-db.js'
 import { readFoundationBuildLogRegistrySource } from '../lib/foundation-build-log-source.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,

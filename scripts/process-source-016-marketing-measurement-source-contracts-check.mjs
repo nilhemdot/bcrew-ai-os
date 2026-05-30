@@ -14,13 +14,17 @@ import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getExtractionControlSnapshot,
   getPlanCriticRunsByCardIds,
-  getSourceContractRegistrySnapshot,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getExtractionControlSnapshot,
+  getSourceContractRegistrySnapshot,
+} from '../lib/foundation-source-crawl-db.js'
 import {
   MARKETING_MEASUREMENT_CHANGED_FILES,
   MARKETING_MEASUREMENT_NEW_SOURCE_IDS,

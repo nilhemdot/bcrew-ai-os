@@ -9,10 +9,14 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { buildConnectorCredentialRegistrySnapshot } from '../lib/connector-credential-registry.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getPlanCriticRunsByCardIds,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
   getSourceContractRegistrySnapshot,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
 import { buildSourceContractRegistryRows } from '../lib/source-contract-registry-table.js'
 import { getSourceConnectors, getSourceContracts } from '../lib/source-contracts.js'
 

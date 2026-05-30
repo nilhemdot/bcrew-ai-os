@@ -7,9 +7,11 @@ import { fileURLToPath } from 'node:url'
 
 import {
   closeFoundationDb,
-  getBacklogItemsByIds,
   initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import {
+  getBacklogItemsByIds,
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   SOURCE_BROWSER_BRAIN_ROUTE_POLICY_CARD_ID,
   SOURCE_BROWSER_BRAIN_ROUTE_POLICY_VERSION,

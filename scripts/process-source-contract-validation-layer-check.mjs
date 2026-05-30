@@ -25,11 +25,15 @@ import {
 } from '../lib/source-contract-validation-layer.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getExtractionControlSnapshot,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getExtractionControlSnapshot,
+} from '../lib/foundation-source-crawl-db.js'
 import {
   validateExistingWorkCheck,
 } from '../lib/foundation-current-sprint.js'

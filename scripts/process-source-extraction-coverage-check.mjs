@@ -17,11 +17,15 @@ import {
 } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
-  getBacklogItemsByIds,
-  getFoundationSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getBacklogItemsByIds,
   updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   isProcessCheckWriteRequested,
