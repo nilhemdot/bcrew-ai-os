@@ -15,10 +15,12 @@ import {
 } from '../lib/foundation-verify-profile-budget.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 
 const execFile = promisify(execFileCallback)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
