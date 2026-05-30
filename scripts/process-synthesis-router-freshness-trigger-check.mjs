@@ -15,10 +15,8 @@ import {
   classifySynthesisFreshnessJob,
   handleSynthesisFreshnessAfterFoundationJobRun,
 } from '../lib/synthesis-router-freshness-trigger.js'
-import {
-  closeFoundationDb,
-  getFoundationJobRunSnapshot,
-} from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
+import { getFoundationJobRunSnapshot } from '../lib/foundation-runtime-jobs-db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)

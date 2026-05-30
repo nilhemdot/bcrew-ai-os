@@ -19,10 +19,10 @@ import {
 } from '../lib/implementation-intelligence.js'
 import {
   closeFoundationDb,
-  getActiveFoundationCurrentSprint,
-  getFoundationSnapshot,
   initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import { getActiveFoundationCurrentSprint } from '../lib/foundation-backlog-sprint-db.js'
+import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { RESEARCH_INBOX_CARD_ID } from '../lib/research-inbox.js'

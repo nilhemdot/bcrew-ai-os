@@ -11,13 +11,15 @@ import { Pool } from 'pg'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getIntelligenceReportBundle,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { getIntelligenceReportBundle } from '../lib/foundation-intelligence-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
 import { DEV_TEAM_INTELLIGENCE_DIRECTOR_REPORT_ARTIFACT_ID } from '../lib/dev-team-intelligence-director.js'

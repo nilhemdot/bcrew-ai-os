@@ -26,16 +26,18 @@ import {
   getFoundationJobRuntime,
 } from '../lib/foundation-jobs.js'
 import {
-  CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
-  BACKLOG_STORE_CONCURRENCY_CARD_ID,
   FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
-  buildCurrentSprintMutationGuardsDogfoodProof,
   buildFoundationDbInitSeedSplitDogfoodProof,
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
+  BACKLOG_STORE_CONCURRENCY_CARD_ID,
+  buildCurrentSprintMutationGuardsDogfoodProof,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   buildBacklogStoreConcurrencyDogfoodProof,
 } from '../lib/backlog-store-concurrency.js'

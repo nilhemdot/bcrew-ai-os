@@ -21,8 +21,8 @@ import {
 import {
   closeFoundationDb,
   initFoundationDb,
-  updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import { updateBacklogItem } from '../lib/foundation-backlog-sprint-db.js'
 import { readFoundationBuildLogRegistrySource } from '../lib/foundation-build-log-source.js'
 import { Pool } from 'pg'
 

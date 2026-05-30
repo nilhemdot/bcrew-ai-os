@@ -12,13 +12,15 @@ import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   evaluatePlanCriticPlan,

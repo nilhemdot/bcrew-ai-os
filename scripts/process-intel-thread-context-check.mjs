@@ -13,12 +13,14 @@ import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import { createIntelligenceActionRouterStore } from '../lib/intelligence-action-router.js'
 import {
   INTEL_THREAD_CONTEXT_APPROVAL_PATH,

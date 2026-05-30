@@ -19,12 +19,12 @@ import {
   loadHubWorkOwnershipMatrix,
   validateHubWorkManifest,
 } from '../lib/hub-work-check.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
-  getFoundationSnapshot,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'

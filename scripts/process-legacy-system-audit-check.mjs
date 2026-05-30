@@ -11,12 +11,14 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   LEGACY_SYSTEM_AUDIT_APPROVAL_PATH,
   LEGACY_SYSTEM_AUDIT_CARD_ID,

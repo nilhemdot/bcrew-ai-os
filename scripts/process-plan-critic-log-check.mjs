@@ -11,8 +11,8 @@ import {
 import {
   closeFoundationDb,
   initFoundationDb,
-  updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import { updateBacklogItem } from '../lib/foundation-backlog-sprint-db.js'
 
 const args = new Set(process.argv.slice(2))
 const jsonMode = args.has('--json') || args.has('--json=true')

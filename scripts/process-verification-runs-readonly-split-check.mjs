@@ -11,10 +11,12 @@ import {
 } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   getFoundationJobDefinitions,
   getFoundationJobRuntime,

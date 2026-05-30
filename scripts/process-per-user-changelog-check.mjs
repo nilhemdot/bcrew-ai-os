@@ -16,14 +16,16 @@ import {
 } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getRecentChangeEvents,
-  initFoundationDb,
-  listFoundationUsers,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { listFoundationUsers } from '../lib/foundation-people-sales-db.js'
+import { getRecentChangeEvents } from '../lib/foundation-strategy-docs-db.js'
 import {
   PER_USER_CHANGELOG_APPROVAL_PATH,
   PER_USER_CHANGELOG_CARD_ID,

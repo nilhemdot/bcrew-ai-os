@@ -8,10 +8,8 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
-import {
-  closeFoundationDb,
-  getBacklogItemsByIds,
-} from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
+import { getBacklogItemsByIds } from '../lib/foundation-backlog-sprint-db.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,

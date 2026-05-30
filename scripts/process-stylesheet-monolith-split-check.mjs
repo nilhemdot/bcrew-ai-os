@@ -19,12 +19,12 @@ import {
   evaluateStylesheetMonolithSplit,
 } from '../lib/foundation-stylesheet-monolith-split.js'
 import { evaluateSprintCheckHistoricalMode } from '../lib/sprint-check-historical-mode.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)

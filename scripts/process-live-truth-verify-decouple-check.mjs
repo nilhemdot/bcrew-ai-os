@@ -15,10 +15,12 @@ import {
 import {
   assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}

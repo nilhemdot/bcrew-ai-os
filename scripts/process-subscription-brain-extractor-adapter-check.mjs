@@ -11,19 +11,25 @@ import { Pool } from 'pg'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getIntelligenceReportBundle,
-  getLlmRuntimeSnapshot,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
-  recordIntelligenceAtomHit,
-  upsertLlmCredential,
-  upsertLlmRoute,
   upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getIntelligenceReportBundle,
+  recordIntelligenceAtomHit,
   upsertIntelligenceAtom,
   upsertIntelligenceReportArtifact,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import {
+  getLlmRuntimeSnapshot,
+  upsertLlmCredential,
+  upsertLlmRoute,
+} from '../lib/foundation-runtime-jobs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,

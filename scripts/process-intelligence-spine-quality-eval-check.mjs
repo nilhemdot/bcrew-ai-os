@@ -9,12 +9,14 @@ import { Pool } from 'pg'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getIntelligenceReportBundle,
-  initFoundationDb,
   updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { getIntelligenceReportBundle } from '../lib/foundation-intelligence-db.js'
 import {
   INTELLIGENCE_SPINE_QUALITY_EVAL_APPROVAL_PATH,
   INTELLIGENCE_SPINE_QUALITY_EVAL_CARD_ID,

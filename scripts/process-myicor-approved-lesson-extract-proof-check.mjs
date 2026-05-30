@@ -10,13 +10,15 @@ import { Pool } from 'pg'
 
 import {
   closeFoundationDb,
-  finishSourceCrawlTargetRun,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  finishSourceCrawlTargetRun,
   leaseSourceCrawlTarget,
-  upsertIntelligenceReportArtifact,
   upsertSourceCrawlItem,
   upsertSourceCrawlTarget,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import { upsertIntelligenceReportArtifact } from '../lib/foundation-intelligence-db.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,

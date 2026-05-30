@@ -10,14 +10,16 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { buildActionRouteReviewInboxSnapshot } from '../lib/action-route-review-inbox.js'
 import {
   closeFoundationDb,
-  getActionRouterSnapshot,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationCoreSnapshot,
-  initFoundationDb,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { getActionRouterSnapshot } from '../lib/foundation-intelligence-db.js'
+import { getFoundationCoreSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,

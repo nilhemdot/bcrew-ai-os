@@ -10,11 +10,11 @@ import {
   buildFoundationReadinessStatus,
 } from '../lib/foundation-readiness-gates.js'
 import {
-  buildSynthesisVerificationDbReport,
   closeFoundationDb,
   initFoundationDb,
-  updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import { updateBacklogItem } from '../lib/foundation-backlog-sprint-db.js'
+import { buildSynthesisVerificationDbReport } from '../lib/foundation-intelligence-db.js'
 import {
   SYNTHESIS_VERIFY_CARD_ID,
   SYNTHESIS_VERIFY_CLOSEOUT_KEY,
