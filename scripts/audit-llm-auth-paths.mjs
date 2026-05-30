@@ -9,10 +9,12 @@ import { promisify } from 'node:util'
 import {
   closeFoundationDb,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   recordLlmRouteProbe,
   upsertLlmCredential,
   upsertLlmRoute,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-runtime-jobs-db.js'
 import { DEFAULT_LLM_ROUTES, LLM_WORKLOADS, callLlm, seedDefaultLlmRouterConfig } from '../lib/llm-router.js'
 
 const execFile = promisify(execFileCallback)

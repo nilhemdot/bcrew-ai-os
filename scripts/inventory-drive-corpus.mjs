@@ -3,10 +3,12 @@
 import process from 'node:process'
 import {
   closeFoundationDb,
-  getExtractionControlSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getExtractionControlSnapshot,
   upsertSourceCrawlItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
 import { GOOGLE_SCOPES, googleJsonFetch } from '../lib/google-delegated.js'
 
 const DEFAULT_SOURCE_USER = process.env.GOOGLE_DRIVE_CORPUS_USER || 'steve.zahnd@bensoncrew.ca'

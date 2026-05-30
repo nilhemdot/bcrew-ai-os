@@ -3,11 +3,13 @@
 import process from 'node:process'
 import {
   closeFoundationDb,
-  getExtractionControlSnapshot,
   initFoundationDb,
-  upsertSourceCrawlTarget,
   withFoundationAdvisoryLock,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import {
+  getExtractionControlSnapshot,
+  upsertSourceCrawlTarget,
+} from '../lib/foundation-source-crawl-db.js'
 
 function parseArgs(argv) {
   const result = {}

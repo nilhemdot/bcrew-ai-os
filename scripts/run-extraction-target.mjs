@@ -4,15 +4,17 @@ import { spawn } from 'node:child_process'
 import process from 'node:process'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   finishSourceCrawlTargetRun,
   getExtractionControlSnapshot,
-  getSharedCommunicationSourceStats,
-  initFoundationDb,
   classifySourceCrawlItemRetries,
   leaseSourceCrawlTarget,
   listSourceCrawlItems,
-  upsertIntelligenceJobRun,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import { upsertIntelligenceJobRun } from '../lib/foundation-intelligence-db.js'
+import { getSharedCommunicationSourceStats } from '../lib/foundation-shared-comms-db.js'
 import { buildExtractionNextSafeCommand } from '../lib/extraction-run-hardening.js'
 
 const OUTPUT_TAIL_LIMIT = 20000

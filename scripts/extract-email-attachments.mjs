@@ -9,13 +9,15 @@ import process from 'node:process'
 import { promisify } from 'node:util'
 import {
   closeFoundationDb,
-  getSourceCrawlItemsByExternalId,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getSourceCrawlItemsByExternalId,
   listSourceCrawlItems,
-  listFoundationUsers,
-  upsertSharedCommunicationArtifact,
   upsertSourceCrawlItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import { upsertSharedCommunicationArtifact } from '../lib/foundation-shared-comms-db.js'
+import { listFoundationUsers } from '../lib/foundation-people-sales-db.js'
 import { downloadGmailAttachment, getGmailThread, listGmailMessages } from '../lib/google-delegated.js'
 
 const execFile = promisify(execFileCallback)

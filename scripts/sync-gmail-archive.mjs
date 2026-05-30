@@ -4,13 +4,15 @@ import process from 'node:process';
 import { getGmailThread, listGmailMessages } from '../lib/google-delegated.js';
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import { upsertSourceCrawlItem } from '../lib/foundation-source-crawl-db.js'
+import {
   getSharedCommunicationExistingArtifactsByExternalId,
   getSharedCommunicationArchiveSnapshot,
-  initFoundationDb,
-  listFoundationUsers,
-  upsertSourceCrawlItem,
   upsertSharedCommunicationArtifact,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-shared-comms-db.js'
+import { listFoundationUsers } from '../lib/foundation-people-sales-db.js'
 import { transcriptTextHash } from '../lib/meeting-transcripts.js';
 
 const DEFAULT_USER = process.env.GOOGLE_IMPERSONATE_EMAIL || 'ai@bensoncrew.ca';

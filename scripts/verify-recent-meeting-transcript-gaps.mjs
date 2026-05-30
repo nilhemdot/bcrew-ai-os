@@ -6,9 +6,9 @@ import { driveExportDoc, driveSearch, getDriveFileMetadata } from '../lib/google
 import {
   closeFoundationDb,
   initFoundationDb,
-  listFoundationUsers,
-  upsertSharedCommunicationArtifact,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-db-session.js'
+import { upsertSharedCommunicationArtifact } from '../lib/foundation-shared-comms-db.js'
+import { listFoundationUsers } from '../lib/foundation-people-sales-db.js'
 import { classifyMeetingShape } from '../lib/meeting-classification.js';
 import {
   buildEmbeddedTranscriptTitle,

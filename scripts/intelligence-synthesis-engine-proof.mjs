@@ -2,18 +2,20 @@
 
 import { createHash } from 'node:crypto'
 import {
-  buildRetrievalEmbeddingInput,
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  buildRetrievalEmbeddingInput,
   collectSourceBackedSynthesisFacts,
   getIntelligenceRetrievalSnapshot,
   getSynthesisEngineSnapshot,
-  initFoundationDb,
   promoteSharedCommunicationCandidatesToAtoms,
   runGovernedSynthesis,
   selectRetrievalChunksForEmbedding,
   upsertRetrievalChunkEmbedding,
   upsertSynthesisFactsBundle,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 import { callEmbedding } from '../lib/llm-router.js'
 
 const EMBEDDING_DIMENSIONS = 1536

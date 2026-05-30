@@ -3741,5 +3741,221 @@
       "../lib/foundation-intelligence-db.js",
       "../lib/foundation-strategy-docs-db.js"
     ]
+  },
+  {
+    "path": "scripts/agent-feedback-steve-full-loop-test.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js"
+    ]
+  },
+  {
+    "path": "scripts/audit-kpi-agent-data-quality.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-people-sales-db.js"
+    ]
+  },
+  {
+    "path": "scripts/audit-llm-auth-paths.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/backlog-hygiene.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/extract-drive-content.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-shared-comms-db.js"
+    ]
+  },
+  {
+    "path": "scripts/extract-email-attachments.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-shared-comms-db.js",
+      "../lib/foundation-people-sales-db.js"
+    ]
+  },
+  {
+    "path": "scripts/extract-gmail-thread-candidates.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-shared-comms-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/extract-missive-thread-candidates.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-shared-comms-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/extract-slack-thread-candidates.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-shared-comms-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/extract-video-content.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-shared-comms-db.js"
+    ]
+  },
+  {
+    "path": "scripts/extract-zoom-chat-candidates.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-shared-comms-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/foundation-worker.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/intelligence-job-ledger-proof.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-intelligence-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/intelligence-retrieval-eval.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-intelligence-db.js"
+    ]
+  },
+  {
+    "path": "scripts/intelligence-semantic-retrieval-proof.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-intelligence-db.js"
+    ]
+  },
+  {
+    "path": "scripts/intelligence-synthesis-engine-proof.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-intelligence-db.js"
+    ]
+  },
+  {
+    "path": "scripts/intelligence-synthesis-facts-proof.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-intelligence-db.js"
+    ]
+  },
+  {
+    "path": "scripts/inventory-drive-corpus.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/inventory-video-links.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-shared-comms-db.js"
+    ]
+  },
+  {
+    "path": "scripts/meeting-notes-verify.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-people-sales-db.js"
+    ]
+  },
+  {
+    "path": "scripts/retry-extraction-failed-items.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/review-admin-deals.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-people-sales-db.js"
+    ]
+  },
+  {
+    "path": "scripts/run-extraction-target.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-intelligence-db.js",
+      "../lib/foundation-shared-comms-db.js"
+    ]
+  },
+  {
+    "path": "scripts/run-source-browser-fallback-batch.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-intelligence-db.js"
+    ]
+  },
+  {
+    "path": "scripts/run-source-god-mode-youtube-handoff.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-intelligence-db.js"
+    ]
+  },
+  {
+    "path": "scripts/seed-extraction-control.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/sync-gmail-archive.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-shared-comms-db.js",
+      "../lib/foundation-people-sales-db.js"
+    ]
+  },
+  {
+    "path": "scripts/verify-recent-meeting-transcript-gaps.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-shared-comms-db.js",
+      "../lib/foundation-people-sales-db.js"
+    ]
   }
 ]

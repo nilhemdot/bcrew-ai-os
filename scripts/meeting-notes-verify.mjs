@@ -7,7 +7,11 @@ import {
   GOOGLE_SA_KEY_FILE,
   getServiceAccountSummary,
 } from '../lib/google-delegated.js';
-import { closeFoundationDb, initFoundationDb, listFoundationUsers } from '../lib/foundation-db.js';
+import {
+  closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import { listFoundationUsers } from '../lib/foundation-people-sales-db.js'
 import { extractTranscriptSection } from '../lib/meeting-transcripts.js';
 
 const DEFAULT_SOURCE_USER = process.env.GOOGLE_MEETING_SOURCE_USER || 'ai@bensoncrew.ca';

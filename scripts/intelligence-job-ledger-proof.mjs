@@ -2,12 +2,14 @@
 
 import {
   closeFoundationDb,
-  getExtractionControlSnapshot,
-  getFoundationSnapshot,
-  getIntelligenceJobLedgerSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import { getExtractionControlSnapshot } from '../lib/foundation-source-crawl-db.js'
+import {
+  getIntelligenceJobLedgerSnapshot,
   upsertIntelligenceJobRun,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 
 function normalizeLedgerStatus(status) {
   if (status === 'running') return 'started'

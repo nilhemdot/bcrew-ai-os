@@ -2,7 +2,8 @@
 
 import fs from 'node:fs'
 import process from 'node:process'
-import { closeFoundationDb, listFubLeadSourceRules } from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
+import { listFubLeadSourceRules } from '../lib/foundation-people-sales-db.js'
 
 const LOCAL_KPI_ENV = 'store/kpi-audit.env'
 const DEFAULT_WINDOW_DAYS = 90

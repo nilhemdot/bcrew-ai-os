@@ -4,11 +4,13 @@ import { createHash } from 'node:crypto'
 import process from 'node:process'
 import {
   closeFoundationDb,
-  getSharedCommunicationArtifactsForProcessing,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   listSourceCrawlItems,
   upsertSourceCrawlItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import { getSharedCommunicationArtifactsForProcessing } from '../lib/foundation-shared-comms-db.js'
 
 const TARGET_KEY = 'video-link-inventory'
 const SOURCE_ID = 'SRC-VIDEO-001'

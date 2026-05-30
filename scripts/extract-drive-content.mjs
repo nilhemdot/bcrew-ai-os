@@ -11,10 +11,12 @@ import { PDFDocument } from 'pdf-lib'
 import {
   closeFoundationDb,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   listDriveContentExtractionQueue,
-  upsertSharedCommunicationArtifact,
   upsertSourceCrawlItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import { upsertSharedCommunicationArtifact } from '../lib/foundation-shared-comms-db.js'
 import {
   driveDownloadFile,
   driveExportDoc,

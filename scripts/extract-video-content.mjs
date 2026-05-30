@@ -7,10 +7,12 @@ import { fileURLToPath } from 'node:url'
 import {
   closeFoundationDb,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   listVideoContentExtractionQueue,
-  upsertSharedCommunicationArtifact,
   upsertSourceCrawlItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import { upsertSharedCommunicationArtifact } from '../lib/foundation-shared-comms-db.js'
 import { getYouTubeSubtitles } from '../lib/dataforseo.js'
 
 const DEFAULT_TARGET = 'video-content-extract-backfill'

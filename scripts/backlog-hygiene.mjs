@@ -8,8 +8,8 @@ import {
 import {
   assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
-  getFoundationSnapshot,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   recordBuildLaneFailureEventsFromChecks,

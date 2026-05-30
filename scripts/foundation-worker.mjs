@@ -8,14 +8,18 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import {
   closeFoundationDb,
-  getFoundationJobRunSnapshot,
   initFoundationDb,
-  markStaleLlmCalls,
-  markStaleFoundationJobRuns,
+} from '../lib/foundation-db-session.js'
+import {
   markStaleSourceCrawlItems,
   markStaleSourceCrawlTargetRuns,
+} from '../lib/foundation-source-crawl-db.js'
+import {
+  getFoundationJobRunSnapshot,
+  markStaleLlmCalls,
+  markStaleFoundationJobRuns,
   recordFoundationRuntimeStatus,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-runtime-jobs-db.js'
 import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js';
 import { parseFoundationWorkerArgs } from '../lib/foundation-worker-reliability.js';
 import {

@@ -7,13 +7,17 @@ import {
 } from '../lib/build-intel-source-value-grader.js'
 import {
   closeFoundationDb,
-  getIntelligenceReportBundle,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   listSourceCrawlItems,
-  listYoutubeFullWatchReportArtifacts,
   upsertSourceCrawlItem,
   upsertSourceCrawlTarget,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import {
+  getIntelligenceReportBundle,
+  listYoutubeFullWatchReportArtifacts,
+} from '../lib/foundation-intelligence-db.js'
 import {
   buildYoutubeHandoffEvidenceFromReports,
 } from '../lib/dev-team-hub.js'

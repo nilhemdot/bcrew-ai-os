@@ -9,11 +9,13 @@ import {
   targetSupportsRetryExecution,
 } from '../lib/extraction-run-hardening-execution.js'
 import {
-  classifySourceCrawlItemRetries,
   closeFoundationDb,
-  getRetryableSourceCrawlItems,
   initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import {
+  classifySourceCrawlItemRetries,
+  getRetryableSourceCrawlItems,
+} from '../lib/foundation-source-crawl-db.js'
 
 const execFile = promisify(execFileCallback)
 const DRY_RUN_USAGE = '--dryRun=true'

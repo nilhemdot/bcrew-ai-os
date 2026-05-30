@@ -3,16 +3,18 @@
 import { createHash } from 'node:crypto'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import { updateBacklogItem } from '../lib/foundation-backlog-sprint-db.js'
+import {
   collectSourceBackedSynthesisFacts,
   getIntelligenceRetrievalSnapshot,
   getSynthesisEngineSnapshot,
   getSynthesisFactsSnapshot,
-  initFoundationDb,
   querySynthesisFacts,
   runGovernedSynthesis,
-  updateBacklogItem,
   upsertSynthesisFactsBundle,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 import { callEmbedding } from '../lib/llm-router.js'
 
 const EMBEDDING_DIMENSIONS = 1536

@@ -10,7 +10,10 @@ import {
   buildAgentFeedbackSteveFullLoopSyntheticSubmitProof,
   executeApprovedSteveFullLoopSendOnly,
 } from '../lib/agent-feedback-steve-full-loop-test.js'
-import { assertFoundationDbReadyForReadOnlyGate, closeFoundationDb } from '../lib/foundation-db.js'
+import {
+  assertFoundationDbReadyForReadOnlyGate,
+  closeFoundationDb,
+} from '../lib/foundation-db-session.js'
 
 function argValue(name, fallback = '') {
   const prefix = `--${name}=`

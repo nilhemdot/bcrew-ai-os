@@ -6,14 +6,16 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import {
   closeFoundationDb,
-  getFoundationSnapshot,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getSharedCommunicationArtifactsForProcessing,
   getSharedCommunicationCandidateSnapshot,
-  initFoundationDb,
   recordSharedCommunicationArtifactProcessingRun,
   rejectSharedCommunicationCandidatesForArtifacts,
   upsertSharedCommunicationCandidate,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-shared-comms-db.js'
+import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import {
   buildFoundationExtractionContext,
   extractSharedCandidatesWithOpenAi,

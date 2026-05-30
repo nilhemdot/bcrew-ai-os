@@ -3,7 +3,8 @@
 import process from 'node:process'
 import { batchUpdateSheetValues, getSheetValues } from '../lib/google-delegated.js'
 import { getFubPerson } from '../lib/fub.js'
-import { closeFoundationDb, listFubLeadSourceRules } from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
+import { listFubLeadSourceRules } from '../lib/foundation-people-sales-db.js'
 import {
   ADMIN_DEAL_BACKLOG_SINCE,
   ADMIN_DEAL_DEFAULT_BACKLOG_LIMIT,

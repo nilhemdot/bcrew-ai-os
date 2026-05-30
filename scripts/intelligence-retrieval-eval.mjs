@@ -6,10 +6,12 @@ import { fileURLToPath } from 'node:url'
 import {
   closeFoundationDb,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   recordRetrievalRun,
   searchIntelligenceChunks,
   searchIntelligenceEvidenceHybrid,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 import { callEmbedding } from '../lib/llm-router.js'
 
 const __filename = fileURLToPath(import.meta.url)
