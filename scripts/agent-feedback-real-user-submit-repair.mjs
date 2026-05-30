@@ -9,7 +9,13 @@ import {
   executeApprovedRealUserSubmitRepairSendOnly,
 } from '../lib/agent-feedback-real-user-submit-repair.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
-import { assertFoundationDbReadyForReadOnlyGate, closeFoundationDb, getFoundationSnapshot } from '../lib/foundation-db.js'
+import {
+  assertFoundationDbReadyForReadOnlyGate,
+  closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 
 function argValue(name, fallback = '') {
   const prefix = `--${name}=`

@@ -22,9 +22,11 @@ import {
 } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 
 const execFile = promisify(execFileCallback)
 

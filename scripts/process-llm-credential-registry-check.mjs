@@ -19,13 +19,17 @@ import {
 } from '../lib/llm-credential-registry.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getLlmRuntimeSnapshot,
   getPlanCriticRunsByCardIds,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getLlmRuntimeSnapshot,
   upsertLlmCredential,
   upsertLlmRoute,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-runtime-jobs-db.js'
 import {
   assertProcessCheckWriteAllowed,
   isProcessCheckWriteRequested,

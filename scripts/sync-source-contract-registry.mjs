@@ -4,10 +4,12 @@ import process from 'node:process'
 
 import {
   closeFoundationDb,
-  getSourceContractRegistrySnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getSourceContractRegistrySnapshot,
   syncSourceContractRegistryTable,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
 import { buildSourceContractRegistryRows } from '../lib/source-contract-registry-table.js'
 
 function parseArgs(argv = process.argv.slice(2)) {

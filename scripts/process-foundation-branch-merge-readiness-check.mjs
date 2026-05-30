@@ -34,14 +34,18 @@ import {
 } from '../lib/foundation-merge-queue.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationJobRunSnapshot,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
-  updateFoundationJobRunMetadata,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getFoundationJobRunSnapshot,
+  updateFoundationJobRunMetadata,
+} from '../lib/foundation-runtime-jobs-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   evaluatePlanCriticPlan,

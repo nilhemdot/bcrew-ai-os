@@ -5,7 +5,7 @@ import process from 'node:process'
 import {
   bootstrapFoundationDb,
   closeFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {

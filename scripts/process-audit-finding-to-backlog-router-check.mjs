@@ -29,12 +29,16 @@ import {
 import { buildCodeQualityNightlyAudit } from '../lib/code-quality-nightly-audit.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationSnapshot,
   getPlanCriticRunsByCardIds,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   buildPlanCriticResultSummary,

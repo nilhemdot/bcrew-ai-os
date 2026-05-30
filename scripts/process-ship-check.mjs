@@ -13,8 +13,10 @@ import {
 import {
   assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getFoundationSnapshot,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   evaluateCloseoutPromiseContinuation,
 } from '../lib/promise-to-proof-integrity-gate.js'

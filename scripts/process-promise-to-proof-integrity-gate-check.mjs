@@ -5,9 +5,11 @@ import { Pool } from 'pg'
 
 import {
   closeFoundationDb,
-  getFoundationSnapshot,
   initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   PROMISE_TO_PROOF_INTEGRITY_GATE_CARD_ID,
   PROMISE_TO_PROOF_CONTINUATION_CARDS,

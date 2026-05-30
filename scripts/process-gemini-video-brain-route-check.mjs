@@ -33,19 +33,23 @@ import {
 } from '../lib/gemini-video-brain-route.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   createLlmCall,
   finishLlmCall,
-  getActiveFoundationCurrentSprint,
-  getBacklogItemsByIds,
   getLlmRuntimeSnapshot,
-  getPlanCriticRunsByCardIds,
-  initFoundationDb,
   recordLlmRouteProbe,
-  updateBacklogItem,
-  upsertFoundationCurrentSprintOverlay,
   upsertLlmCredential,
   upsertLlmRoute,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-runtime-jobs-db.js'
+import {
+  getActiveFoundationCurrentSprint,
+  getBacklogItemsByIds,
+  getPlanCriticRunsByCardIds,
+  updateBacklogItem,
+  upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
