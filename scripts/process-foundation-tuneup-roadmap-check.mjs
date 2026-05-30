@@ -11,6 +11,7 @@ import {
   closeFoundationDb,
   initFoundationDb,
 } from '../lib/foundation-db-session.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   getActiveFoundationCurrentSprint,
   upsertFoundationCurrentSprintOverlay,
@@ -550,7 +551,10 @@ async function main() {
     ])
     const cardIds = new Set(cards.map(card => card.id))
     const sprintItemIds = new Set((currentSprint.items || []).map(item => item.cardId))
-    const currentSprintStatus = buildFoundationCurrentSprintStatus(currentSprint)
+    const currentSprintStatus = buildFoundationCurrentSprintStatus({
+      ...currentSprint,
+      closeouts: getFoundationBuildCloseouts(),
+    })
     const activePlanCriticPass = (currentSprint.planCriticRuns || [])
       .some(run => run.cardId === ACTIVE_CARD_ID &&
         run.status === 'pass' &&
