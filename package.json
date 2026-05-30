@@ -235,6 +235,7 @@
     "process:source-maturity-strategy-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-strategy-routing-gap-repair-check.mjs",
     "process:source-maturity-gap-followup-check": "node --env-file-if-exists=.env scripts/process-source-maturity-gap-followup-check.mjs",
     "process:source-maturity-repair-collapse-check": "node --env-file-if-exists=.env scripts/process-source-maturity-repair-collapse-check.mjs",
+    "process:foundation-closeout-records-data-store-check": "node --env-file-if-exists=.env scripts/process-foundation-closeout-records-data-store-check.mjs",
     "process:llm-auth-audit-budget-label-clarity-check": "node --env-file-if-exists=.env scripts/process-llm-auth-audit-budget-label-clarity-check.mjs",
     "process:foundation-knowledge-base-compiler-design-check": "node --env-file-if-exists=.env scripts/process-foundation-knowledge-base-compiler-design-check.mjs",
     "process:knowledge-base-quality-gate-check": "node --env-file-if-exists=.env scripts/process-knowledge-base-quality-gate-check.mjs",

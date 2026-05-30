@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001",
+  "approvedPlanRef": "docs/process/foundation-closeout-records-data-store-001-plan.md",
+  "approvedPlanSha256": "1d9a87276f140cdfd0903b13f52d7babfc2ad8ae3282a911be8a715c6b6e29a7",
+  "approvedRepoHead": "9c22501323295985b1899c14ccf1af0e7c5932c6",
+  "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
+  "approvedAt": "2026-05-30T05:12:00.000Z",
+  "score": 10,
+  "notes": "Approved bounded closeout records-as-data V1. Scope is one source-newsletter JSON artifact pilot plus reusable loader/proof. Do not bulk-migrate all closeout families, delete closeout history, delete verifier/approval/plan/check files, mutate source/extraction/browser/atom/Drive/external systems, or start the per-hub folder restructure. Approval metadata refreshed after adding explicit Meeting Vault Phase B and Drive permission guardrails; scope unchanged.",
+  "approvalDigest": "9591be63cb90193236386a7d31946f27214177f8e2c69beaa6af202b8e9dd11c"
+}
