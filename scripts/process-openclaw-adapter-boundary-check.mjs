@@ -238,7 +238,7 @@ function buildExistingWorkCheck() {
       'Foundation Current Sprint overlay',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-20-orchestrator-brain-fleet-extractor-checkpoint.md',
+      'docs/_archive/handoffs/2026-05-20-orchestrator-brain-fleet-extractor-checkpoint.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

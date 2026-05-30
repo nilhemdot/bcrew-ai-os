@@ -197,7 +197,7 @@ function buildSprintOverlay(activeSprint, { closeCard = false } = {}) {
       ])),
       existingWorkCheck: isCurrent ? {
         existingCode: ['lib/foundation-decision-store.js', 'lib/foundation-db.js', 'lib/decision-007-reconciliation.js'],
-        existingDocs: [OLD_REBUILD_DECISIONS_PATH, DECISION_007_PLAN_PATH, 'docs/audits/2026-04-26-foundation-menu-and-systems-audit.md'],
+        existingDocs: [OLD_REBUILD_DECISIONS_PATH, DECISION_007_PLAN_PATH, 'docs/_archive/audits/2026-04-26-foundation-menu-and-systems-audit.md'],
         existingScripts: [DECISION_007_SCRIPT_PATH, 'scripts/process-decision-004-check.mjs', 'scripts/process-decision-005-check.mjs'],
         existingPolicy: [
           'Old-system notes and historical audits are not active truth until promoted into DB-backed decisions, source contracts, backlog, or verifier proof.',

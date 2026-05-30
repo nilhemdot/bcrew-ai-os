@@ -436,7 +436,7 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/source-notes/video-link-inventory.md',
       'docs/source-notes/myicro-training.md',
-      'docs/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
+      'docs/_archive/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

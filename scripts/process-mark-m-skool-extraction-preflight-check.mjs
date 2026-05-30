@@ -104,7 +104,7 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/source-notes/skool-corpus.md',
-      'docs/handoffs/2026-05-18-course-source-auth-boundary-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-course-source-auth-boundary-closeout.md',
       'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-source-extraction-gap-triage.md',
       'docs/process/course-source-auth-boundary-001-plan.md',
     ],

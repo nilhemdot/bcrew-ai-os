@@ -116,8 +116,8 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-gap-followup-triage.md',
       'docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-routing-gap-repair-closeout.md',
-      'docs/handoffs/2026-05-18-action-route-review-inbox-closeout.md',
-      'docs/handoffs/2026-05-18-action-route-promotion-workflow-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-action-route-review-inbox-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-action-route-promotion-workflow-closeout.md',
     ],
     existingScripts: [
       'scripts/process-source-maturity-routing-gap-repair-check.mjs',

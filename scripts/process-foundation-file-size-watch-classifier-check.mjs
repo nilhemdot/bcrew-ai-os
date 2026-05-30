@@ -49,7 +49,7 @@ const CLOSEOUT_KEY = FILE_SIZE_WATCH_CLASSIFIER_CLOSEOUT_KEY
 const PLAN_PATH = FILE_SIZE_WATCH_CLASSIFIER_PLAN_PATH
 const APPROVAL_PATH = FILE_SIZE_WATCH_CLASSIFIER_APPROVAL_PATH
 const SCRIPT_PATH = FILE_SIZE_WATCH_CLASSIFIER_SCRIPT_PATH
-const CLOSEOUT_PATH = 'docs/handoffs/2026-05-19-foundation-file-size-watch-classifier-closeout.md'
+const CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-19-foundation-file-size-watch-classifier-closeout.md'
 const SPRINT_ID = 'FOUNDATION-GREEN-MAIN-AUDIT-AND-SOURCE-ACTIVATION-2026-05-19'
 const NEXT_CARD_ID = 'FOUNDATION-HEALTH-GREEN-LOCK-001'
 
@@ -292,8 +292,8 @@ function withGreenLockSprintItem(item = {}) {
       ],
       existingDocs: [
         'docs/process/foundation-raw-green-repair-and-lock-001-plan.md',
-        'docs/handoffs/2026-05-19-foundation-raw-green-repair-and-lock-closeout.md',
-        'docs/handoffs/2026-05-19-foundation-file-size-watch-classifier-closeout.md',
+        'docs/_archive/handoffs/2026-05-19-foundation-raw-green-repair-and-lock-closeout.md',
+        'docs/_archive/handoffs/2026-05-19-foundation-file-size-watch-classifier-closeout.md',
       ],
       reused: [
         'Existing raw-green repair proof',

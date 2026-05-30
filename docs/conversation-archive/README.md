@@ -50,7 +50,7 @@ Fidelity:
 - 2026-05-19 | summary_checkpoint | audit_conversation | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-deep-foundation-code-audit.md
 - 2026-05-19 | summary_checkpoint | audit_conversation | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.md
 - 2026-05-19 | summary_checkpoint | audit_conversation | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-16.md
-- 2026-05-19 | summary_checkpoint | audit_conversation | docs/handoffs/2026-05-19-audit-finding-to-backlog-router-closeout.md
+- 2026-05-19 | summary_checkpoint | audit_conversation | docs/_archive/handoffs/2026-05-19-audit-finding-to-backlog-router-closeout.md
 - 2026-05-19 | summary_checkpoint | operator_handoff | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-auth-routes-split-closeout.md
 - 2026-05-19 | summary_checkpoint | assistant_chat | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-backlog-queue-reconcile-closeout.md
 - 2026-05-19 | summary_checkpoint | assistant_chat | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-backlog-scrum-master-grooming-closeout.md
@@ -60,8 +60,8 @@ Fidelity:
 - 2026-05-19 | summary_checkpoint | assistant_chat | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-build-intel-intake-sprint-handoff.md
 - 2026-05-19 | summary_checkpoint | assistant_chat | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-build-intel-karpathy-llm-kb-preflight-closeout.md
 - 2026-05-19 | summary_checkpoint | assistant_chat | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-build-lane-reliability-sprint-closeout.md
-- 2026-05-19 | summary_checkpoint | operator_handoff | docs/handoffs/2026-05-19-build-lane-repeated-failure-action-gate-closeout.md
-- 2026-05-19 | summary_checkpoint | audit_conversation | docs/handoffs/2026-05-19-build-intel-daily-extraction-review-closeout.md
+- 2026-05-19 | summary_checkpoint | operator_handoff | docs/_archive/handoffs/2026-05-19-build-lane-repeated-failure-action-gate-closeout.md
+- 2026-05-19 | summary_checkpoint | audit_conversation | docs/_archive/handoffs/2026-05-19-build-intel-daily-extraction-review-closeout.md
 - 2026-05-19 | summary_checkpoint | assistant_chat | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-clean-table-marketing-wip-preservation.md
 - 2026-05-19 | extracted_doctrine | audit_conversation | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-code-quality-nightly-audit-sprint-handoff.md
 - 2026-05-19 | summary_checkpoint | audit_conversation | docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-code-quality-nightly-audit-report.md

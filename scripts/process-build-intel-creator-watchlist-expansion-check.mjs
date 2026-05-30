@@ -146,7 +146,7 @@ function buildSprintItem({ closeCard = false, stage = 'building_now' } = {}) {
         'docs/rebuild/current-plan.md',
         'docs/rebuild/current-state.md',
         'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-build-intel-karpathy-llm-kb-preflight-closeout.md',
-        'docs/handoffs/2026-05-18-harlan-operator-loop-closeout.md',
+        'docs/_archive/handoffs/2026-05-18-harlan-operator-loop-closeout.md',
       ],
       existingScripts: [
         'scripts/process-build-intel-intake-check.mjs',

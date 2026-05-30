@@ -25,7 +25,7 @@
     "noStrategyScoperAgentFactoryCorpus": true
   },
   "manualReview": {
-    "artifactPath": "docs/audits/2026-04-30-plain-english-sweep-manual-review.md",
+    "artifactPath": "docs/_archive/audits/2026-04-30-plain-english-sweep-manual-review.md",
     "routeChecks": [
       { "route": "/foundation#backlog", "viewport": "desktop", "status": "pass" },
       { "route": "/foundation#backlog", "viewport": "mobile", "status": "pass" },

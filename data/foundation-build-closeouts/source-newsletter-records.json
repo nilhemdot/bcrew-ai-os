@@ -29,7 +29,7 @@
       "scripts/process-source-session-auth-resume-packet-check.mjs focused proof for Skool missing session, MyICOR MFA, ready-session no-escalation, and unsafe-secret rejection",
       "lib/source-browser-agent-executor.js blocked execution readback embedding `sourceSessionAuthResumePacket` in crawl item metadata",
       "package.json `process:source-session-auth-resume-packet-check` script",
-      "docs/handoffs/2026-05-28-source-session-auth-resume-packet.md handoff"
+      "docs/_archive/handoffs/2026-05-28-source-session-auth-resume-packet.md handoff"
     ],
     "proofCommands": [
       "node --check lib/source-session-auth-resume-packet.js lib/source-browser-agent-executor.js scripts/process-source-session-auth-resume-packet-check.mjs",
@@ -83,7 +83,7 @@
       "scripts/process-creator-newsletter-intake-runner-check.mjs focused fixture proof",
       "lib/source-god-mode-youtube-handoff.js newsletter source-session prep command readback",
       "package.json focused proof and operator commands",
-      "docs/handoffs/2026-05-28-source-expansion-loop-overnight-checkpoint.md overnight checkpoint and proof summary"
+      "docs/_archive/handoffs/2026-05-28-source-expansion-loop-overnight-checkpoint.md overnight checkpoint and proof summary"
     ],
     "proofCommands": [
       "node --check lib/creator-newsletter-intake-runner.js scripts/run-creator-newsletter-intake.mjs scripts/process-creator-newsletter-intake-runner-check.mjs lib/source-god-mode-youtube-handoff.js",
@@ -135,7 +135,7 @@
       "lib/creator-newsletter-intake-runner.js guarded live signup flags, approved source accounts, external submit path, confirmation readback packet, and issue extraction plan",
       "scripts/run-creator-newsletter-intake.mjs operator CLI flags and readback output",
       "scripts/process-creator-newsletter-intake-runner-check.mjs fixture proof for disabled, policy-blocked, and gated live submit paths",
-      "docs/handoffs/2026-05-29-newsletter-live-signup-gate.md checkpoint",
+      "docs/_archive/handoffs/2026-05-29-newsletter-live-signup-gate.md checkpoint",
       "lib/foundation-build-closeout-source-records.js closeout registry"
     ],
     "proofCommands": [
@@ -187,7 +187,7 @@
       "lib/source-god-mode-youtube-handoff.js routes creator-newsletter rows to `newsletter:intake`, upgrades old generic reads, persists newsletter intake packets, and keeps no-submit boundaries",
       "lib/creator-newsletter-intake-runner.js existing no-submit form/source-inbox classifier and confirmation-readback packet builder",
       "scripts/run-source-god-mode-youtube-handoff.mjs bounded batch runner used for the live no-submit upgrade",
-      "docs/handoffs/2026-05-29-newsletter-handoff-intake-batch.md checkpoint",
+      "docs/_archive/handoffs/2026-05-29-newsletter-handoff-intake-batch.md checkpoint",
       "lib/foundation-build-closeout-source-records.js closeout registry"
     ],
     "proofCommands": [
@@ -242,7 +242,7 @@
       "scripts/run-creator-newsletter-confirmation-readback.mjs read-only CLI over shared Gmail archive search",
       "scripts/process-creator-newsletter-intake-runner-check.mjs fixture proof for found/action-required, confirmed/subscribed, and not-found readback states",
       "package.json `newsletter:confirmation-readback` operator command",
-      "docs/handoffs/2026-05-29-newsletter-confirmation-readback.md checkpoint",
+      "docs/_archive/handoffs/2026-05-29-newsletter-confirmation-readback.md checkpoint",
       "lib/foundation-build-closeout-source-records.js closeout registry"
     ],
     "proofCommands": [
@@ -292,7 +292,7 @@
       "lib/source-session-readiness-readback.js newsletter confirmation readiness check",
       "lib/source-god-mode-youtube-handoff.js newsletter prep/action copy",
       "scripts/process-source-session-readiness-check.mjs fixture and live proof",
-      "docs/handoffs/2026-05-29-newsletter-confirmation-readback-queue-wiring.md checkpoint",
+      "docs/_archive/handoffs/2026-05-29-newsletter-confirmation-readback-queue-wiring.md checkpoint",
       "lib/foundation-build-closeout-source-records.js closeout registry"
     ],
     "proofCommands": [

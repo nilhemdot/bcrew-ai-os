@@ -711,17 +711,17 @@
     },
     {
       "type": "audit",
-      "path": "docs/audits/2026-04-26-foundation-menu-and-systems-audit.md",
+      "path": "docs/_archive/audits/2026-04-26-foundation-menu-and-systems-audit.md",
       "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
     },
     {
       "type": "audit",
-      "path": "docs/audits/2026-04-28-dev-process-audit.md",
+      "path": "docs/_archive/audits/2026-04-28-dev-process-audit.md",
       "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
     },
     {
       "type": "audit",
-      "path": "docs/audits/2026-04-28-extraction-lane-item-shape.md",
+      "path": "docs/_archive/audits/2026-04-28-extraction-lane-item-shape.md",
       "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
     }
   ],

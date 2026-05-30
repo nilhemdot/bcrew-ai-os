@@ -477,7 +477,7 @@ async function main() {
       readRepoFile('docs/rebuild/current-plan.md'),
       readRepoFile('docs/rebuild/current-state.md'),
       readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
-      readRepoFile('docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md'),
+      readRepoFile('docs/_archive/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md'),
     ])
 
     addCheck(
@@ -547,7 +547,7 @@ async function main() {
         handoffSource.includes('source-state rows') &&
         handoffSource.includes('builder memory'),
       'handoff captures snapshot proof and broader source-system vision',
-      'docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md',
+      'docs/_archive/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md',
     )
     addCheck(
       checks,

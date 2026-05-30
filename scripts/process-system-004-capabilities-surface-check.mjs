@@ -98,10 +98,10 @@ function buildCardRow({ closeCard = false } = {}) {
     summary: 'Render generated System Capabilities and Agent Inventory truth in the existing Foundation System Inventory surface.',
     whyItMatters: 'Capability truth cannot stay buried in generated JSON or stale static UI. Foundation needs one live operator surface that says what is real, guarded, blocked, and evidence-only.',
     nextAction: closeCard
-      ? `Done on 2026-05-19 under ${SYSTEM_004_CLOSEOUT_KEY}; proof includes npm run process:system-004-capabilities-surface-check, docs/handoffs/2026-05-19-system-004-live-capabilities-surface-closeout.md, /api/system-inventory capabilitySurface route, and process:foundation-ship. Continue ${SYSTEM_004_NEXT_CARD_ID}.`
+      ? `Done on 2026-05-19 under ${SYSTEM_004_CLOSEOUT_KEY}; proof includes npm run process:system-004-capabilities-surface-check, docs/_archive/handoffs/2026-05-19-system-004-live-capabilities-surface-closeout.md, /api/system-inventory capabilitySurface route, and process:foundation-ship. Continue ${SYSTEM_004_NEXT_CARD_ID}.`
       : 'Build the operator-facing System Capabilities surface from generated capability and agent inventory artifacts.',
     statusNote: closeCard
-      ? `Closed v1 under ${SYSTEM_004_CLOSEOUT_KEY} with route/build proof: /api/system-inventory exposes capabilitySurface, System Inventory capability pages render generated Pillar 4/5 truth, and closeout lives at docs/handoffs/2026-05-19-system-004-live-capabilities-surface-closeout.md.`
+      ? `Closed v1 under ${SYSTEM_004_CLOSEOUT_KEY} with route/build proof: /api/system-inventory exposes capabilitySurface, System Inventory capability pages render generated Pillar 4/5 truth, and closeout lives at docs/_archive/handoffs/2026-05-19-system-004-live-capabilities-surface-closeout.md.`
       : 'Executing v1: live surface only; no provider/tool approval, agent runtime, extraction, old-code import, or external write.',
     owner: 'Foundation Process',
   }

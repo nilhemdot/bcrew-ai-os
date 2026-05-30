@@ -2,7 +2,7 @@
 
 Card: `FOUNDATION-DEEP-MERGE-AUDIT-001`
 Closeout key: `foundation-deep-merge-audit-v1`
-Report path: `docs/audits/2026-05-19-foundation-deep-merge-audit.md`
+Report path: `docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md`
 JSON path: `docs/audits/2026-05-19-foundation-deep-merge-audit.json`
 
 ## Merge Scope
@@ -130,7 +130,7 @@ JSON path: `docs/audits/2026-05-19-foundation-deep-merge-audit.json`
 
 Closeout key: `foundation-deep-merge-audit-v1`
 Generated at: `2026-05-19T20:53:24.155Z`
-Report path: `docs/audits/2026-05-19-foundation-deep-merge-audit.md`
+Report path: `docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md`
 
 ## Morning Read
 

@@ -48,9 +48,9 @@ No emergency P0 was found. The main live P1 still open is `FOUNDATION-CLIENT-CUR
 - `package.json`
 - `docs/process/foundation-deep-merge-audit-001-plan.md`
 - `docs/process/approvals/FOUNDATION-DEEP-MERGE-AUDIT-001.json`
-- `docs/audits/2026-05-19-foundation-deep-merge-audit.md`
+- `docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md`
 - `docs/audits/2026-05-19-foundation-deep-merge-audit.json`
-- `docs/handoffs/2026-05-19-foundation-deep-merge-audit-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-foundation-deep-merge-audit-closeout.md`
 
 ## Known Limits
 

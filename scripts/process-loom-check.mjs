@@ -120,7 +120,7 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/source-notes/video-link-inventory.md',
-      'docs/handoffs/2026-05-19-web-godmode-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-web-godmode-closeout.md',
     ],
     existingSystems: [
       'source_crawl_items video-link-inventory manifest',

@@ -42,16 +42,16 @@ const CARD_ID = 'FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001'
 const CLOSEOUT_KEY = 'foundation-endpoint-metrics-freshness-v1'
 const PLAN_PATH = 'docs/process/foundation-endpoint-metrics-freshness-001-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001.json'
-const CLOSEOUT_PATH = 'docs/handoffs/2026-05-19-foundation-endpoint-metrics-freshness-closeout.md'
+const CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-19-foundation-endpoint-metrics-freshness-closeout.md'
 const SCRIPT_PATH = 'scripts/process-foundation-endpoint-metrics-freshness-check.mjs'
 const AUDIT_JSON_PATH = 'docs/handoffs/nightly-deep-audit-2026-05-19.json'
-const AUDIT_MD_PATH = 'docs/handoffs/nightly-deep-audit-2026-05-19.md'
+const AUDIT_MD_PATH = 'docs/_archive/handoffs/nightly-deep-audit-2026-05-19.md'
 const SPRINT_ID = 'FOUNDATION-GREEN-MAIN-AUDIT-AND-SOURCE-ACTIVATION-2026-05-19'
 const NEXT_CARD_ID = 'FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001'
 
 const CHANGED_FILES = [
   'docs/handoffs/nightly-deep-audit-2026-05-19.json',
-  'docs/handoffs/nightly-deep-audit-2026-05-19.md',
+  'docs/_archive/handoffs/nightly-deep-audit-2026-05-19.md',
   'scripts/process-foundation-endpoint-budgets-check.mjs',
   SCRIPT_PATH,
   'package.json',

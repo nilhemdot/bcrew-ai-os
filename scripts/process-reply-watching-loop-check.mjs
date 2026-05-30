@@ -54,7 +54,7 @@ const CHANGED_FILES = [
   'scripts/process-reply-watching-loop-check.mjs',
   'docs/process/reply-watching-loop-001-plan.md',
   'docs/process/approvals/REPLY-WATCHING-LOOP-001.json',
-  'docs/handoffs/2026-05-20-reply-watching-loop-closeout.md',
+  'docs/_archive/handoffs/2026-05-20-reply-watching-loop-closeout.md',
   'lib/foundation-build-closeout-action-route-records.js',
   'package.json',
 ]

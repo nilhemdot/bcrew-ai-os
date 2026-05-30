@@ -99,7 +99,7 @@ Browser automation and Browse/Hermes-style skills belong in the HANDS layer for 
 - Source ID: `SRC-GITHUB-BUILD-INTEL-001`
 - Role: `PROCESS`
 - Access: `repo_truth`
-- URL/path: docs/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md
+- URL/path: docs/_archive/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md
 - Finding: The good old-system pattern was source scan, scored finding, synthesis, review/routing, and owner-bound action; the bad pattern was agent sprawl and unsafe browser/auth scripts.
 - Transfer to AIOS: God Mode must produce scored findings and review routes, not raw report piles.
 - Caution: Do not revive ungoverned old agents.

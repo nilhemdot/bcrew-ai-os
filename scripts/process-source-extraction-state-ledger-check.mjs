@@ -250,7 +250,7 @@ async function main() {
     readRepoFile('docs/rebuild/current-state.md'),
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
     readRepoFile('lib/myicor-mcp-catalog-snapshot.js'),
-    readRepoFile('docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md'),
   ])
   const liveBacklogCard = await readLiveBacklogCard()
 
@@ -323,7 +323,7 @@ async function main() {
     handoffSource.includes(SOURCE_EXTRACTION_STATE_LEDGER_CLOSEOUT_KEY) &&
       handoffSource.includes(SOURCE_EXTRACTION_STATE_LEDGER_REPORT_ARTIFACT_ID),
     'handoff captures ledger proof and next routing',
-    'docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md',
+    'docs/_archive/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md',
   )
   addCheck(
     checks,

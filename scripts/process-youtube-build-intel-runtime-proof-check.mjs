@@ -184,8 +184,8 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/source-notes/video-link-inventory.md',
-      'docs/handoffs/2026-05-18-youtube-build-intel-batch-closeout.md',
-      'docs/handoffs/2026-05-20-extractor-brain-fleet-proof-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-youtube-build-intel-batch-closeout.md',
+      'docs/_archive/handoffs/2026-05-20-extractor-brain-fleet-proof-closeout.md',
     ],
     existingScripts: [
       'npm run extraction:target -- --target=video-content-extract-backfill',

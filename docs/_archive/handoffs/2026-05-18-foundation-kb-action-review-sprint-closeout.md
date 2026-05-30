@@ -47,7 +47,7 @@ No live extraction, transcript fetch, screenshot capture, crawl, summarization, 
 - `lib/foundation-verify-coverage-card-ids.js`
 - `docs/process/foundation-kb-action-review-sprint-001-plan.md`
 - `docs/process/approvals/FOUNDATION-KB-ACTION-REVIEW-SPRINT-001.json`
-- `docs/handoffs/2026-05-18-foundation-kb-action-review-sprint-closeout.md`
+- `docs/_archive/handoffs/2026-05-18-foundation-kb-action-review-sprint-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 

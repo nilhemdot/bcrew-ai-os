@@ -305,7 +305,7 @@ async function main() {
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
     readRepoFile('lib/myicor-mcp-catalog-snapshot.js'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
-    readRepoFile('docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md'),
   ])
   const liveBacklogCard = await readLiveBacklogCard()
 
@@ -396,7 +396,7 @@ async function main() {
     handoffSource.includes(DEV_PAGE_SYSTEM_TRUTH_CLEANUP_CARD_ID) &&
       handoffSource.includes(DEV_PAGE_SYSTEM_TRUTH_CLEANUP_REPORT_ARTIFACT_ID),
     'handoff captures Dev page system truth closeout',
-    'docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md',
+    'docs/_archive/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md',
   )
   addCheck(
     checks,

@@ -15,7 +15,7 @@ Closeout key: `system-health-red-row-repair-v1`
   - `video-content-extract-bite` succeeded with 5 inspected, 5 skipped, 0 failures.
   - `meeting-notes-sync-current` succeeded with 7 inspected, 5 net-new archived artifacts, 0 crawl failures.
   - `slack-extract-latest` succeeded with 1 candidate upserted.
-- Regenerated `docs/handoffs/system-health-2026-05-16.md` and `.json`.
+- Regenerated `docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-16.md` and `.json`.
 
 ## Result
 

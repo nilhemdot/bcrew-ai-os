@@ -196,7 +196,7 @@ function buildUpdatedSprintOverlay({ activeSprint, currentHead }) {
             'lib/process-write-guard.js',
           ],
           existingDocs: [
-            'docs/audits/2026-05-19-foundation-deep-merge-audit.md',
+            'docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md',
             'docs/audits/2026-05-19-foundation-deep-merge-audit.json',
             'docs/process/audit-finding-to-backlog-router-001-plan.md',
             'docs/process/current-sprint-active-card-gate-001-plan.md',
@@ -304,7 +304,7 @@ async function main() {
     readRepoFile('lib/deep-audit-findings-closure-gate.js'),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('lib/foundation-build-closeout-process-gate-records.js'),
-    readRepoFile('docs/handoffs/2026-05-19-deep-audit-findings-closure-gate-closeout.md', { optional: true }),
+    readRepoFile('docs/_archive/handoffs/2026-05-19-deep-audit-findings-closure-gate-closeout.md', { optional: true }),
   ])
   const gitState = getGitState()
   const routeCardIds = Array.from(new Set(DEEP_AUDIT_FINDING_ROUTES.flatMap(route => [route.targetCardId, route.coveredByCardId]).filter(Boolean).concat([CARD_ID, NEXT_CARD_ID])))

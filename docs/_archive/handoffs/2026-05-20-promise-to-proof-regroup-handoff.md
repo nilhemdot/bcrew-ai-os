@@ -12,7 +12,7 @@ Steve called out a real sprint-system failure: V1, preflight, contract, syntheti
 - Added a live backlog repair mode: `npm run process:promise-to-proof-integrity-gate-check -- --apply --json`.
 - Opened/updated 28 P0 continuation cards in live backlog.
 - Linked 69 historical/source card-to-continuation edges.
-- Recorded the audit in `docs/audits/2026-05-20-promise-to-proof-integrity-audit.md`.
+- Recorded the audit in `docs/_archive/audits/2026-05-20-promise-to-proof-integrity-audit.md`.
 
 The target card itself does not count as the continuation. Dogfood covers that edge case.
 

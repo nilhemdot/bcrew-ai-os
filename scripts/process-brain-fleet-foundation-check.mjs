@@ -243,8 +243,8 @@ function buildBrainFleetSprintItem(item = {}, { closeCard = false, currentHead =
         'lib/llm-hub-capacity.js',
       ],
       existingDocs: [
-        'docs/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
-        'docs/handoffs/2026-05-20-orchestrator-brain-fleet-extractor-checkpoint.md',
+        'docs/_archive/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
+        'docs/_archive/handoffs/2026-05-20-orchestrator-brain-fleet-extractor-checkpoint.md',
         'docs/process/llm-router-001-plan.md',
         'docs/process/llm-credential-registry-001-plan.md',
       ],
@@ -312,7 +312,7 @@ function buildHarlanNextItem(item = {}, { currentHead = '' } = {}) {
       ],
       existingDocs: [
         '/Users/bensoncrew/bcrew-buddy-reference/skills/knowledge/auth-escalation-protocol.md',
-        'docs/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
+        'docs/_archive/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
       ],
       existingScripts: [
         'auth-escalate.cjs',

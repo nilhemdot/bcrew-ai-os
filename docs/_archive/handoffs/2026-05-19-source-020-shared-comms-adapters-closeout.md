@@ -42,7 +42,7 @@ The proof covers:
 - `scripts/process-source-020-check.mjs`
 - `docs/process/source-020-shared-comms-adapters-plan.md`
 - `docs/process/approvals/SOURCE-020.json`
-- `docs/handoffs/2026-05-19-source-020-shared-comms-adapters-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-source-020-shared-comms-adapters-closeout.md`
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `package.json` script `process:source-020-check`
 

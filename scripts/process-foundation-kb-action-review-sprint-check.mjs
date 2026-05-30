@@ -102,8 +102,8 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
-      'docs/handoffs/2026-05-18-action-route-dedup-staleness-guard-closeout.md',
-      'docs/handoffs/2026-05-18-foundation-kb-compiler-v1-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-action-route-dedup-staleness-guard-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-foundation-kb-compiler-v1-closeout.md',
     ],
     existingScripts: [
       'scripts/process-foundation-kb-compiler-v1-check.mjs',

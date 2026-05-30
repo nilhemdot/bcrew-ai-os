@@ -17,9 +17,9 @@ const protectedHandoffs = new Set([
 ])
 
 const protectedAudits = new Set([
-  'docs/audits/2026-04-26-foundation-menu-and-systems-audit.md',
-  'docs/audits/2026-04-28-dev-process-audit.md',
-  'docs/audits/2026-04-28-extraction-lane-item-shape.md',
+  'docs/_archive/audits/2026-04-26-foundation-menu-and-systems-audit.md',
+  'docs/_archive/audits/2026-04-28-dev-process-audit.md',
+  'docs/_archive/audits/2026-04-28-extraction-lane-item-shape.md',
 ])
 
 const retireMoves = [

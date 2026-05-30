@@ -66,7 +66,7 @@ async function main() {
     readRepoFile(BROWSERBASE_ONE_MONTH_BAKEOFF_SCRIPT_PATH),
     readRepoFile('lib/source-agentic-browser-runtime.js'),
     readRepoFile('lib/source-browser-brain-route-policy.js'),
-    readRepoFile('docs/handoffs/2026-05-28-source-browser-cost-virtual-desktop-checkpoint.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-28-source-browser-cost-virtual-desktop-checkpoint.md'),
     readRepoFile('docs/source-notes/source-browser-agent-protocol-scope-2026-05-28.md'),
   ])
   const lowerPlanSource = planSource.toLowerCase()

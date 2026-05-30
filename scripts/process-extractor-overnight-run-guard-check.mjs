@@ -61,7 +61,7 @@ const ACTOR = 'extractor-overnight-run-guard'
 const SPRINT_ID = 'YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21'
 const PLAN_PATH = 'docs/process/extractor-overnight-run-guard-001-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/EXTRACTOR-OVERNIGHT-RUN-GUARD-001.json'
-const CLOSEOUT_PATH = 'docs/handoffs/2026-05-23-extractor-overnight-run-guard-closeout.md'
+const CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-23-extractor-overnight-run-guard-closeout.md'
 const SCRIPT_PATH = 'scripts/process-extractor-overnight-run-guard-check.mjs'
 
 const CHANGED_FILES = [
@@ -219,7 +219,7 @@ function buildBacklogRows({ closeCard = false } = {}) {
       priority: 'P0',
       rank: 10,
       owner: 'Build Intel / Foundation Extractor',
-      source: 'docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md',
+      source: 'docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md',
       summary: 'Process approved public YouTube creator videos beyond title metadata into source-backed transcript, description, visual notes, observations, atoms, and ranked build opportunities.',
       whyItMatters: 'The research pool becomes valuable when selected videos from multiple approved public creators are processed into comparable intelligence.',
       nextAction: 'Run non-Mark latest-20 only after Mark pilot, guard, and adapter proof establish the extraction mode. Do not scale metadata/transcript-only noise.',

@@ -180,7 +180,7 @@ function buildExistingWorkCheck() {
       'docs/agents/agent-inventory.generated.json',
     ],
     existingDocs: [
-      'docs/audits/2026-05-19-old-system-research-team-harvest.md',
+      'docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md',
       'docs/audits/2026-05-19-old-system-research-team-harvest.json',
       'docs/conversation-archive/MANIFEST.json',
       'docs/system-capabilities.generated.md',

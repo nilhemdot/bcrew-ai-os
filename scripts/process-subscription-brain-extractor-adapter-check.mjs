@@ -197,7 +197,7 @@ function buildBacklogRows({ closeCard = false } = {}) {
       priority: 'P0',
       rank: 10,
       owner: 'Build Intel / Foundation Extractor',
-      source: 'docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md',
+      source: 'docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md',
       summary: 'Process approved public YouTube creator videos beyond title metadata into source-backed transcript, description, visual notes, observations, atoms, and ranked build opportunities.',
       whyItMatters: 'The research pool becomes valuable when selected videos from multiple approved public creators are processed into comparable intelligence.',
       nextAction: 'Run non-Mark latest-20 only after Mark pilot, guard, and adapter proof establish the extraction mode. Do not scale metadata/transcript-only noise.',

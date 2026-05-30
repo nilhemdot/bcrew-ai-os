@@ -51,7 +51,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const ACTOR = 'codex-admin-deal-policy-source-contract'
-const CLOSEOUT_DOC_PATH = 'docs/handoffs/2026-05-19-admin-deal-policy-source-contract-closeout.md'
+const CLOSEOUT_DOC_PATH = 'docs/_archive/handoffs/2026-05-19-admin-deal-policy-source-contract-closeout.md'
 const CHANGED_FILES = [
   'lib/admin-deal-policy-source-contract.js',
   'scripts/review-admin-deals.mjs',
@@ -204,7 +204,7 @@ function buildUpdatedSprintOverlay({ activeSprint, currentHead }) {
             'lib/deep-audit-findings-closure-gate.js',
           ],
           existingDocs: [
-            'docs/audits/2026-05-19-foundation-deep-merge-audit.md',
+            'docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md',
             'docs/source-notes/owners-dashboard.md',
             'docs/source-notes/freedom-sheet.md',
             'docs/process/deep-audit-findings-closure-gate-001-plan.md',

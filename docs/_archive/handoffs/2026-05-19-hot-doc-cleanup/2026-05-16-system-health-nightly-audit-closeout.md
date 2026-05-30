@@ -10,7 +10,7 @@ Closeout key: `system-health-nightly-audit-v1`
 - Added `scripts/process-system-health-nightly-audit-check.mjs` and `package.json` script `process:system-health-nightly-audit-check`.
 - Added scheduled Foundation job `system-health-nightly-audit` at 05:15 America/Toronto, after the nightly deep audit window.
 - Added the scheduled-job mutation allowlist row so the job is actually runnable, not just configured.
-- Added report artifacts at `docs/handoffs/system-health-2026-05-16.md` and `docs/handoffs/system-health-2026-05-16.json`.
+- Added report artifacts at `docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-16.md` and `docs/handoffs/system-health-2026-05-16.json`.
 - Ran the job through `scripts/run-foundation-job.mjs` so the Foundation job ledger records a successful latest run.
 
 ## Proof

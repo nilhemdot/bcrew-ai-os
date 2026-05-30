@@ -182,7 +182,15 @@ async function main() {
     addFinding(findings, includesAll(libSource, ['buildResearchLanePurgeSnapshot', 'renderResearchLanePurgeReport', 'researchLaneSignature', 'buildSyntheticResearchLanePurgeProof']), 'library owns classifier, renderer, signature, and synthetic proof')
     addFinding(findings, includesAll(scriptSource, ['beforeResearchSignature', 'afterResearchSignature', 'writeReport', 'skipClose']), 'process check proves before/after mutation guard')
     addFinding(findings, includesAll(verifySource, ['RESEARCH_LANE_PURGE_CARD_ID', 'RESEARCH_LANE_PURGE_CLOSEOUT_KEY', 'RESEARCH_LANE_PURGE_REPORT_PATH']), 'foundation verifier covers this card')
-    addFinding(findings, includesAll(planSource, ['No substring-only proof', 'No backlog card is moved', 'docs/handoffs/research-purge-2026-05-13.md']), 'plan keeps proof behavior-backed and report-only')
+    addFinding(
+      findings,
+      includesAll(planSource, ['No substring-only proof', 'No backlog card is moved']) &&
+        (
+          planSource.includes('docs/handoffs/research-purge-2026-05-13.md') ||
+          planSource.includes('docs/_archive/handoffs/research-purge-2026-05-13.md')
+        ),
+      'plan keeps proof behavior-backed and report-only',
+    )
     addFinding(findings, card?.lane === 'scoped' || card?.lane === 'done', 'backlog card is scoped or done before close', card?.lane || 'missing')
 
     const summary = {

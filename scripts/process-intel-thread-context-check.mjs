@@ -140,7 +140,7 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/specs/2026-04-28-strategic-intelligence-loop.md',
-      'docs/handoffs/2026-05-19-strategic-intel-loop-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-strategic-intel-loop-closeout.md',
       'docs/process/intel-scoper-001-plan.md',
     ],
     existingScripts: [

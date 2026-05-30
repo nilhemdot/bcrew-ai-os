@@ -195,7 +195,7 @@ function buildUpdatedSprintOverlay({ activeSprint, currentHead }) {
           ],
           existingDocs: [
             'docs/process/sprint-check-historical-mode-001-plan.md',
-            'docs/audits/2026-05-19-foundation-deep-merge-audit.md',
+            'docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md',
             PLAN_PATH,
           ],
           existingScripts: [

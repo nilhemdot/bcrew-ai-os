@@ -45,7 +45,7 @@ This card encodes the operating rule:
 - `scripts/process-foundation-overnight-closeout-morning-readiness-check.mjs`
 - `docs/process/foundation-overnight-closeout-and-morning-readiness-001-plan.md`
 - `docs/process/approvals/FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001.json`
-- `docs/handoffs/2026-05-20-foundation-overnight-closeout-morning-readiness.md`
+- `docs/_archive/handoffs/2026-05-20-foundation-overnight-closeout-morning-readiness.md`
 - `lib/foundation-build-closeout-process-gate-records.js`
 - `package.json` script `process:foundation-overnight-closeout-morning-readiness-check`
 - Foundation Current Sprint: `FOUNDATION-TRUSTED-LOOP-AND-SAFE-SURFACES-2026-05-20`

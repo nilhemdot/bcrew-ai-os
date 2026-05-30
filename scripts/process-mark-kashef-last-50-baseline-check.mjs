@@ -155,7 +155,7 @@ function buildExistingWorkCheck() {
       'lib/dev-team-hub.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-23-god-mode-extractor-checkpoint.md',
+      'docs/_archive/handoffs/2026-05-23-god-mode-extractor-checkpoint.md',
       'docs/source-notes/god-mode-extractor-eyes-quality-loop-2026-05-23.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',

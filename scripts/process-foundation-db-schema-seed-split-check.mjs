@@ -36,7 +36,7 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
-const handoffPath = 'docs/handoffs/2026-05-18-foundation-db-schema-seed-split-closeout.md'
+const handoffPath = 'docs/_archive/handoffs/2026-05-18-foundation-db-schema-seed-split-closeout.md'
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {

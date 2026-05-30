@@ -205,7 +205,7 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/conversation-archive/MANIFEST.json',
       'docs/conversation-archive/README.md',
-      'docs/handoffs/2026-05-19-memory-003-conversation-archive-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-memory-003-conversation-archive-closeout.md',
       'docs/process/foundation-lessons-learned-loop-001-plan.md',
     ],
     existingScripts: [

@@ -195,7 +195,7 @@ function buildUpdatedSprintOverlay({ activeSprint, currentHead }) {
             'lib/deep-audit-findings-closure-gate.js',
           ],
           existingDocs: [
-            'docs/audits/2026-05-19-foundation-deep-merge-audit.md',
+            'docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md',
             'docs/process/stylesheet-monolith-split-001-plan.md',
             PLAN_PATH,
           ],

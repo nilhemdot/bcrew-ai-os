@@ -118,9 +118,9 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/process/action-route-review-inbox-001-plan.md',
       'docs/process/action-route-promotion-workflow-001-plan.md',
-      'docs/handoffs/2026-05-18-action-route-review-inbox-closeout.md',
-      'docs/handoffs/2026-05-18-action-route-promotion-workflow-closeout.md',
-      'docs/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-action-route-review-inbox-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-action-route-promotion-workflow-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md',
     ],
     existingScripts: [
       'scripts/process-action-route-review-inbox-check.mjs',

@@ -165,7 +165,7 @@ export const processGateCloseoutRecords = [
       'scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs guarded Current Sprint cleanup proof',
       'docs/process/youtube-current-sprint-workspace-cleanup-001-plan.md',
       'docs/process/approvals/YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001.json',
-      'docs/handoffs/2026-05-21-youtube-current-sprint-workspace-cleanup-closeout.md',
+      'docs/_archive/handoffs/2026-05-21-youtube-current-sprint-workspace-cleanup-closeout.md',
       'scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs no longer preserves old done rows',
       'public/foundation-operations-renderers.js Current Sprint Sprint plan link',
       'docs/rebuild/current-plan.md and docs/rebuild/current-state.md clean-sprint workspace notes',
@@ -518,7 +518,7 @@ const CARD_ID = 'OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001'
 const CLOSEOUT_KEY = 'old-system-research-team-harvest-v1'
 const PLAN_PATH = 'docs/process/old-system-research-team-harvest-001-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001.json'
-const REPORT_PATH = 'docs/audits/2026-05-19-old-system-research-team-harvest.md'
+const REPORT_PATH = 'docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md'
 const JSON_PATH = 'docs/audits/2026-05-19-old-system-research-team-harvest.json'
 const DEFAULT_OLD_REPO = path.join(os.homedir(), 'bcrew-buddy-reference')
 

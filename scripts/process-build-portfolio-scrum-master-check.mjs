@@ -65,7 +65,7 @@ async function main() {
     readRepoFile('package.json'),
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/process/dev-team-intelligence-director-001-plan.md'),
-    readRepoFile('docs/handoffs/2026-05-25-intelligence-spine-god-mode-checkpoint.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-25-intelligence-spine-god-mode-checkpoint.md'),
     readRepoFile(BUILD_PORTFOLIO_SCRUM_MASTER_SCRIPT_PATH),
     validatePlanApprovalFile({
       repoRoot,
@@ -168,7 +168,7 @@ async function main() {
     handoffSource.includes('BUILD-PORTFOLIO-SCRUM-MASTER-001') &&
       /seven (related|overlapping) ideas.*one stronger source-backed build concept/i.test(handoffSource),
     'checkpoint handoff queues portfolio card with the right job',
-    'docs/handoffs/2026-05-25-intelligence-spine-god-mode-checkpoint.md'
+    'docs/_archive/handoffs/2026-05-25-intelligence-spine-god-mode-checkpoint.md'
   )
   addCheck(
     checks,

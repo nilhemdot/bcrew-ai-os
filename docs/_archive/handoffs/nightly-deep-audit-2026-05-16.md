@@ -601,8 +601,8 @@ export const SOURCE_LIFECYCLE_ROUTE = '/foundation#source-lifecycle'
 export const SOURCE_LIFECYCLE_API_PATH = '/api/foundation/source-lifecycle'
 export const SOURCE_LIFECYCLE_APPROVED_PLAN_PATH = 'docs/process/approved-plans/source-lifecycle-expansion-v1.md'
 export const SOURCE_LIFECYCLE_APPROVAL_PATH = 'docs/process/approvals/SOURCE-LIFECYCLE-EXPANSION-001.json'
-export const SOURCE_LIFECYCLE_BASELINE_PATH = 'docs/audits/2026-04-30-source-lifecycle-expansion-baseline.md'
-export const SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH = 'docs/audits/2026-04-30-source-lifecycle-expansion-manual-review.md'
+export const SOURCE_LIFECYCLE_BASELINE_PATH = 'docs/_archive/audits/2026-04-30-source-lifecycle-expansion-baseline.md'
+export const SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH = 'docs/_archive/audits/2026-04-30-source-lifecycle-expansion-manual-review.md'
 
 export const SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT = 13
 

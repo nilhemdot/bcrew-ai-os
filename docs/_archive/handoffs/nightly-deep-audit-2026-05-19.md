@@ -2,7 +2,7 @@
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
 Generated at: `2026-05-19T20:43:22.805Z`
-Report path: `docs/handoffs/nightly-deep-audit-2026-05-19.md`
+Report path: `docs/_archive/handoffs/nightly-deep-audit-2026-05-19.md`
 
 ## Morning Read
 
@@ -285,7 +285,7 @@ export const processGateCloseoutRecords = [
       'scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs',
       'docs/process/foundation-sprint-closeout-and-continuous-work-ready-001-plan.md',
       'docs/process/approvals/FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001.json',
-      'docs/handoffs/2026-05-19-foundation-sprint-closeout-continuous-work-ready.md',
+      'docs/_archive/handoffs/2026-05-19-foundation-sprint-closeout-continuous-work-ready.md',
       'package.json script process:foundation-sprint-closeout-continuous-work-ready-check',
     ],
     proofCommands: [
@@ -920,7 +920,7 @@ export const FOUNDATION_SPRINT_CLOSEOUT_CLOSEOUT_KEY = 'foundation-sprint-closeo
 export const FOUNDATION_SPRINT_CLOSEOUT_PLAN_PATH = 'docs/process/foundation-sprint-closeout-and-continuous-work-ready-001-plan.md'
 export const FOUNDATION_SPRINT_CLOSEOUT_APPROVAL_PATH = 'docs/process/approvals/FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001.json'
 export const FOUNDATION_SPRINT_CLOSEOUT_SCRIPT_PATH = 'scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs'
-export const FOUNDATION_SPRINT_CLOSEOUT_HANDOFF_PATH = 'docs/handoffs/2026-05-19-foundation-sprint-closeout-continuous-work-ready.md'
+export const FOUNDATION_SPRINT_CLOSEOUT_HANDOFF_PATH = 'docs/_archive/handoffs/2026-05-19-foundation-sprint-closeout-continuous-work-ready.md'
 
 export const FOUNDATION_SPRINT_CLOSEOUT_REQUIRED_CARDS = Object.freeze([
   'FOUNDATION-HEALTH-GREEN-LOCK-001',

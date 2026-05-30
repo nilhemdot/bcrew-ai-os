@@ -214,8 +214,8 @@ function genericExistingWorkCheck(cardId) {
       'lib/foundation-db.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
-      'docs/handoffs/2026-05-19-foundation-health-green-lock-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
+      'docs/_archive/handoffs/2026-05-19-foundation-health-green-lock-closeout.md',
     ],
     existingScripts: [
       'scripts/process-system-health-nightly-audit-check.mjs',

@@ -50,7 +50,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const ACTOR = 'codex-approval-threshold-registry'
-const CLOSEOUT_DOC_PATH = 'docs/handoffs/2026-05-19-approval-threshold-registry-closeout.md'
+const CLOSEOUT_DOC_PATH = 'docs/_archive/handoffs/2026-05-19-approval-threshold-registry-closeout.md'
 const CHANGED_FILES = [
   'lib/approval-threshold-registry.js',
   'lib/process-plan-critic.js',
@@ -207,7 +207,7 @@ function buildUpdatedSprintOverlay({ activeSprint, currentHead }) {
             'lib/deep-audit-findings-closure-gate.js',
           ],
           existingDocs: [
-            'docs/audits/2026-05-19-foundation-deep-merge-audit.md',
+            'docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md',
             'docs/process/deep-audit-findings-closure-gate-001-plan.md',
             PLAN_PATH,
           ],

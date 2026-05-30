@@ -222,9 +222,9 @@ function buildExistingWorkCheck() {
       'lib/llm-hub-capacity.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
+      'docs/_archive/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
       'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-foundation-closeout.md',
-      'docs/handoffs/2026-05-20-harlan-auth-escalation-loop-closeout.md',
+      'docs/_archive/handoffs/2026-05-20-harlan-auth-escalation-loop-closeout.md',
       'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-quota-ledger-closeout.md',
       'docs/rebuild/current-runtime-map.md',
       'docs/rebuild/current-plan.md',

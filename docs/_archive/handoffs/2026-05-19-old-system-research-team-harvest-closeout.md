@@ -41,9 +41,9 @@ The useful old-system intelligence pattern is not "rebuild every old agent." It 
 - `package.json`
 - `docs/process/old-system-research-team-harvest-001-plan.md`
 - `docs/process/approvals/OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001.json`
-- `docs/audits/2026-05-19-old-system-research-team-harvest.md`
+- `docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md`
 - `docs/audits/2026-05-19-old-system-research-team-harvest.json`
-- `docs/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md`
 
 ## Known Limits
 

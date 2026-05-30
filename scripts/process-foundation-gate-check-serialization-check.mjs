@@ -62,7 +62,7 @@ const CHANGED_FILES = [
   'docs/process/foundation-ship-gate.md',
   'docs/rebuild/current-plan.md',
   'docs/rebuild/current-state.md',
-  'docs/handoffs/2026-05-20-foundation-gate-check-serialization-closeout.md',
+  'docs/_archive/handoffs/2026-05-20-foundation-gate-check-serialization-closeout.md',
   'lib/foundation-build-closeout-control-plane-records.js',
   'lib/foundation-verify-coverage-card-ids.js',
   'package.json',

@@ -73,7 +73,7 @@ const MAIN_INTEGRATION_EXISTING_WORK_CHECK = {
   existingDocs: [
     PLAN_PATH,
     FOUNDATION_MAIN_INTEGRATION_BRANCH_LEDGER_PATH,
-    'docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
+    'docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
     CLOSEOUT_PATH,
   ],
   existingScripts: [
@@ -495,7 +495,7 @@ async function main() {
     readRepoJson(FOUNDATION_MAIN_INTEGRATION_BRANCH_LEDGER_PATH),
     readRepoJson('package.json'),
     repoFileExists(CLOSEOUT_PATH),
-    readRepoFile('docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md'),
     readRepoFile('lib/foundation-build-closeout-process-gate-records.js'),
     fetchFoundationHubSummary(),
     buildBranchInventory(),

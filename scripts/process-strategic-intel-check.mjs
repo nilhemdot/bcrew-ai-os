@@ -177,8 +177,8 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       STRATEGIC_INTEL_SPEC_PATH,
-      'docs/audits/2026-05-19-legacy-system-audit.md',
-      'docs/audits/2026-05-19-old-system-research-team-harvest.md',
+      'docs/_archive/audits/2026-05-19-legacy-system-audit.md',
+      'docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md',
     ],
     existingScripts: [
       'process:system-health-nightly-audit-check',

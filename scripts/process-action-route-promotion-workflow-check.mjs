@@ -115,8 +115,8 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/process/action-route-review-inbox-001-plan.md',
-      'docs/handoffs/2026-05-18-action-route-review-inbox-closeout.md',
-      'docs/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-action-route-review-inbox-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

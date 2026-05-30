@@ -12,7 +12,7 @@ Closeout key: `connector-blocked-row-diagnosis-v1`
 - Kept the readiness note visible in the connector registry and connector uptime rollup.
 - Updated system-health connector blocked findings so future true blockers name the connector and reason instead of surfacing as a hidden count.
 - Updated operating reliability and system-health proofs for the current read-only `verification-runs` posture and shorter healthy reports.
-- Regenerated `docs/handoffs/system-health-2026-05-16.md` and `.json`.
+- Regenerated `docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-16.md` and `.json`.
 
 ## Result
 

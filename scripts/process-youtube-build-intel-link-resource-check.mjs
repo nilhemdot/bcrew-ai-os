@@ -147,8 +147,8 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/process/youtube-build-intel-link-resource-002-plan.md',
-      'docs/handoffs/2026-05-22-dev-team-hub-v0-closeout.md',
-      'docs/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md',
+      'docs/_archive/handoffs/2026-05-22-dev-team-hub-v0-closeout.md',
+      'docs/_archive/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md',
     ],
     existingScripts: [
       'scripts/process-youtube-build-intel-link-resource-check.mjs',

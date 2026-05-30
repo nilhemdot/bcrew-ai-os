@@ -270,7 +270,7 @@ async function main() {
     readRepoFile(SCRIPT_PATH),
     readRepoFile('lib/foundation-build-closeout-process-gate-records.js'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
-    readRepoFile('docs/handoffs/2026-05-19-current-sprint-active-card-gate-closeout.md', { optional: true }),
+    readRepoFile('docs/_archive/handoffs/2026-05-19-current-sprint-active-card-gate-closeout.md', { optional: true }),
   ])
   const gitState = getGitState()
   const dogfood = buildCurrentSprintActiveCardGateDogfoodProof()

@@ -213,7 +213,7 @@ function buildUpdatedSprintOverlay({ activeSprint, currentHead, snapshot }) {
           ],
           existingDocs: [
             'docs/source-notes/github-build-intel.md',
-            'docs/audits/2026-05-19-foundation-deep-merge-audit.md',
+            'docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md',
             PLAN_PATH,
           ],
           existingScripts: [

@@ -145,7 +145,7 @@ function buildSprintItem({ closeCard = false, stage = 'building_now' } = {}) {
         'docs/source-registry.md',
         'docs/rebuild/current-plan.md',
         'docs/rebuild/current-state.md',
-        'docs/handoffs/2026-05-18-build-intel-creator-watchlist-expansion-closeout.md',
+        'docs/_archive/handoffs/2026-05-18-build-intel-creator-watchlist-expansion-closeout.md',
       ],
       existingScripts: [
         'scripts/process-build-intel-creator-watchlist-expansion-check.mjs',

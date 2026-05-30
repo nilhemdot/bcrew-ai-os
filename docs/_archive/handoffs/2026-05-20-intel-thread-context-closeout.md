@@ -43,7 +43,7 @@ Strategic Intelligence should not ask Steve to trust a quote without knowing whe
 - `package.json` script `process:intel-thread-context-check`
 - `docs/process/intel-thread-context-001-plan.md`
 - `docs/process/approvals/INTEL-THREAD-CONTEXT-001.json`
-- `docs/handoffs/2026-05-20-intel-thread-context-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-intel-thread-context-closeout.md`
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `lib/foundation-verify-coverage-card-ids.js`
 

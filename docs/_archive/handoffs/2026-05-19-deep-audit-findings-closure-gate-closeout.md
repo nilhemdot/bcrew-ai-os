@@ -32,7 +32,7 @@ Deep audit findings are not allowed to become report-only debt. This turns the a
 - `scripts/process-deep-audit-findings-closure-gate-check.mjs`
 - `docs/process/deep-audit-findings-closure-gate-001-plan.md`
 - `docs/process/approvals/DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001.json`
-- `docs/handoffs/2026-05-19-deep-audit-findings-closure-gate-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-deep-audit-findings-closure-gate-closeout.md`
 - `docs/audits/2026-05-19-foundation-deep-merge-audit.json`
 - Current Sprint: `FOUNDATION-AUDIT-CONTROL-AND-INTEL-2026-05-19`
 

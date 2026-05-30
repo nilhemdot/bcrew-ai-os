@@ -1,29 +1,29 @@
-# Nightly Deep Audit Report - 2026-05-29
+# Nightly Deep Audit Report - 2026-05-30
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
-Generated at: `2026-05-29T07:00:52.951Z`
-Report path: `docs/handoffs/nightly-deep-audit-2026-05-29.md`
+Generated at: `2026-05-30T07:00:32.452Z`
+Report path: `docs/_archive/handoffs/nightly-deep-audit-2026-05-30.md`
 
 ## Morning Read
 
 - Status: `deep_review_executed`
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev.
-- Active deterministic findings: 1 total (0 P0, 0 P1, 1 P2, 0 P3)
-- Closed detector signals reconciled out of active audit: 0 of 1
-- Changed files selected: 4
-- High-risk review targets: 16
+- Active deterministic findings: 0 total (0 P0, 0 P1, 0 P2, 0 P3)
+- Closed detector signals reconciled out of active audit: 0 of 0
+- Changed files selected: 5
+- High-risk review targets: 15
 - LLM review mode: `bounded_senior_review_executed`
-- Deep senior review rollup: `healthy` (deep senior review executed with 1 active finding(s) and 0 reconciled closed finding(s))
+- Deep senior review rollup: `healthy` (deep senior review executed with 0 active finding(s) and 0 reconciled closed finding(s))
 - Dogfood against May 13 failures: passed
 - Doc/report artifact bloat: `healthy` (0 red, 0 yellow)
 
 ## Diff Summary
 
-- Previous report: `docs/handoffs/nightly-deep-audit-2026-05-19.json`
-- New findings: 1
+- Previous report: `docs/handoffs/nightly-deep-audit-2026-05-29.json`
+- New findings: 0
 - Still open: 0
-- Resolved: 12
-- Finding delta: -11
+- Resolved: 1
+- Finding delta: -1
 
 ## LLM Review Boundary
 
@@ -31,7 +31,7 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-29.md`
 - Selected route: `foundation-deep-audit-openai-api`
 - Provider/model: `openai / gpt-5.5`
 - Route blocker: none
-- Active finding count: 1
+- Active finding count: 0
 - Closed senior-review repeats reconciled out: 0
 - Note: Deep senior review executed through the approved router with report-only/no-autofix posture.
 
@@ -39,7 +39,7 @@ Deep senior review executed through the approved router.
 
 ## Senior Review Findings
 
-- P2 Runtime model name appears outside router/config ownership (scripts/process-source-browser-runtime-cost-guardrails-check.mjs:53) -> LLM-RUNTIME-CONFIG-AUDIT-001; owner=Source Browser / LLM runtime config owner; next=Move the model name behind the owned runtime router/config contract, have this guardrail import that source of truth, and add a focused assertion that no non-config script owns provider/model literals.
+- none
 
 ## Reconciled Closed Audit Signals
 
@@ -47,31 +47,31 @@ Deep senior review executed through the approved router.
 
 ## Endpoint And Payload Trend
 
-- /api/foundation-hub: 179ms, 592055B, risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: 32ms, 199958B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: 693ms, 628059B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: 121ms, 296534B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: 37ms, 33222B, risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: 155ms, 595991B, risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: 25ms, 199969B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: 661ms, 648566B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: 104ms, 237569B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: 32ms, 33222B, risk=healthy (Within V1 audit budget.)
 
 ## Largest Files
 
-- scripts/foundation-verify.mjs: 4998 LOC, 277372B
-- public/dev.css: 4782 LOC, 85504B
-- lib/foundation-build-closeout-source-records.js: 4750 LOC, 432200B
-- lib/dev-team-hub.js: 3170 LOC, 152776B
-- lib/foundation-build-closeout-process-gate-records.js: 3133 LOC, 224729B
-- public/dev.js: 3067 LOC, 144988B
-- public/foundation.js: 2987 LOC, 113810B
+- scripts/foundation-verify.mjs: 4994 LOC, 276777B
+- lib/dev-team-hub.js: 3211 LOC, 155694B
+- public/dev.js: 3168 LOC, 149765B
+- public/dev.css: 3109 LOC, 56017B
+- public/foundation.js: 2991 LOC, 114042B
 - lib/foundation-db-schema-seed-store.js: 2757 LOC, 141992B
 - lib/foundation-build-closeout-overnight-records.js: 2718 LOC, 216767B
+- lib/source-god-mode-youtube-handoff.js: 2705 LOC, 115788B
 - lib/foundation-build-closeout-intelligence-records.js: 2687 LOC, 202469B
+- lib/foundation-build-closeout-tightening-records.js: 2599 LOC, 226105B
 
 ## High-Risk Review Packets
 
 ### P0 scripts/foundation-verify.mjs
 
-- Lines: 4998
-- Bytes: 277372
+- Lines: 4994
+- Bytes: 276777
 - Reasons: over_3k_warn, verifier_trust_surface
 
 ```
@@ -125,104 +125,10 @@ import {
   PROCESS_CHECK_READONLY_MODE_CARD_ID,
 ```
 
-### P1 public/dev.css
-
-- Lines: 4782
-- Bytes: 85504
-- Reasons: over_3k_warn
-
-```
-@font-face {
-  font-family: 'Stratum1';
-  src: url('/fonts/Stratum1-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Stratum1';
-  src: url('/fonts/Stratum1-Medium.otf') format('opentype');
-  font-weight: 500;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Stratum1';
-  src: url('/fonts/Stratum1-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Stratum1';
-  src: url('/fonts/Stratum1-Black.otf') format('opentype');
-  font-weight: 900;
-  font-display: swap;
-}
-
-:root {
-  --ink: #0A0F1A;
-  --blue: #0084C9;
-  --blue-up: #4DBDFF;
-  --blue-deep: #005FA3;
-  --white: #FFFFFF;
-  --grey: #EBEBEB;
-  --grey-1: #F5F7FA;
-  --grey-d: #4B5563;
-  --grey-line: rgba(10, 15, 26, 0.08);
-  --display: 'Stratum1', 'Arial Black', sans-serif;
-  --body: 'Open Sans', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, monospace;
-  --t-micro: 11px;
-  --t-xs: 12px;
-  --t-sm: 13px;
-  --t-base: 14px;
-  --t-md: 16px;
-  --t-lg: 18px;
-  --t-xl: 22px;
-```
-
-### P1 lib/foundation-build-closeout-source-records.js
-
-- Lines: 4750
-- Bytes: 432200
-- Reasons: changed_since_baseline, over_3k_warn, source_health_surface
-
-```
-export const sourceCloseoutRecords = [
-  {
-    key: 'source-browser-brain-route-policy-v1',
-    backlogIds: ['SOURCE-BROWSER-AGENTIC-RUNTIME-001'],
-    match: {
-      subjectIncludes: [
-        'Add source browser brain route policy',
-        'SOURCE-BROWSER-AGENTIC-RUNTIME-001',
-        'source-browser-brain-route-policy-v1',
-      ],
-    },
-    operatorCloseout: true,
-    mentionedBacklogIds: [
-      'SOURCE-BROWSER-BRAIN-ROUTE-POLICY-001',
-      'SOURCE-BROWSER-RUNTIME-COST-GUARDRAILS-001',
-      'LOCAL-VIRTUAL-BROWSER-HANDS-RUNTIME-001',
-      'SOURCE-SESSION-BROKER-001',
-      'BROWSERBASE-ONE-MONTH-BAKEOFF-001',
-      'HARLAN-AUTH-LIVE-DELIVERY-002',
-      'SKOOL-LIVE-NAVIGATION-PROOF-002',
-      'MYICOR-LIVE-NAVIGATION-PROOF-002',
-    ],
-    systemArea: 'Foundation source browser / brain route policy',
-    status: 'blocked-preflight',
-    acceptanceState: 'Verified source-browser brain route policy is accepted as a blocked-preflight routing slice, not done and not accepted as full God Mode completion. It chooses and exposes the route before work starts, but real free-community sessions, MyICOR connector/live auth, live Harlan sending, Browserbase bakeoff execution, newsletter signup, paid/private extraction, downloads, purchases, posting, messaging, and Scoper promotion remain approval-bound continuation work.',
-    whatChanged: 'Added a deterministic source-browser brain route policy module, focused proof, plan doc, seed card truth, Source Browser Agent plan/readback integration, and source-browser protocol note. Plans now carry brainRoute metadata so Dev/source readback can show whether a row is deterministic, local hands, source-session/Harlan, Stagehand/API, Browserbase bakeoff, or blocked.',
-    whatItDoes: 'Routes normal public/free pages to deterministic source workers, repos to repo deep review, newsletters to no-submit intake, healthy free-community sessions to local hands plus the Skool runner, auth/MFA/session gaps to Source Session Broker/Harlan dry-run, MyICOR read-only connector first when approved, API/Stagehand only with supported provider/model and caps, Browserbase only during approved tiny bakeoff, and risky external actions to a separate action policy.',
-    whyItMatters: 'Steve needs the extractor to stop drifting between cheap local browser work, paid API models, Browserbase, and manual babysitting. This policy makes the brain/ru
-```
-
 ### P1 lib/dev-team-hub.js
 
-- Lines: 3170
-- Bytes: 152776
+- Lines: 3211
+- Bytes: 155694
 - Reasons: over_3k_warn
 
 ```
@@ -276,55 +182,10 @@ import {
   buildSourcePacketPreview,
 ```
 
-### P1 lib/foundation-build-closeout-process-gate-records.js
-
-- Lines: 3133
-- Bytes: 224729
-- Reasons: over_3k_warn
-
-```
-export const processGateCloseoutRecords = [
-  {
-    key: 'youtube-current-sprint-workspace-cleanup-v1',
-    backlogIds: [
-      'YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001',
-    ],
-    operatorCloseout: true,
-    match: {
-      subjectIncludes: [
-        'YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001',
-        'youtube-current-sprint-workspace-cleanup-v1',
-        'Clean current sprint workspace',
-        'Clean YouTube Current Sprint workspace',
-      ],
-    },
-    systemArea: 'Foundation sprint control / Current Sprint workspace',
-    status: 'shipped',
-    acceptanceState: 'Verified',
-    whatChanged: 'Cleaned the active YouTube To Dev Team Intelligence sprint workspace so old shipped cards no longer appear in `Done This Sprint`.',
-    whatItDoes: 'Resets the live Current Sprint overlay to the nine active YouTube sprint cards only, keeps historical shipped cards in Backlog done and Recent Work, adds sprint-plan metadata to the active sprint, renders a Sprint plan link in the Recent Work Current Sprint panel, and verifies package/doc/closeout/coverage/UI/live readback.',
-    whyItMatters: 'The sprint board should show what is being executed now. Prior Foundation/Brain Fleet/GOD-mode cards are real history, but carrying them into a new sprint makes the workspace look stale and confusing.',
-    whereItLives: [
-      'scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs guarded Current Sprint cleanup proof',
-      'docs/process/youtube-current-sprint-workspace-cleanup-001-plan.md',
-      'docs/process/approvals/YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001.json',
-      'docs/handoffs/2026-05-21-youtube-current-sprint-workspace-cleanup-closeout.md',
-      'scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs no longer preserves old done rows',
-      'public/foundation-operations-renderers.js Current Sprint Sprint plan link',
-      'docs/rebuild/current-plan.md and docs/rebuild/current-state.md clean-sprint workspace notes',
-      'package.json script process:youtube-current-sprint-workspace-cleanup-check',
-      'lib/foundation-verify-coverage-card-ids.js done-card coverage',
-    ],
-    proofCommands: [
-      'node --check scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs',
-      'npm run process:youtube-current-sprint-workspace-cleanup-check -- --apply --json',
-      'npm run process:youtube-current-sprint-workspa
-```
-
 ### P1 public/dev.js
 
-- Lines: 3067
-- Bytes: 144988
+- Lines: 3168
+- Bytes: 149765
 - Reasons: over_3k_warn
 
 ```
@@ -378,10 +239,67 @@ export const processGateCloseoutRecords = [
       <div class="yt-section">
 ```
 
+### P1 public/dev.css
+
+- Lines: 3109
+- Bytes: 56017
+- Reasons: over_3k_warn
+
+```
+@font-face {
+  font-family: 'Stratum1';
+  src: url('/fonts/Stratum1-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Stratum1';
+  src: url('/fonts/Stratum1-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Stratum1';
+  src: url('/fonts/Stratum1-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Stratum1';
+  src: url('/fonts/Stratum1-Black.otf') format('opentype');
+  font-weight: 900;
+  font-display: swap;
+}
+
+:root {
+  --ink: #0A0F1A;
+  --blue: #0084C9;
+  --blue-up: #4DBDFF;
+  --blue-deep: #005FA3;
+  --white: #FFFFFF;
+  --grey: #EBEBEB;
+  --grey-1: #F5F7FA;
+  --grey-d: #4B5563;
+  --grey-line: rgba(10, 15, 26, 0.08);
+  --display: 'Stratum1', 'Arial Black', sans-serif;
+  --body: 'Open Sans', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --t-micro: 11px;
+  --t-xs: 12px;
+  --t-sm: 13px;
+  --t-base: 14px;
+  --t-md: 16px;
+  --t-lg: 18px;
+  --t-xl: 22px;
+```
+
 ### P1 public/foundation.js
 
-- Lines: 2987
-- Bytes: 113810
+- Lines: 2991
+- Bytes: 114042
 - Reasons: frontend_route_cache_surface
 
 ```
@@ -433,63 +351,6 @@ function renderBacklog() {
     heroMeta.className = 'hero-copy'
     var scopeSummary = getActiveBacklogScopes().map(function(scope) {
       var count = (hub.backlogItems || []).filter(function(item) { return item.scope === scope.key }).length
-```
-
-### P1 lib/source-god-mode-youtube-handoff.js
-
-- Lines: 2506
-- Bytes: 105227
-- Reasons: changed_since_baseline, source_health_surface
-
-```
-import crypto from 'node:crypto'
-import path from 'node:path'
-
-import {
-  YOUTUBE_SCOUT_SOURCE_ID,
-} from './youtube-scout-latest-video-vision.js'
-import {
-  runSkoolFreeCommunityGodMode,
-} from './skool-free-community-god-mode-runner.js'
-import {
-  buildPublicRepoDeepReviewPacket,
-  runPublicRepoDeepReview,
-} from './public-repo-deep-review-runner.js'
-import {
-  evaluateSourceBrowserPageHealth,
-  runSourceGodModeExtractor,
-} from './source-god-mode-extractor-runtime.js'
-import {
-  SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
-  evaluateSourceSessionBrokerRequest,
-} from './source-session-broker.js'
-import {
-  buildSourceBrowserAgentCrawlItemInput,
-  planSourceBrowserAgentRun,
-} from './source-browser-agent-harness.js'
-import {
-  buildSourceBrowserFallbackRetryPacket,
-} from './source-browser-fallback-executor.js'
-import {
-  buildSourceSessionActionGroupReadiness,
-} from './source-session-readiness-readback.js'
-
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_CARD_ID = 'SOURCE-BROWSER-AGENTIC-RUNTIME-001'
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_SCRIPT_PATH = 'scripts/process-source-god-mode-youtube-handoff-check.mjs'
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_ROOT = '.openclaw/source-god-mode-youtube-handoff'
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY = 'source-god-mode-youtube-handoff-runs'
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_SOURCE_ID = YOUTUBE_SCOUT_SOURCE_ID
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_MAX_ITEMS_PER_RUN = 20
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_MAX_RUNTIME_SECONDS = 3900
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_VERSION = 2
-export const SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT = 1000
-
-const DEFAULT_ROW_LIMIT = 0
-const DEV_LANE_PRIORITY_GRADES = ['S', 'A', 'B', 'C', 'D']
-const SHORT_LINK_HOSTS = new Set([
-  'bit.ly',
-  't.co',
-  'tinyurl.com',
 ```
 
 ### P1 lib/foundation-db.js
@@ -572,6 +433,62 @@ function isLocalRequest(req) {
   ) {
 ```
 
+### P1 lib/foundation-build-closeout-process-gate-operations-records.js
+
+- Lines: 1290
+- Bytes: 90136
+- Reasons: changed_since_baseline
+
+```
+export const processGateOperationsCloseoutRecords = [
+  {
+    key: 'verify-gate-tiering-v1',
+    backlogIds: ['VERIFY-GATE-TIERING-001'],
+    match: {
+      subjectIncludes: ['VERIFY-GATE-TIERING-001'],
+    },
+    systemArea: 'Foundation process',
+    status: 'accepted',
+    acceptanceState: 'Verified',
+    whatChanged: 'Added proportional verification tiers for protected Foundation changes: static, focused, and full.',
+    whatItDoes: 'Lets bounded docs, Current Sprint, process-proof, and Foundation/Ops surface changes pass pre-push with a recorded focused proof while keeping full-risk substrate changes on the full Foundation ship gate.',
+    whyItMatters: 'Automatic proof still holds, but small safe changes no longer pay the full verifier cost every time or rely on informal bypasses.',
+    whereItLives: [
+      'Current Sprint',
+      'lib/process-verify-gate-tiering.js',
+      'scripts/process-verify-gate-tiering-check.mjs',
+      'lib/process-git-hooks.js',
+      'docs/process/verify-gate-tiering-001-plan.md',
+    ],
+    proofCommands: [
+      'npm run process:verify-gate-tiering-check -- --json=true',
+      'npm run backlog:hygiene -- --json',
+    ],
+    proofStatus: 'Focused verification tiering proof passed; backlog hygiene reported healthy with 354 cards and 0 findings.',
+    reviewNext: 'Use the focused proof for bounded non-full changes; pull REBUILD-PLAN-RECONCILE-001 next.',
+    knownLimits: [
+      'This is not the VERIFIER-BEHAVIOR-SWEEP-001 cleanup.',
+      'Full-risk paths still require process:foundation-ship or an explicit card/reason bypass.',
+      'The bootstrap commit touches package/backlog seed files, so the old full-risk protection still applies to that ship.',
+    ],
+  },
+  {
+    key: 'foundation-verify-gate-tiering-finish-v1',
+    backlogIds: ['FOUNDATION-VERIFY-GATE-TIERING-FINISH-001'],
+    match: {
+      subjectIncludes: [
+        'FOUNDATION-VERIFY-GATE-TIERING-FINISH-001',
+        'foundation-verify-gate-tiering-finish-v1',
+        'Finish verifier gate deletion tiering',
+      ],
+    },
+    systemArea: 'Foundation process',
+    status: 'accepted',
+    acceptanceState: 'Verified',
+    whatChanged: 'Finished the tune-up verifier tiering gap by making protected Foundation file deletions classify as full-gate work and by recording focused proof from the actual HEAD diff.',
+    whatItDoes: 'Keeps docs/process/hook edits on the fas
+```
+
 ### P1 lib/connector-uptime-monitor.js
 
 - Lines: 1109
@@ -629,175 +546,219 @@ export const CONNECTOR_HEALTH_STATUSES = Object.freeze({
   unknown: 'unknown',
 ```
 
-### P1 lib/source-session-readiness-readback.js
+### P1 lib/foundation-verify-coverage-card-ids.js
 
-- Lines: 513
-- Bytes: 22289
-- Reasons: changed_since_baseline, source_health_surface
+- Lines: 675
+- Bytes: 26350
+- Reasons: changed_since_baseline
 
 ```
-import {
-  SOURCE_SESSION_BROKER_MYICOR_AUTH_METHOD,
-  SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT,
-  SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
-  buildSourceSessionBrokerContractSnapshot,
-  buildSourceSessionSecretRef,
-} from './source-session-broker.js'
-import {
-  buildKeychainSecretRef,
-  keychainItemExists,
-} from './credential-vault.js'
+export const PROCESS_REPAIR_VERIFIER_SPRINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SPRINT-PROCESS-REPAIR-001',
+  'VERIFIER-SPRINT-INDEPENDENCE-001',
+  'VERIFIER-MODULAR-SPLIT-001',
+]
 
-export const SOURCE_SESSION_READINESS_SCRIPT_PATH = 'scripts/process-source-session-readiness-check.mjs'
-export const SOURCE_SESSION_READINESS_CLOSEOUT_KEY = 'source-session-readiness-readback-v1'
-export const MYICOR_GOOGLE_SSO_SOURCE = 'myicor-google-sso'
-export const MYICOR_MCP_OAUTH_SOURCE = 'myicor-mcp-oauth'
-export const MYICOR_MCP_OAUTH_ACCOUNT = 'myicor-authorized-member'
-export const CREATOR_NEWSLETTER_SOURCE = 'creator-newsletters'
-export const CREATOR_NEWSLETTER_MAILBOX_SOURCE_ID = 'SRC-GMAIL-001'
+export const FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-SPRINT-SYSTEM-001',
+  'HUMAN-WEB-AGENT-V1-SPRINT-PLAN-001',
+]
 
-function text(value) {
-  return String(value || '').trim()
-}
+export const FOUNDATION_SPRINT_REVIEW_CARD_ID = 'FOUNDATION-SPRINT-REVIEW-001'
+export const FOUNDATION_SPRINT_REVIEW_DOC_PATH = 'docs/process/foundation-sprint-review-001.md'
+export const FOUNDATION_SPRINT_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  FOUNDATION_SPRINT_REVIEW_CARD_ID,
+]
 
-function list(value) {
-  return Array.isArray(value) ? value : []
-}
+export const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-FOLLOWUP-CARD-CAPTURE-001',
+]
 
-function number(value, fallback = 0) {
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : fallback
-}
+export const FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-SYSTEMS-SERVICE-GROUPING-001',
+]
 
-function uniqueStrings(values = []) {
-  return [...new Set(list(values).map(text).filter(Boolean))]
-}
+export const SYSTEM_REGISTRATION_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SYSTEM-REGISTRATION-SWEEP-001',
+]
 
-function hostOf(value = '') {
-  try {
-    return new URL(text(value)).hostname.replace(/^www\./, '').toLowerCase()
-  } catch {
-    return ''
+export const SALES_GLS_SCOREBOARD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SALES-GLS-SCOREBOARD-V1',
+]
+
+export const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'GATE-RELIABILITY-002',
+]
+
+export const GATE_RELIABILITY_DIRECT_VERIFIER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'GATE-RELIABILITY-003',
+]
+
+export const FOUNDATION_GATE_CHECK_SERIALIZATION_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-GATE-CHECK-SERIALIZATION-001',
+]
+
+export const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'VERIFY-READONLY-GATE-001',
+  'PROCESS-CHECK-APPLY-BOUNDARY-001',
+```
+
+### P1 scripts/process-foundation-tuneup-remap-proof-check.mjs
+
+- Lines: 493
+- Bytes: 18606
+- Reasons: changed_since_baseline, process_check_surface
+
+```
+async function applyLiveState({ closeCard = false, stage = 'building_now', planReview } = {}) {
+  assertProcessCheckWriteAllowed({
+    argv: process.argv.slice(2),
+    scriptPath: FOUNDATION_TUNEUP_REMAP_SCRIPT_PATH,
+    operation: 'update remap proof backlog, Plan Critic, and Current Sprint state',
+    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard],
+  })
+
+  await updateBacklogItem(FOUNDATION_TUNEUP_REMAP_CARD_ID, {
+    lane: closeCard ? 'done' : 'executing',
+    priority: 'P1',
+    rank: 11,
+    nextAction: closeCard
+      ? `Done under ${FOUNDATION_TUNEUP_REMAP_CLOSEOUT_KEY}; stop for Steve checkpoint before ${FOUNDATION_TUNEUP_REMAP_NEXT_CARD_ID}.`
+      : 'Run the read-only codebase remap and compare audit baselines to live repo facts.',
+    statusNote: closeCard
+      ? `Closed on 2026-05-30 under ${FOUNDATION_TUNEUP_REMAP_CLOSEOUT_KEY}. V1 remapped the codebase after the tune-up, compared live import/file-size/doc signals to audit baselines, and left per-hub restructuring checkpoint-only.`
+      : `Building ${FOUNDATION_TUNEUP_REMAP_CLOSEOUT_KEY}; read-only remap proof, no generated graph or per-hub implementation.`,
+    owner: 'Foundation Builder',
+  }, ACTOR)
+  if (closeCard) {
+    await updateBacklogItem(FOUNDATION_TUNEUP_REMAP_NEXT_CARD_ID, {
+      lane: 'scoped',
+      priority: 'P1',
+      rank: 3,
+      nextAction: 'Steve checkpoint required before implementation. Review the remap proof and approve the per-hub folder card before any code restructure starts.',
+      statusNote: 'Checkpoint-only after foundation-tuneup-remap-proof-v1. Do not implement per-hub folder restructure until Steve explicitly approves the build card.',
+      owner: 'Foundation Builder',
+    }, ACTOR)
   }
-}
+  await upsertPlanCriticRun(planReview)
 
-function firstUrlForHost(rows = [], hostPattern = /.*/) {
-  return list(rows).find(row => hostPattern.test(row.host || hostOf(row.url)))?.url || list(rows)[0]?.url || ''
-}
+  const activeSprint = await getActiveFoundationCurrentSprint()
+  const sprintId = activeSprint.sprint?.sprintId || 'FOUNDATION-TUNEUP-2026-05-29'
+  const item = buildSprintItem({ closeCard, stage })
+  await upsertFoundationCurrentSprintOverlay(
+    {
+      sprint: {
+        sprintId,
+        status: activeSprint.sprint?.status || 'active',
+        goal: activeSprint.sprint?.goal || 'Foundation tune-up from Claude/Codex audits.',
+        activeBlockerCardId: closeCard
+          ? FOUNDATION_TUNEUP_REMAP_NEXT_CARD_ID
+          : FOUNDATION_TUNEUP_REMAP_CARD_ID,
+        metadata: {
+          ...(a
 ```
 
-### P1 scripts/process-source-session-readiness-check.mjs
+### P1 lib/agentic-codebase-map.js
 
-- Lines: 368
-- Bytes: 17010
-- Reasons: changed_since_baseline, process_check_surface, source_health_surface
+- Lines: 373
+- Bytes: 15429
+- Reasons: changed_since_baseline
 
 ```
-#!/usr/bin/env node
-
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
-import {
-  BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
-} from '../lib/build-intel-source-value-grader.js'
-import {
-  closeFoundationDb,
-  getIntelligenceReportBundle,
-  initFoundationDb,
-  listSourceCrawlItems,
-  listYoutubeFullWatchReportArtifacts,
-} from '../lib/foundation-db.js'
-import {
-  buildYoutubeHandoffEvidenceFromReports,
-} from '../lib/dev-team-hub.js'
-import {
-  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT,
-  SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY,
-  buildSourceGodModeYoutubeHandoffQueue,
-} from '../lib/source-god-mode-youtube-handoff.js'
-import {
-  CREATOR_NEWSLETTER_MAILBOX_SOURCE_ID,
-  CREATOR_NEWSLETTER_SOURCE,
-  MYICOR_GOOGLE_SSO_SOURCE,
-  MYICOR_MCP_OAUTH_ACCOUNT,
-  MYICOR_MCP_OAUTH_SOURCE,
-  SOURCE_SESSION_READINESS_SCRIPT_PATH,
-  buildLiveSourceSessionReadinessReadback,
-  buildSourceSessionActionGroupReadiness,
-} from '../lib/source-session-readiness-readback.js'
-import {
-  SOURCE_SESSION_BROKER_DEFAULT_FREE_ACCOUNT,
-  SOURCE_SESSION_BROKER_MYICOR_GOOGLE_ACCOUNT,
-} from '../lib/source-session-broker.js'
+export const AGENTIC_CODEBASE_MAP_CARD_ID = 'AGENTIC-CODEBASE-MAP-001'
+export const AGENTIC_CODEBASE_MAP_SCRIPT_PATH = 'scripts/process-agentic-codebase-map-check.mjs'
+export const AGENTIC_CODEBASE_MAP_PLAN_PATH = 'docs/process/agentic-codebase-map-001-plan.md'
+export const AGENTIC_CODEBASE_MAP_VERSION = 'agentic-codebase-map-v1'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const repoRoot = path.resolve(__dirname, '..')
+export const AGENTIC_CODEBASE_INCLUDE_ROOTS = Object.freeze([
+  'server.js',
+  'package.json',
+  'AGENTS.md',
+  'lib',
+  'scripts',
+  'public',
+  'docs/rebuild',
+  'docs/process',
+  'docs/source-notes',
+  'ops/launchagents',
+])
 
-function parseArgs(argv = process.argv.slice(2)) {
-  return {
-    json: argv.includes('--json') || argv.includes('--json=true'),
-  }
-}
+export const AGENTIC_CODEBASE_EXCLUDE_PATHS = Object.freeze([
+  '.git',
+  '.claude',
+  '.openclaw',
+  '.env',
+  'node_modules',
+  'memory',
+  'MEMORY.md',
+  'USER.md',
+  'TOOLS.md',
+  'IDENTITY.md',
+  'HEARTBEAT.md',
+  'docs/_archive',
+  'docs/conversation-archive',
+  'public/assets',
+])
+
+const EXTENSIONS = new Set(['.js', '.mjs', '.json', '.md', '.css', '.html'])
+
+const CRITICAL_SURFACES = Object.freeze([
+  { path: 'server.js', purpose: 'HTTP/API entrypoint' },
+  { path: 'lib/dev-team-hub.js', purpose: 'Dev page read model' },
+  { path: 'public/dev.js', purpose: 'Dev page client rendering' },
+  { path: 'lib/foundation-db.js', purpose: 'live Postgres access layer' },
+  { path: 'scripts/foundation-verify.mjs', purpose: 'Foundation verifier' },
+  { path: 'scripts/process-foundation-ship.mjs', purpose: 'ship gate wrapper' },
+  { path: 'lib/foundation-jobs.js', purpose: 'scheduled job registry' },
 ```
 
-### P1 scripts/process-source-browser-runtime-cost-guardrails-check.mjs
+### P1 lib/foundation-tuneup-remap-proof.js
 
-- Lines: 167
-- Bytes: 6128
-- Reasons: process_check_surface, source_health_surface
+- Lines: 356
+- Bytes: 15857
+- Reasons: changed_since_baseline
 
 ```
-#!/usr/bin/env node
-
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import process from 'node:process'
-import { fileURLToPath } from 'node:url'
-
 import {
-  SOURCE_AGENTIC_BROWSER_CARD_ID,
-  buildSourceAgenticBrowserCostGuardrailDogfood,
-  buildSourceAgenticBrowserCostPolicy,
-} from '../lib/source-agentic-browser-runtime.js'
+  evaluateAgenticCodebaseMap,
+} from './agentic-codebase-map.js'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const repoRoot = path.resolve(__dirname, '..')
+export const FOUNDATION_TUNEUP_REMAP_CARD_ID = 'FOUNDATION-TUNEUP-REMAP-PROOF-001'
+export const FOUNDATION_TUNEUP_REMAP_CLOSEOUT_KEY = 'foundation-tuneup-remap-proof-v1'
+export const FOUNDATION_TUNEUP_REMAP_PLAN_PATH = 'docs/process/foundation-tuneup-remap-proof-001-plan.md'
+export const FOUNDATION_TUNEUP_REMAP_APPROVAL_PATH = 'docs/process/approvals/FOUNDATION-TUNEUP-REMAP-PROOF-001.json'
+export const FOUNDATION_TUNEUP_REMAP_SCRIPT_PATH = 'scripts/process-foundation-tuneup-remap-proof-check.mjs'
+export const FOUNDATION_TUNEUP_REMAP_NEXT_CARD_ID = 'FOUNDATION-HUB-FOLDER-ISOLATION-001'
 
-function parseArgs(argv = process.argv.slice(2)) {
-  return {
-    json: argv.includes('--json') || argv.includes('--json=true'),
-  }
-}
+export const FOUNDATION_TUNEUP_REMAP_CHANGED_FILES = [
+  'lib/agentic-codebase-map.js',
+  'lib/foundation-tuneup-remap-proof.js',
+  FOUNDATION_TUNEUP_REMAP_SCRIPT_PATH,
+  FOUNDATION_TUNEUP_REMAP_PLAN_PATH,
+  FOUNDATION_TUNEUP_REMAP_APPROVAL_PATH,
+  'lib/foundation-verify-coverage-card-ids.js',
+  'lib/foundation-build-closeout-process-gate-operations-records.js',
+  'package.json',
+]
 
-function addCheck(checks, ok, check, detail = '') {
-  checks.push({ ok: Boolean(ok), check, detail: detail || '' })
-}
-
-async function readRepoFile(relativePath) {
-  return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
-}
-
-async function readRepoJson(relativePath) {
-  return JSON.parse(await readRepoFile(relativePath))
-}
-
-function sourceContainsRawSecretLeak(source = '') {
-  return [
-    /console\.log\s*\([^)]*(password|secret|token|api[_-]?key)/i,
-    /writeFile\s*\([^)]*(password|secret|token|api[_-]?key)/i,
-  ].some(pattern => pattern.test(source))
-}
-
-async function main() {
-  const args = parseArgs()
-  const checks = []
-  const [packageJson, runtimeSource, runnerSource, checkpointSource] = await Promise.all([
-    readRepoJson('package.json'),
-    readRepoFile('lib/source-agentic-browser-runtime.js'),
-    readRepoFile('scripts/run-source-agentic-browser.mjs'),
+export const FOUNDATION_TUNEUP_REMAP_PROOF_COMMANDS = [
+  'node --check lib/agentic-codebase-map.js',
+  'node --check lib/foundation-tuneup-remap-proof.js',
+  'node --check scripts/process-foundation-tuneup-remap-proof-check.mjs',
+  'npm run process:agentic-codebase-map-check -- --json',
+  'npm run process:foundation-tuneup-remap-proof-check -- --json',
+  'npm run process:foundation-tuneup-remap-proof-check -- --apply --stage=building_now --json',
+  'npm run process:foundation-tuneup-remap-proof-check -- --close-card --json',
+  'npm run process:foundation-tuneup-roadmap-check -- --json',
+  'npm run process:builder-memory-system-check -- --json',
+  'npm run backlog:hygiene -- --json',
+  'npm run foundation:verify -- --json-summary',
+  `npm run process:ship-check -- --card=${FOUNDATION_TUNEUP_REMAP_CARD_ID} --planApprovalRef=${FOUNDATION_TUNEUP_REMAP_APPROVAL_PATH} --closeoutKey=${FOUNDATION_TUNEUP_REMAP_CLOSEOUT_KEY} --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify`,
+  `npm run process:fanout-check -- --card=${FOUNDATION_TUNEUP_REMAP_CARD_ID} --closeoutKey=${FOUNDATION_TUNEUP_REMAP_CLOSEOUT_KEY}`,
+  `npm run process:foundation-ship -- --card=${FOUNDATION_TUNEUP_REMAP_CARD_ID} --planApprovalRef=${FOUNDATION_TUNEUP_REMAP_APPROVAL_PATH} --closeoutKey=${FOUNDATION_TUNEUP_REMAP_CLOS
 ```
 
 ### P3 lib/foundation-jobs.js
@@ -916,14 +877,14 @@ const MUTATING_PROCESS_CHECK_FLAGS = new Set([
 
 ## Top Deterministic Findings
 
-- P2 runtime-model-name-hardcode-risk: Runtime model name appears outside router/config ownership -> LLM-RUNTIME-CONFIG-AUDIT-001
+- none
 
 ## Doc / Report Artifact Bloat
 
 - Status: `healthy`
-- Handoff files: 215
-- Handoff hot lines: 14686
-- Nightly artifacts: 6
+- Handoff files: 201
+- Handoff hot lines: 15883
+- Nightly artifacts: 10
 - Red/yellow findings: 0/0
 
 - none
@@ -951,26 +912,26 @@ const MUTATING_PROCESS_CHECK_FLAGS = new Set([
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-29T07:00:53.937Z`
+Generated at: `2026-05-30T07:00:33.410Z`
 
 ## Morning Read
 
 - Status: `report_ready`
-- Active findings: 1 total (0 P0, 0 P1, 1 P2, 0 P3)
-- Raw detector signals: 1
+- Active findings: 0 total (0 P0, 0 P1, 0 P2, 0 P3)
+- Raw detector signals: 0
 - Closed detector signals reconciled out: 0
-- Active proposed backlog fixes: 1
+- Active proposed backlog fixes: 0
 - Detection mode: deterministic code first; no LLM detection used.
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work.
 - Synthetic proof: passed (hardcoded=2, mutator=1, slowEndpoint=risk)
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=179ms payload=592055B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=32ms payload=199958B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=693ms payload=628059B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=121ms payload=296534B risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: status=200 latency=37ms payload=33222B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=155ms payload=595991B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=25ms payload=199969B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=661ms payload=648566B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=104ms payload=237569B risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: status=200 latency=32ms payload=33222B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
 
@@ -980,7 +941,7 @@ Assets:
 - public/foundation-nav-config.js: 8635B raw, 2385B gzip, 179 lines
 - public/foundation-data.js: 15667B raw, 3127B gzip, 508 lines
 - public/foundation-doc-markdown-renderers.js: 37274B raw, 7467B gzip, 1213 lines
-- public/foundation.js: 113810B raw, 22415B gzip, 2987 lines
+- public/foundation.js: 114042B raw, 22472B gzip, 2991 lines
 - public/foundation-backlog-renderers.js: 12173B raw, 2904B gzip, 303 lines
 - public/foundation-action-route-review-inbox-renderers.js: 9997B raw, 2767B gzip, 234 lines
 - public/foundation-source-registry-renderers.js: 60541B raw, 11908B gzip, 1537 lines
@@ -998,32 +959,25 @@ Assets:
 - public/foundation-router.js: 5556B raw, 1585B gzip, 200 lines
 
 DOM budget:
-- status=review, scripts=19, createElement=1770, appendChild=2332, innerHTML=79
+- status=review, scripts=19, createElement=1770, appendChild=2333, innerHTML=79
 
 Largest files:
-- scripts/foundation-verify.mjs: 4998 LOC, 277372B
-- public/dev.css: 4782 LOC, 85504B
-- lib/foundation-build-closeout-source-records.js: 4750 LOC, 432200B
-- lib/dev-team-hub.js: 3170 LOC, 152776B
-- lib/foundation-build-closeout-process-gate-records.js: 3133 LOC, 224729B
-- public/dev.js: 3067 LOC, 144988B
-- public/foundation.js: 2987 LOC, 113810B
+- scripts/foundation-verify.mjs: 4994 LOC, 276777B
+- lib/dev-team-hub.js: 3211 LOC, 155694B
+- public/dev.js: 3168 LOC, 149765B
+- public/dev.css: 3109 LOC, 56017B
+- public/foundation.js: 2991 LOC, 114042B
 - lib/foundation-db-schema-seed-store.js: 2757 LOC, 141992B
+- lib/foundation-build-closeout-overnight-records.js: 2718 LOC, 216767B
+- lib/source-god-mode-youtube-handoff.js: 2705 LOC, 115788B
 
 ## Top Findings
 
-### P2 Runtime model name appears outside router/config ownership
-- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-source-browser-runtime-cost-guardrails-check.mjs:53` (gpt-4.1-mini)
-- Why it matters: Model choices should be controlled by the Foundation LLM router or provider capability records. Scattering exact model names makes upgrades brittle and can leave critical intelligence lanes on old models.
-- Proposed owner/card: LLM Router / `LLM-RUNTIME-CONFIG-AUDIT-001`
-- Detector: runtime model literal detector
-- False-positive note: Exact provider model literals outside route/config ownership should move behind the LLM router, provider pricing, or capability records.
+
 
 ## Findings By Sprint Card
 
-- `CODEBASE-HARDCODE-AUDIT-001`: 1 finding
+- `CODEBASE-HARDCODE-AUDIT-001`: 0 findings
 - `FOUNDATION-API-PERF-AUDIT-001`: 0 findings
 - `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 0 findings
 - `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 0 findings
@@ -1033,7 +987,7 @@ Largest files:
 
 ## Proposed Backlog Fixes
 
-- `LLM-RUNTIME-CONFIG-AUDIT-001`
+
 
 ## Reconciled Closed Detector Signals
 
@@ -1059,4 +1013,3 @@ Largest files:
 ## Not Applied
 
 This report did not edit source files, move backlog cards, open or close sprints, run mutating process checks, apply Action Router routes, schedule jobs, or call any LLM to detect findings.
-

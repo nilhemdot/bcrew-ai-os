@@ -55,7 +55,7 @@ async function main() {
     readRepoJson('package.json'),
     readRepoFile('lib/source-agentic-browser-runtime.js'),
     readRepoFile('scripts/run-source-agentic-browser.mjs'),
-    readRepoFile('docs/handoffs/2026-05-28-source-browser-cost-virtual-desktop-checkpoint.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-28-source-browser-cost-virtual-desktop-checkpoint.md'),
     readRepoFile('lib/llm-router.js'),
   ])
   const dogfood = buildSourceAgenticBrowserCostGuardrailDogfood()
@@ -158,7 +158,7 @@ async function main() {
     checkpointSource.includes('Browserbase browser hours and model/API token spend are separate') &&
       checkpointSource.includes('Browserbase Startup stays proof-only'),
     'checkpoint documents browser-hour spend and model/API token spend as separate risks',
-    'docs/handoffs/2026-05-28-source-browser-cost-virtual-desktop-checkpoint.md',
+    'docs/_archive/handoffs/2026-05-28-source-browser-cost-virtual-desktop-checkpoint.md',
   )
   addCheck(
     checks,

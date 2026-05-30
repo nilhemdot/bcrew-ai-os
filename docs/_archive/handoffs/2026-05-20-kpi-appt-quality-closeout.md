@@ -49,7 +49,7 @@ Sales leadership needs reliable data-quality signals before coaching, manager re
 - `package.json` script `process:kpi-appt-quality-check`
 - `docs/process/kpi-appt-quality-001-plan.md`
 - `docs/process/approvals/KPI-APPT-QUALITY-001.json`
-- `docs/handoffs/2026-05-20-kpi-appt-quality-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-kpi-appt-quality-closeout.md`
 - `lib/foundation-build-closeout-process-gate-records.js`
 - `lib/foundation-verify-coverage-card-ids.js`
 

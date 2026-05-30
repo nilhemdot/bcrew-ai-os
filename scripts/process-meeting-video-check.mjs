@@ -158,8 +158,8 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/source-notes/video-link-inventory.md',
       'docs/source-notes/shared-communications.md',
-      'docs/handoffs/2026-05-19-web-godmode-closeout.md',
-      'docs/handoffs/2026-05-19-loom-extraction-preflight-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-web-godmode-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-loom-extraction-preflight-closeout.md',
     ],
     existingSystems: [
       'shared_communication_artifacts meeting_note/meeting_transcript archive',

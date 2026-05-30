@@ -107,7 +107,7 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-runtime-memory-build-intel-stab-capture.md',
       'docs/process/youtube-build-intel-batch-001-plan.md',
-      'docs/handoffs/2026-05-18-youtube-build-intel-batch-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-youtube-build-intel-batch-closeout.md',
       'docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-mark-m-skool-extraction-preflight-closeout.md',
     ],
     existingScripts: [

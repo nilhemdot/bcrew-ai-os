@@ -8,7 +8,7 @@ Closeout key: `legacy-system-audit-v1`
 - Added a bounded legacy-system audit behavior module: `lib/legacy-system-audit.js`.
 - Added focused proof: `scripts/process-legacy-system-audit-check.mjs`.
 - Added sanitized audit artifacts:
-  - `docs/audits/2026-05-19-legacy-system-audit.md`
+  - `docs/_archive/audits/2026-05-19-legacy-system-audit.md`
   - `docs/audits/2026-05-19-legacy-system-audit.json`
 - Added approved plan and approval integrity file:
   - `docs/process/legacy-system-audit-001-plan.md`

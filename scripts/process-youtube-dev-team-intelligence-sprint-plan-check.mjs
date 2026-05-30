@@ -40,9 +40,9 @@ const CLOSEOUT_KEY = 'youtube-dev-team-intelligence-sprint-plan-v1'
 const SPRINT_ID = 'YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21'
 const PLAN_PATH = 'docs/process/youtube-dev-team-intelligence-sprint-plan-001-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/YOUTUBE-DEV-TEAM-SPRINT-PLAN-001.json'
-const CLOSEOUT_PATH = 'docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-plan-closeout.md'
+const CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-plan-closeout.md'
 const SCRIPT_PATH = 'scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs'
-const CHECKPOINT_PATH = 'docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md'
+const CHECKPOINT_PATH = 'docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md'
 const ACTIVE_CARD_ID = 'DEV-TEAM-HUB-V0-001'
 
 const CHANGED_FILES = [

@@ -182,7 +182,7 @@ function buildSprintItems({ closeCard = false } = {}) {
         ],
         existingDocs: [
           'docs/process/security-provider-rotation-proof-preflight-001-plan.md',
-          'docs/handoffs/2026-05-18-security-provider-rotation-proof-preflight.md',
+          'docs/_archive/handoffs/2026-05-18-security-provider-rotation-proof-preflight.md',
           'docs/process/foundation-merge-queue-protocol.md',
         ],
         existingScripts: [

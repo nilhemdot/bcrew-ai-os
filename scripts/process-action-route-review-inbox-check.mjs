@@ -118,8 +118,8 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/process/action-route-review-inbox-001-plan.md',
-      'docs/handoffs/2026-05-18-foundation-kb-compiler-v1-closeout.md',
-      'docs/handoffs/2026-05-18-parallel-builder-worktree-protocol-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-foundation-kb-compiler-v1-closeout.md',
+      'docs/_archive/handoffs/2026-05-18-parallel-builder-worktree-protocol-closeout.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

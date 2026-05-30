@@ -36,7 +36,7 @@ This closes the first practical slice of `DATA-003`: when BHAG milestones or Age
 - `public/styles-strategy-docs.css`
 - `docs/process/data-003-plan.md`
 - `docs/process/approvals/DATA-003.json`
-- `docs/handoffs/2026-05-20-data-003-source-backed-values-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-data-003-source-backed-values-closeout.md`
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `package.json` script `process:data-003-check`
 

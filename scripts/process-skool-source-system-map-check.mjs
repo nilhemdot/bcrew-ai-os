@@ -259,7 +259,7 @@ async function main() {
     readRepoFile('lib/foundation-backlog-seed-chunks/chunk-005.js'),
     readRepoFile('lib/myicor-mcp-catalog-snapshot.js'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
-    readRepoFile('docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md'),
   ])
   const liveBacklogCard = await readLiveBacklogCard()
 
@@ -347,7 +347,7 @@ async function main() {
     handoffSource.includes(SKOOL_SOURCE_SYSTEM_MAP_CLOSEOUT_KEY) &&
       handoffSource.includes(SKOOL_SOURCE_SYSTEM_MAP_REPORT_ARTIFACT_ID),
     'handoff captures Skool source-system map proof and next routing',
-    'docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md',
+    'docs/_archive/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md',
   )
   addCheck(
     checks,

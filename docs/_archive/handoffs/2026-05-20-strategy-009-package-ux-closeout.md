@@ -40,7 +40,7 @@ Steve needs to use Strategy live without translating repeated packet/board/prior
 - `scripts/process-strategy-009-check.mjs`
 - `docs/process/strategy-009-package-ux-plan.md`
 - `docs/process/approvals/STRATEGY-009.json`
-- `docs/handoffs/2026-05-20-strategy-009-package-ux-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-strategy-009-package-ux-closeout.md`
 - `package.json` script `process:strategy-009-check`
 - `Foundation > Current Sprint`
 

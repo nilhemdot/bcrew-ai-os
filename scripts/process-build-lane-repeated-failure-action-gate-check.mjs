@@ -154,8 +154,8 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/process/build-lane-failure-telemetry-001-plan.md',
       'docs/process/build-lane-telemetry-resolution-repair-001-plan.md',
-      'docs/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md',
-      'docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
+      'docs/_archive/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
     ],
     existingScripts: [
       'scripts/process-build-lane-failure-telemetry-check.mjs',

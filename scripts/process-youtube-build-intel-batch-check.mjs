@@ -144,7 +144,7 @@ function buildSprintItem({ closeCard = false, stage = 'building_now' } = {}) {
       existingDocs: [
         'docs/rebuild/current-plan.md',
         'docs/rebuild/current-state.md',
-        'docs/handoffs/2026-05-18-course-source-auth-boundary-closeout.md',
+        'docs/_archive/handoffs/2026-05-18-course-source-auth-boundary-closeout.md',
       ],
       existingScripts: [
         'scripts/process-build-intel-creator-watchlist-expansion-check.mjs',

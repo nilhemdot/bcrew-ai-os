@@ -197,5 +197,5 @@ Proof:
 
 - `docs/specs/bcrew-ui-design-contract.md`
 - `docs/specs/dev-research-targets-page-concept.md`
-- `docs/handoffs/2026-05-22-dev-team-hub-v0-closeout.md`
-- `docs/handoffs/2026-05-24-dev-team-intelligence-director-overnight-checkpoint.md`
+- `docs/_archive/handoffs/2026-05-22-dev-team-hub-v0-closeout.md`
+- `docs/_archive/handoffs/2026-05-24-dev-team-intelligence-director-overnight-checkpoint.md`

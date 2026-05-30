@@ -1,49 +1,1405 @@
 {
   "schemaVersion": 1,
   "cardId": "FOUNDATION-DOC-ARCHIVE-MOVE-001",
-  "generatedAt": "2026-05-30T11:05:00-04:00",
+  "generatedAt": "2026-05-30T15:32:40.279Z",
   "mode": "apply",
   "baseline": {
     "activeAuditHandoffMarkdownCount": 238
   },
-  "plainEnglish": "Cold active audit and handoff docs with no live code/process references were moved into docs/_archive. Files are preserved, not deleted. Referenced receipts remain parked for a later repointing pass.",
+  "plainEnglish": "Historical active audit and handoff docs were moved into docs/_archive. Files are preserved, not deleted. Exact path references were repointed in the same change. Only INDEX.md and README.md remain in the active handoff/audit folders.",
   "movedFiles": [
     {
       "type": "audit",
-      "from": "docs/audits/2026-05-24-claude-dev-ui-ux-review.md",
-      "to": "docs/_archive/audits/2026-05-24-claude-dev-ui-ux-review.md",
-      "reason": "Cold active audit doc with no live code/process references."
+      "from": "docs/audits/2026-04-26-foundation-menu-and-systems-audit.md",
+      "to": "docs/_archive/audits/2026-04-26-foundation-menu-and-systems-audit.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
     },
     {
       "type": "audit",
-      "from": "docs/audits/2026-05-24-gemini-dev-ui-ux-audit.md",
-      "to": "docs/_archive/audits/2026-05-24-gemini-dev-ui-ux-audit.md",
-      "reason": "Cold active audit doc with no live code/process references."
+      "from": "docs/audits/2026-04-28-dev-process-audit.md",
+      "to": "docs/_archive/audits/2026-04-28-dev-process-audit.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-28-extraction-lane-item-shape.md",
+      "to": "docs/_archive/audits/2026-04-28-extraction-lane-item-shape.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-29-full-system-re-audit.md",
+      "to": "docs/_archive/audits/2026-04-29-full-system-re-audit.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-agent-feedback-send-baseline.md",
+      "to": "docs/_archive/audits/2026-04-30-agent-feedback-send-baseline.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-agent-feedback-send-dry-run-proof.md",
+      "to": "docs/_archive/audits/2026-04-30-agent-feedback-send-dry-run-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-agent-onboarding-feedback-system-baseline.md",
+      "to": "docs/_archive/audits/2026-04-30-agent-onboarding-feedback-system-baseline.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-agent-onboarding-feedback-system-manual-review.md",
+      "to": "docs/_archive/audits/2026-04-30-agent-onboarding-feedback-system-manual-review.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-change-log-comprehensive-baseline.md",
+      "to": "docs/_archive/audits/2026-04-30-change-log-comprehensive-baseline.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-change-log-comprehensive-manual-review.md",
+      "to": "docs/_archive/audits/2026-04-30-change-log-comprehensive-manual-review.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-daily-exec-summary-baseline.md",
+      "to": "docs/_archive/audits/2026-04-30-daily-exec-summary-baseline.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-daily-exec-summary-manual-review.md",
+      "to": "docs/_archive/audits/2026-04-30-daily-exec-summary-manual-review.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-foundation-followup-card-capture.md",
+      "to": "docs/_archive/audits/2026-04-30-foundation-followup-card-capture.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-foundation-systems-service-grouping-baseline.md",
+      "to": "docs/_archive/audits/2026-04-30-foundation-systems-service-grouping-baseline.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-foundation-systems-service-grouping-manual-review.md",
+      "to": "docs/_archive/audits/2026-04-30-foundation-systems-service-grouping-manual-review.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-gate-reliability-002-diagnostics.md",
+      "to": "docs/_archive/audits/2026-04-30-gate-reliability-002-diagnostics.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-gate-reliability-003-direct-verifier-deadlock.md",
+      "to": "docs/_archive/audits/2026-04-30-gate-reliability-003-direct-verifier-deadlock.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-plain-english-sweep-manual-review.md",
+      "to": "docs/_archive/audits/2026-04-30-plain-english-sweep-manual-review.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-recent-builds-billion-dollar-ui-baseline.md",
+      "to": "docs/_archive/audits/2026-04-30-recent-builds-billion-dollar-ui-baseline.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-recent-builds-billion-dollar-ui-manual-review.md",
+      "to": "docs/_archive/audits/2026-04-30-recent-builds-billion-dollar-ui-manual-review.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-source-lifecycle-expansion-baseline.md",
+      "to": "docs/_archive/audits/2026-04-30-source-lifecycle-expansion-baseline.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-source-lifecycle-expansion-manual-review.md",
+      "to": "docs/_archive/audits/2026-04-30-source-lifecycle-expansion-manual-review.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-ui-menu-layout-polish-baseline.md",
+      "to": "docs/_archive/audits/2026-04-30-ui-menu-layout-polish-baseline.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-30-ui-menu-layout-polish-manual-review.md",
+      "to": "docs/_archive/audits/2026-04-30-ui-menu-layout-polish-manual-review.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-01-agent-feedback-auto-send-readiness.md",
+      "to": "docs/_archive/audits/2026-05-01-agent-feedback-auto-send-readiness.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-01-agent-feedback-company-email-policy-proof.md",
+      "to": "docs/_archive/audits/2026-05-01-agent-feedback-company-email-policy-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-01-agent-feedback-production-autosend-dry-run.md",
+      "to": "docs/_archive/audits/2026-05-01-agent-feedback-production-autosend-dry-run.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-01-agent-feedback-production-autosend-enable-proof.md",
+      "to": "docs/_archive/audits/2026-05-01-agent-feedback-production-autosend-enable-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-01-agent-feedback-real-user-submit-repair-proof.md",
+      "to": "docs/_archive/audits/2026-05-01-agent-feedback-real-user-submit-repair-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-01-agent-feedback-reminder-cadence-proof.md",
+      "to": "docs/_archive/audits/2026-05-01-agent-feedback-reminder-cadence-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-01-agent-feedback-response-notify-proof.md",
+      "to": "docs/_archive/audits/2026-05-01-agent-feedback-response-notify-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-01-agent-feedback-steve-full-loop-test-proof.md",
+      "to": "docs/_archive/audits/2026-05-01-agent-feedback-steve-full-loop-test-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-01-foundation-verify-health-repair-proof.md",
+      "to": "docs/_archive/audits/2026-05-01-foundation-verify-health-repair-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-02-agent-feedback-live-reminders-proof.md",
+      "to": "docs/_archive/audits/2026-05-02-agent-feedback-live-reminders-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-02-missing-card-capture-audit.md",
+      "to": "docs/_archive/audits/2026-05-02-missing-card-capture-audit.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-02-system-registration-sweep-proof.md",
+      "to": "docs/_archive/audits/2026-05-02-system-registration-sweep-proof.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-19-foundation-deep-merge-audit.md",
+      "to": "docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-19-legacy-system-audit.md",
+      "to": "docs/_archive/audits/2026-05-19-legacy-system-audit.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-19-old-system-research-team-harvest.md",
+      "to": "docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-20-promise-to-proof-integrity-audit.md",
+      "to": "docs/_archive/audits/2026-05-20-promise-to-proof-integrity-audit.md",
+      "reason": "Bulk archive of historical active audit doc; references repointed in the same change."
     },
     {
       "type": "handoff",
-      "from": "docs/handoffs/2026-05-25-aios-dev-intel-checkpoint-next-steps.md",
-      "to": "docs/_archive/handoffs/2026-05-25-aios-dev-intel-checkpoint-next-steps.md",
-      "reason": "Cold active handoff doc with no live code/process references."
+      "from": "docs/handoffs/2026-05-18-action-route-dedup-staleness-guard-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-action-route-dedup-staleness-guard-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
     },
     {
       "type": "handoff",
-      "from": "docs/handoffs/2026-05-27-foundation-up-critical-build-review.md",
-      "to": "docs/_archive/handoffs/2026-05-27-foundation-up-critical-build-review.md",
-      "reason": "Cold active handoff doc with no live code/process references."
+      "from": "docs/handoffs/2026-05-18-action-route-promotion-workflow-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-action-route-promotion-workflow-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
     },
     {
       "type": "handoff",
-      "from": "docs/handoffs/2026-05-27-overnight-youtube-catchup-long-course-checkpoint.md",
-      "to": "docs/_archive/handoffs/2026-05-27-overnight-youtube-catchup-long-course-checkpoint.md",
-      "reason": "Cold active handoff doc with no live code/process references."
+      "from": "docs/handoffs/2026-05-18-action-route-review-inbox-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-action-route-review-inbox-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
     },
     {
       "type": "handoff",
-      "from": "docs/handoffs/2026-05-27-source-browser-youtube-handoff.md",
-      "to": "docs/_archive/handoffs/2026-05-27-source-browser-youtube-handoff.md",
-      "reason": "Cold active handoff doc with no live code/process references."
+      "from": "docs/handoffs/2026-05-18-agent-010-personal-agent-onboarding-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-agent-010-personal-agent-onboarding-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-agent-capability-registry-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-agent-capability-registry-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-agent-live-answer-preflight-gate-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-agent-live-answer-preflight-gate-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-agent-template-runtime-contract-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-agent-template-runtime-contract-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-build-intel-creator-watchlist-expansion-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-build-intel-creator-watchlist-expansion-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-build-lane-telemetry-resolution-repair-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-build-lane-telemetry-resolution-repair-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-build-lane-verifier-snapshot-wiring-repair-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-build-lane-verifier-snapshot-wiring-repair-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-course-source-auth-boundary-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-course-source-auth-boundary-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-critical-roots-under-3k-phase-4-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-critical-roots-under-3k-phase-4-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-foundation-agent-usefulness-runtime-gates-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-foundation-agent-usefulness-runtime-gates-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-foundation-db-schema-seed-split-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-foundation-db-schema-seed-split-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-foundation-kb-action-review-sprint-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-foundation-kb-action-review-sprint-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-foundation-kb-compiler-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-foundation-kb-compiler-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-harlan-operator-loop-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-harlan-operator-loop-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-harlan-project-registry-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-harlan-project-registry-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-memory-002-openclaw-native-memory-preflight.md",
+      "to": "docs/_archive/handoffs/2026-05-18-memory-002-openclaw-native-memory-preflight.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-old-system-agent-onboarding-harvest-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-old-system-agent-onboarding-harvest-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-parallel-builder-operating-system-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-parallel-builder-operating-system-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-parallel-builder-worktree-protocol-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-parallel-builder-worktree-protocol-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-role-assistant-contracts-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-role-assistant-contracts-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-security-provider-rotation-proof-preflight.md",
+      "to": "docs/_archive/handoffs/2026-05-18-security-provider-rotation-proof-preflight.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-ship-gate-worker-live-job-pause-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-ship-gate-worker-live-job-pause-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-source-016-marketing-measurement-source-contracts-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-source-016-marketing-measurement-source-contracts-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-18-youtube-build-intel-batch-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-18-youtube-build-intel-batch-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-admin-deal-policy-source-contract-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-admin-deal-policy-source-contract-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-approval-threshold-registry-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-approval-threshold-registry-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-audit-finding-to-backlog-router-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-audit-finding-to-backlog-router-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-build-closeout-data-source-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-build-closeout-data-source-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-build-intel-daily-extraction-review-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-build-intel-daily-extraction-review-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-build-intel-snapshot-baseline-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-build-intel-snapshot-baseline-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-build-lane-repeated-failure-action-gate-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-build-lane-repeated-failure-action-gate-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-build-log-api-cache-and-slim-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-build-log-api-cache-and-slim-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-current-sprint-active-card-gate-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-current-sprint-active-card-gate-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-data-002-source-trust-scoring-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-data-002-source-trust-scoring-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-decision-008-accountability-doctrine-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-decision-008-accountability-doctrine-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-deep-audit-findings-closure-gate-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-deep-audit-findings-closure-gate-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-drive-content-next-bite-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-drive-content-next-bite-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-drive-worker-governed-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-drive-worker-governed-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-email-attachments-next-bite-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-email-attachments-next-bite-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-extract-backfill-cursor-contract-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-extract-backfill-cursor-contract-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-extract-current-source-freshness-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-extract-current-source-freshness-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-focused-sprint-id-historical-aware-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-focused-sprint-id-historical-aware-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-backlog-p0-reality-cleanup-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-backlog-p0-reality-cleanup-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-branch-merge-readiness-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-branch-merge-readiness-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-client-current-state-extract-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-client-current-state-extract-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-css-surface-decouple-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-css-surface-decouple-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-deep-auditor-real-loop-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-deep-auditor-real-loop-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-deep-merge-audit-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-deep-merge-audit-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-endpoint-metrics-freshness-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-endpoint-metrics-freshness-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-file-size-watch-classifier-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-file-size-watch-classifier-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-handoff-hot-doc-cleanup-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-handoff-hot-doc-cleanup-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-health-green-lock-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-health-green-lock-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-health-watch-to-green-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-health-watch-to-green-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-lessons-learned-loop-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-lessons-learned-loop-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-main-integration-lock-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-main-integration-lock-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-merge-queue-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-merge-queue-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-operator-pulse-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-operator-pulse-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-raw-green-repair-and-lock-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-raw-green-repair-and-lock-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-foundation-sprint-closeout-continuous-work-ready.md",
+      "to": "docs/_archive/handoffs/2026-05-19-foundation-sprint-closeout-continuous-work-ready.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-legacy-system-audit-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-legacy-system-audit-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-loom-extraction-preflight-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-loom-extraction-preflight-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-meeting-video-preflight-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-meeting-video-preflight-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-memory-003-conversation-archive-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-memory-003-conversation-archive-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-memory-004-lessons-ip-workflow-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-memory-004-lessons-ip-workflow-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-myicro-training-preflight-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-myicro-training-preflight-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-parallel-builder-merge-lane-enforcement-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-parallel-builder-merge-lane-enforcement-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-pillar-4-system-capabilities-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-pillar-4-system-capabilities-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-pillar-5-agent-inventory-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-pillar-5-agent-inventory-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-skool-worker-preflight-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-skool-worker-preflight-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-source-012-source-connector-live-layers-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-source-012-source-connector-live-layers-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-source-018-google-gemini-meeting-notes-contract-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-source-018-google-gemini-meeting-notes-contract-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-source-019-shared-comms-layer-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-source-019-shared-comms-layer-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-source-020-shared-comms-adapters-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-source-020-shared-comms-adapters-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-strategic-intel-loop-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-strategic-intel-loop-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-system-004-live-capabilities-surface-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-system-004-live-capabilities-surface-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-system-010-process-control-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-system-010-process-control-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-19-web-godmode-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-19-web-godmode-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-data-003-source-backed-values-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-data-003-source-backed-values-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-extractor-brain-fleet-proof-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-extractor-brain-fleet-proof-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-foundation-004-operating-truth-refinement-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-foundation-004-operating-truth-refinement-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-foundation-control-plane-truth-cleanup-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-foundation-control-plane-truth-cleanup-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-foundation-gate-check-serialization-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-foundation-gate-check-serialization-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-foundation-overnight-closeout-morning-readiness.md",
+      "to": "docs/_archive/handoffs/2026-05-20-foundation-overnight-closeout-morning-readiness.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-foundation-surface-updates-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-foundation-surface-updates-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-foundation-users-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-foundation-users-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-gemini-video-brain-route-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-gemini-video-brain-route-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-gov-001-governance-accountability-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-gov-001-governance-accountability-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-harlan-auth-escalation-loop-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-harlan-auth-escalation-loop-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-intel-scoper-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-intel-scoper-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-intel-thread-context-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-intel-thread-context-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-kpi-appt-quality-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-kpi-appt-quality-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-kpi-lead-validation-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-kpi-lead-validation-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-llm-router-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-llm-router-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-marketing-video-lab-live-safety-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-marketing-video-lab-live-safety-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-memory-005-temporal-truth-model-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-memory-005-temporal-truth-model-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-model-routing-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-model-routing-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-openclaw-adapter-boundary-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-openclaw-adapter-boundary-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-ops-003-ops-improvement-rollup-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-ops-003-ops-improvement-rollup-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-orchestrator-brain-fleet-extractor-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-20-orchestrator-brain-fleet-extractor-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-promise-to-proof-regroup-handoff.md",
+      "to": "docs/_archive/handoffs/2026-05-20-promise-to-proof-regroup-handoff.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-reply-watching-loop-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-reply-watching-loop-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-scoper-ui-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-scoper-ui-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-slice-001-trusted-assistant-loop-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-slice-001-trusted-assistant-loop-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-source-001-gmail-source-contract-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-source-001-gmail-source-contract-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-source-002-calendar-source-contract-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-source-002-calendar-source-contract-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-source-003-drive-source-contract-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-source-003-drive-source-contract-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-strategy-001-business-atoms-framework-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-strategy-001-business-atoms-framework-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-strategy-004-planning-workflow-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-strategy-004-planning-workflow-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-strategy-009-package-ux-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-strategy-009-package-ux-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-strategy-quarter-input-layer-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-strategy-quarter-input-layer-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-web-godmode-live-operator-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-web-godmode-live-operator-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-20-youtube-build-intel-runtime-proof-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-20-youtube-build-intel-runtime-proof-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-21-youtube-creator-daily-watch-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-21-youtube-creator-daily-watch-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-21-youtube-creator-daily-watch-sprint-update-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-21-youtube-creator-daily-watch-sprint-update-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-21-youtube-current-sprint-workspace-cleanup-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-21-youtube-current-sprint-workspace-cleanup-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-plan-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-plan-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-22-dev-team-hub-v0-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-22-dev-team-hub-v0-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-23-extractor-overnight-run-guard-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-23-extractor-overnight-run-guard-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-23-gemini-workspace-eyes-route-proof-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-23-gemini-workspace-eyes-route-proof-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-23-god-mode-extractor-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-23-god-mode-extractor-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-23-god-mode-extractor-eyes-quality-loop-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-23-god-mode-extractor-eyes-quality-loop-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-23-god-mode-extractor-research-swarm-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-23-god-mode-extractor-research-swarm-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-23-subscription-brain-extractor-adapter-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-23-subscription-brain-extractor-adapter-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-23-youtube-build-intel-link-resource-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-23-youtube-build-intel-link-resource-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-24-dev-team-intelligence-director-overnight-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-24-dev-team-intelligence-director-overnight-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-25-intelligence-spine-god-mode-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-25-intelligence-spine-god-mode-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-build-intel-source-pipeline-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-build-intel-source-pipeline-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-build-opportunity-promotion-gate-preflight.md",
+      "to": "docs/_archive/handoffs/2026-05-26-build-opportunity-promotion-gate-preflight.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-extractor-hands-browser-runtime-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-extractor-hands-browser-runtime-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-extractor-hands-production-runner-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-extractor-hands-production-runner-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-god-mode-extractor-parity-gate-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-god-mode-extractor-parity-gate-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-intelligence-spine-quality-eval-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-intelligence-spine-quality-eval-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-nightly-audit-fleet-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-nightly-audit-fleet-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-source-family-god-mode-extractors-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-source-family-god-mode-extractors-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-synthesis-router-freshness-trigger-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-synthesis-router-freshness-trigger-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-youtube-creator-god-mode-catchup-readback-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-youtube-creator-god-mode-catchup-readback-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-26-youtube-god-mode-autonomous-watch-scheduler-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-26-youtube-god-mode-autonomous-watch-scheduler-v1-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-27-foundation-growth-safe-readback-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-27-foundation-growth-safe-readback-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-agentic-codebase-map.md",
+      "to": "docs/_archive/handoffs/2026-05-28-agentic-codebase-map.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-harlan-auth-live-delivery-preflight.md",
+      "to": "docs/_archive/handoffs/2026-05-28-harlan-auth-live-delivery-preflight.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-overnight-youtube-source-expansion-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-28-overnight-youtube-source-expansion-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-public-community-bridge-handoff-routing.md",
+      "to": "docs/_archive/handoffs/2026-05-28-public-community-bridge-handoff-routing.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-public-repo-deep-review-chrome-filter.md",
+      "to": "docs/_archive/handoffs/2026-05-28-public-repo-deep-review-chrome-filter.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-agent-executor.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-agent-executor.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-challenge-fallback-review.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-challenge-fallback-review.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-cost-virtual-desktop-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-cost-virtual-desktop-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-fallback-batch-planner.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-fallback-batch-planner.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-fallback-executor.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-fallback-executor.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-fallback-live-persistence-repair.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-fallback-live-persistence-repair.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-fallback-plan.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-fallback-plan.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-fallback-recovery-policy.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-fallback-recovery-policy.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-harlan-escalation-bridge.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-harlan-escalation-bridge.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-harlan-telegram-channel.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-harlan-telegram-channel.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-browser-runtime-health-recovery-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-browser-runtime-health-recovery-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-coverage-proof-readonly-repair.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-coverage-proof-readonly-repair.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-expansion-loop-overnight-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-expansion-loop-overnight-checkpoint.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-handoff-dedupe-drain-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-handoff-dedupe-drain-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-source-session-auth-resume-packet.md",
+      "to": "docs/_archive/handoffs/2026-05-28-source-session-auth-resume-packet.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-28-youtube-public-repo-deep-review-handoff.md",
+      "to": "docs/_archive/handoffs/2026-05-28-youtube-public-repo-deep-review-handoff.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-agentic-codebase-map-proof.md",
+      "to": "docs/_archive/handoffs/2026-05-29-agentic-codebase-map-proof.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md",
+      "to": "docs/_archive/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-newsletter-confirmation-readback-queue-wiring.md",
+      "to": "docs/_archive/handoffs/2026-05-29-newsletter-confirmation-readback-queue-wiring.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-newsletter-confirmation-readback.md",
+      "to": "docs/_archive/handoffs/2026-05-29-newsletter-confirmation-readback.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-newsletter-handoff-intake-batch.md",
+      "to": "docs/_archive/handoffs/2026-05-29-newsletter-handoff-intake-batch.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-newsletter-issue-extraction-readback.md",
+      "to": "docs/_archive/handoffs/2026-05-29-newsletter-issue-extraction-readback.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-newsletter-live-signup-gate.md",
+      "to": "docs/_archive/handoffs/2026-05-29-newsletter-live-signup-gate.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-newsletter-source-identity-readiness.md",
+      "to": "docs/_archive/handoffs/2026-05-29-newsletter-source-identity-readiness.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-repo-handoff-readback-clarity.md",
+      "to": "docs/_archive/handoffs/2026-05-29-repo-handoff-readback-clarity.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-source-browser-fallback-retry-resume-readback.md",
+      "to": "docs/_archive/handoffs/2026-05-29-source-browser-fallback-retry-resume-readback.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-source-browser-stagehand-model-route-config.md",
+      "to": "docs/_archive/handoffs/2026-05-29-source-browser-stagehand-model-route-config.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-source-session-myicor-credential-readback.md",
+      "to": "docs/_archive/handoffs/2026-05-29-source-session-myicor-credential-readback.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-source-session-profile-probe.md",
+      "to": "docs/_archive/handoffs/2026-05-29-source-session-profile-probe.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-source-stack-persisted-readback.md",
+      "to": "docs/_archive/handoffs/2026-05-29-source-stack-persisted-readback.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-29-youtube-autopilot-source-sop-delta-watch-gate.md",
+      "to": "docs/_archive/handoffs/2026-05-29-youtube-autopilot-source-sop-delta-watch-gate.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/nightly-deep-audit-2026-05-19.md",
+      "to": "docs/_archive/handoffs/nightly-deep-audit-2026-05-19.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/nightly-deep-audit-2026-05-29.md",
+      "to": "docs/_archive/handoffs/nightly-deep-audit-2026-05-29.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/nightly-deep-audit-2026-05-30.md",
+      "to": "docs/_archive/handoffs/nightly-deep-audit-2026-05-30.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/research-purge-2026-05-13.md",
+      "to": "docs/_archive/handoffs/research-purge-2026-05-13.md",
+      "reason": "Bulk archive of historical active handoff doc; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/system-health-2026-05-16.md",
+      "to": "docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-16.md",
+      "reason": "Bulk archive of historical active handoff doc into collision-safe batch folder; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/system-health-2026-05-28.md",
+      "to": "docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-28.md",
+      "reason": "Bulk archive of historical active handoff doc into collision-safe batch folder; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/system-health-2026-05-29.md",
+      "to": "docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-29.md",
+      "reason": "Bulk archive of historical active handoff doc into collision-safe batch folder; references repointed in the same change."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/system-health-2026-05-30.md",
+      "to": "docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-30.md",
+      "reason": "Bulk archive of historical active handoff doc into collision-safe batch folder; references repointed in the same change."
     }
   ],
-  "skippedPolicy": "Skip referenced active docs unless references are repointed in the same change."
+  "skippedPolicy": "Keep only INDEX.md and README.md active in docs/audits and docs/handoffs; process plans and receipts are handled by separate lifecycle/archive passes."
 }

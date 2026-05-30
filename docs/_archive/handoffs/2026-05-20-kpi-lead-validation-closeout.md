@@ -50,7 +50,7 @@ Sales leadership cannot trust lead-count or source-attribution reporting if impo
 - `package.json` script `process:kpi-lead-validation-check`
 - `docs/process/kpi-lead-validation-001-plan.md`
 - `docs/process/approvals/KPI-LEAD-VALIDATION-001.json`
-- `docs/handoffs/2026-05-20-kpi-lead-validation-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-kpi-lead-validation-closeout.md`
 - `lib/foundation-build-closeout-process-gate-records.js`
 - `lib/foundation-verify-coverage-card-ids.js`
 

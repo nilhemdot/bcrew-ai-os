@@ -171,7 +171,7 @@ function buildExistingWorkCheck() {
       'docs/process/strategic-intel-001-plan.md',
       'docs/process/decision-008-plan.md',
       'docs/process/internal-scoper-001-plan.md',
-      'docs/audits/2026-05-19-old-system-research-team-harvest.md',
+      'docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md',
     ],
     existingScripts: [
       'process:strategic-intel-check',

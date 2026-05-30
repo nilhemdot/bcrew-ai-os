@@ -244,9 +244,9 @@ function defaultExistingWorkCheck() {
       'scripts/process-system-health-nightly-audit-check.mjs',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
-      'docs/handoffs/2026-05-19-build-lane-repeated-failure-action-gate-closeout.md',
-      'docs/handoffs/2026-05-19-parallel-builder-merge-lane-enforcement-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
+      'docs/_archive/handoffs/2026-05-19-build-lane-repeated-failure-action-gate-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-parallel-builder-merge-lane-enforcement-closeout.md',
     ],
     existingScripts: [
       'process:system-health-nightly-audit-check',

@@ -41,9 +41,9 @@ const SPRINT_ID = 'YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21'
 const ACTIVE_CARD_ID = 'YOUTUBE-CREATOR-DAILY-WATCH-001'
 const PLAN_PATH = 'docs/process/youtube-creator-daily-watch-sprint-update-001-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001.json'
-const CLOSEOUT_PATH = 'docs/handoffs/2026-05-21-youtube-creator-daily-watch-sprint-update-closeout.md'
+const CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-21-youtube-creator-daily-watch-sprint-update-closeout.md'
 const SCRIPT_PATH = 'scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs'
-const CHECKPOINT_PATH = 'docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md'
+const CHECKPOINT_PATH = 'docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md'
 
 const CHANGED_FILES = [
   SCRIPT_PATH,

@@ -39,7 +39,7 @@ const CARD_ID = 'FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001'
 const CLOSEOUT_KEY = 'foundation-handoff-hot-doc-cleanup-v1'
 const PLAN_PATH = 'docs/process/foundation-handoff-hot-doc-cleanup-001-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001.json'
-const CLOSEOUT_PATH = 'docs/handoffs/2026-05-19-foundation-handoff-hot-doc-cleanup-closeout.md'
+const CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-19-foundation-handoff-hot-doc-cleanup-closeout.md'
 const SCRIPT_PATH = 'scripts/process-foundation-handoff-hot-doc-cleanup-check.mjs'
 const MANIFEST_PATH = 'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/MANIFEST.md'
 const ARCHIVE_DIR = 'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup'
@@ -47,11 +47,11 @@ const SPRINT_ID = 'FOUNDATION-GREEN-MAIN-AUDIT-AND-SOURCE-ACTIVATION-2026-05-19'
 const NEXT_CARD_ID = 'FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001'
 
 const HOT_HANDOFFS_TO_KEEP = [
-  'docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
-  'docs/handoffs/2026-05-19-foundation-endpoint-metrics-freshness-closeout.md',
-  'docs/handoffs/2026-05-19-foundation-handoff-hot-doc-cleanup-closeout.md',
+  'docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
+  'docs/_archive/handoffs/2026-05-19-foundation-endpoint-metrics-freshness-closeout.md',
+  'docs/_archive/handoffs/2026-05-19-foundation-handoff-hot-doc-cleanup-closeout.md',
   'docs/handoffs/nightly-deep-audit-2026-05-19.json',
-  'docs/handoffs/nightly-deep-audit-2026-05-19.md',
+  'docs/_archive/handoffs/nightly-deep-audit-2026-05-19.md',
 ]
 
 const CHANGED_FILES = [
@@ -290,7 +290,7 @@ function withHandoffSprintItem(item = {}, { closeCard = false } = {}) {
         APPROVAL_PATH,
         CLOSEOUT_PATH,
         MANIFEST_PATH,
-        'docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
+        'docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
       ],
       existingScripts: [
         SCRIPT_PATH,
@@ -335,7 +335,7 @@ function withFileSizeNextSprintItem(item = {}) {
     ...item,
     cardId: NEXT_CARD_ID,
     stage: item.stage || 'scoping',
-    planRef: item.planRef || 'docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
+    planRef: item.planRef || 'docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
     definitionOfDone: item.definitionOfDone || 'Every watched large file has an evidence-backed disposition; no new responsibility is added to near-limit files without wrapper-only proof or split plan; System Health file-size rows are cleared or made explicit threshold rows for the green-lock card.',
     proofCommands: Array.isArray(item.proofCommands) && item.proofCommands.length >= 3
       ? item.proofCommands
@@ -361,7 +361,7 @@ function withFileSizeNextSprintItem(item = {}) {
         'lib/foundation-system-health.js',
       ],
       existingDocs: [
-        'docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
+        'docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md',
         'docs/handoffs/2026-05-17-file-size-engineering-standard-closeout.md',
       ],
       existingScripts: [

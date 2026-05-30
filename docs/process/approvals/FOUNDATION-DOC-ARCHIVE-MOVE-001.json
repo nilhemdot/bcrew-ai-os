@@ -1,9 +1,12 @@
 {
+  "approvalSchemaVersion": 2,
   "cardId": "FOUNDATION-DOC-ARCHIVE-MOVE-001",
-  "approvedPlanRef": "docs/process/foundation-doc-archive-move-001-plan.md",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-30T10:55:00-04:00",
-  "approvalLevel": "P1",
-  "status": "approved",
-  "notes": "Approved bounded Reduction Mode doc archive move. Scope is tracked active docs only, preserve content by moving into docs/_archive, skip referenced files unless references are repointed in the same change, keep remap after the cut wave, and do not start FOUNDATION-HUB-FOLDER-ISOLATION-001/per-hub folders."
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-doc-archive-move-001-plan.md",
+  "approvedPlanSha256": "ed52d825dc477ee6459fb4cda9d2f68365325ac6dfe760e9a8778946ce5300ab",
+  "approvedRepoHead": "4db7e9c16e5e014a7b9a234252a25444b9f98e5c",
+  "notes": "Approved bounded Reduction Mode doc archive move. Scope is tracked active docs only, preserve content by moving into docs/_archive, skip referenced files unless references are repointed in the same change, keep remap after the cut wave, and do not start FOUNDATION-HUB-FOLDER-ISOLATION-001/per-hub folders.",
+  "approvalDigest": "975264a360d0909d4be42554fb1ebd8bf5988cc8e6b85b61fb28bfecc95e3517"
 }

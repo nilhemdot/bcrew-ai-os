@@ -29,7 +29,7 @@ The proof reads existing local archive/candidate/synthesis/action-route truth an
 - `scripts/process-source-019-check.mjs`
 - `docs/process/source-019-shared-comms-layer-plan.md`
 - `docs/process/approvals/SOURCE-019.json`
-- `docs/handoffs/2026-05-19-source-019-shared-comms-layer-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-source-019-shared-comms-layer-closeout.md`
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `package.json` script `process:source-019-check`
 

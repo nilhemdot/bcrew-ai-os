@@ -173,7 +173,7 @@ function buildExistingWorkCheck() {
       'docs/process/web-godmode-001-plan.md',
       'docs/process/build-intel-observation-extractor-001-plan.md',
       'docs/process/mark-kashef-goal-build-intel-packet-001-plan.md',
-      'docs/handoffs/2026-05-20-promise-to-proof-regroup-handoff.md',
+      'docs/_archive/handoffs/2026-05-20-promise-to-proof-regroup-handoff.md',
     ],
     existingScripts: [
       'scripts/process-web-godmode-check.mjs',

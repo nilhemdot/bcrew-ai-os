@@ -218,7 +218,7 @@ export const processGateCloseoutRecords = [
       'scripts/process-strategy-004-check.mjs focused proof and close-card writer',
       'docs/process/strategy-004-planning-workflow-plan.md',
       'docs/process/approvals/STRATEGY-004.json',
-      'docs/handoffs/2026-05-20-strategy-004-planning-workflow-closeout.md',
+      'docs/_archive/handoffs/2026-05-20-strategy-004-planning-workflow-closeout.md',
     ],
     proofCommands: [
       'node --check lib/strategy-planning-workflow.js lib/strategy-shared-comms-routes.js public/strategic-execution.js scripts/process-strategy-004-check.mjs',
@@ -554,7 +554,7 @@ export const KPI_LEAD_VALIDATION_CLOSEOUT_KEY = 'kpi-lead-validation-v1'
 export const KPI_LEAD_VALIDATION_PLAN_PATH = 'docs/process/kpi-lead-validation-001-plan.md'
 export const KPI_LEAD_VALIDATION_APPROVAL_PATH = 'docs/process/approvals/KPI-LEAD-VALIDATION-001.json'
 export const KPI_LEAD_VALIDATION_SCRIPT_PATH = 'scripts/process-kpi-lead-validation-check.mjs'
-export const KPI_LEAD_VALIDATION_CLOSEOUT_PATH = 'docs/handoffs/2026-05-20-kpi-lead-validation-closeout.md'
+export const KPI_LEAD_VALIDATION_CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-20-kpi-lead-validation-closeout.md'
 export const KPI_LEAD_VALIDATION_NEXT_CARD_ID = 'INTEL-THREAD-CONTEXT-001'
 export const KPI_LEAD_VALIDATION_SPRINT_ID = 'FOUNDATION-TRUSTED-LOOP-AND-SAFE-SURFACES-2026-05-20'
 export const KPI_LEAD_VALIDATION_SOURCE_ID = 'SRC-SUPABASE-001'
@@ -568,7 +568,7 @@ export const KPI_LEAD_VALIDATION_CHANGED_FILES = [
   'package.json',
   'docs/process/kpi-lead-validation-001-plan.md',
   'docs/process/approvals/KPI-LEAD-VALIDATION-001.json',
-  'docs/handoffs/2026-05-20-kpi-lead-validation-closeout.md',
+  'docs/_archive/handoffs/2026-05-20-kpi-lead-validation-closeout.md',
   'lib/foundation-build-closeout-process-gate-records.js',
   'lib/foundation-verify-coverage-card-ids.js',
 ]

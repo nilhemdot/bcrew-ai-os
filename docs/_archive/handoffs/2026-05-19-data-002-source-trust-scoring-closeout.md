@@ -39,7 +39,7 @@ Connector access is not source trust. A source can be readable or connected whil
 - `scripts/process-data-002-check.mjs`
 - `docs/process/data-002-source-trust-scoring-plan.md`
 - `docs/process/approvals/DATA-002.json`
-- `docs/handoffs/2026-05-19-data-002-source-trust-scoring-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-data-002-source-trust-scoring-closeout.md`
 - `package.json` script `process:data-002-check`
 
 ## Proof Commands

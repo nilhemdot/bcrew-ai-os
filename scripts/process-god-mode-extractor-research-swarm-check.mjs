@@ -146,7 +146,7 @@ function buildExistingWorkCheck() {
       'lib/youtube-scout-latest-video-vision.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md',
+      'docs/_archive/handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md',
       'docs/source-notes/mark-claudeclaw-build-intel.md',
       'docs/source-notes/kia-ai-automations-build-intel.md',
       'docs/source-notes/github-build-intel.md',
@@ -398,7 +398,7 @@ async function main() {
     readRepoFile(PLAN_PATH),
     readRepoFile('lib/foundation-build-closeout-intelligence-records.js'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
-    readRepoFile('docs/handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md'),
     readRepoFile('docs/source-notes/mark-claudeclaw-build-intel.md'),
     readRepoFile('docs/source-notes/kia-ai-automations-build-intel.md'),
     readRepoFile('docs/process/multimodal-extractor-001-plan.md'),

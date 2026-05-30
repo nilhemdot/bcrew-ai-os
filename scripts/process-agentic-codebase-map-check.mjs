@@ -51,7 +51,7 @@ async function main() {
     readRepoFile('lib/agentic-codebase-map.js'),
     readRepoFile(AGENTIC_CODEBASE_MAP_SCRIPT_PATH),
     readRepoFile('docs/source-notes/understand-anything-repo-eval-2026-05-28.md'),
-    readRepoFile('docs/handoffs/2026-05-28-agentic-codebase-map.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-28-agentic-codebase-map.md'),
   ])
   const map = await buildAgenticCodebaseMap({ repoRoot })
   const evaluation = evaluateAgenticCodebaseMap(map)
@@ -71,7 +71,7 @@ async function main() {
   addCheck(checks, map.summary?.sizeRiskCount >= 1, 'map exposes oversized files for future split work', `${map.summary?.sizeRiskCount} risks`)
   addCheck(checks, map.scripts?.sourceScripts?.includes('source:browser-agent') && map.scripts?.sourceScripts?.includes('source:local-browser-hands'), 'source-browser commands are visible to future agents', map.scripts?.sourceScripts?.filter(key => key.startsWith('source:')).join(', '))
   addCheck(checks, understandAnythingNote.includes('do not install the plugin directly') && understandAnythingNote.includes('AIOS-owned `repo-map` lane'), 'Understand-Anything eval is adopted as bounded repo-map guidance, not direct install', 'docs/source-notes/understand-anything-repo-eval-2026-05-28.md')
-  addCheck(checks, existingMapHandoff.includes('Source Browser Agent') && existingMapHandoff.includes('Common Proof Commands'), 'existing agentic codebase handoff remains the human-readable quick map', 'docs/handoffs/2026-05-28-agentic-codebase-map.md')
+  addCheck(checks, existingMapHandoff.includes('Source Browser Agent') && existingMapHandoff.includes('Common Proof Commands'), 'existing agentic codebase handoff remains the human-readable quick map', 'docs/_archive/handoffs/2026-05-28-agentic-codebase-map.md')
   addCheck(checks, planSource.includes('no third-party plugin install') && planSource.includes('private/local files'), 'plan preserves no-install and privacy boundaries', AGENTIC_CODEBASE_MAP_PLAN_PATH)
   addCheck(checks, !/fs\.writeFile|symlink|npm\s+install|pnpm\s+install|child_process|spawn\(/.test(moduleSource), 'repo-map module has no install, symlink, subprocess, or write path', 'read-only scanner')
 

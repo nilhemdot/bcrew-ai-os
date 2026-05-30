@@ -194,7 +194,7 @@ function buildUpdatedSprintOverlay({ activeSprint, currentHead }) {
           existingDocs: [
             'docs/process/frontend-current-state-renderers-split-001-plan.md',
             'docs/process/deep-audit-findings-closure-gate-001-plan.md',
-            'docs/audits/2026-05-19-foundation-deep-merge-audit.md',
+            'docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md',
           ],
           existingScripts: [
             'process:frontend-current-state-renderers-split-check',
@@ -305,7 +305,7 @@ async function main() {
     readRepoFile(SCRIPT_PATH),
     readRepoFile('lib/foundation-build-closeout-route-frontend-records.js'),
     readRepoFile('lib/deep-audit-findings-closure-gate.js'),
-    readRepoFile('docs/handoffs/2026-05-19-foundation-client-current-state-extract-closeout.md', { optional: true }),
+    readRepoFile('docs/_archive/handoffs/2026-05-19-foundation-client-current-state-extract-closeout.md', { optional: true }),
   ])
   const gitState = getGitState()
   const [activeSprint, routeCards, planCriticRuns] = await Promise.all([

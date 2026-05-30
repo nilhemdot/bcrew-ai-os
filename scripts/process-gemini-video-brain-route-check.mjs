@@ -237,8 +237,8 @@ function buildExistingWorkCheck() {
       'lib/foundation-llm-runtime-store.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
-      'docs/handoffs/2026-05-20-harlan-auth-escalation-loop-closeout.md',
+      'docs/_archive/handoffs/2026-05-20-orchestrator-builder-run-checkpoint.md',
+      'docs/_archive/handoffs/2026-05-20-harlan-auth-escalation-loop-closeout.md',
       'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-quota-ledger-closeout.md',
       'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-brain-fleet-model-capability-registry-closeout.md',
       'docs/_archive/handoffs/2026-05-26-hot-doc-refresh/2026-05-20-codex-direct-subscription-route-closeout.md',

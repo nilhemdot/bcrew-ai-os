@@ -17,7 +17,7 @@ The card does not process source video, upload files, store raw video, run broad
 - `scripts/process-gemini-video-brain-route-check.mjs`
 - `docs/process/gemini-video-brain-route-001-plan.md`
 - `docs/process/approvals/GEMINI-VIDEO-BRAIN-ROUTE-001.json`
-- `docs/handoffs/2026-05-20-gemini-video-brain-route-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-gemini-video-brain-route-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `lib/foundation-build-closeout-model-records.js`

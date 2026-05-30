@@ -267,7 +267,7 @@ async function applyCloseout({ push = true } = {}) {
 function buildSelfTest() {
   const samples = [
     ['docs/handoffs/nightly-deep-audit-2026-05-30.json', true],
-    ['docs/handoffs/nightly-deep-audit-2026-05-30.md', true],
+    ['docs/_archive/handoffs/nightly-deep-audit-2026-05-30.md', true],
     ['docs/handoffs/system-health-2026-05-30.json', true],
     ['docs/source-notes/youtube-deep-visual-review-20260530110600.md', true],
     ['docs/source-notes/other-note.md', false],
@@ -281,10 +281,10 @@ function buildSelfTest() {
     actual: Boolean(allowedArtifact(filePath)),
   }))
   checks.push({
-    ok: parseStatusLine(' D docs/handoffs/system-health-2026-05-30.md').deleted === true,
+    ok: parseStatusLine(' D docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-30.md').deleted === true,
     filePath: 'deleted generated artifact fixture',
     expected: true,
-    actual: parseStatusLine(' D docs/handoffs/system-health-2026-05-30.md').deleted,
+    actual: parseStatusLine(' D docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-30.md').deleted,
   })
   return {
     ok: checks.every(check => check.ok),
