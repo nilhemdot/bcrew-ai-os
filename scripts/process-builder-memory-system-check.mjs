@@ -294,6 +294,8 @@ async function main() {
     sourceSystemFactorySource,
     coverageSource,
     handoffSource,
+    agentsSource,
+    claudeSource,
   ] = await Promise.all([
     readRepoJson('package.json'),
     readRepoFile('lib/builder-memory-system.js'),
@@ -305,8 +307,14 @@ async function main() {
     readRepoFile('lib/myicor-mcp-catalog-snapshot.js'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
     readRepoFile('docs/handoffs/2026-05-29-human-web-agent-v1-sprint-reset-closeout.md'),
+    readRepoFile('AGENTS.md'),
+    readRepoFile('CLAUDE.md'),
   ])
   const liveBacklogCard = await readLiveBacklogCard()
+  const sessionStartupSection = agentsSource.slice(
+    agentsSource.indexOf('## Session Startup'),
+    agentsSource.indexOf('## Memory') > agentsSource.indexOf('## Session Startup') ? agentsSource.indexOf('## Memory') : undefined,
+  )
 
   addCheck(
     checks,
@@ -318,6 +326,28 @@ async function main() {
   addCheck(checks, reports.foundIds.length >= BUILDER_MEMORY_INPUT_REPORT_IDS.length, 'required builder memory input reports exist', reports.foundIds.join(', '))
   addCheck(checks, backlogCards.length >= 6, 'relevant backlog cards are loaded from live backlog', `${backlogCards.length} cards`)
   addCheck(checks, evaluation.ok, 'live builder startup packet passes evaluation', evaluation.failed.map(item => item.check).join('; ') || 'healthy')
+  addCheck(
+    checks,
+    scriptSource.includes('currentSprint = await getActiveFoundationCurrentSprint()') &&
+      scriptSource.includes('buildBuilderMemoryStartupPacket({') &&
+      scriptSource.includes('currentSprint,'),
+    'startup packet reads active sprint dynamically',
+    'getActiveFoundationCurrentSprint -> buildBuilderMemoryStartupPacket',
+  )
+  addCheck(
+    checks,
+    /^1\.\s+Run `npm run builder:startup-packet`/m.test(sessionStartupSection),
+    'AGENTS.md makes startup packet the first action',
+    sessionStartupSection.split('\n').find(line => line.startsWith('1.')) || 'missing',
+  )
+  addCheck(
+    checks,
+    claudeSource.includes('Canonical workspace instructions live in `AGENTS.md`') &&
+      claudeSource.includes('npm run builder:startup-packet') &&
+      claudeSource.includes('Read `AGENTS.md`'),
+    'CLAUDE.md bootstraps Claude to the shared startup packet doctrine',
+    'CLAUDE.md',
+  )
   addCheck(checks, dogfood.ok, 'dogfood proves startup packet and privacy guardrails', dogfood.failureSummary || 'healthy')
   addCheck(
     checks,
