@@ -28,15 +28,19 @@ import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-  getSourceContractRegistrySnapshot,
-  initFoundationDb,
-  syncSourceContractRegistryTable,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getSourceContractRegistrySnapshot,
+  syncSourceContractRegistryTable,
+} from '../lib/foundation-source-crawl-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   buildPlanCriticResultSummary,

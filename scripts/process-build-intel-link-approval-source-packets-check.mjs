@@ -14,9 +14,13 @@ import {
 } from '../lib/build-intel-link-approval-source-packets.js'
 import {
   closeFoundationDb,
-  getFoundationSnapshot,
+} from '../lib/foundation-db-session.js'
+import {
   getIntelligenceReportBundle,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   MARK_KASHEF_GOD_MODE_SMALL_BATCH_REPORT_ARTIFACT_ID,
 } from '../lib/mark-kashef-god-mode-small-batch.js'

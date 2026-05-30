@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 import {
   closeFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
 import {
   BUILD_OPPORTUNITY_PROMOTION_GATE_CARD_ID,
   BUILD_OPPORTUNITY_PROMOTION_GATE_APPROVAL_PATH,

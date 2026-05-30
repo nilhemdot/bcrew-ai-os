@@ -12,10 +12,16 @@ import {
 } from '../lib/build-intel-extraction-implementation.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
-  getFoundationSnapshot,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
   searchSharedCommunicationArtifactsForContext,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-shared-comms-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   validatePlanApprovalFile,
 } from '../lib/approval-integrity.js'
