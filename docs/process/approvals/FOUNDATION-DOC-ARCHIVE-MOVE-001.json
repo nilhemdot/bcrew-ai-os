@@ -1,0 +1,9 @@
+{
+  "cardId": "FOUNDATION-DOC-ARCHIVE-MOVE-001",
+  "approvedPlanRef": "docs/process/foundation-doc-archive-move-001-plan.md",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-30T10:55:00-04:00",
+  "approvalLevel": "P1",
+  "status": "approved",
+  "notes": "Approved bounded Reduction Mode doc archive move. Scope is tracked active docs only, preserve content by moving into docs/_archive, skip referenced files unless references are repointed in the same change, keep remap after the cut wave, and do not start FOUNDATION-HUB-FOLDER-ISOLATION-001/per-hub folders."
+}

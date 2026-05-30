@@ -34,10 +34,13 @@ const SCRIPT_PATH = 'scripts/process-foundation-tuneup-roadmap-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-tuneup-roadmap-check'
 const PLAN_PATH = 'docs/process/foundation-tuneup-roadmap-001-plan.md'
 const REAL_SPLIT_PLAN_PATH = 'docs/process/foundation-db-real-split-001-plan.md'
+const ACTIVE_PLAN_PATH = 'docs/process/foundation-doc-archive-move-001-plan.md'
+const ACTIVE_APPROVAL_PATH = 'docs/process/approvals/FOUNDATION-DOC-ARCHIVE-MOVE-001.json'
 const ACTOR = 'codex-foundation-tuneup-roadmap'
 const SPRINT_ID = 'FOUNDATION-TUNEUP-2026-05-29'
 const EPIC_CARD_ID = 'FOUNDATION-TUNEUP-ROADMAP-001'
-const ACTIVE_CARD_ID = 'FOUNDATION-DB-REAL-SPLIT-001'
+const REAL_SPLIT_CARD_ID = 'FOUNDATION-DB-REAL-SPLIT-001'
+const ACTIVE_CARD_ID = 'FOUNDATION-DOC-ARCHIVE-MOVE-001'
 const IMPORT_RAILS_CARD_ID = 'FOUNDATION-DB-IMPORT-OWNERSHIP-SPLIT-001'
 
 const STANDING_GUARDRAILS = [
@@ -67,6 +70,8 @@ const CHANGED_FILES = [
   'CLAUDE.md',
   'scripts/process-foundation-tuneup-roadmap-check.mjs',
   'scripts/process-foundation-db-import-ownership-split-check.mjs',
+  ACTIVE_PLAN_PATH,
+  ACTIVE_APPROVAL_PATH,
   'lib/foundation-db-session.js',
   'lib/foundation-backlog-sprint-db.js',
   'lib/foundation-source-crawl-db.js',
@@ -90,8 +95,8 @@ const ROADMAP_CARDS = [
     source: 'Claude + Codex audit consensus, verified 2026-05-29',
     summary: 'Own the tune-up sequence as live backlog truth: memory closed, split import ownership, checkpoint before per-hub restructuring, then cleanup waves with gates repointed first.',
     whyItMatters: 'Steve needs the audit plan to load automatically in startup packets instead of living in chat. This card preserves the order and guardrails so future builders do not restart the debate.',
-    nextAction: `Build ${ACTIVE_CARD_ID} first; keep later cards queued until the prior phase is proven.`,
-    statusNote: 'Re-scoped on 2026-05-30 from independent Claude/Codex re-audits. Proof command: npm run process:foundation-tuneup-roadmap-check -- --apply --mutate-sprint --json. Guardrails: do not delete codex-status, do not bulk-delete verifier/approval/plan/check files, repoint gates before cleanup, keep facade compat-only, prove Reduction Mode metrics, checkpoint before per-hub folders.',
+    nextAction: `Continue the cut wave with ${ACTIVE_CARD_ID}; run the fresh /understand remap after reduction metrics move, not after every card. Do not start FOUNDATION-HUB-FOLDER-ISOLATION-001 until Steve checkpoints it.`,
+    statusNote: 'Re-scoped on 2026-05-30 after the real Foundation DB split closed. Proof command: npm run process:foundation-tuneup-roadmap-check -- --apply --mutate-sprint --json. Guardrails: do not delete codex-status, do not bulk-delete verifier/approval/plan/check files, repoint gates before cleanup, prove Reduction Mode metrics, run remap after the cut wave, and checkpoint before per-hub folders.',
     owner: 'Foundation Builder',
   },
   {
@@ -108,16 +113,16 @@ const ROADMAP_CARDS = [
     owner: 'Foundation Builder',
   },
   {
-    id: ACTIVE_CARD_ID,
+    id: REAL_SPLIT_CARD_ID,
     title: 'Actually split foundation-db.js behavior into domain stores',
-    lane: 'executing',
+    lane: 'done',
     priority: 'P0',
     rank: 3,
     source: '2026-05-30 re-audit: import rails landed but the 8 domain modules are still facade-backed shims',
     summary: 'Move real behavior out of lib/foundation-db.js into the eight domain stores, remove server.js direct facade import, keep lib/foundation-db.js as compat-only, and make the red import/remap gates pass.',
     whyItMatters: 'The first split reduced consumer import collision but left every DB behavior change in one monolith. Real dual-lane ownership requires behavior to live in the domain files.',
-    nextAction: 'Extract domain stores incrementally, starting with session/core and runtime/source slices, then remove server.js from the compat facade and rerun import/remap proofs.',
-    statusNote: 'Active repair card. Acceptance: lib/foundation-db.js line count and direct import pressure go down, server.js no longer imports the facade, process:foundation-db-import-ownership-split-check and process:foundation-tuneup-remap-proof-check pass, and runtime proof does not regress.',
+    nextAction: 'Done under foundation-db-real-split-v1; continue Reduction Mode cleanup cards and keep remap as the post-cut-wave proof.',
+    statusNote: 'Closed on 2026-05-30 under foundation-db-real-split-v1. lib/foundation-db.js dropped to compat-only size, server.js no longer imports the facade, direct facade import pressure is zero, and focused import/remap proofs pass.',
     owner: 'Foundation Builder',
   },
   {
@@ -129,8 +134,8 @@ const ROADMAP_CARDS = [
     source: 'Claude + Codex audit consensus: foundation-db.js remains worst collision import surface',
     summary: 'Move new and touched import ownership away from lib/foundation-db.js into existing domain modules while keeping the facade as pass-through so existing importers stay green.',
     whyItMatters: 'The file is no longer huge, but hundreds of imports still converge on one facade. Dual-lane work needs ownership by domain, not every feature editing the same root.',
-    nextAction: `Rails are laid; continue with ${ACTIVE_CARD_ID} for real behavior extraction.`,
-    statusNote: 'Closed as rails-only after 2026-05-30 re-audit. Consumers moved to domain import targets, but behavior remained in the facade. Follow-up FOUNDATION-DB-REAL-SPLIT-001 owns the real split and red-gate repair.',
+    nextAction: `Rails are laid and the real split is closed; continue the reduction cut wave with ${ACTIVE_CARD_ID}.`,
+    statusNote: 'Closed as rails-only after 2026-05-30 re-audit. Consumers moved to domain import targets, then FOUNDATION-DB-REAL-SPLIT-001 moved behavior out of the facade.',
     owner: 'Foundation Builder',
   },
   {
@@ -138,12 +143,12 @@ const ROADMAP_CARDS = [
     title: 'Checkpoint and plan per-hub folder ownership',
     lane: 'scoped',
     priority: 'P1',
-    rank: 5,
+    rank: 17,
     source: 'Claude + Codex audit consensus: shared server.js plus flat lib blocks dual-lane work',
     summary: 'After Phase 1, design hub-owned folders with routes, store, and screens self-registering onto a thin core.',
     whyItMatters: 'This is the largest dual-lane unlock, but it is L-effort and needs Steve review before build starts.',
-    nextAction: 'Stop after the foundation-db import split and review the per-hub folder plan with Steve before implementation.',
-    statusNote: 'Scoped only. Not active until Phase 1 closes. Proof/scope signal: must include owner boundaries, route registration plan, and no broad server.js rewrite.',
+    nextAction: 'Stop after the reduction cut wave and remap proof; review the per-hub folder plan with Steve before implementation.',
+    statusNote: 'Scoped only. Not active until the cut wave and remap proof close. Proof/scope signal: must include owner boundaries, route registration plan, and no broad server.js rewrite.',
     owner: 'Foundation Builder',
   },
   {
@@ -294,12 +299,12 @@ const ROADMAP_CARDS = [
     title: 'Re-map codebase after tune-up for before/after proof',
     lane: 'scoped',
     priority: 'P1',
-    rank: 17,
+    rank: 16,
     source: 'Audit closeout requirement: prove the tune-up reduced collision and bloat',
     summary: 'Run the codebase map again after the tune-up phases and compare import/collision/file-size evidence.',
     whyItMatters: 'The tune-up should prove it made the system leaner, not just move files around.',
-    nextAction: 'After Phase 4, rerun the codebase map and capture before/after proof into live backlog/readback.',
-    statusNote: 'Scoped final proof. Not active until prior tune-up phases close with evidence.',
+    nextAction: 'After the reduction cut wave, rerun the codebase map and capture before/after proof into live backlog/readback before per-hub folders.',
+    statusNote: 'Scoped final proof before the per-hub checkpoint. Not active until cut-wave cards close with measured reductions.',
     owner: 'Foundation Builder',
   },
 ]
@@ -439,9 +444,9 @@ async function upsertRoadmapCards({ planReview } = {}) {
               result = EXCLUDED.result
         `,
         [
-          `foundation-db-real-split-${stableRunId(REAL_SPLIT_PLAN_PATH)}`,
+          `foundation-tuneup-active-${stableRunId(ACTIVE_PLAN_PATH)}`,
           ACTIVE_CARD_ID,
-          PLAN_PATH,
+          ACTIVE_PLAN_PATH,
           planReview.status,
           planReview.score,
           PLAN_CRITIC_MIN_PASS_SCORE,
@@ -477,13 +482,13 @@ function sprintItem(card, order) {
     order,
     sprintOrder: order,
     stage: activeCard ? 'building_now' : 'scoping',
-    planRef: activeCard ? REAL_SPLIT_PLAN_PATH : null,
+    planRef: activeCard ? ACTIVE_PLAN_PATH : null,
     definitionOfDone: activeCard
-      ? 'Foundation DB import ownership starts moving to domain modules while lib/foundation-db.js remains a stable pass-through and proof stays green.'
+      ? 'Archive-class active docs move into docs/_archive without deletion, active-doc count goes down, and remap remains parked until the cut wave has measurable reductions.'
       : card.nextAction,
     proofCommands: [
       'npm run process:foundation-tuneup-roadmap-check -- --json',
-      ...(card.id === ACTIVE_CARD_ID ? ['npm run process:foundation-db-import-ownership-split-check -- --json'] : []),
+      ...(card.id === ACTIVE_CARD_ID ? ['npm run process:foundation-doc-consolidation-truth-archive-check -- --json'] : []),
       'npm run process:builder-memory-system-check -- --json',
       'npm run backlog:hygiene -- --json',
     ],
@@ -500,6 +505,7 @@ function sprintItem(card, order) {
       ],
       existingDocs: [
         PLAN_PATH,
+        ACTIVE_PLAN_PATH,
         REAL_SPLIT_PLAN_PATH,
         'AGENTS.md',
         'CLAUDE.md',
@@ -539,7 +545,7 @@ function sprintItem(card, order) {
       roadmapCardId: EPIC_CARD_ID,
       source: 'claude-codex-audit-consensus',
       guardrails: STANDING_GUARDRAILS,
-      planRef: activeCard ? REAL_SPLIT_PLAN_PATH : null,
+      planRef: activeCard ? ACTIVE_PLAN_PATH : null,
     },
   }
 }
@@ -554,6 +560,7 @@ async function applyCurrentSprint() {
 
   const previous = await getActiveFoundationCurrentSprint()
   const previousSprintId = previous?.sprint?.sprintId || ''
+  const sprintCards = ROADMAP_CARDS.slice().sort((a, b) => a.rank - b.rank)
   await upsertFoundationCurrentSprintOverlay(
     {
       sprint: {
@@ -565,9 +572,9 @@ async function applyCurrentSprint() {
           previousSprintId,
           roadmapCardId: EPIC_CARD_ID,
           source: 'claude-codex-audit-consensus',
-          phaseOrder: ROADMAP_CARDS.map(card => card.id),
+          phaseOrder: sprintCards.map(card => card.id),
           checkpointBefore: 'FOUNDATION-HUB-FOLDER-ISOLATION-001',
-          executiveSummary: 'Foundation tune-up is active. The current building card is the incremental Foundation DB import-ownership split; future cleanup phases stay scoped until reviewed.',
+          executiveSummary: 'Foundation DB real split is closed. Continue the Reduction Mode cut wave now; run fresh /understand remap after measurable reductions, before per-hub folder isolation.',
           nextAction: ROADMAP_CARDS.find(card => card.id === ACTIVE_CARD_ID)?.nextAction,
           exitCriteria: SPRINT_EXIT_CRITERIA,
           guardrails: STANDING_GUARDRAILS,
@@ -576,7 +583,7 @@ async function applyCurrentSprint() {
           facadePassThroughRequired: true,
         },
       },
-      items: ROADMAP_CARDS.map((card, index) => sprintItem(card, index + 1)),
+      items: sprintCards.map((card, index) => sprintItem(card, index + 1)),
     },
     ACTOR,
     {
@@ -610,12 +617,12 @@ async function main() {
 
   await initFoundationDb()
   try {
-    const planSource = await readRepoFile(REAL_SPLIT_PLAN_PATH)
+    const planSource = await readRepoFile(ACTIVE_PLAN_PATH)
     const planReview = evaluatePlanCriticPlan({
       planText: planSource,
       card: ROADMAP_CARDS.find(card => card.id === ACTIVE_CARD_ID),
       changedFiles: CHANGED_FILES,
-      declaredRisk: 'Foundation DB facade/import ownership, package scripts, live Current Sprint, and verifier control plane.',
+      declaredRisk: 'Docs archive movement, package scripts, live Current Sprint, and verifier control-plane proof.',
     })
 
     if (args.apply) {
@@ -656,20 +663,20 @@ async function main() {
       checks,
       ROADMAP_CARDS[0]?.id === EPIC_CARD_ID &&
         ROADMAP_CARDS[1]?.id === 'REDUCTION-MODE-001' &&
-        ROADMAP_CARDS[2]?.id === ACTIVE_CARD_ID,
-      'roadmap order starts with epic, Reduction Mode, then real foundation-db split',
-      ROADMAP_CARDS.slice(0, 3).map(card => card.id).join(', '),
+        ROADMAP_CARDS.some(card => card.id === ACTIVE_CARD_ID),
+      'roadmap keeps epic, Reduction Mode, and active cut card',
+      `${ROADMAP_CARDS.slice(0, 2).map(card => card.id).join(', ')} / active=${ACTIVE_CARD_ID}`,
     )
     addCheck(
       checks,
-      ROADMAP_CARDS.every(card => /proof|Scoped|Active|Acceptance|Proof|command|gate|Acceptance/i.test(card.statusNote)),
+      ROADMAP_CARDS.every(card => /proof|scoped|active|acceptance|command|gate|closed|reduction/i.test(card.statusNote)),
       'all roadmap cards include proof or scope signal',
       'status notes contain proof/scope language',
     )
     addCheck(
       checks,
       planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE,
-      'active import split plan passes Plan Critic',
+      'active cut-wave plan passes Plan Critic',
       buildPlanCriticResultSummary(planReview),
     )
     addCheck(
@@ -725,7 +732,7 @@ async function main() {
     addCheck(
       checks,
       currentSprint.sprint?.sprintId !== SPRINT_ID || activePlanCriticPass,
-      'durable Plan Critic pass row exists for active import split card',
+      'durable Plan Critic pass row exists for active cut-wave card',
       (currentSprint.planCriticRuns || []).map(run => `${run.cardId}:${run.status}/${run.score}`).join(', ') || 'missing',
     )
 

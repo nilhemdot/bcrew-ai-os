@@ -42,6 +42,8 @@ import {
   FOUNDATION_DOC_CONSOLIDATION_PLAN_PATH,
   FOUNDATION_DOC_CONSOLIDATION_PROOF_COMMANDS,
   FOUNDATION_DOC_CONSOLIDATION_SCRIPT_PATH,
+  FOUNDATION_DOC_ARCHIVE_MOVE_MANIFEST_PATH,
+  buildFoundationDocArchiveMoveSnapshot,
   buildFoundationDocConsolidationSnapshot,
 } from '../lib/foundation-doc-consolidation-truth-archive.js'
 
@@ -287,6 +289,7 @@ async function main() {
       closeoutSource,
       coverageSource,
       roadmapSource,
+      archiveMoveManifestSource,
       docSources,
     ] = await Promise.all([
       readRepoJson('package.json'),
@@ -294,6 +297,7 @@ async function main() {
       readRepoFile('lib/foundation-build-closeout-process-gate-operations-records.js'),
       readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
       readRepoFile('scripts/process-foundation-tuneup-roadmap-check.mjs'),
+      readRepoFile(FOUNDATION_DOC_ARCHIVE_MOVE_MANIFEST_PATH),
       readDocSources(),
     ])
     const planReview = evaluatePlanCriticPlan({
@@ -313,6 +317,10 @@ async function main() {
       closeoutSource,
       coverageSource,
       roadmapSource,
+    })
+    const archiveMoveSnapshot = buildFoundationDocArchiveMoveSnapshot({
+      docSources,
+      manifestSource: archiveMoveManifestSource,
     })
 
     if (args.apply || args.closeCard) {
@@ -367,6 +375,12 @@ async function main() {
     )
     addCheck(
       checks,
+      archiveMoveSnapshot.ok === true,
+      'doc-archive move reduction snapshot is healthy',
+      archiveMoveSnapshot.failed.map(check => check.check).join('; ') || 'healthy',
+    )
+    addCheck(
+      checks,
       Boolean(activeItem || args.closeCard) &&
         (args.closeCard || !applied || activeItem.stage === normalizeStage(args.stage)),
       'Current Sprint contains doc consolidation at expected stage',
@@ -399,6 +413,7 @@ async function main() {
       applied,
       closeCard: args.closeCard,
       snapshotSummary: snapshot.summary,
+      archiveMoveSummary: archiveMoveSnapshot.summary,
       canonicalPaths: snapshot.canonicalPaths,
       planReview: {
         status: planReview.status,

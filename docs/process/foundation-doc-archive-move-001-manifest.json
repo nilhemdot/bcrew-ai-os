@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "cardId": "FOUNDATION-DOC-ARCHIVE-MOVE-001",
+  "generatedAt": "2026-05-30T11:05:00-04:00",
+  "mode": "apply",
+  "baseline": {
+    "activeAuditHandoffMarkdownCount": 238
+  },
+  "plainEnglish": "Cold active audit and handoff docs with no live code/process references were moved into docs/_archive. Files are preserved, not deleted. Referenced receipts remain parked for a later repointing pass.",
+  "movedFiles": [
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-24-claude-dev-ui-ux-review.md",
+      "to": "docs/_archive/audits/2026-05-24-claude-dev-ui-ux-review.md",
+      "reason": "Cold active audit doc with no live code/process references."
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-05-24-gemini-dev-ui-ux-audit.md",
+      "to": "docs/_archive/audits/2026-05-24-gemini-dev-ui-ux-audit.md",
+      "reason": "Cold active audit doc with no live code/process references."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-25-aios-dev-intel-checkpoint-next-steps.md",
+      "to": "docs/_archive/handoffs/2026-05-25-aios-dev-intel-checkpoint-next-steps.md",
+      "reason": "Cold active handoff doc with no live code/process references."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-27-foundation-up-critical-build-review.md",
+      "to": "docs/_archive/handoffs/2026-05-27-foundation-up-critical-build-review.md",
+      "reason": "Cold active handoff doc with no live code/process references."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-27-overnight-youtube-catchup-long-course-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-05-27-overnight-youtube-catchup-long-course-checkpoint.md",
+      "reason": "Cold active handoff doc with no live code/process references."
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-05-27-source-browser-youtube-handoff.md",
+      "to": "docs/_archive/handoffs/2026-05-27-source-browser-youtube-handoff.md",
+      "reason": "Cold active handoff doc with no live code/process references."
+    }
+  ],
+  "skippedPolicy": "Skip referenced active docs unless references are repointed in the same change."
+}
