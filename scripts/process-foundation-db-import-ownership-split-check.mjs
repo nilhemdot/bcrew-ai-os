@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 549
+const DIRECT_IMPORT_LIMIT = 538
 
 const DOMAIN_MODULES = [
   {
@@ -81,6 +81,50 @@ const MIGRATED_IMPORTERS = [
       '../lib/foundation-db-session.js',
       '../lib/foundation-backlog-sprint-db.js',
     ],
+  },
+  {
+    path: 'scripts/agent-feedback-production-dry-run.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/send-agent-feedback-test-email.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/process-agent-feedback-production-autosend-dry-run-check.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/process-agent-feedback-production-autosend-enable-check.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/agent-feedback-reminders.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/process-agent-feedback-auto-send-check.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/process-agent-feedback-send-check.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/process-agent-feedback-response-notify-check.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/agent-feedback-auto-send.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/agent-feedback-response-notify.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
+  },
+  {
+    path: 'scripts/process-agent-feedback-reminder-cadence-check.mjs',
+    expectedImports: ['../lib/foundation-db-session.js'],
   },
 ]
 

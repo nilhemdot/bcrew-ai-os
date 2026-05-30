@@ -8,7 +8,7 @@ import {
   buildAgentFeedbackDryRunProof,
   executeApprovedAgentFeedbackSend,
 } from '../lib/agent-feedback-send.js'
-import { assertFoundationDbReadyForReadOnlyGate } from '../lib/foundation-db.js'
+import { assertFoundationDbReadyForReadOnlyGate } from '../lib/foundation-db-session.js'
 
 function argValue(name, fallback = '') {
   const prefix = `--${name}=`

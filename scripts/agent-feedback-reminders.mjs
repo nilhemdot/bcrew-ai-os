@@ -10,7 +10,7 @@ import {
   buildAgentFeedbackReminderSyntheticProof,
   runAgentFeedbackLiveReminders,
 } from '../lib/agent-feedback-reminders.js'
-import { assertFoundationDbReadyForReadOnlyGate } from '../lib/foundation-db.js'
+import { assertFoundationDbReadyForReadOnlyGate } from '../lib/foundation-db-session.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}

@@ -5,7 +5,7 @@ import {
   AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
   buildAgentFeedbackResponseNotificationDryRunProof,
 } from '../lib/agent-feedback-response-notify.js'
-import { assertFoundationDbReadyForReadOnlyGate } from '../lib/foundation-db.js'
+import { assertFoundationDbReadyForReadOnlyGate } from '../lib/foundation-db-session.js'
 
 function argValue(name, fallback = '') {
   const prefix = `--${name}=`

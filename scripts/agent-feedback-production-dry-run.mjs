@@ -5,7 +5,7 @@ import {
   AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_STAGE,
   buildAgentFeedbackProductionAutoSendDryRunReport,
 } from '../lib/agent-feedback-production-autosend-dry-run.js'
-import { assertFoundationDbReadyForReadOnlyGate } from '../lib/foundation-db.js'
+import { assertFoundationDbReadyForReadOnlyGate } from '../lib/foundation-db-session.js'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}
