@@ -5,31 +5,6 @@
   "cardId": "PROCESS-CHECK-ARCHIVE-REDUCTION-001",
   "movedFiles": [
     {
-      "from": "scripts/process-agent-feedback-auto-send-check.mjs",
-      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-auto-send-check.mjs",
-      "reason": "unreferenced package-named process check archived behind generic archive runner"
-    },
-    {
-      "from": "scripts/process-agent-feedback-company-email-policy-check.mjs",
-      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-company-email-policy-check.mjs",
-      "reason": "unreferenced package-named process check archived behind generic archive runner"
-    },
-    {
-      "from": "scripts/process-agent-feedback-live-reminders-check.mjs",
-      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-live-reminders-check.mjs",
-      "reason": "unreferenced package-named process check archived behind generic archive runner"
-    },
-    {
-      "from": "scripts/process-agent-feedback-production-autosend-enable-check.mjs",
-      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-production-autosend-enable-check.mjs",
-      "reason": "unreferenced package-named process check archived behind generic archive runner"
-    },
-    {
-      "from": "scripts/process-agent-feedback-real-user-submit-repair-check.mjs",
-      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-real-user-submit-repair-check.mjs",
-      "reason": "unreferenced package-named process check archived behind generic archive runner"
-    },
-    {
       "from": "scripts/process-backlog-queue-reconcile-check.mjs",
       "to": "docs/_archive/process-checks/scripts/process-backlog-queue-reconcile-check.mjs",
       "reason": "unreferenced package-named process check archived behind generic archive runner"
@@ -147,8 +122,8 @@
   ],
   "reduction": {
     "beforeCount": 490,
-    "afterCount": 462,
-    "movedCount": 28,
+    "afterCount": 467,
+    "movedCount": 23,
     "referenceRule": "only package-named process checks with zero active lib/scripts references were moved"
   }
 }
