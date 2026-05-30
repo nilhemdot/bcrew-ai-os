@@ -33,10 +33,12 @@ const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-tuneup-roadmap-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-tuneup-roadmap-check'
 const PLAN_PATH = 'docs/process/foundation-tuneup-roadmap-001-plan.md'
+const REAL_SPLIT_PLAN_PATH = 'docs/process/foundation-db-real-split-001-plan.md'
 const ACTOR = 'codex-foundation-tuneup-roadmap'
 const SPRINT_ID = 'FOUNDATION-TUNEUP-2026-05-29'
 const EPIC_CARD_ID = 'FOUNDATION-TUNEUP-ROADMAP-001'
-const ACTIVE_CARD_ID = 'FOUNDATION-DB-IMPORT-OWNERSHIP-SPLIT-001'
+const ACTIVE_CARD_ID = 'FOUNDATION-DB-REAL-SPLIT-001'
+const IMPORT_RAILS_CARD_ID = 'FOUNDATION-DB-IMPORT-OWNERSHIP-SPLIT-001'
 
 const STANDING_GUARDRAILS = [
   'Do not delete scripts/codex-status.mjs.',
@@ -48,6 +50,7 @@ const STANDING_GUARDRAILS = [
   'Do not mutate Drive permissions.',
   'Protect the real source/browser proof lane: MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001, source-session readiness, local-browser route policy, and Dev Hub System Truth are keep patterns.',
   'Protect the honest /api/foundation/dev-team-hub dashboard posture: show built/running/blocked, source-backed evidence, and zero hidden writes instead of polishing the readback.',
+  'Reduction Mode: cleanup work must prove the target files, lines, import pressure, verifier count, or active-doc count went down; temporary scaffolding must self-archive or name its follow-up owner.',
 ]
 
 const SPRINT_EXIT_CRITERIA = [
@@ -73,6 +76,7 @@ const CHANGED_FILES = [
   'lib/foundation-strategy-docs-db.js',
   'lib/foundation-people-sales-db.js',
   PLAN_PATH,
+  REAL_SPLIT_PLAN_PATH,
   'package.json',
 ]
 
@@ -87,20 +91,46 @@ const ROADMAP_CARDS = [
     summary: 'Own the tune-up sequence as live backlog truth: memory closed, split import ownership, checkpoint before per-hub restructuring, then cleanup waves with gates repointed first.',
     whyItMatters: 'Steve needs the audit plan to load automatically in startup packets instead of living in chat. This card preserves the order and guardrails so future builders do not restart the debate.',
     nextAction: `Build ${ACTIVE_CARD_ID} first; keep later cards queued until the prior phase is proven.`,
-    statusNote: 'Scoped on 2026-05-29 from independent Claude/Codex audits. Proof command: npm run process:foundation-tuneup-roadmap-check -- --apply --mutate-sprint --json. Guardrails: do not delete codex-status, do not bulk-delete verifier/approval/plan/check files, repoint gates before cleanup, keep facade pass-through, checkpoint before per-hub folders.',
+    statusNote: 'Re-scoped on 2026-05-30 from independent Claude/Codex re-audits. Proof command: npm run process:foundation-tuneup-roadmap-check -- --apply --mutate-sprint --json. Guardrails: do not delete codex-status, do not bulk-delete verifier/approval/plan/check files, repoint gates before cleanup, keep facade compat-only, prove Reduction Mode metrics, checkpoint before per-hub folders.',
+    owner: 'Foundation Builder',
+  },
+  {
+    id: 'REDUCTION-MODE-001',
+    title: 'Require cleanup cards to prove net reduction',
+    lane: 'scoped',
+    priority: 'P0',
+    rank: 2,
+    source: '2026-05-30 Claude + Codex re-audit: cleanup grew the system because governance is add-only',
+    summary: 'Add a Foundation reduction-mode doctrine: cleanup closeout requires before/after proof that target files, lines, active docs, import pressure, or verifier count went down, and any temporary scaffolding self-archives or declares its owner.',
+    whyItMatters: 'The tune-up cannot get leaner if every cleanup task mints more permanent process files than it removes.',
+    nextAction: 'Use this as the acceptance rail for the real DB split and all cleanup cards before claiming done.',
+    statusNote: 'Scoped P0 doctrine card. Acceptance requires focused proof to reject cleanup closeouts with no measured reduction, not a prose-only reminder.',
     owner: 'Foundation Builder',
   },
   {
     id: ACTIVE_CARD_ID,
-    title: 'Split foundation-db.js import ownership behind stable facade',
+    title: 'Actually split foundation-db.js behavior into domain stores',
     lane: 'executing',
     priority: 'P0',
-    rank: 2,
+    rank: 3,
+    source: '2026-05-30 re-audit: import rails landed but the 8 domain modules are still facade-backed shims',
+    summary: 'Move real behavior out of lib/foundation-db.js into the eight domain stores, remove server.js direct facade import, keep lib/foundation-db.js as compat-only, and make the red import/remap gates pass.',
+    whyItMatters: 'The first split reduced consumer import collision but left every DB behavior change in one monolith. Real dual-lane ownership requires behavior to live in the domain files.',
+    nextAction: 'Extract domain stores incrementally, starting with session/core and runtime/source slices, then remove server.js from the compat facade and rerun import/remap proofs.',
+    statusNote: 'Active repair card. Acceptance: lib/foundation-db.js line count and direct import pressure go down, server.js no longer imports the facade, process:foundation-db-import-ownership-split-check and process:foundation-tuneup-remap-proof-check pass, and runtime proof does not regress.',
+    owner: 'Foundation Builder',
+  },
+  {
+    id: IMPORT_RAILS_CARD_ID,
+    title: 'Split foundation-db.js import ownership behind stable facade',
+    lane: 'done',
+    priority: 'P0',
+    rank: 4,
     source: 'Claude + Codex audit consensus: foundation-db.js remains worst collision import surface',
     summary: 'Move new and touched import ownership away from lib/foundation-db.js into existing domain modules while keeping the facade as pass-through so existing importers stay green.',
     whyItMatters: 'The file is no longer huge, but hundreds of imports still converge on one facade. Dual-lane work needs ownership by domain, not every feature editing the same root.',
-    nextAction: 'Inventory current exports/importers, add domain import targets, migrate one safe import cluster, and prove the facade still passes foundation checks.',
-    statusNote: 'Active Phase 1. First slice adds all eight domain import targets (session, backlog+sprint, source+crawl, intelligence, runtime/jobs+llm, strategy/docs, shared-comms, people/feedback/sales), migrates a safe importer cluster, keeps the facade pass-through, and proves direct facade imports are capped at 516. Focused proof: npm run process:foundation-db-import-ownership-split-check -- --json.',
+    nextAction: `Rails are laid; continue with ${ACTIVE_CARD_ID} for real behavior extraction.`,
+    statusNote: 'Closed as rails-only after 2026-05-30 re-audit. Consumers moved to domain import targets, but behavior remained in the facade. Follow-up FOUNDATION-DB-REAL-SPLIT-001 owns the real split and red-gate repair.',
     owner: 'Foundation Builder',
   },
   {
@@ -108,7 +138,7 @@ const ROADMAP_CARDS = [
     title: 'Checkpoint and plan per-hub folder ownership',
     lane: 'scoped',
     priority: 'P1',
-    rank: 3,
+    rank: 5,
     source: 'Claude + Codex audit consensus: shared server.js plus flat lib blocks dual-lane work',
     summary: 'After Phase 1, design hub-owned folders with routes, store, and screens self-registering onto a thin core.',
     whyItMatters: 'This is the largest dual-lane unlock, but it is L-effort and needs Steve review before build starts.',
@@ -121,7 +151,7 @@ const ROADMAP_CARDS = [
     title: 'Finish verifier gate tiering before verifier cleanup',
     lane: 'scoped',
     priority: 'P1',
-    rank: 4,
+    rank: 6,
     source: 'Audit finding: tiering exists but verifier/check cleanup can crash if files vanish',
     summary: 'Make small changes run a fast focused gate and preserve full gate for substrate/schema/safety changes before any checker archival.',
     whyItMatters: 'The system is over-gated, but deleting checks first would make the gate brittle. The gate must be repointed before cleanup.',
@@ -134,7 +164,7 @@ const ROADMAP_CARDS = [
     title: 'Collapse source-maturity repair clones into one engine',
     lane: 'scoped',
     priority: 'P1',
-    rank: 5,
+    rank: 7,
     source: 'Audit finding: source-maturity repair files are copy-paste clone surface',
     summary: 'Replace repeated source-maturity repair variants with one parameterized repair module plus data manifests.',
     whyItMatters: 'The clone family creates thousands of lines of repeated proof-state repair and slows safe changes.',
@@ -147,7 +177,7 @@ const ROADMAP_CARDS = [
     title: 'Move closeout records-as-code to data artifacts',
     lane: 'scoped',
     priority: 'P1',
-    rank: 6,
+    rank: 8,
     source: 'Audit finding: closeout registries encode large static records in JS',
     summary: 'Move closeout registry data out of JS record modules into DB/JSON artifacts with a small schema loader.',
     whyItMatters: 'Static records as code create collision files and make every closeout feel like a source-code edit.',
@@ -160,7 +190,7 @@ const ROADMAP_CARDS = [
     title: 'Split remaining oversized code and frontend files',
     lane: 'scoped',
     priority: 'P1',
-    rank: 7,
+    rank: 9,
     source: 'Audit finding: public/dev.css, foundation-verify.mjs, dev-team-hub.js, public/dev.js remain high-risk sizes',
     summary: 'Split the 800+ line and near-5K files by coherent ownership boundaries after gate and DB ownership are safer.',
     whyItMatters: 'Large files recreate the old-system collision pattern and hide performance/UI risks.',
@@ -173,7 +203,7 @@ const ROADMAP_CARDS = [
     title: 'Repair done semantics for V1, preflight, and blocked work',
     lane: 'scoped',
     priority: 'P1',
-    rank: 8,
+    rank: 10,
     source: 'Audit finding: done cards can imply feature-complete when they mean V1/preflight/blocked',
     summary: 'Make live Backlog and UI distinguish V1 contract, preflight, blocked, and feature-complete outcomes across the 47-49 suspect done cards from the audit sample.',
     whyItMatters: 'Green paperwork cannot masquerade as real data to real outcome. Steve needs done to mean the right kind of done.',
@@ -186,7 +216,7 @@ const ROADMAP_CARDS = [
     title: 'Review orphan-script candidates without deleting first',
     lane: 'scoped',
     priority: 'P1',
-    rank: 9,
+    rank: 11,
     source: 'Codex audit item 6: orphan signal is polluted and named scripts need owner review',
     summary: 'Review the named orphan-script candidates and record keep, retire, or repoint decisions without deleting files as the first move.',
     whyItMatters: 'The dead-code map is noisy because package entrypoints and local/private state pollute incoming-edge counts. The right action is owner review, not bulk deletion.',
@@ -199,7 +229,7 @@ const ROADMAP_CARDS = [
     title: 'Consolidate docs into canonical truth plus archive',
     lane: 'scoped',
     priority: 'P2',
-    rank: 10,
+    rank: 12,
     source: 'Audit finding: documentation volume creates competing truth',
     summary: 'Keep useful content but route current truth into canonical docs and archive old/audit/social-repurposable material cleanly.',
     whyItMatters: 'Docs should help operators and builders, not force them to reconcile stale snapshots against live DB/API truth.',
@@ -208,11 +238,63 @@ const ROADMAP_CARDS = [
     owner: 'Foundation Builder',
   },
   {
+    id: 'FOUNDATION-DOC-ARCHIVE-MOVE-001',
+    title: 'Move archive-class docs out of the active tree',
+    lane: 'scoped',
+    priority: 'P1',
+    rank: 13,
+    source: '2026-05-30 re-audit supplement: classifier exists but archive-class docs were not moved',
+    summary: 'Use the existing doc consolidation classifier to dry-run archive-class moves, then relocate approved archive docs into docs/_archive without deleting content.',
+    whyItMatters: 'Classifying stale docs is not the same as reducing active-tree truth noise. Active docs should contain current truth, not historical receipts.',
+    nextAction: 'Dry-run the move list first; after review/proof, move archive-class docs into docs/_archive and prove active doc counts went down.',
+    statusNote: 'Scoped Reduction Mode cleanup card. Acceptance requires before/after active-doc counts down, no deletion, and no private memory or generated graph movement into repo truth.',
+    owner: 'Foundation Builder',
+  },
+  {
+    id: 'ARCHIVE-IDEA-MINING-001',
+    title: 'Run one-time idea mining over the cold archive',
+    lane: 'scoped',
+    priority: 'P2',
+    rank: 14,
+    source: '2026-05-30 re-audit supplement: drain old plans and handoffs once after archive move',
+    summary: 'After archive-class docs are moved, run the existing extraction-to-atoms-to-backlog-router path once over docs/_archive to harvest missed durable ideas, then let the archive go cold.',
+    whyItMatters: 'Old handoffs may contain useful ideas, but nightly rescans of cold archive docs would recreate audit noise.',
+    nextAction: 'Run only after FOUNDATION-DOC-ARCHIVE-MOVE-001; route keepers to cards and record no recurring job.',
+    statusNote: 'Scoped P2 one-time pass. Acceptance requires no recurring cold-archive scan, no broad source/external writes, and actionable routed keepers only.',
+    owner: 'Foundation Builder',
+  },
+  {
+    id: 'DOC-LIFECYCLE-RETENTION-001',
+    title: 'Add doc lifecycle and retention rules',
+    lane: 'scoped',
+    priority: 'P1',
+    rank: 15,
+    source: '2026-05-30 re-audit supplement: process docs will regrow without lifecycle enforcement',
+    summary: 'Define one-active-copy truth, supersede old docs by state flag instead of manual copy, keep knowledge/decision/conversation docs searchable, and purge process receipts from the active tree when git history is enough.',
+    whyItMatters: 'Without a retention rule, process plans, approvals, and closeouts regrow after every cleanup wave.',
+    nextAction: 'Wire auto-supersede state and periodic receipt purge after archive move proves safe relocation.',
+    statusNote: 'Scoped Reduction Mode lock card. Acceptance requires a lifecycle rule with proof that superseded/process receipt docs do not remain active indefinitely.',
+    owner: 'Foundation Builder',
+  },
+  {
+    id: 'NIGHTLY-AUDIT-FLEET-HARDEN-001',
+    title: 'Harden existing nightly audit fleet scanners',
+    lane: 'scoped',
+    priority: 'P2',
+    rank: 16,
+    source: '2026-05-30 re-audit supplement; folds into NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 lineage',
+    summary: 'Improve the existing audit fleet instead of adding jobs: turn packet-only refactor and hardcoded-vs-foundation drift lenses into real scanners and tighten finding routing quality.',
+    whyItMatters: 'The audit fleet already exists and routes findings; more jobs would add noise. The gap is signal quality and real scanners that catch shim-as-done and hidden red gates.',
+    nextAction: 'Extend the existing signal-quality/runtime-scan path; prove only actionable findings route to human-readable cards.',
+    statusNote: 'Scoped under the audit-fleet signal-quality lineage. Acceptance requires no new scheduled job, real scanner dogfood, and routed findings that a builder can act on.',
+    owner: 'Foundation Builder',
+  },
+  {
     id: 'FOUNDATION-TUNEUP-REMAP-PROOF-001',
     title: 'Re-map codebase after tune-up for before/after proof',
     lane: 'scoped',
     priority: 'P1',
-    rank: 11,
+    rank: 17,
     source: 'Audit closeout requirement: prove the tune-up reduced collision and bloat',
     summary: 'Run the codebase map again after the tune-up phases and compare import/collision/file-size evidence.',
     whyItMatters: 'The tune-up should prove it made the system leaner, not just move files around.',
@@ -345,7 +427,9 @@ async function upsertRoadmapCards({ planReview } = {}) {
           )
           VALUES ($1,$2,$3,$4,$5,10,$6,'P0',$7,$8,$9::text[],$10::jsonb,$11::jsonb,$12)
           ON CONFLICT (run_id) DO UPDATE
-          SET status = EXCLUDED.status,
+          SET card_id = EXCLUDED.card_id,
+              plan_ref = EXCLUDED.plan_ref,
+              status = EXCLUDED.status,
               score = EXCLUDED.score,
               pass_threshold = EXCLUDED.pass_threshold,
               gate_level = EXCLUDED.gate_level,
@@ -355,7 +439,7 @@ async function upsertRoadmapCards({ planReview } = {}) {
               result = EXCLUDED.result
         `,
         [
-          `foundation-db-import-ownership-split-${stableRunId(PLAN_PATH)}`,
+          `foundation-db-real-split-${stableRunId(REAL_SPLIT_PLAN_PATH)}`,
           ACTIVE_CARD_ID,
           PLAN_PATH,
           planReview.status,
@@ -393,7 +477,7 @@ function sprintItem(card, order) {
     order,
     sprintOrder: order,
     stage: activeCard ? 'building_now' : 'scoping',
-    planRef: activeCard ? PLAN_PATH : null,
+    planRef: activeCard ? REAL_SPLIT_PLAN_PATH : null,
     definitionOfDone: activeCard
       ? 'Foundation DB import ownership starts moving to domain modules while lib/foundation-db.js remains a stable pass-through and proof stays green.'
       : card.nextAction,
@@ -416,6 +500,7 @@ function sprintItem(card, order) {
       ],
       existingDocs: [
         PLAN_PATH,
+        REAL_SPLIT_PLAN_PATH,
         'AGENTS.md',
         'CLAUDE.md',
         'docs/rebuild/current-plan.md',
@@ -454,7 +539,7 @@ function sprintItem(card, order) {
       roadmapCardId: EPIC_CARD_ID,
       source: 'claude-codex-audit-consensus',
       guardrails: STANDING_GUARDRAILS,
-      planRef: activeCard ? PLAN_PATH : null,
+      planRef: activeCard ? REAL_SPLIT_PLAN_PATH : null,
     },
   }
 }
@@ -525,7 +610,7 @@ async function main() {
 
   await initFoundationDb()
   try {
-    const planSource = await readRepoFile(PLAN_PATH)
+    const planSource = await readRepoFile(REAL_SPLIT_PLAN_PATH)
     const planReview = evaluatePlanCriticPlan({
       planText: planSource,
       card: ROADMAP_CARDS.find(card => card.id === ACTIVE_CARD_ID),
@@ -569,8 +654,10 @@ async function main() {
     addCheck(checks, definitionsAreComplete(), 'roadmap card definitions are complete', `${ROADMAP_CARDS.length} cards`)
     addCheck(
       checks,
-      ROADMAP_CARDS[0]?.id === EPIC_CARD_ID && ROADMAP_CARDS[1]?.id === ACTIVE_CARD_ID,
-      'roadmap order starts with epic then foundation-db split',
+      ROADMAP_CARDS[0]?.id === EPIC_CARD_ID &&
+        ROADMAP_CARDS[1]?.id === 'REDUCTION-MODE-001' &&
+        ROADMAP_CARDS[2]?.id === ACTIVE_CARD_ID,
+      'roadmap order starts with epic, Reduction Mode, then real foundation-db split',
       ROADMAP_CARDS.slice(0, 3).map(card => card.id).join(', '),
     )
     addCheck(

@@ -13,7 +13,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 8
+const DIRECT_IMPORT_LIMIT = 0
+const PARKED_FACADE_DOMAIN_MODULES = new Set()
 
 const DOMAIN_MODULES = [
   {
@@ -147,10 +148,16 @@ async function listCodeFiles(dir, files = []) {
   return files
 }
 
+function isActualFoundationDbImportLine(trimmed) {
+  return /^(?:import\b|export\b).*from\s+['"](?:\.\.\/lib\/|\.\/)foundation-db\.js['"]/.test(trimmed) ||
+    /^}\s+from\s+['"](?:\.\.\/lib\/|\.\/)foundation-db\.js['"]/.test(trimmed)
+}
+
 async function directFoundationDbImportLines() {
   const files = [
     ...await listCodeFiles(path.join(repoRoot, 'lib')),
     ...await listCodeFiles(path.join(repoRoot, 'scripts')),
+    'server.js',
   ]
   const matches = []
   for (const file of files) {
@@ -159,8 +166,7 @@ async function directFoundationDbImportLines() {
     lines.forEach((line, index) => {
       const trimmed = line.trim()
       if (
-        !trimmed.includes('source.includes(') &&
-        /from\s+['"](?:\.\.\/lib\/|\.\/)foundation-db\.js['"]/.test(trimmed)
+        isActualFoundationDbImportLine(trimmed)
       ) {
         matches.push({ file, line: index + 1, source: line.trim() })
       }
@@ -204,15 +210,21 @@ async function main() {
       `${migratedImporters.length} importers from ${MIGRATED_IMPORTERS_MANIFEST_PATH}`,
     )
 
+    const facadeBackedDomains = []
     for (const domain of DOMAIN_MODULES) {
       const source = await readRepoFile(domain.path)
       const moduleExports = Object.keys(await importDomainModule(domain.path)).sort()
+      const facadeBacked = source
+        .split('\n')
+        .map(line => line.trim())
+        .some(isActualFoundationDbImportLine)
+      if (facadeBacked) facadeBackedDomains.push(domain.path)
       exportedByModule[domain.path] = moduleExports
       addCheck(
         checks,
-        source.includes("from './foundation-db.js'"),
-        `${domain.path} is a transitional facade-backed domain target`,
-        'keeps old facade stable while moving consumers',
+        !facadeBacked || PARKED_FACADE_DOMAIN_MODULES.has(domain.path),
+        `${domain.path} owns real behavior or is explicitly parked`,
+        facadeBacked ? 'parked compat facade slice' : 'real domain module',
       )
       addCheck(
         checks,
@@ -242,8 +254,15 @@ async function main() {
     addCheck(
       checks,
       directImports.length <= DIRECT_IMPORT_LIMIT,
-      'direct foundation-db facade import count did not grow',
+      'direct foundation-db facade import count is reduced to parked compat domains',
       `${directImports.length} <= ${DIRECT_IMPORT_LIMIT}`,
+    )
+    addCheck(
+      checks,
+      facadeBackedDomains.length <= PARKED_FACADE_DOMAIN_MODULES.size &&
+        facadeBackedDomains.every(file => PARKED_FACADE_DOMAIN_MODULES.has(file)),
+      'remaining facade-backed domain modules are explicitly parked',
+      facadeBackedDomains.join(', ') || 'none',
     )
     addCheck(
       checks,
@@ -272,6 +291,8 @@ async function main() {
       status: failed.length ? 'blocked' : 'healthy',
       directFoundationDbImportCount: directImports.length,
       directFoundationDbImportLimit: DIRECT_IMPORT_LIMIT,
+      facadeBackedDomains,
+      parkedFacadeDomainModules: Array.from(PARKED_FACADE_DOMAIN_MODULES),
       domainModules: DOMAIN_MODULES.map(domain => domain.path),
       migratedImporters: migratedImporters.map(importer => importer.path),
       exportedByModule,

@@ -6,6 +6,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   buildCurrentSprintMutationGuardsDogfoodProof,
   getActiveFoundationCurrentSprint,
@@ -49,6 +50,7 @@ async function main() {
   const checks = []
   const [
     foundationDbSource,
+    foundationBacklogSprintSource,
     storeSource,
     packageSource,
     approval,
@@ -58,6 +60,7 @@ async function main() {
     mutationGuardProof,
   ] = await Promise.all([
     readRepoFile('lib/foundation-db.js'),
+    readRepoFile('lib/foundation-backlog-sprint-db.js'),
     readRepoFile('lib/foundation-current-sprint-store.js'),
     readRepoFile('package.json'),
     validatePlanApprovalFile({
@@ -75,8 +78,14 @@ async function main() {
   const packageJson = JSON.parse(packageSource)
   const card = cards.find(item => item.id === FOUNDATION_DB_STORE_SPLIT_CARD_ID) || null
   const sprintItem = (activeSprint.items || []).find(item => item.cardId === FOUNDATION_DB_STORE_SPLIT_CARD_ID) || null
+  const historicalCloseout = getFoundationBuildCloseouts().find(item =>
+    item.key === FOUNDATION_DB_STORE_SPLIT_CLOSEOUT_KEY &&
+      item.operatorCloseout === true &&
+      (item.backlogIds || []).includes(FOUNDATION_DB_STORE_SPLIT_CARD_ID)
+  ) || null
   const splitEvaluation = evaluateFoundationCurrentSprintStoreSplit({
     foundationDbSource,
+    foundationBacklogSprintSource,
     currentSprintStoreSource: storeSource,
   })
   const syntheticSplitProof = buildSyntheticFoundationCurrentSprintStoreSplitProof()
@@ -101,10 +110,19 @@ async function main() {
   )
   addCheck(
     checks,
-    activeSprint.sprint?.sprintId === FOUNDATION_DB_STORE_SPLIT_SPRINT_ID &&
-      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
-    'card is in active Foundation DB store split sprint',
-    activeSprint.sprint ? `${activeSprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing sprint',
+    (
+      activeSprint.sprint?.sprintId === FOUNDATION_DB_STORE_SPLIT_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage)
+    ) ||
+      (
+        card?.lane === 'done' &&
+        String(card?.statusNote || '').includes(FOUNDATION_DB_STORE_SPLIT_CLOSEOUT_KEY) &&
+        historicalCloseout
+      ),
+    'card is in active Foundation DB store split sprint or has verified historical closeout',
+    historicalCloseout
+      ? `historical closeout ${historicalCloseout.key}`
+      : activeSprint.sprint ? `${activeSprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing sprint',
   )
   addCheck(
     checks,

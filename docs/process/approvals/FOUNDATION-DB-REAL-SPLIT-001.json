@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-REAL-SPLIT-001",
+  "approvedPlanRef": "docs/process/foundation-db-real-split-001-plan.md",
+  "approvedPlanSha256": "ab455254eaac3183c879954c7b97d664f4cb168d374f6b073ac29fc7b9e444c6",
+  "approvedRepoHead": "7c886c787022a1bd123b4089c7188ed33981ec1c",
+  "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
+  "approvedAt": "2026-05-30T14:00:00.000Z",
+  "score": 10,
+  "notes": "Approved real Foundation DB split under Reduction Mode. Move actual behavior out of lib/foundation-db.js into domain stores, remove server.js direct facade usage, keep the facade compatibility-only, make import/remap red gates pass, preserve proof lane and Dev Hub System Truth, and stop before per-hub folder restructuring.",
+  "approvalDigest": "50bafb592d003cdf86cf0903dde3c52c9c9b0f34a21c5f6d99dedb327e0b0ad7"
+}

@@ -149,6 +149,7 @@ async function main() {
     planCriticRuns,
     packageSource,
     foundationDbSource,
+    foundationSourceCrawlDbSource,
     foundationSourceCrawlStoreSource,
     runExtractionTargetSource,
     foundationJobsSource,
@@ -169,6 +170,7 @@ async function main() {
     getPlanCriticRunsByCardIds([RUNTIME_FIRST_JOBS_CARD_ID]),
     readText('package.json'),
     readText('lib/foundation-db.js'),
+    readText('lib/foundation-source-crawl-db.js'),
     readText('lib/foundation-source-crawl-store.js'),
     readText('scripts/run-extraction-target.mjs'),
     readText('lib/foundation-jobs.js'),
@@ -182,7 +184,7 @@ async function main() {
   ])
   const packageJson = JSON.parse(packageSource)
   const dogfood = buildRuntimeFirstJobsDogfoodProof({
-    foundationDbSource,
+    foundationDbSource: `${foundationDbSource}\n${foundationSourceCrawlDbSource}`,
     foundationSourceCrawlStoreSource,
     runExtractionTargetSource,
     foundationJobsSource,
@@ -205,9 +207,17 @@ async function main() {
   addCheck(checks, planCriticRuns.some(run => run.status === 'pass' && Number(run.score) >= 9.8), 'Plan Critic pass row exists', `${planCriticRuns.length} run(s)`)
   addCheck(
     checks,
-    sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage),
-    'Current Sprint contains Runtime First Jobs card in Building Now or Done',
-    activeSprint?.sprint ? `${activeSprint.sprint.activeBlockerCardId || 'none'}:${sprintItem?.stage || 'missing'}` : 'missing sprint',
+    (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)) ||
+      (
+        card?.lane === 'done' &&
+        String(card?.statusNote || '').includes(RUNTIME_FIRST_JOBS_CLOSEOUT_KEY) &&
+        closeout?.operatorCloseout === true &&
+        (closeout.backlogIds || []).includes(RUNTIME_FIRST_JOBS_CARD_ID)
+      ),
+    'Current Sprint contains Runtime First Jobs card in Building Now/Done or has verified historical closeout',
+    closeout?.operatorCloseout
+      ? `historical closeout ${closeout.key}`
+      : activeSprint?.sprint ? `${activeSprint.sprint.activeBlockerCardId || 'none'}:${sprintItem?.stage || 'missing'}` : 'missing sprint',
   )
   addCheck(checks, dogfood.ok === true, 'dogfood rejects missing-export and dry-run parser failure modes', dogfood.ok ? 'synthetic failures rejected' : JSON.stringify(dogfood.failed || dogfood))
   addCheck(
@@ -267,10 +277,22 @@ async function main() {
   )
   addCheck(
     checks,
-    foundationDbSource.includes('export const leaseSourceCrawlTarget = foundationSourceCrawlStore.leaseSourceCrawlTarget') &&
-      foundationDbSource.includes('export const finishSourceCrawlTargetRun = foundationSourceCrawlStore.finishSourceCrawlTargetRun'),
+    (
+      foundationDbSource.includes('export const leaseSourceCrawlTarget = foundationSourceCrawlStore.leaseSourceCrawlTarget') ||
+      (
+        foundationDbSource.includes("} from './foundation-source-crawl-db.js'") &&
+        foundationSourceCrawlDbSource.includes('export const leaseSourceCrawlTarget = foundationSourceCrawlStore.leaseSourceCrawlTarget')
+      )
+    ) &&
+      (
+        foundationDbSource.includes('export const finishSourceCrawlTargetRun = foundationSourceCrawlStore.finishSourceCrawlTargetRun') ||
+        (
+          foundationDbSource.includes("} from './foundation-source-crawl-db.js'") &&
+          foundationSourceCrawlDbSource.includes('export const finishSourceCrawlTargetRun = foundationSourceCrawlStore.finishSourceCrawlTargetRun')
+        )
+      ),
     'foundation-db re-exports source-crawl delegates',
-    'lib/foundation-db.js',
+    'lib/foundation-db.js -> lib/foundation-source-crawl-db.js',
   )
   addCheck(
     checks,

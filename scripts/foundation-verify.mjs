@@ -2683,7 +2683,8 @@ async function main() {
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
-  const foundationDbSource = await readRepoFile('lib/foundation-db.js')
+  const [foundationDbSource, foundationDbCoreSource, foundationDbSessionSource, foundationBacklogSprintDbSource, foundationSourceCrawlDbSource, foundationRuntimeJobsDbSource, foundationPeopleSalesDbSource, foundationStrategyDocsDbSource, foundationIntelligenceDbSource, foundationSharedCommsDbSource] = await Promise.all(['lib/foundation-db.js', 'lib/foundation-db-core.js', 'lib/foundation-db-session.js', 'lib/foundation-backlog-sprint-db.js', 'lib/foundation-source-crawl-db.js', 'lib/foundation-runtime-jobs-db.js', 'lib/foundation-people-sales-db.js', 'lib/foundation-strategy-docs-db.js', 'lib/foundation-intelligence-db.js', 'lib/foundation-shared-comms-db.js'].map(readRepoFile))
+  const foundationDbDomainSources = { foundationDbCoreSource, foundationDbSessionSource, foundationBacklogSprintDbSource, foundationSourceCrawlDbSource, foundationRuntimeJobsDbSource, foundationPeopleSalesDbSource, foundationStrategyDocsDbSource, foundationIntelligenceDbSource, foundationSharedCommsDbSource }
   const foundationDbSchemaSeedStoreSource = await readRepoFile('lib/foundation-db-schema-seed-store.js')
   const foundationBacklogSeedSource = await readFoundationBacklogSeedSourceBundle({ readRepoFile })
   const currentSprintStoreSource = await readRepoFile('lib/foundation-current-sprint-store.js')
@@ -2699,6 +2700,7 @@ async function main() {
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
   const foundationVerifierSourceBundle = buildFoundationVerifierSourceBundle({
     foundationDbSource,
+    ...foundationDbDomainSources,
     foundationDbSchemaSeedStoreSource,
     foundationBacklogSeedSource,
     foundationBacklogStoreSource,
@@ -4559,6 +4561,8 @@ async function main() {
     foundationCurrentSprintVerifierSource,
     foundationDailySummary,
     foundationDbSource,
+    foundationDbSessionSource,
+    foundationBacklogSprintDbSource,
     foundationDbSchemaSeedStoreSource,
     foundationDbSplitVerifierSource,
     foundationDecisionStorePlanSource,
@@ -4831,7 +4835,7 @@ async function main() {
       foundationOperationsRendererSource: foundationOperationsRenderersSource,
       foundationWorkflowStylesSource,
       foundationFrontendSource,
-      foundationDbSource,
+      foundationDbSource: foundationDbVerifierSource,
       foundationHubPerformanceSource,
       foundationPerformanceScriptSource,
       foundationBuildLogRegistrySource,
@@ -4893,11 +4897,12 @@ async function main() {
     findBuildLogCloseoutEntry, foundationBacklogSeedSource, foundationBacklogStoreSource,
     foundationBuildCloseoutCleanupRecordsSource, foundationBuildCloseoutRecordsSource,
     foundationBuildCloseouts, foundationBuildLogRegistrySource, foundationDbSource, foundationDbSchemaSeedStoreSource, foundationHub,
+    foundationDbSessionSource, foundationBacklogSprintDbSource,
     foundationHubKpiHealth, foundationHubPerformanceVerificationSource, foundationJobsSource,
     foundationProcessHardeningVerifierSource, foundationVerificationCleanupCloseout,
     foundationVerifyProcessHardeningRunnerSource,
     foundationVerificationCleanupScriptSource, foundationVerifyRootSource,
-    foundationVerifySourceWithProcessHardeningModule, foundationWorkerSource,
+    foundationVerifySource: foundationVerifySourceWithProcessHardeningModule, foundationWorkerSource,
     hubReadRoutesSource, kpiHealthSource, packageJson, parallelBuilderWorktreeProtocolSource,
     planCriticArchitecturalRulesProof, readRepoFile, recurringDeepAuditScriptSource,
     recurringDeepAuditSource, repoFileExists, repoRoot, sourceOfTruthPayloadSource, sourceTruthKpiHealth,
@@ -4985,7 +4990,7 @@ runSerializedFoundationGateCheck(
 )
   .catch(error => {
     console.error('Foundation verification failed.')
-    console.error(error instanceof Error ? error.message : String(error))
+    console.error(error instanceof Error ? error.stack || error.message : String(error))
     process.exitCode = 1
   })
   .finally(async () => {

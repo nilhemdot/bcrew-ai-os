@@ -72,6 +72,8 @@ async function main() {
 
   const [
     foundationDbSource,
+    foundationDbSessionSource,
+    foundationBacklogSprintSource,
     schemaSeedSource,
     backlogSeedSource,
     governanceSource,
@@ -81,6 +83,8 @@ async function main() {
     packageSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-db.js'),
+    readRepoFile('lib/foundation-db-session.js'),
+    readRepoFile('lib/foundation-backlog-sprint-db.js'),
     readRepoFile('lib/foundation-db-schema-seed-store.js'),
     readRepoFile('lib/foundation-backlog-seed.js'),
     readRepoFile('lib/foundation-db-seed-governance.js'),
@@ -122,6 +126,7 @@ async function main() {
   const sprintItem = (activeSprint.items || []).find(item => item.cardId === DB_SEED_CARD_ID) || null
   const splitEvaluation = evaluateDbSeedModuleSplit({
     foundationDbSource,
+    foundationBacklogSprintSource,
     backlogSeedSource,
   })
   const dogfood = buildDbSeedGovernanceDogfoodProof()
@@ -143,7 +148,20 @@ async function main() {
   addCheck(checks, governanceReport.defaultMutationPosture === 'report_only' && governanceReport.wouldWriteByDefault === false, 'live governance report is report-only', `${governanceReport.findingCount} findings / ${governanceReport.seedRows} seed rows`)
   addCheck(checks, governanceReport.seedRows >= 180 && governanceReport.liveRows >= 180, 'real backlog seed/live rows are evaluated', `${governanceReport.liveRows}/${governanceReport.seedRows}`)
   addCheck(checks, driftSnapshot.policy && driftSnapshot.mutableFields?.includes('lane') && driftSnapshot.stableFields?.includes('summary'), 'existing seed drift snapshot remains available', `${driftSnapshot.driftItemCount} drift rows`)
-  addCheck(checks, schemaSeedSource.includes('includeBootstrapSeed') && schemaSeedSource.includes('async function bootstrapFoundationDb') && foundationDbSource.includes('export const bootstrapFoundationDb = foundationDbSchemaSeedStore.bootstrapFoundationDb'), 'schema init still separates explicit bootstrap seed', 'initFoundationDb + bootstrapFoundationDb')
+  addCheck(
+    checks,
+    schemaSeedSource.includes('includeBootstrapSeed') &&
+      schemaSeedSource.includes('async function bootstrapFoundationDb') &&
+      (
+        foundationDbSource.includes('export const bootstrapFoundationDb = foundationDbSchemaSeedStore.bootstrapFoundationDb') ||
+        (
+          foundationDbSource.includes("} from './foundation-db-session.js'") &&
+          foundationDbSessionSource.includes('export const bootstrapFoundationDb = foundationDbSchemaSeedStore.bootstrapFoundationDb')
+        )
+      ),
+    'schema init still separates explicit bootstrap seed',
+    'initFoundationDb + bootstrapFoundationDb',
+  )
   addCheck(checks, governanceSource.includes('buildBacklogSeedGovernanceReport') && governanceSource.includes('wouldWriteByDefault: false'), 'governance helper owns report-only behavior', 'lib/foundation-db-seed-governance.js')
   addCheck(checks, verifierSource.includes('buildDbSeedGovernanceDogfoodProof') && verifierSource.includes('DB_SEED_CLOSEOUT_KEY'), 'foundation verifier delegates to focused dogfood proof', 'scripts/foundation-verify.mjs')
   addCheck(checks, packageJson.scripts?.['process:db-seed-check'] === `node --env-file-if-exists=.env ${DB_SEED_SCRIPT_PATH}`, 'package script is registered', packageJson.scripts?.['process:db-seed-check'] || 'missing')

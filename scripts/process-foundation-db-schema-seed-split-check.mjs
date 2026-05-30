@@ -88,6 +88,7 @@ async function main() {
 
   const [
     foundationDbSource,
+    foundationDbSessionSource,
     schemaSeedSource,
     processScriptSource,
     planSource,
@@ -98,6 +99,7 @@ async function main() {
     verifierSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-db.js'),
+    readRepoFile('lib/foundation-db-session.js'),
     readRepoFile('lib/foundation-db-schema-seed-store.js'),
     readRepoFile(FOUNDATION_DB_SCHEMA_SEED_SPLIT_SCRIPT_PATH),
     readRepoFile(FOUNDATION_DB_SCHEMA_SEED_SPLIT_PLAN_PATH),
@@ -164,6 +166,7 @@ async function main() {
   )
   const splitEvaluation = evaluateFoundationDbSchemaSeedSplit({
     foundationDbSource,
+    foundationDbSessionSource,
     schemaSeedSource,
     foundationDbLineCount: lineCount(foundationDbSource),
     preSplitFoundationDbLineCount: FOUNDATION_DB_SCHEMA_SEED_SPLIT_PRE_SPLIT_LINES,
@@ -171,6 +174,7 @@ async function main() {
   })
   const splitDogfood = buildFoundationDbSchemaSeedSplitDogfoodProof({
     foundationDbSource,
+    foundationDbSessionSource,
     schemaSeedSource,
     foundationDbLineCount: lineCount(foundationDbSource),
     preSplitFoundationDbLineCount: FOUNDATION_DB_SCHEMA_SEED_SPLIT_PRE_SPLIT_LINES,
