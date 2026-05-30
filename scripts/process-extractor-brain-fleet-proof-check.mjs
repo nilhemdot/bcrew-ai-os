@@ -36,19 +36,29 @@ import {
 } from '../lib/extractor-brain-fleet-proof.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationSnapshot,
-  getLlmRuntimeSnapshot,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
-  recordIntelligenceAtomHit,
-  searchSharedCommunicationArtifactsForContext,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  recordIntelligenceAtomHit,
   upsertIntelligenceAtom,
   upsertIntelligenceReportArtifact,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import {
+  searchSharedCommunicationArtifactsForContext,
+} from '../lib/foundation-shared-comms-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
+import {
+  getLlmRuntimeSnapshot,
+} from '../lib/foundation-runtime-jobs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,

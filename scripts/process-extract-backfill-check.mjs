@@ -12,13 +12,17 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getExtractionControlSnapshot,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getExtractionControlSnapshot,
+} from '../lib/foundation-source-crawl-db.js'
 import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,

@@ -16,13 +16,17 @@ import {
   EXTRACT_RUN_HARDENING_SUMMARY_MARKER,
 } from '../lib/extraction-run-hardening.js'
 import {
-  classifySourceCrawlItemRetries,
   closeFoundationDb,
-  getExtractionControlSnapshot,
   initFoundationDb,
-  markStaleSourceCrawlItems,
+} from '../lib/foundation-db-session.js'
+import {
   updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  classifySourceCrawlItemRetries,
+  getExtractionControlSnapshot,
+  markStaleSourceCrawlItems,
+} from '../lib/foundation-source-crawl-db.js'
 
 const execFile = promisify(execFileCallback)
 const EXPECTED_GOVERNED_TARGETS = 12

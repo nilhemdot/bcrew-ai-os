@@ -2496,5 +2496,110 @@
       "../lib/foundation-db-session.js",
       "../lib/foundation-backlog-sprint-db.js"
     ]
+  },
+  {
+    "path": "scripts/process-extract-backfill-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extract-current-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extract-retire-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extract-retry-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extract-run-hardening-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extract-run-hardening-execution-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extraction-parallel-worker-protocol-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extraction-runtime-readiness-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extraction-team-runtime-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extraction-to-kb-atom-pipeline-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extractor-brain-fleet-proof-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-intelligence-db.js",
+      "../lib/foundation-shared-comms-db.js",
+      "../lib/foundation-strategy-docs-db.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extractor-overnight-run-guard-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-intelligence-db.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-extractor-queue-karpathy-kb-video-pack-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
   }
 ]

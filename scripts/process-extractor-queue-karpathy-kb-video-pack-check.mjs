@@ -37,14 +37,20 @@ import {
 } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getExtractionControlSnapshot,
-  getFoundationSnapshot,
   getPlanCriticRunsByCardIds,
   upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getExtractionControlSnapshot,
   upsertSourceCrawlTarget,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
   evaluatePlanCriticPlan,

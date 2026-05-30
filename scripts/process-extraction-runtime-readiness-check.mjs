@@ -40,12 +40,16 @@ import {
 } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getExtractionControlSnapshot,
   getPlanCriticRunsByCardIds,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getExtractionControlSnapshot,
+} from '../lib/foundation-source-crawl-db.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')

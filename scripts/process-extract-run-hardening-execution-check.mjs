@@ -18,13 +18,17 @@ import {
 } from '../lib/extraction-run-hardening-execution.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getExtractionControlSnapshot,
-  initFoundationDb,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getExtractionControlSnapshot,
+} from '../lib/foundation-source-crawl-db.js'
 
 const execFile = promisify(execFileCallback)
 const SPRINT_ID = 'source-truth-guardrails-2026-05-13'
