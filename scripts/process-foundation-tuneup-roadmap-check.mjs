@@ -8,10 +8,12 @@ import { Pool } from 'pg'
 
 import {
   closeFoundationDb,
-  getActiveFoundationCurrentSprint,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getActiveFoundationCurrentSprint,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,
@@ -33,6 +35,8 @@ const STANDING_GUARDRAILS = [
   'Repoint gates before archiving any verifier/check file.',
   'Keep the foundation-db.js facade as a stable pass-through during import migration.',
   'Checkpoint with Steve before per-hub folder restructuring.',
+  'Protect the real source/browser proof lane: MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001, source-session readiness, local-browser route policy, and Dev Hub System Truth are keep patterns.',
+  'Protect the honest /api/foundation/dev-team-hub dashboard posture: show built/running/blocked, source-backed evidence, and zero hidden writes instead of polishing the readback.',
 ]
 
 const ROADMAP_CARDS = [
@@ -59,7 +63,7 @@ const ROADMAP_CARDS = [
     summary: 'Move new and touched import ownership away from lib/foundation-db.js into existing domain modules while keeping the facade as pass-through so existing importers stay green.',
     whyItMatters: 'The file is no longer huge, but hundreds of imports still converge on one facade. Dual-lane work needs ownership by domain, not every feature editing the same root.',
     nextAction: 'Inventory current exports/importers, add domain import targets, migrate one safe import cluster, and prove the facade still passes foundation checks.',
-    statusNote: 'Active Phase 1. Acceptance requires an incremental split, no facade breakage, no redesign, no verifier deletions, and proof that old facade imports still work while new imports can target domain owners.',
+    statusNote: 'Active Phase 1. First slice adds session, backlog+sprint, and intelligence domain import targets, migrates a safe proof-script cluster, keeps the facade pass-through, and proves direct facade imports do not grow. Focused proof: npm run process:foundation-db-import-ownership-split-check -- --json.',
     owner: 'Foundation Builder',
   },
   {
@@ -134,10 +138,23 @@ const ROADMAP_CARDS = [
     priority: 'P1',
     rank: 8,
     source: 'Audit finding: done cards can imply feature-complete when they mean V1/preflight/blocked',
-    summary: 'Make live Backlog and UI distinguish V1 contract, preflight, blocked, and feature-complete outcomes.',
+    summary: 'Make live Backlog and UI distinguish V1 contract, preflight, blocked, and feature-complete outcomes across the 47-49 suspect done cards from the audit sample.',
     whyItMatters: 'Green paperwork cannot masquerade as real data to real outcome. Steve needs done to mean the right kind of done.',
-    nextAction: 'Sample done cards with V1/blocked language, define display semantics, then update UI/readback without rewriting history.',
-    statusNote: 'Scoped. Acceptance needs a behavior probe that the UI/readback cannot label V1/preflight/blocked work as feature-complete.',
+    nextAction: 'Review the done cards with V1, preflight, blocked, pending, or approval language; relabel readback semantics without rewriting history; add a behavior probe for feature-complete claims.',
+    statusNote: 'Scoped. Acceptance needs a behavior probe that the UI/readback cannot label V1/preflight/blocked work as feature-complete and a reviewed list for the 47-49 suspect done cards.',
+    owner: 'Foundation Builder',
+  },
+  {
+    id: 'FOUNDATION-ORPHAN-SCRIPT-REVIEW-001',
+    title: 'Review orphan-script candidates without deleting first',
+    lane: 'scoped',
+    priority: 'P1',
+    rank: 9,
+    source: 'Codex audit item 6: orphan signal is polluted and named scripts need owner review',
+    summary: 'Review the named orphan-script candidates and record keep, retire, or repoint decisions without deleting files as the first move.',
+    whyItMatters: 'The dead-code map is noisy because package entrypoints and local/private state pollute incoming-edge counts. The right action is owner review, not bulk deletion.',
+    nextAction: 'Review codex-chat*.sh, scripts/codex-status.mjs, scripts/generate-doc-indexes.mjs, scripts/inspect-weekly-actuals.mjs, scripts/run-supervised-paid-source-map.mjs, and scripts/sync-zoom-text-archive.mjs; keep codex-status.mjs unless a better live replacement exists.',
+    statusNote: 'Scoped Phase 3 cleanup card. Proof must record keep/retire decisions and any gate/package references before moving or archiving a script.',
     owner: 'Foundation Builder',
   },
   {
@@ -145,7 +162,7 @@ const ROADMAP_CARDS = [
     title: 'Consolidate docs into canonical truth plus archive',
     lane: 'scoped',
     priority: 'P2',
-    rank: 9,
+    rank: 10,
     source: 'Audit finding: documentation volume creates competing truth',
     summary: 'Keep useful content but route current truth into canonical docs and archive old/audit/social-repurposable material cleanly.',
     whyItMatters: 'Docs should help operators and builders, not force them to reconcile stale snapshots against live DB/API truth.',
@@ -158,7 +175,7 @@ const ROADMAP_CARDS = [
     title: 'Re-map codebase after tune-up for before/after proof',
     lane: 'scoped',
     priority: 'P1',
-    rank: 10,
+    rank: 11,
     source: 'Audit closeout requirement: prove the tune-up reduced collision and bloat',
     summary: 'Run the codebase map again after the tune-up phases and compare import/collision/file-size evidence.',
     whyItMatters: 'The tune-up should prove it made the system leaner, not just move files around.',
@@ -300,6 +317,7 @@ function sprintItem(card, order) {
       : card.nextAction,
     proofCommands: [
       'npm run process:foundation-tuneup-roadmap-check -- --json',
+      ...(card.id === ACTIVE_CARD_ID ? ['npm run process:foundation-db-import-ownership-split-check -- --json'] : []),
       'npm run process:builder-memory-system-check -- --json',
       'npm run backlog:hygiene -- --json',
     ],
@@ -436,8 +454,10 @@ async function main() {
       STANDING_GUARDRAILS.some(item => item.includes('codex-status')) &&
         STANDING_GUARDRAILS.some(item => item.includes('bulk-delete verifier')) &&
         STANDING_GUARDRAILS.some(item => item.includes('Repoint gates')) &&
-        STANDING_GUARDRAILS.some(item => item.includes('facade')),
-      'standing guardrails preserve no-delete and facade rules',
+        STANDING_GUARDRAILS.some(item => item.includes('facade')) &&
+        STANDING_GUARDRAILS.some(item => item.includes('MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001')) &&
+        STANDING_GUARDRAILS.some(item => item.includes('/api/foundation/dev-team-hub')),
+      'standing guardrails preserve no-delete, facade, and keep-pattern rules',
       STANDING_GUARDRAILS.join(' | '),
     )
     addCheck(

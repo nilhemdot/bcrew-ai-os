@@ -6,11 +6,13 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  closeFoundationDb,
+} from '../lib/foundation-db-session.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,

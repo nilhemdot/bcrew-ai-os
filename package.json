@@ -273,6 +273,7 @@
     "process:builder-memory-system-check": "node --env-file-if-exists=.env scripts/process-builder-memory-system-check.mjs",
     "builder:startup-packet": "node --env-file-if-exists=.env scripts/process-builder-memory-system-check.mjs --json",
     "process:foundation-tuneup-roadmap-check": "node --env-file-if-exists=.env scripts/process-foundation-tuneup-roadmap-check.mjs",
+    "process:foundation-db-import-ownership-split-check": "node --env-file-if-exists=.env scripts/process-foundation-db-import-ownership-split-check.mjs",
     "process:youtube-build-intel-link-resource-check": "node --env-file-if-exists=.env scripts/process-youtube-build-intel-link-resource-check.mjs",
     "process:god-mode-extractor-research-swarm-check": "node --env-file-if-exists=.env scripts/process-god-mode-extractor-research-swarm-check.mjs",
     "process:god-mode-extractor-eyes-quality-loop-check": "node --env-file-if-exists=.env scripts/process-god-mode-extractor-eyes-quality-loop-check.mjs",
