@@ -63,7 +63,7 @@ const ROADMAP_CARDS = [
     summary: 'Move new and touched import ownership away from lib/foundation-db.js into existing domain modules while keeping the facade as pass-through so existing importers stay green.',
     whyItMatters: 'The file is no longer huge, but hundreds of imports still converge on one facade. Dual-lane work needs ownership by domain, not every feature editing the same root.',
     nextAction: 'Inventory current exports/importers, add domain import targets, migrate one safe import cluster, and prove the facade still passes foundation checks.',
-    statusNote: 'Active Phase 1. First slice adds session, backlog+sprint, intelligence, source+crawl, and shared-comms domain import targets, migrates a safe proof-script/archive/session-only cluster, keeps the facade pass-through, and proves direct facade imports are capped at 530. Focused proof: npm run process:foundation-db-import-ownership-split-check -- --json.',
+    statusNote: 'Active Phase 1. First slice adds all eight domain import targets (session, backlog+sprint, source+crawl, intelligence, runtime/jobs+llm, strategy/docs, shared-comms, people/feedback/sales), migrates a safe importer cluster, keeps the facade pass-through, and proves direct facade imports are capped at 516. Focused proof: npm run process:foundation-db-import-ownership-split-check -- --json.',
     owner: 'Foundation Builder',
   },
   {

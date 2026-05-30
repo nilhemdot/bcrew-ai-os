@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 530
+const DIRECT_IMPORT_LIMIT = 516
 
 const DOMAIN_MODULES = [
   {
@@ -59,6 +59,33 @@ const DOMAIN_MODULES = [
       'getSharedCommunicationCoverageSnapshot',
       'recordSharedCommunicationSynthesisRun',
       'upsertSharedCommunicationArtifact',
+    ],
+  },
+  {
+    path: 'lib/foundation-runtime-jobs-db.js',
+    expectedExports: [
+      'createFoundationJobRun',
+      'createLlmCall',
+      'getFoundationJobRunSnapshot',
+      'getLlmRuntimeSnapshot',
+    ],
+  },
+  {
+    path: 'lib/foundation-people-sales-db.js',
+    expectedExports: [
+      'createAgentFeedbackSendAttempt',
+      'listFoundationUsers',
+      'listSalesListingCases',
+      'upsertSalesListingAssignment',
+    ],
+  },
+  {
+    path: 'lib/foundation-strategy-docs-db.js',
+    expectedExports: [
+      'createDecision',
+      'getFoundationSnapshot',
+      'getStrategyGoalTruthSnapshot',
+      'getStrategyOperatingTruthSnapshot',
     ],
   },
 ]
@@ -202,6 +229,87 @@ const MIGRATED_IMPORTERS = [
     expectedImports: [
       '../lib/foundation-db-session.js',
       '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'lib/llm-router.js',
+    expectedImports: ['./foundation-runtime-jobs-db.js'],
+  },
+  {
+    path: 'lib/brain-fleet-quota-ledger.js',
+    expectedImports: ['./foundation-runtime-jobs-db.js'],
+  },
+  {
+    path: 'scripts/run-foundation-job.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-runtime-jobs-db.js',
+    ],
+  },
+  {
+    path: 'lib/agent-feedback-send.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/agent-feedback-auto-send.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/agent-feedback-response-notify.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/agent-feedback-reminders.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/agent-feedback-real-user-submit-repair.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/agent-feedback-steve-full-loop-test.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/sales-listing-cases.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/sales-listing-inventory.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/sales-hub-routes.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/fub-lead-source-governance.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/kpi-lead-validation-audit.js',
+    expectedImports: ['./foundation-people-sales-db.js'],
+  },
+  {
+    path: 'lib/agent-feedback-production-autosend-dry-run.js',
+    expectedImports: [
+      './foundation-people-sales-db.js',
+      './foundation-runtime-jobs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/generate-strategy-evidence-packet.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-shared-comms-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'lib/decision-auto-emit.js',
+    expectedImports: [
+      './foundation-db-session.js',
+      './foundation-strategy-docs-db.js',
     ],
   },
 ]

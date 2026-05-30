@@ -5,13 +5,15 @@ import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js';
+import {
   createFoundationJobRun,
   finishFoundationJobRun,
   getFoundationJobControl,
   getFoundationJobRunSnapshot,
-  initFoundationDb,
   updateFoundationJobRunMetadata,
-} from '../lib/foundation-db.js';
+} from '../lib/foundation-runtime-jobs-db.js';
 import {
   getFoundationJobDefinition,
   getFoundationJobDefinitions,
