@@ -36,11 +36,13 @@ import {
   SOURCE_MATURITY_REPAIR_COLLAPSE_CARD_ID,
   SOURCE_MATURITY_REPAIR_COLLAPSE_CHANGED_FILES,
   SOURCE_MATURITY_REPAIR_COLLAPSE_CLOSEOUT_KEY,
+  SOURCE_MATURITY_REPAIR_COLLAPSE_MANIFEST_PATH,
   SOURCE_MATURITY_REPAIR_COLLAPSE_NEXT_CARD_ID,
   SOURCE_MATURITY_REPAIR_COLLAPSE_NOT_NEXT_BOUNDARIES,
   SOURCE_MATURITY_REPAIR_COLLAPSE_PLAN_PATH,
   SOURCE_MATURITY_REPAIR_COLLAPSE_PROOF_COMMANDS,
   SOURCE_MATURITY_REPAIR_COLLAPSE_SCRIPT_PATH,
+  SOURCE_MATURITY_REPAIR_ARCHIVE_SCRIPT_PATH,
   buildSourceMaturityRepairManifest,
   evaluateSourceMaturityRepairCollapse,
   renderSourceMaturityRepairCollapseCloseout,
@@ -113,6 +115,14 @@ async function readRepoFile(relativePath) {
 
 async function readRepoJson(relativePath) {
   return JSON.parse(await readRepoFile(relativePath))
+}
+
+async function readOptionalRepoJson(relativePath, fallback) {
+  try {
+    return await readRepoJson(relativePath)
+  } catch {
+    return fallback
+  }
 }
 
 async function listRepoSourceMaturityFiles() {
@@ -420,7 +430,8 @@ async function main() {
   try {
     const filePaths = await listRepoSourceMaturityFiles()
     const fileSources = await readSources(filePaths)
-    const manifest = buildSourceMaturityRepairManifest({ filePaths, fileSources })
+    const generatedManifest = buildSourceMaturityRepairManifest({ filePaths, fileSources })
+    const manifest = await readOptionalRepoJson(SOURCE_MATURITY_REPAIR_COLLAPSE_MANIFEST_PATH, generatedManifest)
     const legacyProofs = buildLegacyProofs()
     const collapseEvaluation = evaluateSourceMaturityRepairCollapse({ manifest, legacyProofs })
     const planSource = await readRepoFile(SOURCE_MATURITY_REPAIR_COLLAPSE_PLAN_PATH)
@@ -479,6 +490,19 @@ async function main() {
       'package exposes source-maturity repair collapse proof',
       packageJson.scripts?.[PACKAGE_SCRIPT] || 'missing',
     )
+    const movedLegacyScripts = list(manifest.movedFiles)
+      .map(move => String(move?.from || '').trim())
+      .filter(file => file.startsWith('scripts/'))
+    const routedLegacyScripts = movedLegacyScripts.filter(legacyPath =>
+      Object.values(packageJson.scripts || {}).some(command =>
+        String(command || '') === `node --env-file-if-exists=.env ${SOURCE_MATURITY_REPAIR_ARCHIVE_SCRIPT_PATH} --legacy=${legacyPath}`),
+    )
+    addCheck(
+      checks,
+      movedLegacyScripts.length > 0 && routedLegacyScripts.length === movedLegacyScripts.length,
+      'legacy source-maturity npm scripts route through the generic archive runner',
+      `${routedLegacyScripts.length}/${movedLegacyScripts.length} routed`,
+    )
     addCheck(
       checks,
       planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE,
@@ -499,16 +523,18 @@ async function main() {
     )
     addCheck(
       checks,
-      manifest.summary?.oldWrappersStillPresent === true && manifest.summary?.noFilesDeleted === true,
-      'V1 keeps old wrappers present and performs no deletion',
-      `${manifest.summary?.wrapperCount || 0} wrappers / ${manifest.summary?.checkCount || 0} checks`,
+      manifest.summary?.legacyWrappersArchived === true &&
+        manifest.reduction?.afterActiveRepairFileCount < manifest.reduction?.beforeActiveRepairFileCount &&
+        manifest.reduction?.afterActiveRepairFileCount <= manifest.reduction?.activeTargetMax,
+      'legacy wrappers/checks are archived and active source-maturity repair files are under target',
+      `${manifest.reduction?.beforeActiveRepairFileCount || 'unknown'} -> ${manifest.reduction?.afterActiveRepairFileCount || 'unknown'} active files`,
     )
     addCheck(
       checks,
       moduleSource.includes('evaluateSourceMaturityRepairCollapse') &&
         moduleSource.includes('sourceMaturityProofFamilyChecks') &&
-        moduleSource.includes('oldWrappersStillPresent'),
-      'shared module owns family contracts and V1 known-limit posture',
+        moduleSource.includes('legacyWrappersArchived'),
+      'shared module owns family contracts and archive-reduction posture',
       'lib/source-maturity-repair-collapse.js',
     )
     addCheck(
@@ -534,7 +560,7 @@ async function main() {
     addCheck(
       checks,
       !/fs\.(?:rm|unlink|rename)|trash\s+/i.test(scriptSource + moduleSource),
-      'collapse proof does not delete, archive, or move old files',
+      'collapse proof does not perform file deletion or runtime moves',
       'static deletion scan',
     )
     addCheck(
@@ -578,6 +604,7 @@ async function main() {
         summary: buildPlanCriticResultSummary(planReview),
       },
       manifest: manifest.summary,
+      reduction: manifest.reduction,
       familyProofs: Object.fromEntries(Object.entries(legacyProofs).map(([family, proof]) => [family, Boolean(proof?.ok)])),
       collapseEvaluation: collapseEvaluation.summary,
       currentSprint: {

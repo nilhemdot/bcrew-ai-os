@@ -1,0 +1,1693 @@
+{
+  "cardId": "SOURCE-MATURITY-REPAIR-COLLAPSE-001",
+  "closeoutKey": "source-maturity-repair-collapse-v1",
+  "generatedAt": "2026-05-30T16:45:35.653Z",
+  "summary": {
+    "familyCount": 7,
+    "entryCount": 37,
+    "wrapperCount": 37,
+    "checkCount": 37,
+    "engineCount": 0,
+    "supportFileCount": 1,
+    "lineCount": 32629,
+    "noFilesDeleted": true,
+    "noLiveExtractionStarted": true,
+    "oldWrappersStillPresent": false,
+    "legacyWrappersArchived": true,
+    "movedFileCount": 66,
+    "afterActiveRepairFileCount": 12
+  },
+  "families": [
+    {
+      "family": "contract_gap",
+      "label": "Contract gap repair",
+      "expectedFailure": "stale or incomplete source contract blocks connected/trusted maturity",
+      "operatorValue": "repairs contract identity without faking extraction or broad source completion",
+      "entryCount": 1,
+      "wrapperCount": 1,
+      "checkCount": 1,
+      "lineCount": 859,
+      "slugs": [
+        "contract-gap-repair"
+      ],
+      "entries": [
+        {
+          "family": "contract_gap",
+          "familyLabel": "Contract gap repair",
+          "slug": "contract-gap-repair",
+          "key": "contract_gap:contract-gap-repair",
+          "libPath": "lib/source-maturity-contract-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-contract-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-contract-gap-repair-contract-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-CONTRACT-GAP-REPAIR-CONTRACT-GAP-REPAIR-001.json",
+          "lineCount": 859,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "trust_gap",
+      "label": "Trust gap repair",
+      "expectedFailure": "source boundary is not trusted/locked",
+      "operatorValue": "keeps public/proposal sources honest before monitoring or extraction",
+      "entryCount": 1,
+      "wrapperCount": 1,
+      "checkCount": 1,
+      "lineCount": 732,
+      "slugs": [
+        "github-build-intel"
+      ],
+      "entries": [
+        {
+          "family": "trust_gap",
+          "familyLabel": "Trust gap repair",
+          "slug": "github-build-intel",
+          "key": "trust_gap:github-build-intel",
+          "libPath": "lib/source-maturity-github-build-intel-trust-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-github-build-intel-trust-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-github-build-intel-trust-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-GITHUB-BUILD-INTEL-TRUST-GAP-REPAIR-001.json",
+          "lineCount": 732,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "monitoring_gap",
+      "label": "Monitoring gap repair",
+      "expectedFailure": "signed-off source has facts but no explicit refresh/monitoring boundary",
+      "operatorValue": "clears false monitored blockers while exposing the next real gap",
+      "entryCount": 7,
+      "wrapperCount": 7,
+      "checkCount": 7,
+      "lineCount": 5330,
+      "slugs": [
+        "finance",
+        "freedom-community-rev",
+        "freedom-team",
+        "fub",
+        "github-build-intel",
+        "strategy",
+        "verified"
+      ],
+      "entries": [
+        {
+          "family": "monitoring_gap",
+          "familyLabel": "Monitoring gap repair",
+          "slug": "finance",
+          "key": "monitoring_gap:finance",
+          "libPath": "lib/source-maturity-finance-monitoring-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-finance-monitoring-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-finance-monitoring-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FINANCE-MONITORING-GAP-REPAIR-001.json",
+          "lineCount": 750,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "monitoring_gap",
+          "familyLabel": "Monitoring gap repair",
+          "slug": "freedom-community-rev",
+          "key": "monitoring_gap:freedom-community-rev",
+          "libPath": "lib/source-maturity-freedom-community-rev-monitoring-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-community-rev-monitoring-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-community-rev-monitoring-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-REV-MONITORING-GAP-REPAIR-001.json",
+          "lineCount": 749,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "monitoring_gap",
+          "familyLabel": "Monitoring gap repair",
+          "slug": "freedom-team",
+          "key": "monitoring_gap:freedom-team",
+          "libPath": "lib/source-maturity-freedom-team-monitoring-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-team-monitoring-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-team-monitoring-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-TEAM-MONITORING-GAP-REPAIR-001.json",
+          "lineCount": 749,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "monitoring_gap",
+          "familyLabel": "Monitoring gap repair",
+          "slug": "fub",
+          "key": "monitoring_gap:fub",
+          "libPath": "lib/source-maturity-fub-monitoring-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-fub-monitoring-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-fub-monitoring-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FUB-MONITORING-GAP-REPAIR-001.json",
+          "lineCount": 751,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "monitoring_gap",
+          "familyLabel": "Monitoring gap repair",
+          "slug": "github-build-intel",
+          "key": "monitoring_gap:github-build-intel",
+          "libPath": "lib/source-maturity-github-build-intel-monitoring-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-github-build-intel-monitoring-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-github-build-intel-monitoring-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-GITHUB-BUILD-INTEL-MONITORING-GAP-REPAIR-001.json",
+          "lineCount": 734,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "monitoring_gap",
+          "familyLabel": "Monitoring gap repair",
+          "slug": "strategy",
+          "key": "monitoring_gap:strategy",
+          "libPath": "lib/source-maturity-strategy-monitoring-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-strategy-monitoring-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-strategy-monitoring-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-STRATEGY-MONITORING-GAP-REPAIR-001.json",
+          "lineCount": 751,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "monitoring_gap",
+          "familyLabel": "Monitoring gap repair",
+          "slug": "verified",
+          "key": "monitoring_gap:verified",
+          "libPath": "lib/source-maturity-verified-monitoring-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-verified-monitoring-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-verified-monitoring-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-VERIFIED-MONITORING-GAP-REPAIR-001.json",
+          "lineCount": 846,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "evidence_gap",
+      "label": "Evidence gap repair",
+      "expectedFailure": "source contract exists but no source-backed fact/evidence signal is attached",
+      "operatorValue": "attaches existing evidence without starting live extraction",
+      "entryCount": 3,
+      "wrapperCount": 3,
+      "checkCount": 3,
+      "lineCount": 2869,
+      "slugs": [
+        "evidence-gap-repair",
+        "freedom-sheet",
+        "verified"
+      ],
+      "entries": [
+        {
+          "family": "evidence_gap",
+          "familyLabel": "Evidence gap repair",
+          "slug": "evidence-gap-repair",
+          "key": "evidence_gap:evidence-gap-repair",
+          "libPath": "lib/source-maturity-evidence-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-evidence-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-evidence-gap-repair-evidence-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-EVIDENCE-GAP-REPAIR-001.json",
+          "lineCount": 850,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "evidence_gap",
+          "familyLabel": "Evidence gap repair",
+          "slug": "freedom-sheet",
+          "key": "evidence_gap:freedom-sheet",
+          "libPath": "lib/source-maturity-freedom-sheet-evidence-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-sheet-evidence-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-sheet-evidence-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001.json",
+          "lineCount": 986,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "evidence_gap",
+          "familyLabel": "Evidence gap repair",
+          "slug": "verified",
+          "key": "evidence_gap:verified",
+          "libPath": "lib/source-maturity-verified-evidence-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-verified-evidence-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-verified-evidence-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-VERIFIED-EVIDENCE-GAP-REPAIR-001.json",
+          "lineCount": 1033,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "label": "Atom-flow repair",
+      "expectedFailure": "source fact exists but no governed atom-flow signal exists",
+      "operatorValue": "promotes source-backed atom evidence without fabricating atoms",
+      "entryCount": 11,
+      "wrapperCount": 11,
+      "checkCount": 11,
+      "lineCount": 9879,
+      "slugs": [
+        "atom-flow-repair",
+        "finance",
+        "freedom-bhag",
+        "freedom-community",
+        "freedom-engine",
+        "freedom-sheet",
+        "fub",
+        "owners",
+        "strategy",
+        "supabase",
+        "verified"
+      ],
+      "entries": [
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "atom-flow-repair",
+          "key": "atom_flow:atom-flow-repair",
+          "libPath": "lib/source-maturity-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-atom-flow-repair-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-ATOM-FLOW-REPAIR-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 898,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "finance",
+          "key": "atom_flow:finance",
+          "libPath": "lib/source-maturity-finance-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-finance-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-finance-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FINANCE-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 873,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "freedom-bhag",
+          "key": "atom_flow:freedom-bhag",
+          "libPath": "lib/source-maturity-freedom-bhag-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-bhag-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-bhag-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-BHAG-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 867,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "freedom-community",
+          "key": "atom_flow:freedom-community",
+          "libPath": "lib/source-maturity-freedom-community-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-community-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-community-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 865,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "freedom-engine",
+          "key": "atom_flow:freedom-engine",
+          "libPath": "lib/source-maturity-freedom-engine-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-engine-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-engine-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-ENGINE-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 865,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "freedom-sheet",
+          "key": "atom_flow:freedom-sheet",
+          "libPath": "lib/source-maturity-freedom-sheet-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-sheet-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 992,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "fub",
+          "key": "atom_flow:fub",
+          "libPath": "lib/source-maturity-fub-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-fub-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-fub-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FUB-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 881,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "owners",
+          "key": "atom_flow:owners",
+          "libPath": "lib/source-maturity-owners-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-owners-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-owners-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-OWNERS-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 865,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "strategy",
+          "key": "atom_flow:strategy",
+          "libPath": "lib/source-maturity-strategy-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-strategy-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-strategy-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-STRATEGY-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 873,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "supabase",
+          "key": "atom_flow:supabase",
+          "libPath": "lib/source-maturity-supabase-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-supabase-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-supabase-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-SUPABASE-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 872,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "atom_flow",
+          "familyLabel": "Atom-flow repair",
+          "slug": "verified",
+          "key": "atom_flow:verified",
+          "libPath": "lib/source-maturity-verified-atom-flow-repair.js",
+          "scriptPath": "scripts/process-source-maturity-verified-atom-flow-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-verified-atom-flow-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-VERIFIED-ATOM-FLOW-REPAIR-001.json",
+          "lineCount": 1028,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "label": "Routing gap repair",
+      "expectedFailure": "source-backed atom/chunk exists but no approval-required internal route exists",
+      "operatorValue": "routes intelligence to review without external write or route apply",
+      "entryCount": 13,
+      "wrapperCount": 13,
+      "checkCount": 13,
+      "lineCount": 11792,
+      "slugs": [
+        "finance",
+        "freedom-bhag",
+        "freedom-community",
+        "freedom-engine",
+        "freedom-sheet",
+        "fub",
+        "missive",
+        "owners",
+        "owners-lists",
+        "routing-gap-repair",
+        "strategy",
+        "supabase",
+        "verified"
+      ],
+      "entries": [
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "finance",
+          "key": "routing_gap:finance",
+          "libPath": "lib/source-maturity-finance-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-finance-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-finance-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FINANCE-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 823,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "freedom-bhag",
+          "key": "routing_gap:freedom-bhag",
+          "libPath": "lib/source-maturity-freedom-bhag-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-bhag-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-bhag-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 814,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "freedom-community",
+          "key": "routing_gap:freedom-community",
+          "libPath": "lib/source-maturity-freedom-community-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-community-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 814,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "freedom-engine",
+          "key": "routing_gap:freedom-engine",
+          "libPath": "lib/source-maturity-freedom-engine-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-engine-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 814,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "freedom-sheet",
+          "key": "routing_gap:freedom-sheet",
+          "libPath": "lib/source-maturity-freedom-sheet-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-freedom-sheet-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-freedom-sheet-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 980,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "fub",
+          "key": "routing_gap:fub",
+          "libPath": "lib/source-maturity-fub-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-fub-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-fub-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FUB-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 830,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "missive",
+          "key": "routing_gap:missive",
+          "libPath": "lib/source-maturity-missive-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-missive-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-missive-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 1046,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "owners",
+          "key": "routing_gap:owners",
+          "libPath": "lib/source-maturity-owners-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-owners-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-owners-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 815,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "owners-lists",
+          "key": "routing_gap:owners-lists",
+          "libPath": "lib/source-maturity-owners-lists-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-owners-lists-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-owners-lists-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 815,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "routing-gap-repair",
+          "key": "routing_gap:routing-gap-repair",
+          "libPath": "lib/source-maturity-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-routing-gap-repair-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-ROUTING-GAP-REPAIR-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 1380,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "strategy",
+          "key": "routing_gap:strategy",
+          "libPath": "lib/source-maturity-strategy-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-strategy-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-strategy-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-STRATEGY-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 823,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "supabase",
+          "key": "routing_gap:supabase",
+          "libPath": "lib/source-maturity-supabase-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-supabase-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-supabase-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-SUPABASE-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 830,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        },
+        {
+          "family": "routing_gap",
+          "familyLabel": "Routing gap repair",
+          "slug": "verified",
+          "key": "routing_gap:verified",
+          "libPath": "lib/source-maturity-verified-routing-gap-repair.js",
+          "scriptPath": "scripts/process-source-maturity-verified-routing-gap-repair-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-verified-routing-gap-repair-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001.json",
+          "lineCount": 1008,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "gap_followup",
+      "label": "Gap follow-up triage",
+      "expectedFailure": "source maturity closeout rows need ranked follow-up cards",
+      "operatorValue": "turns maturity gaps into scoped internal repair cards without extraction",
+      "entryCount": 1,
+      "wrapperCount": 1,
+      "checkCount": 1,
+      "lineCount": 902,
+      "slugs": [
+        "gap-followup"
+      ],
+      "entries": [
+        {
+          "family": "gap_followup",
+          "familyLabel": "Gap follow-up triage",
+          "slug": "gap-followup",
+          "key": "gap_followup:gap-followup",
+          "libPath": "lib/source-maturity-gap-followup.js",
+          "scriptPath": "scripts/process-source-maturity-gap-followup-check.mjs",
+          "enginePath": null,
+          "planPath": "docs/process/source-maturity-gap-followup-gap-followup-001-plan.md",
+          "approvalPath": "docs/process/approvals/SOURCE-MATURITY-GAP-FOLLOWUP-GAP-FOLLOWUP-001.json",
+          "lineCount": 902,
+          "roles": [
+            "wrapper",
+            "check"
+          ]
+        }
+      ]
+    }
+  ],
+  "entries": [
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "atom-flow-repair",
+      "key": "atom_flow:atom-flow-repair",
+      "libPath": "lib/source-maturity-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-atom-flow-repair-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-ATOM-FLOW-REPAIR-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 898,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "finance",
+      "key": "atom_flow:finance",
+      "libPath": "lib/source-maturity-finance-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-finance-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-finance-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FINANCE-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 873,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "freedom-bhag",
+      "key": "atom_flow:freedom-bhag",
+      "libPath": "lib/source-maturity-freedom-bhag-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-bhag-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-bhag-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-BHAG-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 867,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "freedom-community",
+      "key": "atom_flow:freedom-community",
+      "libPath": "lib/source-maturity-freedom-community-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-community-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-community-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 865,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "freedom-engine",
+      "key": "atom_flow:freedom-engine",
+      "libPath": "lib/source-maturity-freedom-engine-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-engine-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-engine-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-ENGINE-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 865,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "freedom-sheet",
+      "key": "atom_flow:freedom-sheet",
+      "libPath": "lib/source-maturity-freedom-sheet-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-sheet-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 992,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "fub",
+      "key": "atom_flow:fub",
+      "libPath": "lib/source-maturity-fub-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-fub-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-fub-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FUB-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 881,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "owners",
+      "key": "atom_flow:owners",
+      "libPath": "lib/source-maturity-owners-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-owners-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-owners-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-OWNERS-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 865,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "strategy",
+      "key": "atom_flow:strategy",
+      "libPath": "lib/source-maturity-strategy-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-strategy-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-strategy-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-STRATEGY-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 873,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "supabase",
+      "key": "atom_flow:supabase",
+      "libPath": "lib/source-maturity-supabase-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-supabase-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-supabase-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-SUPABASE-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 872,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "atom_flow",
+      "familyLabel": "Atom-flow repair",
+      "slug": "verified",
+      "key": "atom_flow:verified",
+      "libPath": "lib/source-maturity-verified-atom-flow-repair.js",
+      "scriptPath": "scripts/process-source-maturity-verified-atom-flow-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-verified-atom-flow-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-VERIFIED-ATOM-FLOW-REPAIR-001.json",
+      "lineCount": 1028,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "contract_gap",
+      "familyLabel": "Contract gap repair",
+      "slug": "contract-gap-repair",
+      "key": "contract_gap:contract-gap-repair",
+      "libPath": "lib/source-maturity-contract-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-contract-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-contract-gap-repair-contract-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-CONTRACT-GAP-REPAIR-CONTRACT-GAP-REPAIR-001.json",
+      "lineCount": 859,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "evidence_gap",
+      "familyLabel": "Evidence gap repair",
+      "slug": "evidence-gap-repair",
+      "key": "evidence_gap:evidence-gap-repair",
+      "libPath": "lib/source-maturity-evidence-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-evidence-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-evidence-gap-repair-evidence-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-EVIDENCE-GAP-REPAIR-001.json",
+      "lineCount": 850,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "evidence_gap",
+      "familyLabel": "Evidence gap repair",
+      "slug": "freedom-sheet",
+      "key": "evidence_gap:freedom-sheet",
+      "libPath": "lib/source-maturity-freedom-sheet-evidence-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-sheet-evidence-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-sheet-evidence-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001.json",
+      "lineCount": 986,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "evidence_gap",
+      "familyLabel": "Evidence gap repair",
+      "slug": "verified",
+      "key": "evidence_gap:verified",
+      "libPath": "lib/source-maturity-verified-evidence-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-verified-evidence-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-verified-evidence-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-VERIFIED-EVIDENCE-GAP-REPAIR-001.json",
+      "lineCount": 1033,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "gap_followup",
+      "familyLabel": "Gap follow-up triage",
+      "slug": "gap-followup",
+      "key": "gap_followup:gap-followup",
+      "libPath": "lib/source-maturity-gap-followup.js",
+      "scriptPath": "scripts/process-source-maturity-gap-followup-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-gap-followup-gap-followup-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-GAP-FOLLOWUP-GAP-FOLLOWUP-001.json",
+      "lineCount": 902,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "monitoring_gap",
+      "familyLabel": "Monitoring gap repair",
+      "slug": "finance",
+      "key": "monitoring_gap:finance",
+      "libPath": "lib/source-maturity-finance-monitoring-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-finance-monitoring-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-finance-monitoring-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FINANCE-MONITORING-GAP-REPAIR-001.json",
+      "lineCount": 750,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "monitoring_gap",
+      "familyLabel": "Monitoring gap repair",
+      "slug": "freedom-community-rev",
+      "key": "monitoring_gap:freedom-community-rev",
+      "libPath": "lib/source-maturity-freedom-community-rev-monitoring-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-community-rev-monitoring-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-community-rev-monitoring-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-REV-MONITORING-GAP-REPAIR-001.json",
+      "lineCount": 749,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "monitoring_gap",
+      "familyLabel": "Monitoring gap repair",
+      "slug": "freedom-team",
+      "key": "monitoring_gap:freedom-team",
+      "libPath": "lib/source-maturity-freedom-team-monitoring-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-team-monitoring-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-team-monitoring-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-TEAM-MONITORING-GAP-REPAIR-001.json",
+      "lineCount": 749,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "monitoring_gap",
+      "familyLabel": "Monitoring gap repair",
+      "slug": "fub",
+      "key": "monitoring_gap:fub",
+      "libPath": "lib/source-maturity-fub-monitoring-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-fub-monitoring-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-fub-monitoring-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FUB-MONITORING-GAP-REPAIR-001.json",
+      "lineCount": 751,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "monitoring_gap",
+      "familyLabel": "Monitoring gap repair",
+      "slug": "github-build-intel",
+      "key": "monitoring_gap:github-build-intel",
+      "libPath": "lib/source-maturity-github-build-intel-monitoring-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-github-build-intel-monitoring-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-github-build-intel-monitoring-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-GITHUB-BUILD-INTEL-MONITORING-GAP-REPAIR-001.json",
+      "lineCount": 734,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "monitoring_gap",
+      "familyLabel": "Monitoring gap repair",
+      "slug": "strategy",
+      "key": "monitoring_gap:strategy",
+      "libPath": "lib/source-maturity-strategy-monitoring-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-strategy-monitoring-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-strategy-monitoring-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-STRATEGY-MONITORING-GAP-REPAIR-001.json",
+      "lineCount": 751,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "monitoring_gap",
+      "familyLabel": "Monitoring gap repair",
+      "slug": "verified",
+      "key": "monitoring_gap:verified",
+      "libPath": "lib/source-maturity-verified-monitoring-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-verified-monitoring-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-verified-monitoring-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-VERIFIED-MONITORING-GAP-REPAIR-001.json",
+      "lineCount": 846,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "finance",
+      "key": "routing_gap:finance",
+      "libPath": "lib/source-maturity-finance-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-finance-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-finance-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FINANCE-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 823,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "freedom-bhag",
+      "key": "routing_gap:freedom-bhag",
+      "libPath": "lib/source-maturity-freedom-bhag-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-bhag-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-bhag-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 814,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "freedom-community",
+      "key": "routing_gap:freedom-community",
+      "libPath": "lib/source-maturity-freedom-community-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-community-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 814,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "freedom-engine",
+      "key": "routing_gap:freedom-engine",
+      "libPath": "lib/source-maturity-freedom-engine-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-engine-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 814,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "freedom-sheet",
+      "key": "routing_gap:freedom-sheet",
+      "libPath": "lib/source-maturity-freedom-sheet-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-freedom-sheet-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-freedom-sheet-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 980,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "fub",
+      "key": "routing_gap:fub",
+      "libPath": "lib/source-maturity-fub-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-fub-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-fub-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-FUB-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 830,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "missive",
+      "key": "routing_gap:missive",
+      "libPath": "lib/source-maturity-missive-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-missive-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-missive-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 1046,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "owners",
+      "key": "routing_gap:owners",
+      "libPath": "lib/source-maturity-owners-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-owners-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-owners-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 815,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "owners-lists",
+      "key": "routing_gap:owners-lists",
+      "libPath": "lib/source-maturity-owners-lists-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-owners-lists-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-owners-lists-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 815,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "routing-gap-repair",
+      "key": "routing_gap:routing-gap-repair",
+      "libPath": "lib/source-maturity-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-routing-gap-repair-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-ROUTING-GAP-REPAIR-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 1380,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "strategy",
+      "key": "routing_gap:strategy",
+      "libPath": "lib/source-maturity-strategy-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-strategy-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-strategy-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-STRATEGY-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 823,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "supabase",
+      "key": "routing_gap:supabase",
+      "libPath": "lib/source-maturity-supabase-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-supabase-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-supabase-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-SUPABASE-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 830,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "verified",
+      "key": "routing_gap:verified",
+      "libPath": "lib/source-maturity-verified-routing-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-verified-routing-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-verified-routing-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001.json",
+      "lineCount": 1008,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    },
+    {
+      "family": "trust_gap",
+      "familyLabel": "Trust gap repair",
+      "slug": "github-build-intel",
+      "key": "trust_gap:github-build-intel",
+      "libPath": "lib/source-maturity-github-build-intel-trust-gap-repair.js",
+      "scriptPath": "scripts/process-source-maturity-github-build-intel-trust-gap-repair-check.mjs",
+      "enginePath": null,
+      "planPath": "docs/process/source-maturity-github-build-intel-trust-gap-repair-001-plan.md",
+      "approvalPath": "docs/process/approvals/SOURCE-MATURITY-GITHUB-BUILD-INTEL-TRUST-GAP-REPAIR-001.json",
+      "lineCount": 732,
+      "roles": [
+        "wrapper",
+        "check"
+      ]
+    }
+  ],
+  "supportFiles": [
+    {
+      "file": "lib/source-maturity-routing-gap-repair-db.js",
+      "family": "routing_gap",
+      "familyLabel": "Routing gap repair",
+      "slug": "routing-db",
+      "role": "support",
+      "lineCount": 266
+    }
+  ],
+  "unclassified": [],
+  "mode": "archive-reduction",
+  "movedFiles": [
+    {
+      "from": "lib/source-maturity-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-finance-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-finance-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-finance-monitoring-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-finance-monitoring-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-finance-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-finance-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-bhag-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-bhag-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-bhag-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-bhag-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-community-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-community-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-community-rev-monitoring-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-community-rev-monitoring-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-community-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-community-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-engine-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-engine-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-engine-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-engine-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-sheet-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-sheet-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-sheet-evidence-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-sheet-evidence-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-sheet-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-sheet-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-freedom-team-monitoring-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-freedom-team-monitoring-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-fub-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-fub-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-fub-monitoring-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-fub-monitoring-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-fub-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-fub-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-github-build-intel-monitoring-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-github-build-intel-monitoring-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-missive-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-missive-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-owners-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-owners-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-owners-lists-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-owners-lists-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-owners-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-owners-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-supabase-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-supabase-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-supabase-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-supabase-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-verified-atom-flow-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-verified-atom-flow-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-verified-evidence-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-verified-evidence-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-verified-monitoring-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-verified-monitoring-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "lib/source-maturity-verified-routing-gap-repair.js",
+      "to": "docs/_archive/source-maturity-repairs/lib/source-maturity-verified-routing-gap-repair.js",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-contract-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-contract-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-evidence-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-evidence-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-finance-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-finance-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-finance-monitoring-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-finance-monitoring-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-finance-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-finance-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-bhag-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-bhag-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-bhag-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-bhag-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-community-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-community-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-community-rev-monitoring-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-community-rev-monitoring-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-engine-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-engine-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-sheet-evidence-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-sheet-evidence-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-sheet-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-sheet-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-freedom-team-monitoring-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-freedom-team-monitoring-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-fub-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-fub-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-fub-monitoring-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-fub-monitoring-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-fub-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-fub-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-gap-followup-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-gap-followup-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-github-build-intel-monitoring-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-github-build-intel-monitoring-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-github-build-intel-trust-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-github-build-intel-trust-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-missive-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-missive-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-owners-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-owners-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-owners-lists-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-owners-lists-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-owners-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-owners-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-strategy-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-strategy-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-strategy-monitoring-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-strategy-monitoring-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-strategy-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-strategy-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-supabase-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-supabase-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-supabase-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-supabase-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-verified-atom-flow-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-verified-atom-flow-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-verified-evidence-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-verified-evidence-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-verified-monitoring-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-verified-monitoring-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-maturity-verified-routing-gap-repair-check.mjs",
+      "to": "docs/_archive/source-maturity-repairs/scripts/process-source-maturity-verified-routing-gap-repair-check.mjs",
+      "reason": "source-maturity repair clone archived behind generic archive runner"
+    }
+  ],
+  "reduction": {
+    "beforeActiveRepairFileCount": 78,
+    "afterActiveRepairFileCount": 12,
+    "movedFileCount": 66,
+    "activeTargetMax": 40
+  }
+}

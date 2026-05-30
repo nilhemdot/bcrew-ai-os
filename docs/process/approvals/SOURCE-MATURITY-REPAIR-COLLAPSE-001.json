@@ -2,11 +2,11 @@
   "approvalSchemaVersion": 2,
   "cardId": "SOURCE-MATURITY-REPAIR-COLLAPSE-001",
   "approvedPlanRef": "docs/process/source-maturity-repair-collapse-001-plan.md",
-  "approvedPlanSha256": "95abc3b8330e7ed55c05d00e581785c0680a78642dd93aa3db82b5a976c51002",
-  "approvedRepoHead": "f65cc85dae88c6a3d9074b27aceabb2942e563c4",
+  "approvedPlanSha256": "13f90d04055b0a0d90613bb475bf235c67af149cab3a2894669829d8ef6b1c43",
+  "approvedRepoHead": "c4fb1e81eb92514fb88c2e1a7300d1bd384d5c2f",
   "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
   "approvedAt": "2026-05-30T04:58:00.000Z",
   "score": 10,
-  "notes": "Approved bounded source-maturity repair collapse V1. Scope is manifest/control engine plus one reusable checker proving all existing repair families with legacy fixtures. Do not delete, archive, or move old repair/check files in V1; do not mutate source rows, extraction state, browser/session state, atoms/vectors, Drive permissions, or external systems; keep per-hub restructure parked for Steve checkpoint. Approval metadata refreshed after correcting proof-command wording; scope unchanged.",
-  "approvalDigest": "0d70eb1a35f4dcafd236e2a54c26fdd6cb19cdd9b8739d0000c564f774e437d7"
+  "notes": "Approved source-maturity repair collapse under Reduction Mode. Scope is one manifest/control engine plus one reusable checker proving all existing repair families with legacy fixtures; duplicate wrapper/check files may be relocated under docs/_archive/source-maturity-repairs after package scripts route through the generic archive runner and active file counts go down. Do not mutate source rows, extraction state, browser/session state, atoms/vectors, Drive permissions, or external systems; keep per-hub restructure parked for Steve checkpoint.",
+  "approvalDigest": "68c08eff27f3f8f24a02a9ef7a93de8883d92c355ca66ef291fe6f3e1424563d"
 }
