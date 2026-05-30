@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DONE-SEMANTICS-REPAIR-001",
+  "approvedPlanRef": "docs/process/foundation-done-semantics-repair-001-plan.md",
+  "approvedPlanSha256": "86c1d81764bb03c20f90738d85cf664dd3a9c1036dc0c16d66ee04a0c297d20a",
+  "approvedRepoHead": "1efc4484997d1ff8d883159752e5d789576ca296",
+  "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
+  "approvedAt": "2026-05-30T07:18:00.000Z",
+  "score": 10,
+  "notes": "Approved bounded done-semantics readback V1. Scope is API/UI classification only: expose V1, preflight, blocked, blocked-preflight, unclear, and behavior-proven done outcomes without rewriting historical backlog rows. Do not delete verifier/approval/plan/check files, mutate source/extraction/browser/atom/Drive/external systems, weaken source/browser proof lane, or start FOUNDATION-HUB-FOLDER-ISOLATION-001/per-hub folders.",
+  "approvalDigest": "1a3f6605f61f742094de1a17a33fcf2512863d605f798c85ec466ff3038e047b"
+}

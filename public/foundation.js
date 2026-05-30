@@ -300,6 +300,10 @@ function renderBacklogAccordionItem(item) {
   if (item.whyItMatters) body.appendChild(renderLabeledCopy('backlog-note', 'Why It Matters', item.whyItMatters))
   if (item.nextAction) body.appendChild(renderLabeledCopy('backlog-next', 'Next To Close', item.nextAction))
   if (item.statusNote) body.appendChild(renderLabeledCopy('backlog-note', 'Current Note', item.statusNote))
+  if (item.lane === 'done' && item.doneSemantics) {
+    var doneOutcome = item.doneSemantics.label + ' — ' + item.doneSemantics.plainEnglish
+    body.appendChild(renderLabeledCopy('backlog-note', 'Done Outcome', doneOutcome))
+  }
   if (item.source) body.appendChild(renderLabeledCopy('backlog-note', 'Source', item.source))
 
   if (item.updatedAt || item.createdAt) {
