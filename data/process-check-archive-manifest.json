@@ -1,0 +1,154 @@
+{
+  "manifestVersion": 1,
+  "mode": "process-check-archive-reduction",
+  "generatedAt": "2026-05-30T16:49:44.789Z",
+  "cardId": "PROCESS-CHECK-ARCHIVE-REDUCTION-001",
+  "movedFiles": [
+    {
+      "from": "scripts/process-agent-feedback-auto-send-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-auto-send-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-agent-feedback-company-email-policy-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-company-email-policy-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-agent-feedback-live-reminders-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-live-reminders-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-agent-feedback-production-autosend-enable-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-production-autosend-enable-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-agent-feedback-real-user-submit-repair-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-agent-feedback-real-user-submit-repair-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-backlog-queue-reconcile-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-backlog-queue-reconcile-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-build-lane-verifier-result-parser-repair-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-build-lane-verifier-result-parser-repair-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-connector-blocked-row-diagnosis-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-connector-blocked-row-diagnosis-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-connector-completion-prep-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-connector-completion-prep-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-critical-roots-under-3k-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-critical-roots-under-3k-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-foundation-data-sources-v2-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-foundation-data-sources-v2-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-foundation-endpoint-metrics-freshness-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-foundation-endpoint-metrics-freshness-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-foundation-handoff-hot-doc-cleanup-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-foundation-handoff-hot-doc-cleanup-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-foundation-review-sprint-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-foundation-review-sprint-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-foundation-ship-gate-tightening-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-foundation-ship-gate-tightening-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-hub-launcher-source-backed-values-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-hub-launcher-source-backed-values-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-human-web-agent-v1-sprint-plan-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-human-web-agent-v1-sprint-plan-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-intelligence-synthesis-single-evidence-gate-repair-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-intelligence-synthesis-single-evidence-gate-repair-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-llm-runtime-config-audit-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-llm-runtime-config-audit-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-local-virtual-browser-hands-runtime-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-local-virtual-browser-hands-runtime-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-mark-kashef-last-50-api-evidence-gap-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-mark-kashef-last-50-api-evidence-gap-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-promise-to-proof-integrity-gate-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-promise-to-proof-integrity-gate-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-source-contract-id-reconcile-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-source-contract-id-reconcile-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-system-health-red-row-repair-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-system-health-red-row-repair-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-verification-runs-readonly-split-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-verification-runs-readonly-split-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    },
+    {
+      "from": "scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs",
+      "to": "docs/_archive/process-checks/scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs",
+      "reason": "unreferenced package-named process check archived behind generic archive runner"
+    }
+  ],
+  "reduction": {
+    "beforeCount": 490,
+    "afterCount": 462,
+    "movedCount": 28,
+    "referenceRule": "only package-named process checks with zero active lib/scripts references were moved"
+  }
+}
