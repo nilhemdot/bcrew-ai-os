@@ -1,0 +1,570 @@
+[
+  {
+    "key": "foundation-backlog-seed-chunk-split-v1",
+    "backlogIds": [
+      "FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001",
+        "Foundation backlog seed chunk split",
+        "foundation-backlog-seed-chunk-split-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DB-SEED-001",
+      "FOUNDATION-DB-SCHEMA-SEED-SPLIT-001",
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-4",
+      "FILE-SIZE-ENGINEERING-STANDARD-001"
+    ],
+    "systemArea": "Foundation file-size control / static backlog seed ownership",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split the static Foundation backlog seed root into bounded chunk modules and preserved the public backlogSeed import contract.",
+    "whatItDoes": "Keeps bootstrap/default seed data available through the same module path while reducing the root seed file below 3,000 lines and keeping verifier source-token checks pointed at the full seed bundle.",
+    "whyItMatters": "The seed module was a remaining oversized root. Chunk ownership reduces shared-file collision risk without treating seed doctrine as live backlog truth.",
+    "whereItLives": [
+      "lib/foundation-backlog-seed.js aggregator",
+      "lib/foundation-backlog-seed-chunks/ static seed chunks",
+      "lib/foundation-backlog-seed-source.js verifier source-bundle helper",
+      "lib/foundation-followup-card-capture.js seed source-bundle consumer",
+      "lib/foundation-backlog-seed-chunk-split.js focused snapshot and dogfood",
+      "scripts/process-foundation-backlog-seed-chunk-split-check.mjs",
+      "docs/process/foundation-backlog-seed-chunk-split-001-plan.md",
+      "docs/process/approvals/FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001.json",
+      "docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-foundation-backlog-seed-chunk-split-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-backlog-seed.js lib/foundation-backlog-seed-source.js lib/foundation-backlog-seed-chunks/*.js lib/foundation-backlog-seed-chunk-split.js lib/foundation-followup-card-capture.js scripts/process-foundation-backlog-seed-chunk-split-check.mjs scripts/foundation-verify.mjs scripts/process-verification-runs-check.mjs scripts/process-build-lane-verifier-snapshot-wiring-repair-check.mjs scripts/process-verifier-intelligence-spine-split-module-check.mjs scripts/process-verifier-source-trust-split-module-check.mjs",
+      "npm run process:foundation-backlog-seed-chunk-split-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001.json --closeoutKey=foundation-backlog-seed-chunk-split-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001 --closeoutKey=foundation-backlog-seed-chunk-split-v1",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:foundation-ship -- --card=FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001.json --closeoutKey=foundation-backlog-seed-chunk-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the seed root below 3,000 lines, chunks below 1,500 lines, preserved backlogSeed row count and unique IDs, source-bundle verifier snippets, and dogfood rejection for monolithic roots, missing source chunks, and duplicate seed IDs.",
+    "reviewNext": "Continue root cleanup from repo truth, then move to FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001.",
+    "knownLimits": [
+      "This does not change backlog card semantics or seed row content.",
+      "This does not bootstrap, repair, sync, or overwrite live Postgres backlog truth.",
+      "This does not run live extraction, paid/auth-required jobs, external sends, Drive permission mutation, Gmail/ClickUp sends, or Agent Feedback auto-send.",
+      "scripts/foundation-verify.mjs remains under 5,000 lines but still needs future root reduction before it absorbs more verifier logic."
+    ]
+  },
+  {
+    "key": "critical-roots-under-3k-phase-4-v1",
+    "backlogIds": [
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-4"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "CRITICAL-ROOTS-UNDER-3K-PHASE-4",
+        "Critical roots under 3K phase 4",
+        "critical-roots-under-3k-phase-4-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-3",
+      "CRITICAL-FILES-UNDER-5K-001",
+      "FILE-SIZE-ENGINEERING-STANDARD-001"
+    ],
+    "systemArea": "Foundation file-size control / server route ownership",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved Sales Hub route ownership, Owners governance route ownership, and shared FUB lead-source governance helpers out of server.js into focused modules.",
+    "whatItDoes": "Keeps the existing Sales Hub, Owners governance, and FUB helper behavior intact while reducing server.js below the 3,000-line critical-root threshold.",
+    "whyItMatters": "server.js was one of the last critical roots above 3,000 lines. Route domains now have module ownership, which lowers review risk and shared-file collision risk before agent gates resume.",
+    "whereItLives": [
+      "server.js route registrar wiring",
+      "lib/fub-lead-source-governance.js shared FUB/source freshness helpers",
+      "lib/owners-governance-routes.js Owners governance route module",
+      "lib/sales-hub-routes.js Sales Hub route module",
+      "lib/critical-roots-under-3k-phase-4.js focused snapshot and dogfood",
+      "scripts/process-critical-roots-under-3k-phase-4-check.mjs",
+      "docs/process/critical-roots-under-3k-phase-4-plan.md",
+      "docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-4.json",
+      "docs/_archive/handoffs/2026-05-18-critical-roots-under-3k-phase-4-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check server.js lib/fub-lead-source-governance.js lib/owners-governance-routes.js lib/sales-hub-routes.js lib/critical-roots-under-3k-phase-4.js scripts/process-critical-roots-under-3k-phase-4-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:critical-roots-under-3k-phase-4-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-4 --planApprovalRef=docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-4.json --closeoutKey=critical-roots-under-3k-phase-4-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-4 --closeoutKey=critical-roots-under-3k-phase-4-v1",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:foundation-ship -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-4 --planApprovalRef=docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-4.json --closeoutKey=critical-roots-under-3k-phase-4-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates server.js below 3,000 lines, extracted modules below 1,500 lines, registrar/module ownership, old inline route removal, and dogfood rejection for missing modules, old inline ownership, missing registrars, and weak live-read/write proof.",
+    "reviewNext": "Continue remaining root-file cleanup from repo truth, then move to FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001.",
+    "knownLimits": [
+      "This does not redesign Sales Hub, Owners governance, FUB source routing, or Foundation Hub.",
+      "This does not run Owners success-path live reads from the focused proof.",
+      "This does not run Sales Hub success-path writes from the focused proof.",
+      "This does not run live extraction, paid/auth-required jobs, external sends, Drive permission mutation, Gmail/ClickUp sends, or Agent Feedback auto-send.",
+      "scripts/foundation-verify.mjs remains above 3,000 lines but below 5,000 lines."
+    ]
+  },
+  {
+    "key": "build-closeout-registry-extract-v1",
+    "backlogIds": [
+      "BUILD-CLOSEOUT-REGISTRY-EXTRACT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BUILD-CLOSEOUT-REGISTRY-EXTRACT-001",
+        "Build Closeout Registry Extract",
+        "build-closeout-registry-extract-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001",
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-1",
+      "FILE-SIZE-ENGINEERING-STANDARD-001"
+    ],
+    "systemArea": "Foundation file-size control / build closeout registry",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Extracted large build closeout registry record groups out of the root and overnight registry files into focused modules.",
+    "whatItDoes": "Keeps `getFoundationBuildCloseouts()` behavior intact while reducing `lib/foundation-build-closeout-records.js` and `lib/foundation-build-closeout-overnight-records.js` below the 3,000-line architecture-risk threshold.",
+    "whyItMatters": "Closeout truth keeps growing every card. The registry needs module ownership so new closeouts do not push already-large files back toward the old-system monolith pattern.",
+    "whereItLives": [
+      "lib/foundation-build-closeout-records.js root registry imports/spreads",
+      "lib/foundation-build-closeout-overnight-records.js overnight registry imports/spreads",
+      "lib/foundation-build-closeout-agent-feedback-records.js",
+      "lib/foundation-build-closeout-control-layer-records.js",
+      "lib/foundation-build-closeout-db-process-records.js",
+      "lib/foundation-build-closeout-doctrine-cleanup-records.js",
+      "lib/foundation-build-closeout-foundation-surface-records.js",
+      "lib/foundation-build-closeout-process-gate-records.js",
+      "lib/foundation-build-closeout-route-frontend-records.js",
+      "lib/foundation-build-closeout-source-once-over-records.js",
+      "lib/foundation-build-closeout-verifier-runtime-records.js",
+      "lib/build-closeout-registry-extract.js",
+      "scripts/process-build-closeout-registry-extract-check.mjs",
+      "scripts/foundation-verify.mjs registry source bundle",
+      "lib/foundation-runtime-reliability-verifier.js runtime reliability split dogfood fixture coverage",
+      "lib/foundation-verifier-process-control-governance.js process-control root-source line-count proof",
+      "docs/process/build-closeout-registry-extract-001-plan.md",
+      "docs/process/approvals/BUILD-CLOSEOUT-REGISTRY-EXTRACT-001.json",
+      "docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-build-closeout-registry-extract-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/build-closeout-registry-extract.js scripts/process-build-closeout-registry-extract-check.mjs scripts/foundation-verify.mjs lib/foundation-build-closeout-records.js lib/foundation-build-closeout-overnight-records.js lib/foundation-build-closeout-size-records.js",
+      "npm run process:build-closeout-registry-extract-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=BUILD-CLOSEOUT-REGISTRY-EXTRACT-001 --planApprovalRef=docs/process/approvals/BUILD-CLOSEOUT-REGISTRY-EXTRACT-001.json --closeoutKey=build-closeout-registry-extract-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-CLOSEOUT-REGISTRY-EXTRACT-001 --closeoutKey=build-closeout-registry-extract-v1",
+      "npm run process:foundation-ship -- --card=BUILD-CLOSEOUT-REGISTRY-EXTRACT-001 --planApprovalRef=docs/process/approvals/BUILD-CLOSEOUT-REGISTRY-EXTRACT-001.json --closeoutKey=build-closeout-registry-extract-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates root/overnight registry line counts, extracted module budgets, closeout validation, moved representative keys, package script, verifier coverage, Current Sprint metadata, and no live extraction/model/provider/external-write behavior.",
+    "reviewNext": "Continue the root-file cleanup priority from repo truth, then move to agent usefulness runtime gates.",
+    "knownLimits": [
+      "This does not redesign Recent Builds or change build-log behavior.",
+      "This does not delete or rewrite closeout records.",
+      "This does not reduce scripts/foundation-verify.mjs, server.js, lib/foundation-db.js, or public/foundation.js.",
+      "This does not run live extraction, auth-required jobs, provider/model probes, external writes, Drive permission mutation, Gmail/ClickUp sends, or Agent Feedback auto-send."
+    ]
+  },
+  {
+    "key": "build-closeout-source-records-extract-v1",
+    "backlogIds": [
+      "BUILD-CLOSEOUT-REGISTRY-EXTRACT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Split source closeout records",
+        "Split source and process closeout records",
+        "BUILD-CLOSEOUT-REGISTRY-EXTRACT-001",
+        "build-closeout-source-records-extract-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-BROWSER-AGENTIC-RUNTIME-001",
+      "SOURCE-SESSION-BROKER-001",
+      "YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001",
+      "FILE-SIZE-ENGINEERING-STANDARD-001"
+    ],
+    "systemArea": "Foundation file-size control / source closeout registry",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Extracted the growing source closeout registry into focused source-browser, newsletter, repo/fallback, session, YouTube pipeline, and source-maturity modules, then split the over-budget process-gate registry module into focused sprint, source/contract, governance, and operations modules.",
+    "whatItDoes": "Keeps `getFoundationBuildCloseouts()` behavior intact, keeps legacy source/process text key checks satisfied through root key inventories, and reduces `lib/foundation-build-closeout-source-records.js` and `lib/foundation-build-closeout-process-gate-records.js` to small import/spread shells.",
+    "whyItMatters": "Source and process closeout truth are both growing. Letting one registry absorb every new God Mode, YouTube, newsletter, repo, Skool/MyICOR, process-gate, and source-maturity closeout would recreate the monolith pattern and make every future change riskier.",
+    "whereItLives": [
+      "lib/foundation-build-closeout-source-records.js source closeout aggregate and key inventory",
+      "lib/foundation-build-closeout-source-browser-core-records.js",
+      "lib/foundation-build-closeout-source-newsletter-records.js",
+      "lib/foundation-build-closeout-source-repo-fallback-records.js",
+      "lib/foundation-build-closeout-source-session-records.js",
+      "lib/foundation-build-closeout-source-youtube-pipeline-records.js",
+      "lib/foundation-build-closeout-source-maturity-core-records.js",
+      "lib/foundation-build-closeout-source-maturity-routing-records.js",
+      "lib/foundation-build-closeout-source-maturity-followup-records.js",
+      "lib/foundation-build-closeout-process-gate-records.js source aggregate and key inventory",
+      "lib/foundation-build-closeout-process-gate-sprint-records.js",
+      "lib/foundation-build-closeout-process-gate-source-contract-records.js",
+      "lib/foundation-build-closeout-process-gate-governance-records.js",
+      "lib/foundation-build-closeout-process-gate-operations-records.js",
+      "lib/build-closeout-registry-extract.js focused registry split proof",
+      "lib/foundation-build-log-source.js and scripts/foundation-verify.mjs source visibility bundles"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-build-closeout-source-records.js lib/foundation-build-closeout-source-*-records.js lib/build-closeout-registry-extract.js lib/foundation-build-log-source.js lib/foundation-build-closeout-size-records.js scripts/foundation-verify.mjs",
+      "npm run process:build-closeout-registry-extract-check -- --json",
+      "npm run process:build-closeout-data-source-check -- --json",
+      "npm run process:agentic-codebase-map-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=BUILD-CLOSEOUT-REGISTRY-EXTRACT-001 --planApprovalRef=docs/process/approvals/BUILD-CLOSEOUT-REGISTRY-EXTRACT-001.json --closeoutKey=build-closeout-source-records-extract-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-CLOSEOUT-REGISTRY-EXTRACT-001 --closeoutKey=build-closeout-source-records-extract-v1",
+      "npm run process:foundation-ship -- --card=BUILD-CLOSEOUT-REGISTRY-EXTRACT-001 --planApprovalRef=docs/process/approvals/BUILD-CLOSEOUT-REGISTRY-EXTRACT-001.json --closeoutKey=build-closeout-source-records-extract-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the source and process-gate aggregates still spread every extracted module, all extracted modules stay below 1,500 lines, representative source/process closeout keys remain visible through `getFoundationBuildCloseouts()`, and the build-log/verifier source bundles include the new modules.",
+    "reviewNext": "Continue source-specific readback work after the registry is shipped: source-SOP completion/readback, source-session proof, and one bounded real source lane at a time.",
+    "knownLimits": [
+      "This is a mechanical registry split only.",
+      "This does not change any extractor, source-session, newsletter, repo, Skool, MyICOR, YouTube, or source-maturity behavior.",
+      "This does not run live extraction, browse, log in, submit forms, send Harlan/Telegram, download, buy, post, comment, message, call providers/models, mutate credentials, mutate profiles, write external systems, or promote Scoper cards.",
+      "This does not mark Source Browser Agent, Source Session Broker, or God Mode extraction complete."
+    ]
+  },
+  {
+    "key": "critical-roots-under-3k-phase-3-v1",
+    "backlogIds": [
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-3"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Ship critical roots under 3K phase 3",
+        "CRITICAL-ROOTS-UNDER-3K-PHASE-3",
+        "Critical roots under 3K phase 3",
+        "critical-roots-under-3k-phase-3-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-2"
+    ],
+    "systemArea": "Foundation file-size control / server document strategy surface architecture",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split the document strategy surface out of `server.js` into `lib/server-document-strategy-surface.js`.",
+    "whatItDoes": "Keeps `server.js` as the route/orchestration root while the extracted module owns markdown document allowlisting and metadata, strategy PDF generation, doc edit helpers, git doc status helpers, and focused split dogfood proof.",
+    "whyItMatters": "`server.js` remained a high-risk critical root above 4,800 lines. This removes a cohesive document/PDF helper domain without route behavior, DB schema, connector auth, or feature work.",
+    "whereItLives": [
+      "server.js",
+      "lib/server-document-strategy-surface.js",
+      "scripts/foundation-verify.mjs",
+      "scripts/process-critical-roots-under-3k-phase-3-check.mjs",
+      "package.json",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "lib/foundation-build-closeout-size-records.js",
+      "docs/process/critical-roots-under-3k-phase-3-plan.md",
+      "docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-3.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-critical-roots-under-3k-phase-3-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check server.js lib/server-document-strategy-surface.js scripts/foundation-verify.mjs scripts/process-critical-roots-under-3k-phase-3-check.mjs lib/foundation-verify-coverage-card-ids.js lib/foundation-build-closeout-size-records.js",
+      "npm run process:critical-roots-under-3k-phase-3-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --failures-only",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-3 --planApprovalRef=docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-3.json --closeoutKey=critical-roots-under-3k-phase-3-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-3 --closeoutKey=critical-roots-under-3k-phase-3-v1",
+      "npm run process:post-ship-fanout -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-3 --closeoutKey=critical-roots-under-3k-phase-3-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-3 --planApprovalRef=docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-3.json --closeoutKey=critical-roots-under-3k-phase-3-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof verifies `server.js` delegates the document strategy surface, the old root no longer defines the moved helper domain, the extracted module is called directly for markdown/doc/PDF/git helper behavior, bad split fixtures fail closed, `server.js` drops from 4,831 to 3,872 lines, the extracted module stays below 1,500 lines, and no Harlan/Fal/voice/mockup paths are touched.",
+    "reviewNext": "Pause after this sprint. Recommend another critical-root split only if the next domain boundary is clearly larger and cohesive; otherwise move to SOURCE-CONTRACT-VALIDATION-LAYER.",
+    "knownLimits": [
+      "This does not complete all critical roots below 3,000 lines; scripts/foundation-verify.mjs, server.js, and lib/foundation-db.js remain above 3,000 lines.",
+      "This does not start another sprint after closeout.",
+      "This does not touch Harlan, Fal, voice, Canva feature work, hub feature work, connector auth, Agent Feedback send jobs, DB schema, route behavior, UI polish, or Steve local mockup assets."
+    ]
+  },
+  {
+    "key": "critical-roots-under-3k-phase-2-v1",
+    "backlogIds": [
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-2"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Ship critical roots under 3K phase 2",
+        "CRITICAL-ROOTS-UNDER-3K-PHASE-2",
+        "Critical roots under 3K phase 2",
+        "critical-roots-under-3k-phase-2-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-1"
+    ],
+    "systemArea": "Foundation file-size control / verifier live API snapshot architecture",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split live API snapshot loading out of `scripts/foundation-verify.mjs` into `lib/foundation-verify-live-api-snapshot.js`.",
+    "whatItDoes": "Keeps `scripts/foundation-verify.mjs` as the root verifier orchestrator while the extracted module owns read-only Foundation/API/source-truth snapshot loading, local-doc guard probes, derived extraction-control arrays, and split dogfood proof.",
+    "whyItMatters": "The verifier root remains the highest-risk critical root. This moves a real source-loading responsibility out of the root without route behavior, DB schema, connector auth, or feature work.",
+    "whereItLives": [
+      "scripts/foundation-verify.mjs",
+      "lib/foundation-verify-live-api-snapshot.js",
+      "scripts/process-critical-roots-under-3k-phase-2-check.mjs",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "lib/foundation-build-closeout-size-records.js",
+      "docs/process/critical-roots-under-3k-phase-2-plan.md",
+      "docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-2.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-critical-roots-under-3k-phase-2-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check scripts/foundation-verify.mjs lib/foundation-verify-live-api-snapshot.js scripts/process-critical-roots-under-3k-phase-2-check.mjs lib/foundation-verify-coverage-card-ids.js lib/foundation-build-closeout-size-records.js",
+      "npm run process:critical-roots-under-3k-phase-2-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --failures-only",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-2 --planApprovalRef=docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-2.json --closeoutKey=critical-roots-under-3k-phase-2-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-2 --closeoutKey=critical-roots-under-3k-phase-2-v1",
+      "npm run process:post-ship-fanout -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-2 --closeoutKey=critical-roots-under-3k-phase-2-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-2 --planApprovalRef=docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-2.json --closeoutKey=critical-roots-under-3k-phase-2-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof verifies the root delegates live API snapshot loading, bad split fixtures fail closed, `scripts/foundation-verify.mjs` is reduced from 4,998 to 4,941 lines by wc -l after active-sprint allowlist registration, the extracted module stays below 1,500 lines, live snapshot loading returns Foundation Hub and source truth, and no Harlan/Fal/voice/mockup paths are touched. Full foundation:verify passed 445/445 after restart recovery without rerunning the Agent Feedback auto-send job.",
+    "reviewNext": "Pause after this sprint. Recommend the next sprint from repo truth: another critical-root split, FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001, SOURCE-CONTRACT-VALIDATION-LAYER, or EXTRACTION-RUNTIME-READINESS.",
+    "knownLimits": [
+      "This does not complete all critical roots below 3,000 lines; scripts/foundation-verify.mjs, server.js, and lib/foundation-db.js remain above 3,000 lines.",
+      "This does not start FOUNDATION-SURFACE-UPDATES-001 or another root split after closeout.",
+      "This does not touch Harlan, Fal, voice, Canva feature work, hub feature work, connector auth, Agent Feedback send jobs, DB schema, route behavior, or Steve local mockup assets."
+    ]
+  },
+  {
+    "key": "critical-roots-under-3k-phase-1-v1",
+    "backlogIds": [
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-1"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Ship critical root under 3K phase 1",
+        "CRITICAL-ROOTS-UNDER-3K-PHASE-1",
+        "Critical roots under 3K phase 1",
+        "critical-roots-under-3k-phase-1-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "BACKLOG-QUEUE-RECONCILE-001"
+    ],
+    "systemArea": "Foundation file-size control / frontend root architecture",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split the first critical Foundation root below 3,000 lines by extracting cohesive document, strategy, and home renderers from `public/foundation.js`.",
+    "whatItDoes": "Keeps `public/foundation.js` as the Foundation UI support/root file while `public/foundation-doc-markdown-renderers.js` owns markdown/source-card/BHAG/Agent Engine rendering, `public/foundation-strategy-renderers.js` owns Strategy Packet and strategy document rendering, and `public/foundation-home-renderers.js` owns the legacy Foundation home renderer.",
+    "whyItMatters": "The 5,000-line emergency limit is no longer enough. This starts the staged cleanup toward reviewable roots without arbitrary line cuts or product-adjacent scope drift.",
+    "whereItLives": [
+      "public/foundation.js",
+      "public/foundation-doc-markdown-renderers.js",
+      "public/foundation-strategy-renderers.js",
+      "public/foundation-home-renderers.js",
+      "public/foundation-current-state-renderers.js",
+      "public/foundation.html",
+      "lib/foundation-frontend-current-state-renderers-split.js",
+      "lib/foundation-source-trust-verifier.js",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "scripts/foundation-verify.mjs",
+      "scripts/process-critical-roots-under-3k-check.mjs",
+      "docs/process/critical-roots-under-3k-phase-1-plan.md",
+      "docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-1.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-critical-roots-under-3k-phase-1-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check public/foundation.js public/foundation-doc-markdown-renderers.js public/foundation-strategy-renderers.js public/foundation-home-renderers.js public/foundation-current-state-renderers.js lib/foundation-frontend-current-state-renderers-split.js lib/foundation-source-trust-verifier.js lib/foundation-verify-coverage-card-ids.js scripts/foundation-verify.mjs scripts/process-critical-roots-under-3k-check.mjs",
+      "npm run process:critical-roots-under-3k-check -- --json",
+      "npm run foundation:verify -- --failures-only",
+      "npm run foundation:verify",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-1 --planApprovalRef=docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-1.json --closeoutKey=critical-roots-under-3k-phase-1-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-1 --closeoutKey=critical-roots-under-3k-phase-1-v1",
+      "npm run process:post-ship-fanout -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-1 --closeoutKey=critical-roots-under-3k-phase-1-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=CRITICAL-ROOTS-UNDER-3K-PHASE-1 --planApprovalRef=docs/process/approvals/CRITICAL-ROOTS-UNDER-3K-PHASE-1.json --closeoutKey=critical-roots-under-3k-phase-1-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof verifies `public/foundation.js` is below 3,000 lines, extracted modules stay below 1,500 lines, script order preserves the classic-script globals, moved functions are absent from the root and present in domain modules, and synthetic no-root-under-3K, oversized-module, missing-script-order, and arbitrary-cut fixtures fail closed.",
+    "reviewNext": "Pause before another root split. Start the next sprint with BACKLOG-QUEUE-RECONCILE-001 so handoff queue labels reconcile to live backlog truth before Foundation surface/root cleanup continues.",
+    "knownLimits": [
+      "This closes only the first under-3K root phase; scripts/foundation-verify.mjs, server.js, and lib/foundation-db.js remain above 3,000 lines.",
+      "This does not start another root split.",
+      "This does not touch Harlan, Fal, voice, Canva feature work, hub feature work, connector auth, Agent Feedback send jobs, DB schema, route behavior, or Steve local mockup assets.",
+      "This does not resolve BACKLOG-QUEUE-RECONCILE-001; it explicitly routes that as the next sprint before further cleanup."
+    ]
+  },
+  {
+    "key": "file-size-engineering-standard-v1",
+    "backlogIds": [
+      "FILE-SIZE-ENGINEERING-STANDARD-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FILE-SIZE-ENGINEERING-STANDARD-001",
+        "File-size engineering standard",
+        "file-size-engineering-standard-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-1",
+      "NO-AUTH-CONNECTOR-COMPLETION-001"
+    ],
+    "systemArea": "Foundation file-size control / process gates",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a canonical Foundation file-size engineering standard with Plan Critic, System Health, ship preflight, focused proof, verifier coverage, and closeout coverage.",
+    "whatItDoes": "Sets the preferred hand-written module budget at 1,500 lines, marks files above that as watch surfaces requiring split/no-new-responsibility plans, treats hand-written modules above 10,000 lines as red/danger, and requires generated files, data records, and report artifacts to declare explicit budgets.",
+    "whyItMatters": "The old failure pattern let large files keep absorbing new behavior until the verifier and core roots became hard to review. This makes file-size risk visible and blocks plans that add responsibility to over-budget files without a domain split.",
+    "whereItLives": [
+      "lib/foundation-file-size-standard.js",
+      "lib/plan-critic-architectural-rules.js",
+      "lib/foundation-system-health.js",
+      "lib/foundation-ship-preflight.js",
+      "lib/foundation-runtime-reliability-verifier.js",
+      "scripts/process-file-size-engineering-standard-check.mjs",
+      "docs/process/file-size-engineering-standard-001-plan.md",
+      "docs/process/approvals/FILE-SIZE-ENGINEERING-STANDARD-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-file-size-engineering-standard-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-file-size-standard.js lib/plan-critic-architectural-rules.js lib/foundation-system-health.js lib/foundation-ship-preflight.js lib/foundation-runtime-reliability-verifier.js scripts/process-file-size-engineering-standard-check.mjs scripts/process-plan-critic-architectural-rules-check.mjs scripts/process-foundation-ship-preflight.mjs scripts/process-system-health-nightly-audit-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:file-size-engineering-standard-check -- --json",
+      "npm run process:plan-critic-architectural-rules-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:foundation-ship-preflight -- --json --dogfood",
+      "npm run foundation:verify -- --failures-only",
+      "npm run foundation:verify",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FILE-SIZE-ENGINEERING-STANDARD-001 --planApprovalRef=docs/process/approvals/FILE-SIZE-ENGINEERING-STANDARD-001.json --closeoutKey=file-size-engineering-standard-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FILE-SIZE-ENGINEERING-STANDARD-001 --closeoutKey=file-size-engineering-standard-v1",
+      "npm run process:post-ship-fanout -- --card=FILE-SIZE-ENGINEERING-STANDARD-001 --closeoutKey=file-size-engineering-standard-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=FILE-SIZE-ENGINEERING-STANDARD-001 --planApprovalRef=docs/process/approvals/FILE-SIZE-ENGINEERING-STANDARD-001.json --closeoutKey=file-size-engineering-standard-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood recreates a plan that adds behavior to an over-budget hand-written module without a split plan and proves Plan Critic rejects it; recreates a report artifact without an explicit budget and proves rejection; proves System Health surfaces a synthetic red file-size row; proves ship preflight blocks a red/danger file-size fixture; and keeps current watched roots visible as watch surfaces rather than hidden green.",
+    "reviewNext": "Continue to CRITICAL-ROOTS-UNDER-3K-PHASE-1 so the current watched roots move from watch posture toward the preferred module shape.",
+    "knownLimits": [
+      "This does not split critical roots below 3,000 lines.",
+      "This does not touch Harlan, Fal, voice, Canva feature work, hub feature work, connector auth, Agent Feedback send jobs, DB schema, or route behavior.",
+      "This does not rerun the live Agent Feedback auto-send job.",
+      "Existing watched roots above 1,500 lines are surfaced as watch until the next split sprint reduces them."
+    ]
+  },
+  {
+    "key": "critical-files-under-5k-v1",
+    "backlogIds": [
+      "CRITICAL-FILES-UNDER-5K-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "CRITICAL-FILES-UNDER-5K-001",
+        "Critical files under 5K",
+        "critical-files-under-5k-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FILE-SIZE-ENGINEERING-STANDARD-001",
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-1"
+    ],
+    "systemArea": "Foundation file-size control / verifier architecture",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split verifier coverage IDs and runtime support out of the root Foundation verifier so all four critical source files are below 5,000 lines.",
+    "whatItDoes": "Keeps `scripts/foundation-verify.mjs` as the root orchestration map while focused modules own shipped-card coverage IDs, verifier runtime helpers, timing/profile support, health-script runners, repo/runtime probes, direct model host audit proof, and verifier coverage-source aggregation for historical status builders.",
+    "whyItMatters": "The root verifier was the last critical source file above the 5,000-line hard-problem threshold. Bringing it below the emergency limit lowers review risk before Foundation moves on to enforce the broader file-size engineering standard.",
+    "whereItLives": [
+      "scripts/foundation-verify.mjs",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "lib/foundation-verify-runtime-support.js",
+      "lib/foundation-verify-coverage-source.js",
+      "lib/foundation-followup-card-capture.js",
+      "lib/foundation-systems-service-grouping.js",
+      "lib/system-registration-sweep.js",
+      "docs/process/critical-files-under-5k-001-plan.md",
+      "docs/process/approvals/CRITICAL-FILES-UNDER-5K-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-critical-files-under-5k-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check scripts/foundation-verify.mjs lib/foundation-verify-coverage-card-ids.js lib/foundation-verify-runtime-support.js lib/foundation-verify-coverage-source.js lib/foundation-followup-card-capture.js lib/foundation-systems-service-grouping.js lib/system-registration-sweep.js lib/foundation-build-closeout-size-records.js lib/foundation-build-closeout-records.js lib/foundation-build-log-source.js",
+      "node --input-type=module -e \"import { buildFoundationVerifyRuntimeSupportDogfoodProof } from './lib/foundation-verify-runtime-support.js'; const proof = buildFoundationVerifyRuntimeSupportDogfoodProof(); console.log(JSON.stringify({ ok: proof.ok, invariant: proof.dogfoodInvariant, rejected: proof.rejected }, null, 2)); if (!proof.ok) process.exit(1)\"",
+      "npm run process:plan-critic-architectural-rules-check",
+      "npm run foundation:verify -- --failures-only",
+      "npm run foundation:verify",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=CRITICAL-FILES-UNDER-5K-001 --planApprovalRef=docs/process/approvals/CRITICAL-FILES-UNDER-5K-001.json --closeoutKey=critical-files-under-5k-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=CRITICAL-FILES-UNDER-5K-001 --closeoutKey=critical-files-under-5k-v1",
+      "npm run process:post-ship-fanout -- --card=CRITICAL-FILES-UNDER-5K-001 --closeoutKey=critical-files-under-5k-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=CRITICAL-FILES-UNDER-5K-001 --planApprovalRef=docs/process/approvals/CRITICAL-FILES-UNDER-5K-001.json --closeoutKey=critical-files-under-5k-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood rejects unsafe direct model host references while accepting clean and adapter-owned references. Plan Critic architectural rules passed 10/10. `foundation:verify -- --failures-only` and default `foundation:verify` passed 444/444. `backlog:hygiene -- --json` was healthy with 0 findings. Critical file counts after the split: scripts/foundation-verify.mjs 4,997, server.js 4,831, lib/foundation-db.js 4,735, public/foundation.js 4,909.",
+    "reviewNext": "Pull FILE-SIZE-ENGINEERING-STANDARD-001 next so the size thresholds become enforced gates instead of a handoff reminder.",
+    "knownLimits": [
+      "This does not enforce the broader file-size engineering standard yet.",
+      "This does not reduce critical roots below 3,000 lines.",
+      "This does not touch Harlan, Fal, voice, Canva feature work, hub feature work, connector auth, Agent Feedback send jobs, DB schema, or route behavior.",
+      "This does not rerun the live Agent Feedback auto-send job."
+    ]
+  },
+  {
+    "key": "foundation-file-size-watch-classifier-v1",
+    "backlogIds": [
+      "FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001",
+        "foundation-file-size-watch-classifier-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FILE-SIZE-ENGINEERING-STANDARD-001",
+      "CRITICAL-FILES-UNDER-5K-001",
+      "FOUNDATION-HEALTH-GREEN-LOCK-001"
+    ],
+    "systemArea": "Foundation file-size control / managed watch escalation",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Delegated verifier progression helper logic out of the root verifier and upgraded file-size health so active risk/watch rows clear only when remaining large files have managed, owner-backed, threshold-backed, stale-escalating dispositions.",
+    "whatItDoes": "Distinguishes active file-size debt from managed non-blocking architecture watch: unmanaged/stale watch rows stay yellow, 5k split-now rows become risk, and managed rows remain visible in System Health without counting as raw health debt.",
+    "whyItMatters": "Yellow file-size health should not wait for Steve to notice it manually. The system now tracks owner, threshold, next trigger, blocking state, and stale escalation for future file-size rows.",
+    "whereItLives": [
+      "lib/foundation-file-size-standard.js reusable escalation model",
+      "lib/foundation-system-health.js managed file-size row visibility",
+      "lib/foundation-verifier-progression-helpers.js verifier progression helper split",
+      "scripts/foundation-verify.mjs thin verifier orchestration call site",
+      "scripts/process-foundation-file-size-watch-classifier-check.mjs focused proof and live card scaffold",
+      "docs/process/foundation-file-size-watch-classifier-001-plan.md",
+      "docs/process/approvals/FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-file-size-watch-classifier-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-file-size-standard.js lib/foundation-system-health.js lib/foundation-verifier-progression-helpers.js scripts/foundation-verify.mjs scripts/process-foundation-file-size-watch-classifier-check.mjs",
+      "npm run process:foundation-file-size-watch-classifier-check -- --apply --close-card --json",
+      "npm run process:file-size-engineering-standard-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001 --planApprovalRef=docs/process/approvals/FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001.json --closeoutKey=foundation-file-size-watch-classifier-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001 --closeoutKey=foundation-file-size-watch-classifier-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001 --planApprovalRef=docs/process/approvals/FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001.json --closeoutKey=foundation-file-size-watch-classifier-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, before/after line counts, verifier below 5k, active file-size risk/watch counts at zero, four visible managed rows with owner/threshold/next trigger, unmanaged/stale/split-now dogfood, package script, closeout registry, verifier coverage, live backlog closeout, Current Sprint advancement, and no external-write path.",
+    "reviewNext": "Pause for FOUNDATION-HEALTH-GREEN-LOCK-001.",
+    "knownLimits": [
+      "This does not reduce every watched file below 1,500 lines.",
+      "This does not replace the final health green lock.",
+      "This does not start source/value/agent work.",
+      "This does not launch parallel builders."
+    ]
+  }
+]

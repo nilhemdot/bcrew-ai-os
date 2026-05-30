@@ -1,0 +1,1814 @@
+[
+  {
+    "key": "ship-gate-worker-live-job-pause-v1",
+    "backlogIds": [
+      "SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001",
+        "Ship Gate Worker Live Job Pause",
+        "Pause worker jobs during ship gate restart",
+        "ship-gate-worker-live-job-pause-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-FUB-MONITORING-GAP-REPAIR-001",
+      "BUILD-LANE-FAILURE-TELEMETRY-001"
+    ],
+    "systemArea": "Foundation ship gate reliability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a short-lived worker scheduled-job pause around process:foundation-ship runtime restarts.",
+    "whatItDoes": "Lets the Foundation worker restart and record current commit/PID for served-code proof while refusing to select due scheduled jobs during the ship gate; the marker clears in a finally path and expires if interrupted.",
+    "whyItMatters": "Ship verification should not accidentally start live connector/extraction jobs. The FUB monitoring-gap ship exposed that worker restart could start a due Gmail sync and turn extraction runtime readiness red.",
+    "whereItLives": [
+      "lib/ship-gate-worker-live-job-pause.js pause marker contract, evaluator, helpers, closeout renderer, and dogfood proof",
+      "scripts/process-foundation-ship.mjs worker pause arming/cleanup around LaunchAgent restart",
+      "scripts/foundation-worker.mjs pause check before due-job selection",
+      "lib/foundation-extraction-runtime-verifier.js full verifier coverage for the pause wiring",
+      "scripts/process-ship-gate-worker-live-job-pause-check.mjs focused proof",
+      "docs/process/foundation-ship-gate.md",
+      "docs/process/ship-gate-worker-live-job-pause-001-plan.md",
+      "docs/process/approvals/SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001.json",
+      "docs/_archive/handoffs/2026-05-18-ship-gate-worker-live-job-pause-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/ship-gate-worker-live-job-pause.js scripts/process-foundation-ship.mjs scripts/foundation-worker.mjs scripts/process-ship-gate-worker-live-job-pause-check.mjs",
+      "npm run process:ship-gate-worker-live-job-pause-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001 --planApprovalRef=docs/process/approvals/SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001.json --closeoutKey=ship-gate-worker-live-job-pause-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001 --closeoutKey=ship-gate-worker-live-job-pause-v1",
+      "npm run process:foundation-ship -- --card=SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001 --planApprovalRef=docs/process/approvals/SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001.json --closeoutKey=ship-gate-worker-live-job-pause-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates active pause blocks scheduled job selection, expired pause resumes, invalid pause fails closed, ship gate writes/clears the marker, worker reads it before due-job selection, package script, verifier coverage, closeout registry, current plan/state, and no extraction/auth/external-write work.",
+    "reviewNext": "Continue safe Foundation source/connector work from live truth.",
+    "knownLimits": [
+      "This does not disable the Foundation worker permanently.",
+      "This does not hide stale/running job failures.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "action-route-promotion-workflow-v1",
+    "backlogIds": [
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "ACTION-ROUTE-PROMOTION-WORKFLOW-001",
+        "Action Route Promotion Workflow",
+        "action-route-promotion-workflow-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-DEDUP-STALENESS-GUARD-001"
+    ],
+    "systemArea": "Foundation action-route review workflow",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the governed internal workflow path for Action Route Review Inbox items.",
+    "whatItDoes": "Lets admin-gated Foundation review actions confirm decisions, answer questions, assign owners, promote to backlog, mark duplicates, reject, snooze, and link existing cards while preserving source evidence in workflow metadata.",
+    "whyItMatters": "Proposed intelligence can now move toward reviewed decisions, tasks, owner assignments, rejects, duplicates, and snoozes instead of staying as an unclosed noisy pile.",
+    "whereItLives": [
+      "lib/action-route-promotion-workflow.js workflow contract, validator, duplicate detector, metadata builder, and dogfood proof",
+      "POST /api/foundation/action-route-review-inbox/:routeId/workflow",
+      "lib/action-route-review-inbox.js workflow state/action fields in Review Inbox read model",
+      "public/foundation-action-route-review-inbox-renderers.js lightweight workflow controls",
+      "scripts/process-action-route-promotion-workflow-check.mjs focused proof",
+      "docs/process/action-route-promotion-workflow-001-plan.md",
+      "docs/process/approvals/ACTION-ROUTE-PROMOTION-WORKFLOW-001.json",
+      "docs/_archive/handoffs/2026-05-18-action-route-promotion-workflow-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/action-route-promotion-workflow.js lib/action-route-review-inbox.js lib/strategy-shared-comms-routes.js scripts/process-action-route-promotion-workflow-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:action-route-promotion-workflow-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=ACTION-ROUTE-PROMOTION-WORKFLOW-001 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-PROMOTION-WORKFLOW-001.json --closeoutKey=action-route-promotion-workflow-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=ACTION-ROUTE-PROMOTION-WORKFLOW-001 --closeoutKey=action-route-promotion-workflow-v1",
+      "npm run process:foundation-ship -- --card=ACTION-ROUTE-PROMOTION-WORKFLOW-001 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-PROMOTION-WORKFLOW-001.json --closeoutKey=action-route-promotion-workflow-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, workflow dogfood, duplicate-promotion block, route/UI/security wiring, package script, verifier coverage, closeout registry, current plan/state, and no extraction/auth/model/external-write tokens.",
+    "reviewNext": "Continue FOUNDATION-KB-ACTION-REVIEW-SPRINT-001 with ACTION-ROUTE-DEDUP-STALENESS-GUARD-001.",
+    "knownLimits": [
+      "This does not build dedupe/staleness policy.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work.",
+      "This adds lightweight workflow controls, not a broad visual UI redesign."
+    ]
+  },
+  {
+    "key": "build-lane-failure-telemetry-v1",
+    "backlogIds": [
+      "BUILD-LANE-FAILURE-TELEMETRY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BUILD-LANE-FAILURE-TELEMETRY-001",
+        "Build Lane Failure Telemetry",
+        "build-lane-failure-telemetry-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001",
+      "ACTION-ROUTE-DEDUP-STALENESS-GUARD-001"
+    ],
+    "systemArea": "Foundation build lane reliability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a local Foundation build-lane failure telemetry layer that fingerprints failed proof, verifier, ship, fanout, post-ship fanout, and backlog hygiene checks.",
+    "whatItDoes": "Records normalized failure events with command, card, sprint, check, failure class, file/module, detail, timestamp, and fingerprint; rolls repeats into 24-hour and 7-day counts; escalates 3 repeats in 24h to yellow and 5 repeats or multi-card blocking to red; and surfaces repeated build-lane failures through System Health.",
+    "whyItMatters": "Repeated proof and verifier mistakes should become visible repair work instead of burning time as one-off debugging loops.",
+    "whereItLives": [
+      "lib/build-lane-failure-telemetry.js telemetry contract, event builder, fingerprint rollup, local log writer, and dogfood proof",
+      "scripts/process-build-lane-failure-telemetry-check.mjs focused proof",
+      "scripts/process-foundation-ship.mjs failure-event hook for ship-gate failures",
+      "scripts/process-ship-check.mjs failure-event hook for ship-check failures",
+      "scripts/process-fanout-check.mjs failure-event hook for fanout failures",
+      "scripts/process-post-ship-fanout.mjs failure-event hook for post-ship fanout failures",
+      "scripts/backlog-hygiene.mjs failure-event hook for critical backlog hygiene failures",
+      "lib/foundation-system-health.js System Health repeated-failure rollup",
+      "public/foundation-runtime-renderers.js System Health display row",
+      "docs/process/build-lane-failure-telemetry-001-plan.md",
+      "docs/process/approvals/BUILD-LANE-FAILURE-TELEMETRY-001.json",
+      "docs/_archive/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/build-lane-failure-telemetry.js scripts/process-build-lane-failure-telemetry-check.mjs lib/foundation-system-health.js scripts/process-foundation-ship.mjs",
+      "npm run process:build-lane-failure-telemetry-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=BUILD-LANE-FAILURE-TELEMETRY-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-FAILURE-TELEMETRY-001.json --closeoutKey=build-lane-failure-telemetry-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-LANE-FAILURE-TELEMETRY-001 --closeoutKey=build-lane-failure-telemetry-v1",
+      "npm run process:foundation-ship -- --card=BUILD-LANE-FAILURE-TELEMETRY-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-FAILURE-TELEMETRY-001.json --closeoutKey=build-lane-failure-telemetry-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, repeated verifier snapshot wiring dogfood, repeated thin-plan dogfood, one-off non-escalation, multi-card fanout red escalation, System Health surfacing, process hook wiring, package script, verifier coverage, closeout registry, current plan/state, and no extraction/auth/external writes.",
+    "reviewNext": "Resume FOUNDATION-KB-ACTION-REVIEW-SPRINT-001 with ACTION-ROUTE-PROMOTION-WORKFLOW-001.",
+    "knownLimits": [
+      "Telemetry is local/repo process observability and does not weaken or bypass verifier checks.",
+      "This does not automatically create repair cards yet; red rows require a repair card or explicit documented deferral.",
+      "This does not run live extraction, auth-required or paid jobs, model/provider probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "parallel-builder-worktree-protocol-v1",
+    "backlogIds": [
+      "PARALLEL-BUILDER-WORKTREE-PROTOCOL-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "PARALLEL-BUILDER-WORKTREE-PROTOCOL-001",
+        "Parallel builder worktree protocol",
+        "parallel-builder-worktree-protocol-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-KB-ACTION-REVIEW-SPRINT-001",
+      "FOUNDATION-KB-COMPILER-V1-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001",
+      "ACTION-ROUTE-DEDUP-STALENESS-GUARD-001",
+      "FOUNDATION-UP-CAPABILITY-REGISTRY-001",
+      "SYSTEM-010"
+    ],
+    "systemArea": "Foundation parallel builder coordination",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Defined and proved the Foundation-owned protocol for safe overnight and parallel builders: one card per branch/worktree, disjoint write scopes, shared-file coordination, Current Sprint staging, merge handoffs, and explicit no-go boundaries.",
+    "whatItDoes": "Rejects shared worktrees, shared branch edits, overlapping write scopes, missing Current Sprint coordination, uncoordinated shared/root file edits, forbidden local/mockup/Harlan/Fal/voice/Canva/OpenHuman scopes, and live extraction/provider-probe/external-write side effects.",
+    "whyItMatters": "Steve can run a longer Foundation queue without two builders silently stomping the same branch, worktree, or shared process files.",
+    "whereItLives": [
+      "lib/parallel-builder-worktree-protocol.js protocol contract, validator, and dogfood proof",
+      "lib/foundation-verify-process-hardening-runner.js root-verifier process-hardening orchestration split",
+      "lib/foundation-hub-backlog-contract.js lightweight done-card rows for default Hub backlog summary",
+      "scripts/process-parallel-builder-worktree-protocol-check.mjs focused proof",
+      "lib/foundation-process-hardening-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "docs/process/parallel-builder-worktree-protocol-001-plan.md",
+      "docs/process/approvals/PARALLEL-BUILDER-WORKTREE-PROTOCOL-001.json",
+      "docs/_archive/handoffs/2026-05-18-parallel-builder-worktree-protocol-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/parallel-builder-worktree-protocol.js lib/foundation-verify-process-hardening-runner.js scripts/process-parallel-builder-worktree-protocol-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:parallel-builder-worktree-protocol-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=PARALLEL-BUILDER-WORKTREE-PROTOCOL-001 --planApprovalRef=docs/process/approvals/PARALLEL-BUILDER-WORKTREE-PROTOCOL-001.json --closeoutKey=parallel-builder-worktree-protocol-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=PARALLEL-BUILDER-WORKTREE-PROTOCOL-001 --closeoutKey=parallel-builder-worktree-protocol-v1",
+      "npm run process:foundation-ship -- --card=PARALLEL-BUILDER-WORKTREE-PROTOCOL-001 --planApprovalRef=docs/process/approvals/PARALLEL-BUILDER-WORKTREE-PROTOCOL-001.json --closeoutKey=parallel-builder-worktree-protocol-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, protocol dogfood, package script, verifier coverage, closeout registry, current plan/state, root verifier under 5,000 lines, and no live extraction/provider/external writes.",
+    "reviewNext": "Start FOUNDATION-KB-ACTION-REVIEW-SPRINT-001 from fresh repo truth.",
+    "knownLimits": [
+      "This is protocol/proof work only; it does not create worktrees, start workers, or implement a multi-agent runtime.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, connector/OAuth repair, model calls, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "foundation-kb-compiler-v1",
+    "backlogIds": [
+      "FOUNDATION-KB-COMPILER-V1-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-KB-COMPILER-V1-001",
+        "Foundation KB compiler V1",
+        "foundation-kb-compiler-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001",
+      "ACTION-ROUTE-DEDUP-STALENESS-GUARD-001",
+      "FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001",
+      "KNOWLEDGE-BASE-QUALITY-GATE-001"
+    ],
+    "systemArea": "Foundation knowledge compiler",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Built the first Foundation-owned proposal-only KB compiler path from existing source-backed synthesis facts, locked decisions, and intelligence atoms into a compiled KB/wiki draft contract.",
+    "whatItDoes": "Preserves source IDs, citations, freshness metadata, privacy tier, compiler frontmatter, and quality-gate pass/fail state while refusing live extraction, model calls, external writes, compiled page writes, Research Inbox writes, atom writes, and backlog mutation.",
+    "whyItMatters": "Foundation can now prove the raw/source-backed record -> compiled wiki draft step before agents consume knowledge or extractor work adds more source pressure.",
+    "whereItLives": [
+      "lib/foundation-kb-compiler-v1.js compiler contract and dogfood proof",
+      "scripts/process-foundation-kb-compiler-v1-check.mjs focused proof",
+      "lib/foundation-intelligence-audit-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "docs/process/foundation-kb-compiler-v1-001-plan.md",
+      "docs/process/approvals/FOUNDATION-KB-COMPILER-V1-001.json",
+      "docs/_archive/handoffs/2026-05-18-foundation-kb-compiler-v1-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-kb-compiler-v1.js lib/foundation-intelligence-audit-verifier.js scripts/process-foundation-kb-compiler-v1-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:foundation-kb-compiler-v1-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-KB-COMPILER-V1-001 --planApprovalRef=docs/process/approvals/FOUNDATION-KB-COMPILER-V1-001.json --closeoutKey=foundation-kb-compiler-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-KB-COMPILER-V1-001 --closeoutKey=foundation-kb-compiler-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-KB-COMPILER-V1-001 --planApprovalRef=docs/process/approvals/FOUNDATION-KB-COMPILER-V1-001.json --closeoutKey=foundation-kb-compiler-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, existing source-backed records, quality-gated draft output, dogfood rejects, package script, verifier coverage, closeout registry, current plan/state, and no live extraction/model/external writes.",
+    "reviewNext": "Continue FOUNDATION-KB-ACTION-REVIEW-SPRINT-001 with ACTION-ROUTE-REVIEW-INBOX-001.",
+    "knownLimits": [
+      "This is proposal-only compiler plumbing; it does not write compiled pages, query indexes, vector tables, Research Inbox rows, atoms, or backlog cards from compiled content.",
+      "This does not run live extraction, transcript fetches, screenshots, crawl, model calls, provider probes, paid/auth runs, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "action-route-review-inbox-v1",
+    "backlogIds": [
+      "ACTION-ROUTE-REVIEW-INBOX-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "ACTION-ROUTE-REVIEW-INBOX-001",
+        "Action Route Review Inbox",
+        "action-route-review-inbox-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001",
+      "ACTION-ROUTE-DEDUP-STALENESS-GUARD-001",
+      "ACTION-REVIEW-APPLY-001"
+    ],
+    "systemArea": "Foundation action review",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a read-only Action Route Review Inbox so proposed intelligence/action-route findings are separated from normal sprint backlog cards.",
+    "whatItDoes": "Exposes action-route review items with type, owner, age, source refs, destination, and review state, while keeping route-derived backlog rows accessible through the inbox or explicit focused-card loads instead of mixing them into the default backlog queue.",
+    "whyItMatters": "Steve can review proposed intelligence without mistaking unreviewed action-route findings for committed build backlog work.",
+    "whereItLives": [
+      "lib/action-route-review-inbox.js review inbox contract, backlog separation helper, and dogfood proof",
+      "/api/foundation/action-route-review-inbox read-only route",
+      "Foundation > Review queues > Review Inbox",
+      "lib/foundation-backlog-detail.js default backlog separation",
+      "public/foundation-action-route-review-inbox-renderers.js read-only page renderer",
+      "scripts/process-action-route-review-inbox-check.mjs focused proof",
+      "lib/foundation-verifier-control-loop.js verifier coverage",
+      "docs/process/action-route-review-inbox-001-plan.md",
+      "docs/process/approvals/ACTION-ROUTE-REVIEW-INBOX-001.json",
+      "docs/_archive/handoffs/2026-05-18-action-route-review-inbox-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/action-route-review-inbox.js lib/strategy-shared-comms-routes.js scripts/process-action-route-review-inbox-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:action-route-review-inbox-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=ACTION-ROUTE-REVIEW-INBOX-001 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-REVIEW-INBOX-001.json --closeoutKey=action-route-review-inbox-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=ACTION-ROUTE-REVIEW-INBOX-001 --closeoutKey=action-route-review-inbox-v1",
+      "npm run process:foundation-ship -- --card=ACTION-ROUTE-REVIEW-INBOX-001 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-REVIEW-INBOX-001.json --closeoutKey=action-route-review-inbox-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, read-only inbox API/page, default backlog separation, dogfood rejects missing item fields, package script, verifier coverage, closeout registry, current plan/state, and no extraction/model/external writes.",
+    "reviewNext": "Continue FOUNDATION-KB-ACTION-REVIEW-SPRINT-001 with ACTION-ROUTE-PROMOTION-WORKFLOW-001.",
+    "knownLimits": [
+      "This is read-only inbox/separation work. It does not promote, apply, reject, snooze, duplicate-link, or dedupe action routes.",
+      "This does not run live extraction, transcript fetches, screenshots, crawl, model calls, provider probes, paid/auth runs, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work or broad visual UI redesign."
+    ]
+  },
+  {
+    "key": "agent-status-freshness-gate-v1",
+    "backlogIds": [
+      "AGENT-STATUS-FRESHNESS-GATE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "AGENT-STATUS-FRESHNESS-GATE-001",
+        "Agent status freshness gate",
+        "agent-status-freshness-gate-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "AIOS-RUNTIME-PORTABILITY-GATE-001"
+    ],
+    "systemArea": "Foundation agent status truth",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Defined the Foundation-owned gate requiring fresh live Foundation/API truth before an agent reports current operational status.",
+    "whatItDoes": "Rejects memory-only current claims, stale live reads, missing as-of timestamps, live status conflicts, stale Harlan-style capability claims, and unapproved live/model/external side effects.",
+    "whyItMatters": "Agents can use memory and handoffs as context, but Steve should not hear stale capability claims as current truth.",
+    "whereItLives": [
+      "lib/agent-status-freshness-gate.js status freshness contract, validator, and dogfood proof",
+      "scripts/process-agent-status-freshness-gate-check.mjs focused proof",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "docs/process/agent-status-freshness-gate-001-plan.md",
+      "docs/process/approvals/AGENT-STATUS-FRESHNESS-GATE-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-agent-status-freshness-gate-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/agent-status-freshness-gate.js lib/foundation-runtime-reliability-verifier.js scripts/process-agent-status-freshness-gate-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:agent-status-freshness-gate-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=AGENT-STATUS-FRESHNESS-GATE-001 --planApprovalRef=docs/process/approvals/AGENT-STATUS-FRESHNESS-GATE-001.json --closeoutKey=agent-status-freshness-gate-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=AGENT-STATUS-FRESHNESS-GATE-001 --closeoutKey=agent-status-freshness-gate-v1",
+      "npm run process:foundation-ship -- --card=AGENT-STATUS-FRESHNESS-GATE-001 --planApprovalRef=docs/process/approvals/AGENT-STATUS-FRESHNESS-GATE-001.json --closeoutKey=agent-status-freshness-gate-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, runtime portability prerequisite, status freshness contract, unsafe status-claim dogfood variants, package script, verifier coverage, closeout registry, and no live extraction/model/provider/external writes.",
+    "reviewNext": "Queue complete. Select the next Foundation sprint from fresh repo truth.",
+    "knownLimits": [
+      "This is synthetic status freshness contract proof only.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, connector/OAuth repair, runtime adapter installs, model calls, external writes, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "aios-runtime-portability-gate-v1",
+    "backlogIds": [
+      "AIOS-RUNTIME-PORTABILITY-GATE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "AIOS-RUNTIME-PORTABILITY-GATE-001",
+        "AIOS runtime portability gate",
+        "Add AIOS runtime portability gate",
+        "aios-runtime-portability-gate-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "AGENT-STATUS-FRESHNESS-GATE-001",
+      "KNOWLEDGE-BASE-QUALITY-GATE-001"
+    ],
+    "systemArea": "Foundation runtime portability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Defined the Foundation-owned runtime portability gate for Claude, Codex, OpenClaw, OpenHuman, Higgsfield-style, and future runtime adapters.",
+    "whatItDoes": "Requires runtime identity, tools, permissions, model/provider route, auth posture, cost policy, logs/transcripts export, source-truth boundary, fallback brain, and adapter-only ownership before a runtime can be treated as AIOS-capable.",
+    "whyItMatters": "AIOS needs swappable brains without letting any runtime own source truth, model routes, permissions, cost, logs, or memory doctrine.",
+    "whereItLives": [
+      "lib/aios-runtime-portability-gate.js runtime portability contract, validator, and dogfood proof",
+      "scripts/process-aios-runtime-portability-gate-check.mjs focused proof",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-hub-backlog-contract.js default Hub backlog summary compaction",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "docs/process/aios-runtime-portability-gate-001-plan.md",
+      "docs/process/approvals/AIOS-RUNTIME-PORTABILITY-GATE-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-aios-runtime-portability-gate-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/aios-runtime-portability-gate.js lib/foundation-runtime-reliability-verifier.js scripts/process-aios-runtime-portability-gate-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:aios-runtime-portability-gate-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=AIOS-RUNTIME-PORTABILITY-GATE-001 --planApprovalRef=docs/process/approvals/AIOS-RUNTIME-PORTABILITY-GATE-001.json --closeoutKey=aios-runtime-portability-gate-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=AIOS-RUNTIME-PORTABILITY-GATE-001 --closeoutKey=aios-runtime-portability-gate-v1",
+      "npm run process:foundation-ship -- --card=AIOS-RUNTIME-PORTABILITY-GATE-001 --planApprovalRef=docs/process/approvals/AIOS-RUNTIME-PORTABILITY-GATE-001.json --closeoutKey=aios-runtime-portability-gate-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, KB quality-gate prerequisite, agent-status follow-up, runtime portability adapter contract, unsafe runtime dogfood variants, package script, verifier coverage, closeout registry, and no live extraction/model/provider/external writes.",
+    "reviewNext": "Continue the bounded Foundation queue with AGENT-STATUS-FRESHNESS-GATE-001.",
+    "knownLimits": [
+      "This is synthetic runtime portability contract proof only.",
+      "This does not install, run, authenticate, probe, or repair Claude, Codex, OpenClaw, OpenHuman, Higgsfield, or any other runtime.",
+      "This does not run live extraction, call models, create logs/transcripts from real sessions, write external systems, or build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "knowledge-base-quality-gate-v1",
+    "backlogIds": [
+      "KNOWLEDGE-BASE-QUALITY-GATE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "KNOWLEDGE-BASE-QUALITY-GATE-001",
+        "Knowledge-base quality gate",
+        "Add knowledge base quality gate",
+        "Add KB quality gate",
+        "knowledge-base-quality-gate-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001",
+      "AIOS-RUNTIME-PORTABILITY-GATE-001"
+    ],
+    "systemArea": "Foundation knowledge compiler quality gate",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Defined the fail-closed quality gate for compiled knowledge pages before agent query/citation consumption.",
+    "whatItDoes": "Rejects compiled knowledge that lacks citations/source IDs, current freshness, resolved contradictions, page-size bounds, inbound links, frontmatter, allowed privacy tier, or sourced doctrine.",
+    "whyItMatters": "The Karpathy-style KB direction needs a quality gate before extraction/runtime work can safely create or expose compiled pages.",
+    "whereItLives": [
+      "lib/foundation-knowledge-base-quality-gate.js quality gate contract, validator, and dogfood proof",
+      "scripts/process-knowledge-base-quality-gate-check.mjs focused proof",
+      "lib/foundation-intelligence-audit-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "docs/process/knowledge-base-quality-gate-001-plan.md",
+      "docs/process/approvals/KNOWLEDGE-BASE-QUALITY-GATE-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-knowledge-base-quality-gate-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-knowledge-base-quality-gate.js lib/foundation-intelligence-audit-verifier.js scripts/process-knowledge-base-quality-gate-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:knowledge-base-quality-gate-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=KNOWLEDGE-BASE-QUALITY-GATE-001 --planApprovalRef=docs/process/approvals/KNOWLEDGE-BASE-QUALITY-GATE-001.json --closeoutKey=knowledge-base-quality-gate-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=KNOWLEDGE-BASE-QUALITY-GATE-001 --closeoutKey=knowledge-base-quality-gate-v1",
+      "npm run process:foundation-ship -- --card=KNOWLEDGE-BASE-QUALITY-GATE-001 --planApprovalRef=docs/process/approvals/KNOWLEDGE-BASE-QUALITY-GATE-001.json --closeoutKey=knowledge-base-quality-gate-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, compiler-design prerequisite, runtime portability follow-up, quality-gate rules, unsafe compiled-page dogfood variants, package script, verifier coverage, closeout registry, and no live extraction/model/external writes.",
+    "reviewNext": "Continue the bounded Foundation queue with AIOS-RUNTIME-PORTABILITY-GATE-001.",
+    "knownLimits": [
+      "This is synthetic quality-gate proof only.",
+      "This does not run live extraction, fetch transcripts, capture screenshots, crawl, summarize, call models, create compiled pages, build a query index, create atoms, write Research Inbox rows, or mutate backlog from extracted content.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "foundation-knowledge-base-compiler-design-v1",
+    "backlogIds": [
+      "FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001",
+        "Foundation knowledge-base compiler design",
+        "Add Foundation KB compiler design",
+        "foundation-knowledge-base-compiler-design-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001",
+      "BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001",
+      "KNOWLEDGE-BASE-QUALITY-GATE-001"
+    ],
+    "systemArea": "Foundation knowledge compiler design",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Defined the Foundation-owned contract for raw sources to compiled markdown/wiki to query/Q&A to feedback and quality gates.",
+    "whatItDoes": "Keeps the Karpathy-style knowledge-base direction owned by Foundation source contracts, ingestion permission, compiler rules, query contract, and quality gate before any agent consumes it.",
+    "whyItMatters": "Without a Foundation compiler contract, the KB idea can degrade into raw transcript dumps, Harlan-only memory, direct agent claims, or ungoverned extraction.",
+    "whereItLives": [
+      "lib/foundation-knowledge-base-compiler-design.js design contract, validator, and dogfood proof",
+      "scripts/process-foundation-knowledge-base-compiler-design-check.mjs focused proof",
+      "lib/foundation-intelligence-audit-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "docs/process/foundation-knowledge-base-compiler-design-001-plan.md",
+      "docs/process/approvals/FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-knowledge-base-compiler-design-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-knowledge-base-compiler-design.js lib/foundation-intelligence-audit-verifier.js scripts/process-foundation-knowledge-base-compiler-design-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:foundation-knowledge-base-compiler-design-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001 --planApprovalRef=docs/process/approvals/FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001.json --closeoutKey=foundation-knowledge-base-compiler-design-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001 --closeoutKey=foundation-knowledge-base-compiler-design-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001 --planApprovalRef=docs/process/approvals/FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001.json --closeoutKey=foundation-knowledge-base-compiler-design-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, prerequisite Karpathy cards, quality-gate follow-up, compiler design contract, unsafe dogfood variants, package script, verifier coverage, closeout registry, and no live extraction/model/external writes.",
+    "reviewNext": "Continue the bounded Foundation queue with KNOWLEDGE-BASE-QUALITY-GATE-001.",
+    "knownLimits": [
+      "This is design/proof only.",
+      "This does not run live extraction, fetch transcripts, capture screenshots, crawl, summarize, call models, create compiled pages, build a query index, create atoms, write Research Inbox rows, or mutate backlog from extracted content.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "llm-auth-audit-budget-label-clarity-v1",
+    "backlogIds": [
+      "LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001",
+        "LLM auth audit budget label clarity",
+        "llm-auth-audit-budget-label-clarity-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "LLM-AUTH-AUDIT-001",
+      "FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001",
+      "SHIP-GATE-FAST-PREFLIGHT-001",
+      "SHIP-GATE-FRESHNESS-OWNERSHIP-001"
+    ],
+    "systemArea": "Foundation LLM runtime/job budget truth",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Changed llm-auth-audit from a no_llm label to model_probe_no_extraction, recorded explicit budget details, and labeled the OpenClaw actual_model_run probe.",
+    "whatItDoes": "Prevents provider/model probes from hiding behind no_llm while keeping LLM auth audit manual, read-only, non-extraction, and external-write-free.",
+    "whyItMatters": "Foundation runtime and extraction work needs honest budget/provider labels before agents rely on job status or source contracts.",
+    "whereItLives": [
+      "lib/llm-auth-audit-budget-label-clarity.js validation and dogfood proof",
+      "lib/foundation-jobs.js llm-auth-audit job budget details",
+      "scripts/audit-llm-auth-paths.mjs OpenClaw probe budget metadata",
+      "lib/llm-auth-audit-proof.js runtime budget-label summary",
+      "lib/foundation-verify-llm-auth-audit.js verifier coverage",
+      "scripts/process-llm-auth-audit-budget-label-clarity-check.mjs focused proof",
+      "docs/process/llm-auth-audit-budget-label-clarity-001-plan.md",
+      "docs/process/approvals/LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-llm-auth-audit-budget-label-clarity-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/llm-auth-audit-budget-label-clarity.js lib/foundation-verify-llm-auth-audit.js scripts/process-llm-auth-audit-budget-label-clarity-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:llm-auth-audit-budget-label-clarity-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001 --planApprovalRef=docs/process/approvals/LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001.json --closeoutKey=llm-auth-audit-budget-label-clarity-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001 --closeoutKey=llm-auth-audit-budget-label-clarity-v1",
+      "npm run process:foundation-ship -- --card=LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001 --planApprovalRef=docs/process/approvals/LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001.json --closeoutKey=llm-auth-audit-budget-label-clarity-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, honest job/source budget label, no_llm failure dogfood, package script, verifier coverage, closeout registry, and no live LLM auth audit rerun.",
+    "reviewNext": "Continue the bounded Foundation queue with FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001.",
+    "knownLimits": [
+      "This does not rerun the live LLM auth audit job.",
+      "Historical llm-auth-audit run metadata may still show the old no_llm label.",
+      "This does not run extraction, OAuth, provider account repair, Agent Feedback auto-send, Gmail send, ClickUp write, or Drive permission mutation."
+    ]
+  },
+  {
+    "key": "build-intel-karpathy-llm-kb-preflight-v1",
+    "backlogIds": [
+      "BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001",
+        "Karpathy LLM KB preflight",
+        "build-intel-karpathy-llm-kb-preflight-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001",
+      "FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001",
+      "KNOWLEDGE-BASE-QUALITY-GATE-001"
+    ],
+    "systemArea": "Foundation Build Intel / knowledge compiler preflight",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Compared current AIOS Foundation primitives against the Karpathy-style raw data to compiled markdown/wiki to query/Q&A to quality/lint loop.",
+    "whatItDoes": "Routes the KB idea into Foundation-owned compiler and quality-gate follow-ups while keeping the Karpathy packet pending approval and non-runnable.",
+    "whyItMatters": "AIOS can now move toward a knowledge compiler deliberately instead of turning creator videos into a Harlan-only memory shortcut or ungoverned extraction run.",
+    "whereItLives": [
+      "lib/build-intel-karpathy-llm-kb-preflight.js preflight snapshot, dogfood, and report renderer",
+      "scripts/process-build-intel-karpathy-llm-kb-preflight-check.mjs focused proof",
+      "lib/foundation-intelligence-audit-verifier.js verifier coverage",
+      "docs/process/build-intel-karpathy-llm-kb-preflight-001-plan.md",
+      "docs/process/approvals/BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-build-intel-karpathy-llm-kb-preflight-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/build-intel-karpathy-llm-kb-preflight.js lib/foundation-intelligence-audit-verifier.js scripts/process-build-intel-karpathy-llm-kb-preflight-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:build-intel-karpathy-llm-kb-preflight-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001.json --closeoutKey=build-intel-karpathy-llm-kb-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001 --closeoutKey=build-intel-karpathy-llm-kb-preflight-v1",
+      "npm run process:foundation-ship -- --card=BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001.json --closeoutKey=build-intel-karpathy-llm-kb-preflight-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live card/current sprint truth, the shipped Karpathy packet prerequisite, Foundation compiler and quality-gate follow-up routing, no source crawl run for the packet, no output mutation side effects, and dogfood failures for live extraction, missing follow-ups, Harlan-only memory, and direct-agent output.",
+    "reviewNext": "Recommended next: FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001 unless Steve separately approves a no-auth/no-paid extraction run from the pending Karpathy packet.",
+    "knownLimits": [
+      "This does not run live extraction.",
+      "This does not fetch transcripts, crawl pages, capture screenshots, summarize videos, or call a model.",
+      "This does not write Research Inbox proposals, create atoms, or mutate backlog from extracted content.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman work."
+    ]
+  },
+  {
+    "key": "extractor-queue-karpathy-kb-video-pack-v1",
+    "backlogIds": [
+      "EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001",
+        "Karpathy KB Video Pack",
+        "extractor-queue-karpathy-kb-video-pack-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "EXTRACTION-RUNTIME-READINESS-001",
+      "BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001",
+      "CREATOR-WATCHLIST-001"
+    ],
+    "systemArea": "Foundation extraction queue / Build Intel source packet",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Karpathy LLM Knowledge Base video pack as a blocked/pending-approval manual extraction-control target and added Dream Labs AI to the Build Intel watchlist.",
+    "whatItDoes": "The packet records Dream Labs AI, Nate Herk, and the original Karpathy LLM Wiki source as queue truth while keeping the target non-runnable until Steve separately approves a no-auth/no-paid extraction run.",
+    "whyItMatters": "Build Intel can now consume governed source packet truth instead of chat titles, without bypassing Foundation source/auth/readiness/cost/output gates.",
+    "whereItLives": [
+      "lib/extractor-queue-karpathy-kb-video-pack.js packet target, source candidates, dogfood, and existing-work helpers",
+      "lib/extraction-runtime-readiness.js pending-approval runnable classification",
+      "lib/source-lifecycle.js blocked/manual Karpathy target baseline and lane visibility",
+      "lib/build-intel-watchlist.js Dream Labs AI watchlist row",
+      "lib/foundation-extraction-runtime-verifier.js verifier coverage",
+      "scripts/process-extractor-queue-karpathy-kb-video-pack-check.mjs focused proof",
+      "docs/process/extractor-queue-karpathy-kb-video-pack-001-plan.md",
+      "docs/process/approvals/EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-extractor-queue-karpathy-kb-video-pack-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/extractor-queue-karpathy-kb-video-pack.js lib/extraction-runtime-readiness.js lib/foundation-extraction-runtime-verifier.js scripts/process-extractor-queue-karpathy-kb-video-pack-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:extractor-queue-karpathy-kb-video-pack-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001 --planApprovalRef=docs/process/approvals/EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001.json --closeoutKey=extractor-queue-karpathy-kb-video-pack-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001 --closeoutKey=extractor-queue-karpathy-kb-video-pack-v1",
+      "npm run process:post-ship-fanout -- --card=EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001 --closeoutKey=extractor-queue-karpathy-kb-video-pack-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001 --planApprovalRef=docs/process/approvals/EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001.json --closeoutKey=extractor-queue-karpathy-kb-video-pack-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live card/current sprint truth, Dream Labs watchlist presence, blocked/pending-approval/manual extraction target state, no scheduled job key, no live-run approval, no source crawl run, readiness route non-runnable status, Source Lifecycle baseline representation without quota drift, verifier coverage, and dogfood failures for unsafe packet variants.",
+    "reviewNext": "Move to BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001 as proposal/research only unless Foundation readiness or budget gates turn red.",
+    "knownLimits": [
+      "This does not run live extraction.",
+      "This does not fetch transcripts, crawl pages, capture screenshots, summarize videos, or call a video model.",
+      "This does not approve no-auth/no-paid extraction; it only creates a pending-approval packet.",
+      "This does not write Research Inbox proposals, create atoms, mutate backlog from extracted content, or do Harlan/Fal/voice/Canva/OpenHuman work."
+    ]
+  },
+  {
+    "key": "extraction-runtime-readiness-v1",
+    "backlogIds": [
+      "EXTRACTION-RUNTIME-READINESS-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "EXTRACTION-RUNTIME-READINESS-001",
+        "Extraction Runtime Readiness",
+        "extraction-runtime-readiness-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-CONTRACT-VALIDATION-LAYER-001",
+      "EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001",
+      "BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001"
+    ],
+    "systemArea": "Foundation extraction runtime readiness / source-auth-cost-output gate",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a Foundation-owned extraction runtime readiness contract, narrow readiness API route, focused proof, and verifier coverage.",
+    "whatItDoes": "The readiness layer validates source/auth posture, queue item shape, evidence envelope fields, runtime/cost caps, run health, and proposal-only Research Inbox/proposed-atom output before future extractor packets build on the runtime.",
+    "whyItMatters": "Extractor work can now start from governed readiness truth instead of chat intent, preventing auth-required, paid, or atom-promoting extraction from sneaking into queue/spec work.",
+    "whereItLives": [
+      "lib/extraction-runtime-readiness.js readiness contract, evidence envelope, queue item, dogfood, and existing-work helpers",
+      "lib/foundation-runtime-read-routes.js /api/foundation/extraction-runtime-readiness",
+      "lib/foundation-extraction-runtime-verifier.js verifier coverage",
+      "lib/foundation-verify-live-api-snapshot.js live API snapshot route coverage",
+      "lib/security-access.js route access registration",
+      "scripts/process-extraction-runtime-readiness-check.mjs focused proof",
+      "docs/process/extraction-runtime-readiness-001-plan.md",
+      "docs/process/approvals/EXTRACTION-RUNTIME-READINESS-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-extraction-runtime-readiness-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/extraction-runtime-readiness.js lib/foundation-extraction-runtime-verifier.js lib/foundation-runtime-read-routes.js scripts/process-extraction-runtime-readiness-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:extraction-runtime-readiness-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=EXTRACTION-RUNTIME-READINESS-001 --planApprovalRef=docs/process/approvals/EXTRACTION-RUNTIME-READINESS-001.json --closeoutKey=extraction-runtime-readiness-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=EXTRACTION-RUNTIME-READINESS-001 --closeoutKey=extraction-runtime-readiness-v1",
+      "npm run process:post-ship-fanout -- --card=EXTRACTION-RUNTIME-READINESS-001 --closeoutKey=extraction-runtime-readiness-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=EXTRACTION-RUNTIME-READINESS-001 --planApprovalRef=docs/process/approvals/EXTRACTION-RUNTIME-READINESS-001.json --closeoutKey=extraction-runtime-readiness-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live card/current sprint truth, readiness snapshot, route payload, no running live extraction, dogfood failures for unsafe source/auth/cost/evidence/output cases, package registration, verifier coverage, and closeout registration.",
+    "reviewNext": "Move to EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001 as queued/pending approval only unless Foundation readiness or budget gates turn red.",
+    "knownLimits": [
+      "This does not run live extraction.",
+      "This does not approve auth-required or paid extraction.",
+      "This does not do OAuth, connector auth, Harlan, Fal, voice, Canva, OpenHuman, broad UI redesign, Drive permission mutation, Agent Feedback auto-send, atom promotion, or backlog mutation from extracted content."
+    ]
+  },
+  {
+    "key": "foundation-backlog-done-archive-lazy-load-v1",
+    "backlogIds": [
+      "FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001",
+        "Foundation Backlog Done Archive Lazy Load",
+        "foundation-backlog-done-archive-lazy-load-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-LAZY-SURFACE-LOADING-001",
+      "EXTRACTION-RUNTIME-READINESS-001"
+    ],
+    "systemArea": "Foundation backlog loading architecture / done archive",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split the dedicated Foundation backlog route into a default active/recent-done list and an explicit older done-card archive route/page.",
+    "whatItDoes": "The default Backlog page no longer loads every old done card by default. It preserves total counts and focused archived-card links, while `/api/foundation/backlog/done-archive` and `#backlog-done-archive` keep full older done history accessible.",
+    "whyItMatters": "Foundation sprint planning should stay fast as shipped work grows, without deleting history or confusing Recent Work with older backlog done-card records.",
+    "whereItLives": [
+      "lib/foundation-backlog-detail.js default backlog and done archive contracts",
+      "lib/foundation-backlog-done-archive-lazy-load.js focused evaluator and dogfood",
+      "lib/foundation-operator-routes.js /api/foundation/backlog and /api/foundation/backlog/done-archive",
+      "public/foundation-data.js fetchFoundationBacklog options and fetchFoundationBacklogDoneArchive",
+      "public/foundation-backlog-renderers.js Backlog and Done Archive renderers",
+      "public/foundation-router.js #backlog-done-archive route",
+      "lib/security-access.js GET /api/foundation/backlog/done-archive route registration",
+      "lib/foundation-engineering-fitness-gates.js verifier coverage hook",
+      "scripts/process-foundation-backlog-done-archive-lazy-load-check.mjs",
+      "docs/process/foundation-backlog-done-archive-lazy-load-001-plan.md",
+      "docs/process/approvals/FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-backlog-done-archive-lazy-load-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-backlog-detail.js lib/foundation-backlog-done-archive-lazy-load.js lib/foundation-operator-routes.js scripts/process-foundation-backlog-done-archive-lazy-load-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:foundation-backlog-done-archive-lazy-load-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001 --planApprovalRef=docs/process/approvals/FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001.json --closeoutKey=foundation-backlog-done-archive-lazy-load-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001 --closeoutKey=foundation-backlog-done-archive-lazy-load-v1",
+      "npm run process:post-ship-fanout -- --card=FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001 --closeoutKey=foundation-backlog-done-archive-lazy-load-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001 --planApprovalRef=docs/process/approvals/FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001.json --closeoutKey=foundation-backlog-done-archive-lazy-load-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live card/current sprint truth, default backlog and done archive route payloads, budgets, focused archived-card links, dogfood failures for all-in-default done history and missing archive route, package registration, verifier coverage, and closeout registration.",
+    "reviewNext": "Move to EXTRACTION-RUNTIME-READINESS-001 unless backlog route budgets or engineering fitness turn red.",
+    "knownLimits": [
+      "This is loading architecture, not visual UI redesign.",
+      "Recent Work remains the shipped-build history surface.",
+      "This does not delete, mutate, or hide done-card history.",
+      "This does not start extractor runtime, connector/auth work, Harlan, Fal, voice, Canva, OpenHuman, Drive permission mutation, or Agent Feedback auto-send."
+    ]
+  },
+  {
+    "key": "foundation-lazy-surface-loading-v1",
+    "backlogIds": [
+      "FOUNDATION-LAZY-SURFACE-LOADING-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-LAZY-SURFACE-LOADING-001",
+        "Foundation Lazy Surface Loading",
+        "foundation-lazy-surface-loading-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-ENGINEERING-FITNESS-GATES-001",
+      "FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001",
+      "EXTRACTION-RUNTIME-READINESS-001"
+    ],
+    "systemArea": "Foundation loading architecture / narrow routes",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the read-only backlog list route and wired Backlog and Recent Work to narrow route fetches instead of the default Foundation Hub.",
+    "whatItDoes": "Backlog now loads from `/api/foundation/backlog`; Recent Work uses `/api/foundation/build-log` plus `/api/foundation/current-sprint`; Source Registry stays on `/api/source-of-truth`; System Health and Diagnostics stay behind the explicit full diagnostics route.",
+    "whyItMatters": "Foundation should not feel slow because every menu surface uses the broad Hub as a detail side channel. This keeps detail loading owned by the surface that needs it before extractor data pressure resumes.",
+    "whereItLives": [
+      "lib/foundation-backlog-detail.js backlog list contract",
+      "lib/foundation-operator-routes.js /api/foundation/backlog and build-log recentChanges",
+      "public/foundation-data.js fetchFoundationBacklog and fetchFoundationCurrentSprint",
+      "public/foundation.js renderBacklog",
+      "public/foundation-operations-renderers.js renderBuildLog",
+      "lib/security-access.js GET /api/foundation/backlog route registration",
+      "lib/foundation-engineering-fitness-gates.js lazy-loading evaluator",
+      "scripts/process-foundation-lazy-surface-loading-check.mjs",
+      "docs/process/foundation-lazy-surface-loading-001-plan.md",
+      "docs/process/approvals/FOUNDATION-LAZY-SURFACE-LOADING-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-lazy-surface-loading-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-backlog-detail.js lib/foundation-operator-routes.js lib/foundation-engineering-fitness-gates.js scripts/process-foundation-lazy-surface-loading-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:foundation-lazy-surface-loading-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-LAZY-SURFACE-LOADING-001 --planApprovalRef=docs/process/approvals/FOUNDATION-LAZY-SURFACE-LOADING-001.json --closeoutKey=foundation-lazy-surface-loading-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-LAZY-SURFACE-LOADING-001 --closeoutKey=foundation-lazy-surface-loading-v1",
+      "npm run process:post-ship-fanout -- --card=FOUNDATION-LAZY-SURFACE-LOADING-001 --closeoutKey=foundation-lazy-surface-loading-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=FOUNDATION-LAZY-SURFACE-LOADING-001 --planApprovalRef=docs/process/approvals/FOUNDATION-LAZY-SURFACE-LOADING-001.json --closeoutKey=foundation-lazy-surface-loading-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, narrow route source wiring, live backlog/build-log/current-sprint/source/diagnostic API payloads, default Hub budget, dogfood failures for all-in-one Hub loading and missing backlog route, package registration, verifier coverage, and closeout registration.",
+    "reviewNext": "Move to EXTRACTION-RUNTIME-READINESS-001 unless engineering fitness or loading route budgets turn red.",
+    "knownLimits": [
+      "This is loading architecture, not visual UI redesign.",
+      "The default Hub still carries summary data and remains under the V2 budget.",
+      "This does not start extractor runtime work or connector/auth work.",
+      "This does not build Harlan, Fal, voice, Canva, OpenHuman, Drive permission mutation, or Agent Feedback auto-send."
+    ]
+  },
+  {
+    "key": "foundation-engineering-fitness-gates-v1",
+    "backlogIds": [
+      "FOUNDATION-ENGINEERING-FITNESS-GATES-001",
+      "FOUNDATION-SURFACE-AND-API-BUDGETS-001",
+      "FOUNDATION-HUB-DECOMPOSITION-GUARD-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-ENGINEERING-FITNESS-GATES-001",
+        "Foundation Engineering Fitness Gates",
+        "foundation-engineering-fitness-gates-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-LAZY-SURFACE-LOADING-001",
+      "EXTRACTION-RUNTIME-READINESS-001",
+      "BUILD-LANE-RELIABILITY-SPRINT-001",
+      "FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001"
+    ],
+    "systemArea": "Foundation engineering standards / executable fitness gates",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added an executable engineering fitness gate for file budgets, API/page budgets, Hub decomposition, agent route usage, verification-loop hygiene, build artifacts, and runtime truth.",
+    "whatItDoes": "Fails over-budget file additions without split plans, generated/report artifacts without explicit budgets, default Hub payload/section bloat, all-in-one loading architecture, repeated full verify loops, thin scaffold metadata, stale served code, and Current Sprint surface drift.",
+    "whyItMatters": "Foundation needs a building machine that catches engineering drift before extractor, connector, hub, or agent work builds on unstable files, routes, pages, or process artifacts.",
+    "whereItLives": [
+      "lib/foundation-engineering-fitness-gates.js",
+      "scripts/process-foundation-engineering-fitness-gates-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "package.json",
+      "docs/process/foundation-engineering-fitness-gates-001-plan.md",
+      "docs/process/approvals/FOUNDATION-ENGINEERING-FITNESS-GATES-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-engineering-fitness-gates-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-engineering-fitness-gates.js scripts/process-foundation-engineering-fitness-gates-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:foundation-engineering-fitness-gates-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-ENGINEERING-FITNESS-GATES-001 --planApprovalRef=docs/process/approvals/FOUNDATION-ENGINEERING-FITNESS-GATES-001.json --closeoutKey=foundation-engineering-fitness-gates-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-ENGINEERING-FITNESS-GATES-001 --closeoutKey=foundation-engineering-fitness-gates-v1",
+      "npm run process:post-ship-fanout -- --card=FOUNDATION-ENGINEERING-FITNESS-GATES-001 --closeoutKey=foundation-engineering-fitness-gates-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=FOUNDATION-ENGINEERING-FITNESS-GATES-001 --planApprovalRef=docs/process/approvals/FOUNDATION-ENGINEERING-FITNESS-GATES-001.json --closeoutKey=foundation-engineering-fitness-gates-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, file budgets, default and diagnostic route budgets, Hub decomposition, lazy-loading architecture dogfood, build-lane failure dogfood, package registration, verifier coverage, closeout registration, and read-only proof posture.",
+    "reviewNext": "Move to EXTRACTION-RUNTIME-READINESS-001 next unless engineering fitness turns red; keep FOUNDATION-LAZY-SURFACE-LOADING-001 visible as the immediate loading-architecture follow-up.",
+    "knownLimits": [
+      "This does not start extractor runtime work.",
+      "This does not build connectors, OAuth, Harlan, Fal, voice, Canva, OpenHuman, or hub feature work.",
+      "This does not redesign Foundation UI visuals.",
+      "This does not mutate Drive permissions or run the Agent Feedback auto-send job.",
+      "FOUNDATION-LAZY-SURFACE-LOADING-001 remains scoped until route ownership supports honest lazy menu loading."
+    ]
+  },
+  {
+    "key": "build-lane-reliability-sprint-v1",
+    "backlogIds": [
+      "BUILD-LANE-RELIABILITY-SPRINT-001",
+      "CURRENT-SPRINT-SURFACE-API-DRIFT-001",
+      "FOUNDATION-CARD-SCAFFOLD-001",
+      "CURRENT-SPRINT-METADATA-STANDARD-GUARD-001",
+      "PROOF-DESIGN-BRITTLENESS-GUARD-001",
+      "VERIFY-LOOP-EFFICIENCY-GUARD-001",
+      "SHIP-GATE-SERVED-CODE-FANOUT-SYNC-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BUILD-LANE-RELIABILITY-SPRINT-001",
+        "Build lane reliability",
+        "build-lane-reliability-sprint-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "EXTRACTION-RUNTIME-READINESS-001",
+      "SOURCE-CONTRACT-VALIDATION-LAYER-001",
+      "FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001"
+    ],
+    "systemArea": "Foundation build lane / process reliability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a build-lane reliability layer for card scaffolding, sprint metadata, proof brittleness, verify-loop efficiency, Current Sprint surface alignment, and served-code fanout sync.",
+    "whatItDoes": "Creates and validates the required build-lane artifacts up front, keeps Current Sprint API and Hub aligned with DB truth, rejects thin metadata and brittle proof patterns, and classifies served-code fanout drift with a bounded repair path.",
+    "whyItMatters": "Foundation must build fast without repeatedly losing time to process artifact gaps, false-red proof scripts, stale surfaces, repeated full verifies, or mystery fanout failures.",
+    "whereItLives": [
+      "lib/build-lane-reliability.js",
+      "lib/hub-read-routes.js",
+      "lib/foundation-current-sprint-verifier.js",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "scripts/process-build-lane-reliability-sprint-check.mjs",
+      "package.json",
+      "docs/process/build-lane-reliability-sprint-001-plan.md",
+      "docs/process/approvals/BUILD-LANE-RELIABILITY-SPRINT-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-build-lane-reliability-sprint-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/build-lane-reliability.js lib/hub-read-routes.js lib/foundation-current-sprint-verifier.js scripts/process-build-lane-reliability-sprint-check.mjs",
+      "npm run process:build-lane-reliability-sprint-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=BUILD-LANE-RELIABILITY-SPRINT-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-RELIABILITY-SPRINT-001.json --closeoutKey=build-lane-reliability-sprint-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-LANE-RELIABILITY-SPRINT-001 --closeoutKey=build-lane-reliability-sprint-v1",
+      "npm run process:post-ship-fanout -- --card=BUILD-LANE-RELIABILITY-SPRINT-001 --closeoutKey=build-lane-reliability-sprint-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=BUILD-LANE-RELIABILITY-SPRINT-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-RELIABILITY-SPRINT-001.json --closeoutKey=build-lane-reliability-sprint-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live card scaffold, sprint metadata, Current Sprint API/Hub/DB alignment, proof brittleness fixtures, verify-loop waste detection, served-code fanout classification, package registration, verifier coverage, and closeout registration.",
+    "reviewNext": "Move to EXTRACTION-RUNTIME-READINESS-001 next unless build-lane reliability turns red.",
+    "knownLimits": [
+      "This does not start extractor runtime work.",
+      "This does not build connectors, OAuth, Harlan, Fal, voice, Canva, OpenHuman, UI polish, or root splitting.",
+      "This does not mutate Drive permissions or run the Agent Feedback auto-send job."
+    ]
+  },
+  {
+    "key": "source-contract-validation-layer-v1",
+    "backlogIds": [
+      "SOURCE-CONTRACT-VALIDATION-LAYER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-CONTRACT-VALIDATION-LAYER-001",
+        "Source contract validation layer",
+        "source-contract-validation-layer-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "EXTRACTION-RUNTIME-READINESS-001",
+      "SOURCE-CONTRACT-REGISTRY-TABLE-001",
+      "SOURCE-LIFECYCLE-COMPLETION-001",
+      "PARALLEL-BUILDER-WORKTREE-PROTOCOL-001"
+    ],
+    "systemArea": "Foundation source contracts / connector and extractor readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a fail-closed source-contract validation layer for source ID, owner, lane, auth, extraction, freshness, connector, atom-flow, and blocked-state expectations.",
+    "whatItDoes": "Validates every current source contract before connector or extractor work can rely on it, keeps auth-required sources blocked from extraction, and dogfoods thin/unsafe source contracts failing closed.",
+    "whyItMatters": "Foundation source contracts are the permission and meaning boundary for the rest of AIOS. Thin source truth must fail before it becomes connector, extractor, hub, or agent behavior.",
+    "whereItLives": [
+      "lib/source-contract-validation-layer.js",
+      "lib/foundation-source-contract-verifier.js",
+      "scripts/process-source-contract-validation-layer-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "package.json",
+      "docs/source-registry.md",
+      "docs/rebuild/current-state.md",
+      "docs/process/source-contract-validation-layer-001-plan.md",
+      "docs/process/approvals/SOURCE-CONTRACT-VALIDATION-LAYER-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-source-contract-validation-layer-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/source-contract-validation-layer.js lib/foundation-source-contract-verifier.js scripts/process-source-contract-validation-layer-check.mjs",
+      "npm run process:source-contract-validation-layer-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-CONTRACT-VALIDATION-LAYER-001 --planApprovalRef=docs/process/approvals/SOURCE-CONTRACT-VALIDATION-LAYER-001.json --closeoutKey=source-contract-validation-layer-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-CONTRACT-VALIDATION-LAYER-001 --closeoutKey=source-contract-validation-layer-v1",
+      "npm run process:post-ship-fanout -- --card=SOURCE-CONTRACT-VALIDATION-LAYER-001 --closeoutKey=source-contract-validation-layer-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=SOURCE-CONTRACT-VALIDATION-LAYER-001 --planApprovalRef=docs/process/approvals/SOURCE-CONTRACT-VALIDATION-LAYER-001.json --closeoutKey=source-contract-validation-layer-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, all 39 source contracts, dogfood for missing owner/auth/extraction/blocker/freshness failures, auth-required extraction blocking, source registry/current-state alignment, verifier coverage, closeout registration, package registration, and read-only proof posture.",
+    "reviewNext": "Move to EXTRACTION-RUNTIME-READINESS-001 next unless source-contract validation goes red.",
+    "knownLimits": [
+      "This does not run OAuth or auth-required extraction.",
+      "This does not make pending/gap sources connected or trusted.",
+      "This does not build Foundation UI polish or hub features.",
+      "This does not touch OpenHuman, Fal, voice, Harlan, Canva, or Steve local mockup assets."
+    ]
+  },
+  {
+    "key": "foundation-hub-payload-budget-v2-v1",
+    "backlogIds": [
+      "FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001",
+        "Foundation Hub payload budget V2",
+        "foundation-hub-payload-budget-v2-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+      "FOUNDATION-HUB-BACKLOG-CONTRACT-001",
+      "FOUNDATION-HUB-FULL-PAYLOAD-REDUCE-001",
+      "SOURCE-CONTRACT-VALIDATION-LAYER"
+    ],
+    "systemArea": "Foundation Hub payload stability / operator route budget",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a V2 Foundation Hub summary payload budget contract and route metadata for the default `/api/foundation-hub` payload.",
+    "whatItDoes": "Makes the canonical default Hub budget 650KB, proves the summary route is compact and summary-only, rejects full-diagnostic leaks, rejects missing compaction markers, and rejects hiding backlog rows as a fake payload win.",
+    "whyItMatters": "Foundation Hub is the command surface for sprint work. Payload growth from backlog, runtime, and source surfaces must be caught as Foundation reliability before hub or feature work builds on unstable route contracts.",
+    "whereItLives": [
+      "lib/foundation-hub-payload-budget-v2.js",
+      "lib/foundation-hub-performance.js",
+      "lib/foundation-hub-summary-payload.js",
+      "lib/foundation-hub-safety-verifier.js",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "lib/hub-read-routes.js",
+      "scripts/foundation-verify.mjs",
+      "scripts/process-foundation-hub-payload-budget-v2-check.mjs",
+      "package.json",
+      "docs/process/foundation-hub-payload-budget-v2-001-plan.md",
+      "docs/process/approvals/FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-hub-payload-budget-v2-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/hub-read-routes.js lib/foundation-hub-summary-payload.js lib/foundation-hub-payload-budget-v2.js lib/foundation-hub-performance.js lib/foundation-hub-safety-verifier.js scripts/foundation-verify.mjs scripts/process-foundation-hub-payload-budget-v2-check.mjs lib/foundation-verify-coverage-card-ids.js lib/foundation-build-closeout-cleanup-records.js",
+      "npm run process:foundation-hub-payload-budget-v2-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001.json --closeoutKey=foundation-hub-payload-budget-v2-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001 --closeoutKey=foundation-hub-payload-budget-v2-v1",
+      "npm run process:post-ship-fanout -- --card=FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001 --closeoutKey=foundation-hub-payload-budget-v2-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001.json --closeoutKey=foundation-hub-payload-budget-v2-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint/Plan Critic truth, live default route budget metadata, preserved backlog row count, summary-only route shape, the explicit full diagnostics route staying under its existing 4.2MB budget, read-only focused proof posture, package registration, and dogfood failures for oversized payloads, full leaks, hidden rows, missing compaction, and arbitrary row dropping.",
+    "reviewNext": "Continue to SOURCE-CONTRACT-VALIDATION-LAYER unless Foundation Hub payload drifts red again.",
+    "knownLimits": [
+      "This does not build UI polish or hub feature work.",
+      "This does not touch Harlan, Fal, voice, Canva, connector auth, external-write jobs, DB schema, or Steve local mockup assets.",
+      "This keeps full diagnostics behind `/api/foundation-hub?view=full`; it does not remove diagnostic data.",
+      "This does not solve all critical-root file sizes."
+    ]
+  },
+  {
+    "key": "foundation-ready-safe-hub-lane-v1",
+    "backlogIds": [
+      "HUB-CONSUMER-CONTRACT-001",
+      "HUB-SANDBOX-WORKFLOW-001",
+      "SHARED-FILE-INTEGRATION-GATE-001",
+      "SOURCE-TO-HUB-PROOF-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "foundation-ready-safe-hub-lane-v1",
+        "Foundation Ready Safe Hub Lane",
+        "Add Foundation Ready safe hub lane"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "HUB-001",
+      "MARKETING-VIDEO-LAB-001",
+      "MARKETING-VIDEO-LAB-LIVE-SAFETY-001",
+      "MARKETING-VIDEO-LAB-OWNER-ROUTE-INTEGRATION-001"
+    ],
+    "systemArea": "Foundation hub boundaries / source-to-hub consumption",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a read-only Foundation hub consumer contract, a fixture-backed hub sandbox workflow, shared-file request handling in the hub-work gate, and a source-to-hub proof that maps connector uptime/source health into Sales, Ops, Marketing, and Strategy contracts.",
+    "whatItDoes": "Hubs can now consume sanitized Foundation source-health status without importing `lib/foundation-db.js` or verifier/check internals. Hub chats can keep plan/build work in hub-owned files and fixtures, but requests for shared files like `server.js` and `lib/security-access.js` fail closed with `integrationRequired` until the main Foundation session approves the integration.",
+    "whyItMatters": "Steve needs to build hubs without turning every hub chat into Foundation drift. This gives the team a safe lane: sources feed Foundation, Foundation exposes read-only contracts, hubs consume those contracts, and shared-file work returns to the main session instead of colliding with Foundation sprints.",
+    "whereItLives": [
+      "lib/hub-consumer-contract.js",
+      "lib/hub-work-check.js requestedSharedFiles integration gate",
+      "docs/process/hub-consumer-contract.md",
+      "docs/process/hub-sandbox-workflow.md",
+      "docs/process/hub-file-ownership-matrix.json fixture ownership patterns",
+      "fixtures/hubs/marketing/foundation-source-health.json",
+      "scripts/process-foundation-ready-safe-hub-lane-check.mjs",
+      "docs/process/hub-consumer-contract-001-plan.md",
+      "docs/process/hub-sandbox-workflow-001-plan.md",
+      "docs/process/shared-file-integration-gate-001-plan.md",
+      "docs/process/source-to-hub-proof-001-plan.md",
+      "docs/process/approvals/HUB-CONSUMER-CONTRACT-001.json",
+      "docs/process/approvals/HUB-SANDBOX-WORKFLOW-001.json",
+      "docs/process/approvals/SHARED-FILE-INTEGRATION-GATE-001.json",
+      "docs/process/approvals/SOURCE-TO-HUB-PROOF-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-foundation-ready-safe-hub-lane-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/hub-consumer-contract.js lib/hub-work-check.js scripts/process-foundation-ready-safe-hub-lane-check.mjs",
+      "npm run process:foundation-ready-safe-hub-lane-check -- --json",
+      "npm run process:hub-work-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-TO-HUB-PROOF-001 --planApprovalRef=docs/process/approvals/SOURCE-TO-HUB-PROOF-001.json --closeoutKey=foundation-ready-safe-hub-lane-v1",
+      "npm run process:fanout-check -- --card=SOURCE-TO-HUB-PROOF-001 --closeoutKey=foundation-ready-safe-hub-lane-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-TO-HUB-PROOF-001 --planApprovalRef=docs/process/approvals/SOURCE-TO-HUB-PROOF-001.json --closeoutKey=foundation-ready-safe-hub-lane-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval files, durable Plan Critic pass rows, current sprint doctrine, hub consumer contracts for all hubs, hub-owned fixture manifests, rejection of Foundation internals, unapproved shared-file route requests failing with `integrationRequired`, coordinated shared-file requests passing, and real connector uptime source health flowing into every hub contract with source IDs.",
+    "reviewNext": "If Steve wants Marketing Video Lab to go live, review the preserved WIP branch and integrate only the minimal route/security patch through the shared-file gate. Otherwise continue Foundation cleanup that does not require Steve: verifier/module splits, default payload budgets, or source-health scheduler hardening.",
+    "knownLimits": [
+      "This does not merge or ship the Marketing Video Lab WIP.",
+      "This does not add live FAL/Google provider spend.",
+      "This does not connect Skool, myICOR, or other paid auth sources.",
+      "This does not allow hub chats to commit or push.",
+      "This does not complete monolith splits."
+    ]
+  },
+  {
+    "key": "marketing-video-lab-live-safety-v1",
+    "backlogIds": [
+      "MARKETING-VIDEO-LAB-LIVE-SAFETY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "MARKETING-VIDEO-LAB-LIVE-SAFETY-001",
+        "marketing-video-lab-live-safety-v1",
+        "Marketing Video Lab live-safety"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "MARKETING-VIDEO-LAB-001",
+      "MARKETING-VIDEO-LAB-OWNER-ROUTE-INTEGRATION-001",
+      "STRATEGY-004"
+    ],
+    "systemArea": "Marketing Video Lab safety / provider spend guard",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added Marketing Video Lab backend live-safety primitives: live asset URL validation, same-intent submit locking, focused dogfood proof, and Current Sprint closeout wiring.",
+    "whatItDoes": "Prevents future live route integration from accepting placeholder/sample/mock/local/private asset URLs or allowing duplicate same-intent running jobs before paid provider submission.",
+    "whyItMatters": "The Marketing Video Lab can become real only after duplicate spend and fake-asset submission bugs are blocked at the backend.",
+    "whereItLives": [
+      "lib/marketing-video-lab.js live asset validation and submit lock primitives",
+      "scripts/process-marketing-video-lab-live-safety-check.mjs focused proof and live card/current sprint scaffold",
+      "lib/foundation-verify-coverage-card-ids.js done-card verifier coverage",
+      "docs/process/marketing-video-lab-live-safety-001-plan.md",
+      "docs/process/approvals/MARKETING-VIDEO-LAB-LIVE-SAFETY-001.json",
+      "docs/_archive/handoffs/2026-05-20-marketing-video-lab-live-safety-closeout.md",
+      "docs/marketing/video-lab/README.md live-safety gate note"
+    ],
+    "proofCommands": [
+      "node --check lib/marketing-video-lab.js scripts/process-marketing-video-lab-check.mjs scripts/process-marketing-video-lab-live-safety-check.mjs",
+      "npm run process:marketing-video-lab-check -- --json",
+      "npm run process:marketing-video-lab-live-safety-check -- --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=MARKETING-VIDEO-LAB-LIVE-SAFETY-001 --planApprovalRef=docs/process/approvals/MARKETING-VIDEO-LAB-LIVE-SAFETY-001.json --closeoutKey=marketing-video-lab-live-safety-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=MARKETING-VIDEO-LAB-LIVE-SAFETY-001 --closeoutKey=marketing-video-lab-live-safety-v1",
+      "npm run process:foundation-ship -- --card=MARKETING-VIDEO-LAB-LIVE-SAFETY-001 --planApprovalRef=docs/process/approvals/MARKETING-VIDEO-LAB-LIVE-SAFETY-001.json --closeoutKey=marketing-video-lab-live-safety-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, concurrent mock submit allowing one running job and rejecting one duplicate, placeholder/sample/local/private/mock URL rejection, no live provider calls, no provider spend, package registration, verifier coverage, and closeout registry wiring.",
+    "reviewNext": "Continue STRATEGY-004 unless raw health, repeated failures, foundation:verify, main sync, or destructive data risk blocks safe work.",
+    "knownLimits": [
+      "This does not submit to Google, FAL, Canva, or any provider.",
+      "This does not spend provider budget.",
+      "This does not wire server routes, Marketing Hub UI, home nav, storage schema, or polling.",
+      "This does not mutate credentials, provider config, auth scopes, source access, Drive permissions, or external systems."
+    ]
+  },
+  {
+    "key": "foundation-route-budget-cleanup-v1",
+    "backlogIds": [
+      "SOURCE-OF-TRUTH-PERF-BUDGET-001",
+      "FOUNDATION-HUB-PAYLOAD-EXTRACT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "foundation-route-budget-cleanup-v1",
+        "Foundation Route Budget Cleanup",
+        "source-of-truth route budget",
+        "Foundation Hub payload extract"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "MONOLITH-SPLIT-CONTINUE-001",
+      "FOUNDATION-FRONTEND-ASSET-BUDGET-001"
+    ],
+    "systemArea": "Foundation route performance and default payload budget",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved `/api/source-of-truth` payload construction behind a module boundary, added a bounded KPI health route cache, and compacted default Foundation Hub summary payload sections for foundation jobs, Foundation 1100 review, and research curation.",
+    "whatItDoes": "`/api/source-of-truth` now keeps the same source-contract/KPI response shape without probing live Supabase on every hot request after cache warmup. Default `/api/foundation-hub` keeps the command surface and runtime summary while moving heavy rows out of the default payload shape.",
+    "whyItMatters": "The first nightly deep audit found `/api/source-of-truth` above the operator-route latency budget and default Foundation Hub above the warning payload budget. This turns those audit findings into measured route budgets instead of letting the command surface feel slow while hub work accelerates.",
+    "whereItLives": [
+      "lib/source-of-truth-payload.js",
+      "lib/kpi-health.js KPI route cache helpers",
+      "lib/foundation-hub-summary-payload.js",
+      "server.js thin route delegation",
+      "scripts/process-foundation-route-budget-cleanup-check.mjs",
+      "docs/process/source-of-truth-perf-budget-001-plan.md",
+      "docs/process/foundation-hub-payload-extract-001-plan.md",
+      "docs/process/approvals/SOURCE-OF-TRUTH-PERF-BUDGET-001.json",
+      "docs/process/approvals/FOUNDATION-HUB-PAYLOAD-EXTRACT-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-route-budget-cleanup-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/kpi-health.js lib/source-of-truth-payload.js lib/foundation-hub-summary-payload.js scripts/process-foundation-route-budget-cleanup-check.mjs server.js",
+      "npm run process:foundation-route-budget-cleanup-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-HUB-PAYLOAD-EXTRACT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HUB-PAYLOAD-EXTRACT-001.json --closeoutKey=foundation-route-budget-cleanup-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-HUB-PAYLOAD-EXTRACT-001 --closeoutKey=foundation-route-budget-cleanup-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-HUB-PAYLOAD-EXTRACT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HUB-PAYLOAD-EXTRACT-001.json --closeoutKey=foundation-route-budget-cleanup-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood proof passed: `/api/source-of-truth` measured 10ms and 134,031 bytes after KPI cache warmup, `/api/foundation-hub` measured 79ms and 774,641 bytes, synthetic 2,489ms source route failure was rejected, and synthetic 872,726 byte Foundation Hub payload failure was rejected.",
+    "reviewNext": "Stop at sprint review. Next cleanup should use the next nightly audit and profiler result; likely targets are verifier/module splits, server route ownership splits, and the default backlogItems payload contract once the frontend is ready.",
+    "knownLimits": [
+      "This does not finish the server.js, foundation-db.js, foundation-verify.mjs, or public/foundation.js monolith splits.",
+      "This does not build Marketing, Sales, Ops, Build Intel, Skool, myICOR, or paid-source auth.",
+      "This does not remove live KPI health proof; kpi:health remains the live source-health path.",
+      "Default backlogItems remains the largest Foundation Hub payload section."
+    ]
+  },
+  {
+    "key": "nightly-deep-audit-upgrade-v1",
+    "backlogIds": [
+      "NIGHTLY-DEEP-AUDIT-UPGRADE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "nightly-deep-audit-upgrade-v1",
+        "Nightly Deep Audit Upgrade",
+        "scheduled report-only nightly hybrid audit",
+        "Schedule nightly deep audit reviewer"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+      "FOUNDATION-FRONTEND-ASSET-BUDGET-001",
+      "SOURCE-OF-TRUTH-PERF-BUDGET-001",
+      "MONOLITH-SPLIT-CONTINUE-001"
+    ],
+    "systemArea": "Foundation reviewer loop / code quality",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Upgraded the weaker manual audit posture into a scheduled report-only nightly hybrid deep audit that combines deterministic backend/frontend scanning, changed/high-risk review target selection, endpoint/payload trends, and approved-route review packets.",
+    "whatItDoes": "Runs a nightly 03:00 America/Toronto reviewer job with report-only posture. The audit writes date-based markdown and JSON reports, selects high-risk backend/frontend/verifier/hot-route/DB surfaces, records route readiness for bounded LLM review without spending by default, and dogfoods the known May 13 failure modes.",
+    "whyItMatters": "Steve expected the system to catch backend bugs, frontend bugs, hardcoded truth, slow routes, write-boundary leaks, monolith growth, and simplification opportunities before they became another messy rebuild. This makes that reviewer loop scheduled and visible without auto-fixes or auto backlog mutation.",
+    "whereItLives": [
+      "lib/nightly-deep-audit-constants.js",
+      "lib/nightly-deep-audit-upgrade.js",
+      "scripts/process-nightly-deep-audit-upgrade-check.mjs",
+      "lib/foundation-jobs.js nightly-deep-audit scheduled report-only job",
+      "lib/connector-uptime-monitor.js morning health nightly deep audit status",
+      "scripts/process-foundation-operating-reliability-check.mjs closed-sprint reliability proof",
+      "scripts/foundation-verify.mjs nightly deep audit done-card coverage",
+      "docs/process/nightly-deep-audit-upgrade-001-plan.md",
+      "docs/process/approvals/NIGHTLY-DEEP-AUDIT-UPGRADE-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-nightly-deep-audit-upgrade-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/nightly-deep-audit-constants.js lib/nightly-deep-audit-upgrade.js scripts/process-nightly-deep-audit-upgrade-check.mjs",
+      "node --check lib/connector-uptime-monitor.js lib/foundation-jobs.js scripts/process-foundation-operating-reliability-check.mjs scripts/foundation-verify.mjs",
+      "node --env-file-if-exists=.env scripts/process-marketing-video-lab-check.mjs --json",
+      "npm run process:nightly-deep-audit-upgrade-check -- --json --endpointTimeoutMs=8000",
+      "npm run process:code-quality-nightly-audit-check -- --json --skipEndpointFetch --no-write",
+      "npm run process:foundation-operating-reliability-check -- --json --no-api",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=NIGHTLY-DEEP-AUDIT-UPGRADE-001 --planApprovalRef=docs/process/approvals/NIGHTLY-DEEP-AUDIT-UPGRADE-001.json --closeoutKey=nightly-deep-audit-upgrade-v1",
+      "npm run process:fanout-check -- --card=NIGHTLY-DEEP-AUDIT-UPGRADE-001 --closeoutKey=nightly-deep-audit-upgrade-v1",
+      "npm run process:post-ship-fanout -- --card=NIGHTLY-DEEP-AUDIT-UPGRADE-001 --closeoutKey=nightly-deep-audit-upgrade-v1",
+      "npm run process:foundation-ship -- --card=NIGHTLY-DEEP-AUDIT-UPGRADE-001 --planApprovalRef=docs/process/approvals/NIGHTLY-DEEP-AUDIT-UPGRADE-001.json --closeoutKey=nightly-deep-audit-upgrade-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof writes the date-based report, keeps backlog lane counts unchanged, proves the job is scheduled/report-only and accepted by the mutation guard, selects verifier/frontend/server/foundation-db high-risk review targets, records no live provider spend by default, and dogfoods the May 13 failures: 70s/4.63MB API, self-repairing verifier, write-capable checks, hardcoded truth, and 10K+ line monoliths. Foundation verifier passed after repairing the cross-chat Marketing Video Lab direct-host boundary, validating this closeout through the build-log closeoutKey, and preserving Slack item-level proof for the narrow stale-reaper case where all channel items are succeeded or explicitly skipped with no failed/stale/retry-exhausted items.",
+    "reviewNext": "Stop at sprint review. Next Foundation cleanup should use the nightly report findings to pick a focused performance/monolith card, with `/api/source-of-truth` latency and Foundation Hub payload size visible as current report findings.",
+    "knownLimits": [
+      "V1 does not auto-fix code.",
+      "V1 does not auto-create backlog cards.",
+      "V1 does not execute live LLM review by default even when an approved route is available.",
+      "V1 does not complete monolith splits or frontend cleanup.",
+      "V1 does not turn Marketing Video Lab into a live generation feature."
+    ]
+  },
+  {
+    "key": "foundation-deep-auditor-real-loop-v1",
+    "backlogIds": [
+      "FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001 make nightly deep auditor honest"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
+      "FOUNDATION-DEEP-MERGE-AUDIT-001",
+      "AUDIT-FINDING-TO-BACKLOG-ROUTER-001"
+    ],
+    "systemArea": "Foundation reviewer loop / code quality",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Converted the Nightly Deep Audit senior-review lane from packet-only hardcoded false execution into a bounded approved-route review path with explicit degraded packet-only status when review does not run, and compacted the Source Lifecycle embedded Current Sprint payload after System Health caught the route above budget.",
+    "whatItDoes": "The nightly audit now distinguishes deterministic scanning, review packets, requested approved-route senior review, executed review, route-blocked review, and failed-closed review. Markdown and JSON reports expose the execution truth, and P0/P1 senior findings require owner, next action, and proposed repair card routing.",
+    "whyItMatters": "Steve expected a real deep front/back auditor, not a scanner with inflated wording. This prevents packet-only output from being presented as completed senior review and gives the system a true path to run bounded reviewer intelligence when the approved route is available.",
+    "whereItLives": [
+      "lib/nightly-deep-audit-constants.js",
+      "lib/nightly-deep-audit-upgrade.js",
+      "lib/foundation-jobs.js nightly-deep-audit --runLlmReview job args",
+      "lib/foundation-source-routes.js compact Source Lifecycle currentSprint payload",
+      "scripts/process-nightly-deep-audit-upgrade-check.mjs",
+      "scripts/process-foundation-deep-auditor-real-loop-check.mjs",
+      "package.json npm script process:foundation-deep-auditor-real-loop-check",
+      "docs/process/foundation-deep-auditor-real-loop-001-plan.md",
+      "docs/process/approvals/FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-deep-auditor-real-loop-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/nightly-deep-audit-constants.js lib/nightly-deep-audit-upgrade.js scripts/process-nightly-deep-audit-upgrade-check.mjs scripts/process-foundation-deep-auditor-real-loop-check.mjs lib/foundation-jobs.js",
+      "npm run process:foundation-deep-auditor-real-loop-check -- --json",
+      "npm run process:foundation-deep-auditor-real-loop-check -- --json --runLlmReview",
+      "npm run process:nightly-deep-audit-upgrade-check -- --json --skipEndpointFetch --no-runLlmReview",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001.json --closeoutKey=foundation-deep-auditor-real-loop-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001 --closeoutKey=foundation-deep-auditor-real-loop-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001.json --closeoutKey=foundation-deep-auditor-real-loop-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood proves packet-only mode is degraded, executed review is the only healthy deep-review state, and P0/P1 senior findings without owner/card/next action fail routing. Optional live proof executed once through the approved OpenClaw route. The scheduled nightly job requests bounded approved-route review while staying report-only/no-autofix/no-autobacklog.",
+    "reviewNext": "Run FOUNDATION-DEEP-MERGE-AUDIT-001 next: a one-time senior audit of the 23-day Foundation merge using the upgraded audit semantics, then route any P0/P1 findings into live repair cards.",
+    "knownLimits": [
+      "This does not auto-fix code.",
+      "This does not auto-create backlog cards.",
+      "This does not guarantee provider availability; unavailable or failed routes degrade honestly.",
+      "This does not complete the one-time deep merge audit."
+    ]
+  },
+  {
+    "key": "foundation-deep-merge-audit-v1",
+    "backlogIds": [
+      "FOUNDATION-DEEP-MERGE-AUDIT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DEEP-MERGE-AUDIT-001 run deep merge audit"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001",
+      "OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001",
+      "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+      "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+      "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+      "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+      "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001"
+    ],
+    "systemArea": "Foundation deep audit / merge safety",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a one-time deep merge audit proof that runs the upgraded audit across the pre-April-26 baseline through current main, writes durable audit artifacts, and requires executed senior review plus live backlog routing for every P0/P1 finding.",
+    "whatItDoes": "The audit records merge scope, endpoint metrics, high-risk review targets, bounded senior-review findings, and route status for actionable findings. It remains report-only: no code auto-fixes and no automatic backlog mutation.",
+    "whyItMatters": "Foundation shipped hundreds of commits across the rebuild. Green gates prove current checks pass, but they do not replace a senior merge review for false-green, write-boundary, privacy, endpoint, frontend, backend, verifier, and extraction risk.",
+    "whereItLives": [
+      "scripts/process-foundation-deep-merge-audit-check.mjs",
+      "lib/nightly-deep-audit-constants.js deep merge audit constants",
+      "package.json npm script process:foundation-deep-merge-audit-check",
+      "docs/process/foundation-deep-merge-audit-001-plan.md",
+      "docs/process/approvals/FOUNDATION-DEEP-MERGE-AUDIT-001.json",
+      "docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md",
+      "docs/audits/2026-05-19-foundation-deep-merge-audit.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-deep-merge-audit-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check scripts/process-foundation-deep-merge-audit-check.mjs lib/nightly-deep-audit-constants.js",
+      "npm run process:foundation-deep-merge-audit-check -- --apply --runLlmReview --json",
+      "npm run process:foundation-deep-merge-audit-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-DEEP-MERGE-AUDIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DEEP-MERGE-AUDIT-001.json --closeoutKey=foundation-deep-merge-audit-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-DEEP-MERGE-AUDIT-001 --closeoutKey=foundation-deep-merge-audit-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DEEP-MERGE-AUDIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DEEP-MERGE-AUDIT-001.json --closeoutKey=foundation-deep-merge-audit-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Audit covered 565 commits / 2,377 files / 857 code files from the last pre-April-26 audit baseline through current main. Senior review executed through the approved OpenClaw route, produced 13 findings, and every P0/P1 row routed to live backlog truth.",
+    "reviewNext": "Run OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001 next; do not start WEB-GODMODE-001 until the useful old scout/research patterns are promoted into clean source/extractor specs.",
+    "knownLimits": [
+      "This does not implement audit findings.",
+      "This does not auto-create backlog.",
+      "The senior review sees bounded packets, not every line of all 857 changed code files.",
+      "The remaining open P1 is routed to FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001."
+    ]
+  },
+  {
+    "key": "old-system-research-team-harvest-v1",
+    "backlogIds": [
+      "OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001 harvest old research team"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "WEB-GODMODE-001",
+      "LOOM-001",
+      "MEETING-VIDEO-001",
+      "SKOOL-WORKER-001",
+      "MYICRO-TRAINING-001",
+      "DRIVE-WORKER-001",
+      "BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001",
+      "FOUNDATION-OPERATOR-PULSE-001",
+      "SOURCE-019",
+      "SOURCE-020",
+      "DATA-002"
+    ],
+    "systemArea": "Foundation old-system research harvest / extraction planning",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a focused old-system research/scout/intel harvest proof, generated durable harvest artifacts, and validated that useful old-system extraction patterns are promoted to live backlog truth instead of loose chat or stale docs.",
+    "whatItDoes": "The harvest reviews the old BCrew-Buddy agent roster, skills, research/scout evidence files, course/video scripts, browser extraction script, and atom extractor. It outputs keep/rebuild/retire/approval-bound guidance and checks current downstream cards exist.",
+    "whyItMatters": "Steve asked that the useful old research-team work not be lost before GOD-mode extraction. This preserves the valuable source-scan -> scored-finding -> synthesis -> action/review pattern while rejecting the old report-sprawl and agent-sprawl failure modes.",
+    "whereItLives": [
+      "scripts/process-old-system-research-team-harvest-check.mjs",
+      "package.json npm script process:old-system-research-team-harvest-check",
+      "docs/process/old-system-research-team-harvest-001-plan.md",
+      "docs/process/approvals/OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001.json",
+      "docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md",
+      "docs/audits/2026-05-19-old-system-research-team-harvest.json",
+      "docs/_archive/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check scripts/process-old-system-research-team-harvest-check.mjs",
+      "npm run process:old-system-research-team-harvest-check -- --apply --json",
+      "npm run process:old-system-research-team-harvest-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001 --planApprovalRef=docs/process/approvals/OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001.json --closeoutKey=old-system-research-team-harvest-v1",
+      "npm run process:fanout-check -- --card=OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001 --closeoutKey=old-system-research-team-harvest-v1",
+      "npm run process:foundation-ship -- --card=OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001 --planApprovalRef=docs/process/approvals/OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001.json --closeoutKey=old-system-research-team-harvest-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof reviewed 90 old agent records, 121 old skill files, 12/12 key old-system evidence files, and 11 downstream live backlog cards. It generated keep/rebuild/retire/approval-bound artifacts while proving no old code import, no old agent execution, no private crawl, and no paid/provider/browser-auth work.",
+    "reviewNext": "Run FOUNDATION-OPERATOR-PULSE-001 next unless live backlog/current sprint truth has a higher P0. Keep WEB-GODMODE-001 next in the extraction sequence after the operator surface/progress control remains clean.",
+    "knownLimits": [
+      "This does not implement WEB-GODMODE-001.",
+      "This does not run old agents or old crawler scripts.",
+      "This does not crawl Skool, Loom, Mycro/MyICOR, YouTube, browser sessions, or paid/private sources.",
+      "This does not replace current source contracts, job ledgers, or proof gates."
+    ]
+  },
+  {
+    "key": "foundation-clickup-verify-health-boundary-v1",
+    "backlogIds": [
+      "CLICKUP-VERIFY-FAST-PATH-001",
+      "CLICKUP-VERIFY-PAYLOAD-CACHE-001",
+      "CLICKUP-DEGRADED-HEALTH-DOGFOOD-001",
+      "FOUNDATION-VERIFY-SLOW-BUDGET-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "foundation-clickup-verify-health-boundary-v1",
+        "ClickUp verifier health boundary",
+        "verifier drag"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-HUB-FULL-ROUTE-SPLIT-001",
+      "FOUNDATION-FULL-DIAGNOSTICS-PERF-001",
+      "MONOLITH-SPLIT-CONTINUE-001"
+    ],
+    "systemArea": "Foundation verifier speed and ClickUp source health",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Extracted ClickUp source verification into a bounded module, made the ClickUp verifier use shared client behavior with timeout/page budgets and concurrent list checks, added per-run snapshot reuse, dogfooded timeout/500/429 degraded source health, and added verifier slow-section budget rows.",
+    "whatItDoes": "`clickup:verify` now reads only a bounded one-page task sample per configured list by default, checks the three lists concurrently, emits a structured summary, and preserves required field/status checks. Synthetic external ClickUp failures become explicit degraded source-health output with redacted public messages. `FOUNDATION_VERIFY_PROFILE` now includes slow-section budget and over-budget rows with owner and repair context.",
+    "whyItMatters": "The previous profile showed `health:clickup:verify` taking roughly 45 seconds, about half of the full Foundation ship gate. This sprint reduced that section to about 3.3 seconds and the profiled verifier from about 92 seconds to about 47 seconds without weakening ClickUp source-health proof.",
+    "whereItLives": [
+      "lib/clickup-source-verifier.js",
+      "lib/foundation-verify-profile-budget.js",
+      "lib/clickup.js redaction hardening",
+      "scripts/clickup-source-verify.mjs",
+      "scripts/process-clickup-verify-health-boundary-check.mjs",
+      "scripts/foundation-verify.mjs slow-section profile budget and ClickUp outage classification",
+      "scripts/process-foundation-verify-profile-check.mjs profile budget assertion",
+      "docs/process/clickup-verify-fast-path-001-plan.md",
+      "docs/process/clickup-verify-payload-cache-001-plan.md",
+      "docs/process/clickup-degraded-health-dogfood-001-plan.md",
+      "docs/process/foundation-verify-slow-budget-001-plan.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-clickup-verify-health-boundary-closeout.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-operating-reliability-two-sprint-scope.md"
+    ],
+    "proofCommands": [
+      "node --check lib/clickup-source-verifier.js lib/foundation-verify-profile-budget.js scripts/clickup-source-verify.mjs scripts/process-clickup-verify-health-boundary-check.mjs scripts/foundation-verify.mjs scripts/process-foundation-verify-profile-check.mjs",
+      "npm run process:clickup-verify-health-boundary-check -- --json",
+      "npm run process:foundation-verify-profile-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FOUNDATION-VERIFY-SLOW-BUDGET-001 --planApprovalRef=docs/process/approvals/FOUNDATION-VERIFY-SLOW-BUDGET-001.json --closeoutKey=foundation-clickup-verify-health-boundary-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-VERIFY-SLOW-BUDGET-001 --closeoutKey=foundation-clickup-verify-health-boundary-v1",
+      "npm run process:post-ship-fanout -- --card=FOUNDATION-VERIFY-SLOW-BUDGET-001 --closeoutKey=foundation-clickup-verify-health-boundary-v1 --commitRef=HEAD",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=FOUNDATION-VERIFY-SLOW-BUDGET-001 --planApprovalRef=docs/process/approvals/FOUNDATION-VERIFY-SLOW-BUDGET-001.json --closeoutKey=foundation-clickup-verify-health-boundary-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood proof passed: duplicate list verification reused one cached snapshot, timeout/500/429 cases reported degraded source health, synthetic secret values were redacted, and live `clickup:verify` completed in about 3.4 seconds with 12/12 checks. Final profile proof passed: full profiled verifier completed in 49.427 seconds, `health:clickup:verify` measured 2.733 seconds, slow-section budget was 20 seconds, and no section was over budget.",
+    "reviewNext": "Stop at sprint review. Next measured cleanup target is full Foundation Hub diagnostics and Ops Hub route latency, then continued monolith splits.",
+    "knownLimits": [
+      "This does not make full Foundation Hub diagnostics small; it remains the slowest named section at about 7.7 seconds.",
+      "This does not optimize Ops Hub; `/api/ops-hub` is now the second slowest named profile section at about 6.9 seconds.",
+      "This does not add durable cross-run ClickUp caching.",
+      "This does not write to ClickUp or mutate source truth.",
+      "This does not build hub features, Build Intel extraction, paid-source auth, autonomous dev, MEETING-VAULT-ACL-001 Phase B, or Drive permissions mutation."
+    ]
+  },
+  {
+    "key": "foundation-ship-gate-speed-payload-cleanup-v1",
+    "backlogIds": [
+      "SHIP-GATE-FAST-PREFLIGHT-001",
+      "FOUNDATION-VERIFY-TIMING-001",
+      "FOUNDATION-VERIFY-MODULE-SPLIT-002",
+      "FOUNDATION-HUB-FULL-PAYLOAD-REDUCE-001",
+      "SHIP-GATE-FRESHNESS-OWNERSHIP-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "foundation-ship-gate-speed-payload-cleanup-v1",
+        "Foundation ship gate speed",
+        "ship-gate speed and payload cleanup"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "LLM-AUTH-AUDIT-001",
+      "FOUNDATION-FULL-DIAGNOSTICS-PERF-001",
+      "FOUNDATION-HUB-FULL-ROUTE-SPLIT-001"
+    ],
+    "systemArea": "Foundation ship gate speed and full diagnostics payload",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a fast read-only Foundation ship preflight, profiled foundation:verify by named sections, split the LLM auth audit verifier check into a focused module, and compacted heavy full-diagnostics payload sections.",
+    "whatItDoes": "The ship wrapper now fails early when the manual LLM auth audit freshness row is stale or incomplete, with owner/posture/repair command in the output. The verifier can emit machine-readable timing data without skipping checks. The LLM auth verifier proof is extracted into a module with its own dogfood gate. Full Foundation Hub diagnostics compact nested source lifecycle and shared communication synthesis rows and enforce a tighter payload budget.",
+    "whyItMatters": "Steve was losing 30-plus minutes to late ship-gate failures and multi-megabyte diagnostics payloads. This sprint makes stale manual truth fail before expensive gates, shows which verifier sections are actually slow, and reduces full diagnostics payload size without hiding required Foundation truth.",
+    "whereItLives": [
+      "lib/foundation-ship-preflight.js",
+      "scripts/process-foundation-ship-preflight.mjs",
+      "scripts/process-foundation-ship.mjs preflight timing step",
+      "scripts/foundation-verify.mjs timing profile and LLM auth module delegation",
+      "scripts/process-foundation-verify-profile-check.mjs",
+      "lib/foundation-verify-llm-auth-audit.js",
+      "scripts/process-foundation-verify-llm-auth-audit-check.mjs",
+      "server.js full Foundation Hub compaction helpers",
+      "lib/foundation-hub-full-diagnostics.js tightened full payload budget",
+      "lib/foundation-hub-performance.js tightened full route warning budget",
+      "scripts/process-foundation-hub-full-payload-reduce-check.mjs",
+      "docs/process/ship-gate-fast-preflight-001-plan.md",
+      "docs/process/foundation-verify-timing-001-plan.md",
+      "docs/process/foundation-verify-module-split-002-plan.md",
+      "docs/process/foundation-hub-full-payload-reduce-001-plan.md",
+      "docs/process/ship-gate-freshness-ownership-001-plan.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-ship-gate-speed-payload-cleanup-closeout.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-operating-reliability-two-sprint-scope.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-ship-preflight.js scripts/process-foundation-ship-preflight.mjs scripts/process-foundation-ship.mjs scripts/foundation-verify.mjs lib/foundation-verify-llm-auth-audit.js scripts/process-foundation-verify-llm-auth-audit-check.mjs scripts/process-foundation-verify-profile-check.mjs scripts/process-foundation-hub-full-payload-reduce-check.mjs server.js",
+      "npm run process:foundation-ship-preflight -- --json --dogfood",
+      "npm run process:foundation-ship-preflight -- --json",
+      "npm run process:foundation-verify-profile-check -- --json",
+      "npm run process:foundation-verify-llm-auth-audit-check -- --json",
+      "npm run process:foundation-hub-full-payload-reduce-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=SHIP-GATE-FRESHNESS-OWNERSHIP-001 --planApprovalRef=docs/process/approvals/SHIP-GATE-FRESHNESS-OWNERSHIP-001.json --closeoutKey=foundation-ship-gate-speed-payload-cleanup-v1",
+      "npm run process:fanout-check -- --card=SHIP-GATE-FRESHNESS-OWNERSHIP-001 --closeoutKey=foundation-ship-gate-speed-payload-cleanup-v1",
+      "npm run process:post-ship-fanout -- --card=SHIP-GATE-FRESHNESS-OWNERSHIP-001 --closeoutKey=foundation-ship-gate-speed-payload-cleanup-v1 --commitRef=HEAD",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=SHIP-GATE-FRESHNESS-OWNERSHIP-001 --planApprovalRef=docs/process/approvals/SHIP-GATE-FRESHNESS-OWNERSHIP-001.json --closeoutKey=foundation-ship-gate-speed-payload-cleanup-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Dogfood preflight accepts fresh LLM auth audit truth and rejects stale, missing-job, and missing-probe fixtures with the approved manual repair command. Profile proof runs the real verifier and records slow sections, including ClickUp verify and full Foundation Hub fetch. The module split proof rejects stale runtime and missing closeout proof. Live payload proof reduced `/api/foundation-hub?view=full` from 4,824,662B to about 3,507,207B, a 27.3% reduction, under the new 4.2 MB diagnostics budget.",
+    "reviewNext": "Stop at sprint review. Next reliability work should target the measured verifier drag, especially ClickUp health-script latency, then continue verifier/foundation-db/frontend monolith cleanup.",
+    "knownLimits": [
+      "This does not weaken or skip foundation:verify checks.",
+      "This does not auto-run the LLM auth audit repair job or change its manual posture.",
+      "This does not make full Foundation Hub diagnostics small; it is still about 3.5 MB and around 7-8 seconds locally.",
+      "This does not fix ClickUp health-script latency, which the profile currently identifies as the largest verifier drag.",
+      "This does not build hub features, Build Intel extraction, paid-source auth, autonomous dev, MEETING-VAULT-ACL-001 Phase B, or Drive permissions mutation."
+    ]
+  },
+  {
+    "key": "foundation-full-diagnostics-perf-v1",
+    "backlogIds": [
+      "FOUNDATION-FULL-DIAGNOSTICS-PERF-001",
+      "FOUNDATION-HUB-FULL-ROUTE-SPLIT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Bound foundation full diagnostics",
+        "foundation-full-diagnostics-perf-v1",
+        "full diagnostics performance",
+        "bounded Agent Feedback diagnostics"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "VERIFIER-MONOLITH-SPLIT-CONTINUE-001",
+      "FOUNDATION-DB-MONOLITH-SPLIT-001",
+      "FRONTEND-MONOLITH-SPLIT-001",
+      "SERVER-ROUTE-MONOLITH-SPLIT-001"
+    ],
+    "systemArea": "Foundation full diagnostics performance and server route split",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Bounded the optional Agent Feedback / ClickUp readiness diagnostics used by `/api/foundation-hub?view=full` and Ops Hub so slow external-source panels fail soft as degraded source health instead of holding the route open.",
+    "whatItDoes": "Adds `lib/foundation-hub-full-diagnostics.js` as the owner for full-diagnostic Agent Feedback timeouts, shared bounded ClickUp roster reads, source outage boundary construction, route performance evaluation, and dogfood proof. `server.js` delegates the slow full-route block to that module. ClickUp reads now support request timeout and page-cap options, and Agent Feedback readiness builders accept an injected roster snapshot getter.",
+    "whyItMatters": "The profiler showed core Foundation snapshot time was under a second while `buildAgentFeedbackAutoSendReadiness()` alone took about 82 seconds. Runtime Health should show degraded ClickUp/source health without making Steve wait a minute and wonder if Foundation itself is broken.",
+    "whereItLives": [
+      "lib/foundation-hub-full-diagnostics.js",
+      "lib/clickup.js bounded request timeout and maxPages options",
+      "lib/agent-feedback-auto-send.js injected roster snapshot getter",
+      "lib/agent-feedback-reminders.js injected roster snapshot getter",
+      "server.js /api/foundation-hub?view=full bounded diagnostics delegation",
+      "server.js /api/ops-hub bounded diagnostics reuse",
+      "scripts/process-foundation-full-diagnostics-perf-check.mjs",
+      "docs/process/foundation-full-diagnostics-perf-001-plan.md",
+      "docs/process/foundation-hub-full-route-split-001-plan.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-full-diagnostics-perf-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-hub-full-diagnostics.js",
+      "node --check scripts/process-foundation-full-diagnostics-perf-check.mjs",
+      "node --check lib/clickup.js",
+      "node --check lib/agent-feedback-auto-send.js",
+      "node --check lib/agent-feedback-reminders.js",
+      "node --check server.js",
+      "npm run process:foundation-full-diagnostics-perf-check -- --json --baseUrl=http://127.0.0.1:3010",
+      "npm run process:foundation-full-diagnostics-perf-check -- --json --no-api",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FOUNDATION-HUB-FULL-ROUTE-SPLIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HUB-FULL-ROUTE-SPLIT-001.json --closeoutKey=foundation-full-diagnostics-perf-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-HUB-FULL-ROUTE-SPLIT-001 --closeoutKey=foundation-full-diagnostics-perf-v1",
+      "npm run process:post-ship-fanout -- --card=FOUNDATION-HUB-FULL-ROUTE-SPLIT-001 --closeoutKey=foundation-full-diagnostics-perf-v1 --commitRef=HEAD",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=FOUNDATION-HUB-FULL-ROUTE-SPLIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HUB-FULL-ROUTE-SPLIT-001.json --closeoutKey=foundation-full-diagnostics-perf-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood injects slow Agent Feedback builders and proves the module returns degraded `runtime_diagnostic_timeout` source health quickly. Live proof on a fresh server measured `/api/foundation-hub?view=full` at about 11.1s and 4.71 MB, under the new 15s / 5.5 MB budget, with bounded source-health metadata present.",
+    "reviewNext": "Stop at sprint review. Recommended next cleanup is a real payload-size split for full diagnostics or the next verifier/foundation-db/frontend monolith slice; do not call the server monolith solved.",
+    "knownLimits": [
+      "Full diagnostics is faster but still large at about 4.7 MB.",
+      "This is a partial server split, not a full server.js route extraction.",
+      "This does not repair ClickUp credentials/data or make ClickUp healthy.",
+      "This does not split foundation-db.js, foundation-verify.mjs, public/foundation.js, or every server route.",
+      "This does not build hub features, Build Intel extraction, paid-source auth, autonomous dev, MEETING-VAULT-ACL-001 Phase B, or Drive permissions mutation."
+    ]
+  },
+  {
+    "key": "foundation-verification-cleanup-v1",
+    "backlogIds": [
+      "PLAN-CRITIC-ARCH-RULES-DOGFOOD-001",
+      "HUB-PERF-VERIFICATION-001",
+      "MONOLITH-SPLIT-CONTINUE-001",
+      "RECURRING-DEEP-AUDIT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "foundation-verification-cleanup-v1",
+        "Foundation Verification + Continued Cleanup",
+        "Plan Critic dogfood",
+        "recurring deep audit"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-FULL-DIAGNOSTICS-PERF-001",
+      "VERIFIER-MONOLITH-SPLIT-CONTINUE-001",
+      "FOUNDATION-DB-MONOLITH-SPLIT-001",
+      "FRONTEND-MONOLITH-SPLIT-001"
+    ],
+    "systemArea": "Foundation verification and cleanup discipline",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Dogfooded Plan Critic architecture rules, measured Foundation Hub performance after the summary-route hardening, continued closeout-record monolith splitting, and registered recurring senior-engineer deep audits as manual report-only review cadence.",
+    "whatItDoes": "Proves the architecture gate rejects bad plans through the real Plan Critic path, records the new Foundation Hub performance baseline, keeps new closeout truth in a dedicated module instead of growing the closeout monolith, and separates deterministic nightly scanning from recurring deep senior-engineer review.",
+    "whyItMatters": "Steve asked for tighter senior-engineering guardrails instead of velocity theater. This sprint makes the recently shipped gates prove their claims and creates a review cadence so rot is surfaced before it becomes another 70-second route or self-repairing verifier.",
+    "whereItLives": [
+      "lib/plan-critic-architectural-rules.js",
+      "lib/process-plan-critic.js buildSyntheticPlanCriticArchitecturalRulesProof",
+      "lib/foundation-hub-performance-verification.js",
+      "lib/recurring-deep-audit.js",
+      "lib/foundation-build-closeout-cleanup-records.js",
+      "lib/foundation-jobs.js recurring-deep-audit manual report-only job",
+      "scripts/process-foundation-verification-cleanup-check.mjs",
+      "scripts/process-recurring-deep-audit-check.mjs",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-hub-performance-baseline.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-verification-cleanup-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-hub-performance-verification.js",
+      "node --check lib/recurring-deep-audit.js",
+      "node --check scripts/process-recurring-deep-audit-check.mjs",
+      "node --check scripts/process-foundation-verification-cleanup-check.mjs",
+      "npm run process:recurring-deep-audit-check -- --json",
+      "npm run process:foundation-verification-cleanup-check -- --json --no-api",
+      "npm run process:plan-critic-architectural-rules-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=RECURRING-DEEP-AUDIT-001 --planApprovalRef=docs/process/approvals/RECURRING-DEEP-AUDIT-001.json --closeoutKey=foundation-verification-cleanup-v1",
+      "npm run process:fanout-check -- --card=RECURRING-DEEP-AUDIT-001 --closeoutKey=foundation-verification-cleanup-v1",
+      "npm run process:post-ship-fanout -- --card=RECURRING-DEEP-AUDIT-001 --closeoutKey=foundation-verification-cleanup-v1",
+      "npm run process:foundation-ship -- --card=RECURRING-DEEP-AUDIT-001 --planApprovalRef=docs/process/approvals/RECURRING-DEEP-AUDIT-001.json --closeoutKey=foundation-verification-cleanup-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood rejects large-file/no-split, mutating-check/no-apply, verifier repair, missing focused proof, missing audit dogfood, and hot-route/no-budget plans while passing a compliant cleanup plan. Performance proof shows the default Foundation Hub route is fast while full diagnostics remains a visible heavy follow-up. Recurring audit proof rejects scanner-only and autonomous/mutating reviewer shapes.",
+    "reviewNext": "Stop at sprint review. Recommended next cleanup slices: full diagnostics payload/performance, verifier module split, foundation-db module split, and frontend route/cache split.",
+    "knownLimits": [
+      "This does not optimize the full diagnostics route; it records that the route remains heavy.",
+      "This does not run an autonomous deep audit or mutate backlog from audit findings.",
+      "This does not split the main DB, verifier, frontend, or server monoliths.",
+      "This does not build hub features, Build Intel extraction, paid-source auth, autonomous dev, MEETING-VAULT-ACL-001 Phase B, or Drive permissions mutation."
+    ]
+  },
+  {
+    "key": "foundation-operating-reliability-v1",
+    "backlogIds": [
+      "CONNECTOR-UPTIME-MONITOR-001",
+      "SOURCE-023",
+      "RUNTIME-ACTIVATION-001",
+      "SYSTEM-HEALTH-AUDITOR-001",
+      "PLAN-STATE-RECONCILE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "foundation-operating-reliability-v1",
+        "Foundation Operating Reliability",
+        "connector uptime",
+        "runtime activation"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "PLAN-CRITIC-ARCH-RULES-DOGFOOD-001",
+      "HUB-PERF-VERIFICATION-001",
+      "MONOLITH-SPLIT-CONTINUE-001",
+      "RECURRING-DEEP-AUDIT-001"
+    ],
+    "systemArea": "Foundation operating reliability / source health",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Foundation Operating Reliability layer for connector uptime, connector failure redaction/classification, runtime activation, and report-only morning health.",
+    "whatItDoes": "Reports ClickUp, FUB, Google Workspace, Slack, Missive, and KPI/Supabase health as normalized read-only source status; classifies connector failures with retry/backoff guidance and redacted error text; shows job/connector activation states; and makes the deterministic scanner vs recurring deep-audit gap explicit.",
+    "whyItMatters": "Foundation and hub work should not discover broken source/runtime state by accident. Steve can now see degraded/down/stale/manual/blocked status before relying on a hub or treating a green check as system health.",
+    "whereItLives": [
+      "lib/connector-uptime-monitor.js",
+      "lib/foundation-jobs.js connector-uptime-monitor scheduled read-only job",
+      "server.js /api/foundation-hub?view=full > foundationOperatingReliability",
+      "scripts/process-foundation-operating-reliability-check.mjs",
+      "docs/process/connector-uptime-monitor-001-plan.md",
+      "docs/process/source-023-connector-hardening-plan.md",
+      "docs/process/runtime-activation-001-operating-reliability-plan.md",
+      "docs/process/system-health-auditor-001-operating-reliability-plan.md",
+      "docs/process/plan-state-reconcile-001-plan.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-operating-reliability-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/connector-uptime-monitor.js",
+      "node --check scripts/process-foundation-operating-reliability-check.mjs",
+      "npm run process:foundation-operating-reliability-check -- --json --no-api",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=PLAN-STATE-RECONCILE-001 --planApprovalRef=docs/process/approvals/PLAN-STATE-RECONCILE-001.json --closeoutKey=foundation-operating-reliability-v1",
+      "npm run process:fanout-check -- --card=PLAN-STATE-RECONCILE-001 --closeoutKey=foundation-operating-reliability-v1",
+      "npm run process:post-ship-fanout -- --card=PLAN-STATE-RECONCILE-001 --closeoutKey=foundation-operating-reliability-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=PLAN-STATE-RECONCILE-001 --planApprovalRef=docs/process/approvals/PLAN-STATE-RECONCILE-001.json --closeoutKey=foundation-operating-reliability-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood recreates connector 500/auth/rate-limit failures with secret-bearing messages, proves status normalization/redaction/backoff, validates all six connector groups, distinguishes blocked mutating checks from manual report-only jobs, and proves morning health calls out the deterministic scanner vs recurring deep-audit gap without auto-fixes or backlog mutation.",
+    "reviewNext": "Stop at sprint review. Recommended next sprint is Foundation Verification + Continued Cleanup: dogfood Plan Critic architecture rules, verify Foundation Hub performance, continue monolith splits, and build recurring deep-audit cadence.",
+    "knownLimits": [
+      "This does not repair vendor credentials or source data.",
+      "This does not build RECURRING-DEEP-AUDIT-001; it makes that missing reviewer cadence visible.",
+      "This does not add Skool, myICOR, Loom, YouTube extraction, hub features, autonomous dev, or broad monolith splitting.",
+      "The default Foundation Hub summary route remains lean; Operating Reliability appears in full diagnostics."
+    ]
+  }
+]

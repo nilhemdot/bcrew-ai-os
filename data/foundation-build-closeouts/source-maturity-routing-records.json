@@ -1,0 +1,839 @@
+[
+  {
+    "key": "source-maturity-freedom-bhag-routing-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001",
+        "source maturity Freedom BHAG routing gap repair",
+        "Repair Freedom BHAG source maturity routing gap",
+        "Freedom BHAG routing gap repair",
+        "source-maturity-freedom-bhag-routing-gap-repair-v1",
+        "SRC-FREEDOM-BHAG-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-FREEDOM-BHAG-ATOM-FLOW-REPAIR-001",
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Routed SRC-FREEDOM-BHAG-001 from a source maturity routed-stage gap into an approval-required internal action route.",
+    "whatItDoes": "Creates one bounded retrieval chunk from the existing Freedom BHAG source fact and accepted atom, then creates a pending internal owner-decision route without applying a destination record or writing externally.",
+    "whyItMatters": "Foundation can move governed Freedom BHAG evidence into reviewable owner work without reading/writing Google Sheets or pretending route apply is approved.",
+    "whereItLives": [
+      "lib/source-maturity-routing-gap-repair-db.js shared route DB writer for source maturity routing repairs",
+      "lib/source-maturity-freedom-bhag-routing-gap-repair.js Freedom BHAG-focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-freedom-bhag-routing-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_retrieval_chunks Freedom BHAG community-goal-path retrieval chunk",
+      "intelligence_synthesized_items source-maturity-freedom-bhag-routing-gap-repair-v1 item",
+      "intelligence_action_routes pending approval-required SRC-FREEDOM-BHAG-001 route",
+      "docs/process/source-maturity-freedom-bhag-routing-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-freedom-bhag-routing-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-routing-gap-repair.js lib/source-maturity-routing-gap-repair-db.js lib/source-maturity-freedom-bhag-routing-gap-repair.js scripts/process-source-maturity-freedom-bhag-routing-gap-repair-check.mjs",
+      "npm run process:source-maturity-freedom-bhag-routing-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-freedom-bhag-routing-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-bhag-routing-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001 --closeoutKey=source-maturity-freedom-bhag-routing-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-bhag-routing-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing Freedom BHAG source fact and accepted atom, bounded retrieval chunk creation, verified synthesized item and route metadata, pending approval gate, no destination apply, no Google Sheets read/write, source maturity route signal, docs, closeout registry, and no live extraction/auth/provider/external-write posture.",
+    "reviewNext": "Continue the safe source maturity/source-contract queue from live truth. Prefer internal route repairs only where source-backed fact/atom/chunk evidence exists; otherwise mark blocked/pending instead of inventing evidence.",
+    "knownLimits": [
+      "This repairs one routing gap target only: SRC-FREEDOM-BHAG-001.",
+      "This uses one bounded source-backed Freedom BHAG fact and accepted atom and creates one retrieval chunk from that atom.",
+      "This does not read or write Google Sheets.",
+      "This does not apply the route, create a destination backlog card, decision, or open question record.",
+      "This does not run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-freedom-community-routing-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001",
+        "source maturity Freedom Community routing gap repair",
+        "Repair Freedom Community source maturity routing gap",
+        "Freedom Community routing gap repair",
+        "source-maturity-freedom-community-routing-gap-repair-v1",
+        "SRC-FREEDOM-COMMUNITY-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-FREEDOM-COMMUNITY-ATOM-FLOW-REPAIR-001",
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Routed SRC-FREEDOM-COMMUNITY-001 from a source maturity routed-stage gap into an approval-required internal action route.",
+    "whatItDoes": "Creates one bounded retrieval chunk from the existing Freedom Community source fact and accepted atom, then creates a pending internal owner-decision route without applying a destination record or writing externally.",
+    "whyItMatters": "Foundation can move governed Freedom Community evidence into reviewable owner work without reading/writing Google Sheets or pretending route apply is approved.",
+    "whereItLives": [
+      "lib/source-maturity-routing-gap-repair-db.js shared route DB writer for source maturity routing repairs",
+      "lib/source-maturity-freedom-community-routing-gap-repair.js Freedom Community-focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_retrieval_chunks Freedom Community agent-pace review retrieval chunk",
+      "intelligence_synthesized_items source-maturity-freedom-community-routing-gap-repair-v1 item",
+      "intelligence_action_routes pending approval-required SRC-FREEDOM-COMMUNITY-001 route",
+      "docs/process/source-maturity-freedom-community-routing-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-freedom-community-routing-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-routing-gap-repair.js lib/source-maturity-routing-gap-repair-db.js lib/source-maturity-freedom-community-routing-gap-repair.js scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs",
+      "npm run process:source-maturity-freedom-community-routing-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-freedom-community-routing-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-community-routing-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001 --closeoutKey=source-maturity-freedom-community-routing-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-COMMUNITY-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-community-routing-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing Freedom Community source fact and accepted atom, bounded retrieval chunk creation, verified synthesized item and route metadata, pending approval gate, no destination apply, no Google Sheets read/write, source maturity route signal, docs, closeout registry, and no live extraction/auth/provider/external-write posture.",
+    "reviewNext": "Continue the safe source maturity/source-contract queue from live truth. Prefer internal route repairs only where source-backed fact/atom/chunk evidence exists; otherwise mark blocked/pending instead of inventing evidence.",
+    "knownLimits": [
+      "This repairs one routing gap target only: SRC-FREEDOM-COMMUNITY-001.",
+      "This uses one bounded source-backed Freedom Community fact and accepted atom and creates one retrieval chunk from that atom.",
+      "This does not read or write Google Sheets.",
+      "This does not apply the route, create a destination backlog card, decision, or open question record.",
+      "This does not run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-freedom-engine-routing-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001",
+        "source maturity Freedom Engine routing gap repair",
+        "Repair Freedom Engine source maturity routing gap",
+        "Freedom Engine routing gap repair",
+        "source-maturity-freedom-engine-routing-gap-repair-v1",
+        "SRC-FREEDOM-ENGINE-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-FREEDOM-ENGINE-ATOM-FLOW-REPAIR-001",
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Routed SRC-FREEDOM-ENGINE-001 from a source maturity routed-stage gap into an approval-required internal action route.",
+    "whatItDoes": "Creates one bounded retrieval chunk from the existing Freedom Engine source fact and accepted atom, then creates a pending internal owner-decision route without applying a destination record or writing externally.",
+    "whyItMatters": "Foundation can move governed Freedom Engine evidence into reviewable owner work without reading/writing Google Sheets or pretending route apply is approved.",
+    "whereItLives": [
+      "lib/source-maturity-routing-gap-repair-db.js shared route DB writer for source maturity routing repairs",
+      "lib/source-maturity-freedom-engine-routing-gap-repair.js Freedom Engine-focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_retrieval_chunks Freedom Engine capacity-gap review retrieval chunk",
+      "intelligence_synthesized_items source-maturity-freedom-engine-routing-gap-repair-v1 item",
+      "intelligence_action_routes pending approval-required SRC-FREEDOM-ENGINE-001 route",
+      "docs/process/source-maturity-freedom-engine-routing-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-freedom-engine-routing-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-routing-gap-repair.js lib/source-maturity-routing-gap-repair-db.js lib/source-maturity-freedom-engine-routing-gap-repair.js scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs",
+      "npm run process:source-maturity-freedom-engine-routing-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-freedom-engine-routing-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-engine-routing-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001 --closeoutKey=source-maturity-freedom-engine-routing-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-engine-routing-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing Freedom Engine source fact and accepted atom, bounded retrieval chunk creation, verified synthesized item and route metadata, pending approval gate, no destination apply, no Google Sheets read/write, source maturity route signal, docs, closeout registry, and no live extraction/auth/provider/external-write posture.",
+    "reviewNext": "Continue the safe source maturity/source-contract queue from live truth. Prefer internal route repairs only where source-backed fact/atom/chunk evidence exists; otherwise mark blocked/pending instead of inventing evidence.",
+    "knownLimits": [
+      "This repairs one routing gap target only: SRC-FREEDOM-ENGINE-001.",
+      "This uses one bounded source-backed Freedom Engine fact and accepted atom and creates one retrieval chunk from that atom.",
+      "This does not read or write Google Sheets.",
+      "This does not apply the route, create a destination backlog card, decision, or open question record.",
+      "This does not run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-owners-routing-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001",
+        "source maturity Owners Dashboard routing gap repair",
+        "Repair Owners Dashboard source maturity routing gap",
+        "Repair Owners source maturity routing gap",
+        "Owners Dashboard routing gap repair",
+        "source-maturity-owners-routing-gap-repair-v1",
+        "SRC-OWNERS-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-OWNERS-ATOM-FLOW-REPAIR-001",
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Routed SRC-OWNERS-001 from a source maturity routed-stage gap into an approval-required internal action route.",
+    "whatItDoes": "Creates one bounded retrieval chunk from the existing Owners Dashboard source fact and accepted atom, then creates a pending internal owner-decision route without applying a destination record or writing externally.",
+    "whyItMatters": "Foundation can move governed Owners Dashboard evidence into reviewable owner work without reading/writing Google Sheets or pretending route apply is approved.",
+    "whereItLives": [
+      "lib/source-maturity-routing-gap-repair-db.js shared route DB writer for source maturity routing repairs",
+      "lib/source-maturity-owners-routing-gap-repair.js Owners Dashboard-focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-owners-routing-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_retrieval_chunks Owners Dashboard team-goal pace review retrieval chunk",
+      "intelligence_synthesized_items source-maturity-owners-routing-gap-repair-v1 item",
+      "intelligence_action_routes pending approval-required SRC-OWNERS-001 route",
+      "docs/process/source-maturity-owners-routing-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-owners-routing-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-routing-gap-repair.js lib/source-maturity-routing-gap-repair-db.js lib/source-maturity-owners-routing-gap-repair.js scripts/process-source-maturity-owners-routing-gap-repair-check.mjs",
+      "npm run process:source-maturity-owners-routing-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-owners-routing-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-owners-routing-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001 --closeoutKey=source-maturity-owners-routing-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-owners-routing-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing Owners Dashboard source fact and accepted atom, bounded retrieval chunk creation, verified synthesized item and route metadata, pending approval gate, no destination apply, no Google Sheets read/write, source maturity route signal, docs, closeout registry, and no live extraction/auth/provider/external-write posture.",
+    "reviewNext": "Continue the safe source maturity/source-contract queue from live truth. Prefer internal route repairs only where source-backed fact/atom/chunk evidence exists; otherwise mark blocked/pending instead of inventing evidence.",
+    "knownLimits": [
+      "This repairs one routing gap target only: SRC-OWNERS-001.",
+      "This uses one bounded source-backed Owners Dashboard fact and accepted atom and creates one retrieval chunk from that atom.",
+      "This does not read or write Google Sheets.",
+      "This does not apply the route, create a destination backlog card, decision, or open question record.",
+      "This does not run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-owners-lists-routing-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001",
+        "source maturity Owners Lists routing gap repair",
+        "Repair Owners Lists source maturity routing gap",
+        "Owners Lists routing gap repair",
+        "source-maturity-owners-lists-routing-gap-repair-v1",
+        "SRC-OWNERS-LISTS-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001",
+      "SOURCE-MATURITY-ATOM-FLOW-REPAIR-001",
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Routed SRC-OWNERS-LISTS-001 from a source maturity routed-stage gap into an approval-required internal action route.",
+    "whatItDoes": "Creates one bounded retrieval chunk from the existing Owners Lists source fact and accepted atom, then creates a pending internal owner-decision route without applying a destination record or writing externally.",
+    "whyItMatters": "Foundation can move governed Owners Lists evidence into reviewable owner work without reading/writing Google Sheets or pretending route apply is approved.",
+    "whereItLives": [
+      "lib/source-maturity-routing-gap-repair-db.js shared route DB writer for source maturity routing repairs",
+      "lib/source-maturity-owners-lists-routing-gap-repair.js Owners Lists-focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-owners-lists-routing-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_retrieval_chunks source-maturity-owners-lists-governed-list-boundary retrieval chunk",
+      "intelligence_synthesized_items source-maturity-owners-lists-routing-gap-repair-v1 item",
+      "intelligence_action_routes pending approval-required SRC-OWNERS-LISTS-001 route",
+      "docs/process/source-maturity-owners-lists-routing-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-owners-lists-routing-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-routing-gap-repair.js lib/source-maturity-routing-gap-repair-db.js lib/source-maturity-owners-lists-routing-gap-repair.js scripts/process-source-maturity-owners-lists-routing-gap-repair-check.mjs",
+      "npm run process:source-maturity-owners-lists-routing-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-owners-lists-routing-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-owners-lists-routing-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001 --closeoutKey=source-maturity-owners-lists-routing-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-owners-lists-routing-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing Owners Lists source fact and accepted atom, bounded retrieval chunk creation, verified synthesized item and route metadata, pending approval gate, no destination apply, no Google Sheets read/write, source maturity route signal, docs, closeout registry, and no live extraction/auth/provider/external-write posture.",
+    "reviewNext": "Continue the safe source maturity/source-contract queue from live truth. Prefer internal route repairs only where source-backed fact/atom/chunk evidence exists; otherwise mark blocked/pending instead of inventing evidence.",
+    "knownLimits": [
+      "This repairs one routing gap target only: SRC-OWNERS-LISTS-001.",
+      "This uses one bounded source-backed Owners Lists fact and accepted atom and creates one retrieval chunk from that atom.",
+      "This does not read or write Google Sheets.",
+      "This does not apply the route, create a destination backlog card, decision, or open question record.",
+      "This does not run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-missive-routing-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001",
+        "source maturity Missive routing gap repair",
+        "Repair Missive source maturity routing gap",
+        "Missive routing gap repair",
+        "source-maturity-missive-routing-gap-repair-v1",
+        "SRC-MISSIVE-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Routed SRC-MISSIVE-001 from a source maturity routed-stage gap into an approval-required internal action route.",
+    "whatItDoes": "Uses an existing active Missive source-health fact, Atlassian Goals/Projects atom, and retrieval chunk to create a pending internal owner-decision route without applying a destination record or writing externally.",
+    "whyItMatters": "Foundation can keep moving source-backed Missive evidence into reviewable work without confusing proposed action routes with trusted backlog/decision records or silently applying actions.",
+    "whereItLives": [
+      "lib/source-maturity-routing-gap-repair.js reusable routing repair helper with card metadata support",
+      "lib/source-maturity-missive-routing-gap-repair.js Missive-focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-missive-routing-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_synthesized_items source-maturity-missive-routing-gap-repair-v1 item",
+      "intelligence_action_routes pending approval-required SRC-MISSIVE-001 route",
+      "docs/process/source-maturity-missive-routing-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-missive-routing-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-routing-gap-repair.js lib/source-maturity-missive-routing-gap-repair.js scripts/process-source-maturity-missive-routing-gap-repair-check.mjs",
+      "npm run process:source-maturity-missive-routing-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-missive-routing-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-missive-routing-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001 --closeoutKey=source-maturity-missive-routing-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-missive-routing-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing Missive source-health fact/atom/chunk evidence, verified synthesized item and route metadata, pending approval gate, no destination apply, source maturity route signal, docs, closeout registry, and no live extraction/auth/provider/external-write posture.",
+    "reviewNext": "Continue the safe source maturity/source contract queue from live source coverage truth. Do not run live extraction, auth-required providers, paid work, external writes, Drive permission mutation, or Agent Feedback auto-send without Steve approval.",
+    "knownLimits": [
+      "This repairs one routing gap target only: SRC-MISSIVE-001.",
+      "This uses one bounded Missive atom/chunk and does not perform broad Missive mining.",
+      "This does not apply the route, create a destination backlog card, decision, or open question record.",
+      "This does not run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-atom-flow-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-ATOM-FLOW-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-ATOM-FLOW-REPAIR-001",
+        "source maturity atom-flow repair",
+        "Repair source maturity atom-flow gap",
+        "Repair source maturity atom flow",
+        "atom-flow repair",
+        "source-maturity-atom-flow-repair-v1",
+        "SRC-OWNERS-LISTS-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001",
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Promoted one source-backed atom and supporting atom hit for SRC-OWNERS-LISTS-001 from an existing governed source fact.",
+    "whatItDoes": "Uses internal source-fact evidence to clear the source maturity atomized-stage gap without running live extraction, reading or writing Google Sheets, calling providers, mutating Drive permissions, or writing externally.",
+    "whyItMatters": "Foundation can turn signed-off source facts into memory-spine atoms while staying honest that routing and destination apply remain separate proof lanes.",
+    "whereItLives": [
+      "lib/source-maturity-atom-flow-repair.js focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-atom-flow-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_atoms source-maturity-atom-flow-repair-v1 atom",
+      "intelligence_atom_hits source-maturity-atom-flow-repair-v1 supporting hit",
+      "docs/process/source-maturity-atom-flow-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-ATOM-FLOW-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-atom-flow-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-atom-flow-repair.js scripts/process-source-maturity-atom-flow-repair-check.mjs",
+      "npm run process:source-maturity-atom-flow-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-atom-flow-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-ATOM-FLOW-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-ATOM-FLOW-REPAIR-001.json --closeoutKey=source-maturity-atom-flow-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-ATOM-FLOW-REPAIR-001 --closeoutKey=source-maturity-atom-flow-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-ATOM-FLOW-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-ATOM-FLOW-REPAIR-001.json --closeoutKey=source-maturity-atom-flow-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing source fact evidence, accepted atom persistence, supporting atom hit persistence, source maturity atom-flow movement, no live extraction/no external write posture, docs, closeout registry, and done-card coverage.",
+    "reviewNext": "Continue the safe source maturity child queue. Prefer routing repair where source-backed facts/atoms/chunks already exist; otherwise leave the row blocked instead of inventing truth.",
+    "knownLimits": [
+      "This repairs one atom-flow target only: SRC-OWNERS-LISTS-001.",
+      "This does not run live extraction, create extraction targets, crawl, read/write Google Sheets, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not create synthesized items, action routes, destination backlog cards, decisions, or open questions.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-evidence-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001",
+        "source maturity evidence gap repair",
+        "Repair source maturity evidence gap",
+        "evidence gap repair",
+        "source-maturity-evidence-gap-repair-v1",
+        "SRC-OWNERS-LISTS-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+      "SOURCE-MATURITY-ATOM-FLOW-REPAIR-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Attached an active governed source fact for SRC-OWNERS-LISTS-001 from existing source-contract/source-registry/source-note evidence.",
+    "whatItDoes": "Uses existing repo/source-contract truth to clear the source maturity extracted-stage evidence gap without running live extraction, reading or writing Google Sheets, mutating Drive permissions, or creating atoms.",
+    "whyItMatters": "Foundation can turn signed-off source contracts into machine-readable source facts while staying honest that atom-flow, synthesis, and routing are separate proof lanes.",
+    "whereItLives": [
+      "lib/source-maturity-evidence-gap-repair.js focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-evidence-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_synthesis_facts source-maturity-evidence-gap-repair-v1 source fact",
+      "docs/process/source-maturity-evidence-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-evidence-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-evidence-gap-repair.js scripts/process-source-maturity-evidence-gap-repair-check.mjs",
+      "npm run process:source-maturity-evidence-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-evidence-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001.json --closeoutKey=source-maturity-evidence-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001 --closeoutKey=source-maturity-evidence-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001.json --closeoutKey=source-maturity-evidence-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing source contract/note/registry/current-state evidence, active source fact persistence, source maturity fact signal, no live extraction/no external write posture, docs, closeout registry, and done-card coverage.",
+    "reviewNext": "Continue the safe source maturity child queue. Prefer another routing repair where source-backed facts/atoms/chunks already exist, or atom-flow repair only where source-backed atom evidence is clear.",
+    "knownLimits": [
+      "This repairs one evidence gap target only: SRC-OWNERS-LISTS-001.",
+      "This does not run live extraction, create extraction targets, crawl, read/write Google Sheets, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not create atoms, synthesized items, action routes, destination backlog cards, decisions, or open questions.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-freedom-sheet-evidence-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001",
+        "Freedom Sheet source maturity evidence gap repair",
+        "source-maturity-freedom-sheet-evidence-gap-repair-v1",
+        "SRC-FREEDOM-TEAM-001",
+        "SRC-FREEDOM-COMMUNITY-REV-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-FREEDOM-TEAM-MONITORING-GAP-REPAIR-001",
+      "SOURCE-MATURITY-FREEDOM-COMMUNITY-REV-MONITORING-GAP-REPAIR-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Attached active governed source facts for SRC-FREEDOM-TEAM-001 and SRC-FREEDOM-COMMUNITY-REV-001 from existing Freedom source-contract/source-registry/source-note evidence.",
+    "whatItDoes": "Uses existing Freedom repo/source-contract truth to clear the two source maturity extracted-stage evidence gaps without running live extraction, reading or writing Google Sheets, mutating Drive permissions, creating atoms, or creating routes.",
+    "whyItMatters": "Foundation can advance signed-off Freedom Sheet sources to the next real atom-flow gap while staying honest about what has and has not been extracted or automated.",
+    "whereItLives": [
+      "lib/source-maturity-freedom-sheet-evidence-gap-repair.js focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-freedom-sheet-evidence-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_synthesis_facts source-maturity-freedom-sheet-evidence-gap-repair-v1 source facts",
+      "docs/process/source-maturity-freedom-sheet-evidence-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-freedom-sheet-evidence-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-freedom-sheet-evidence-gap-repair.js scripts/process-source-maturity-freedom-sheet-evidence-gap-repair-check.mjs",
+      "npm run process:source-maturity-freedom-sheet-evidence-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-freedom-sheet-evidence-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-sheet-evidence-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001 --closeoutKey=source-maturity-freedom-sheet-evidence-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-sheet-evidence-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing Freedom source contract/note/registry/current-state evidence, active source fact persistence for both targets, source maturity fact signal movement, no live extraction/no Sheets/no external write posture, closeout registry, and done-card coverage.",
+    "reviewNext": "Continue the safe source maturity child queue. Freedom Team and Freedom Community Revenue atom-flow requires source-backed facts and must not fabricate atoms or run live extraction.",
+    "knownLimits": [
+      "This repairs two extracted-stage evidence targets only: SRC-FREEDOM-TEAM-001 and SRC-FREEDOM-COMMUNITY-REV-001.",
+      "This does not run live extraction, create extraction targets, crawl, read/write Google Sheets, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not create atoms, synthesized items, action routes, destination backlog cards, decisions, or open questions.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-freedom-sheet-atom-flow-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001",
+        "Freedom Sheet atom-flow repair",
+        "source-maturity-freedom-sheet-atom-flow-repair-v1",
+        "SRC-FREEDOM-TEAM-001",
+        "SRC-FREEDOM-COMMUNITY-REV-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Promoted existing governed Freedom Sheet source facts for SRC-FREEDOM-TEAM-001 and SRC-FREEDOM-COMMUNITY-REV-001 into accepted intelligence atoms and atom hits.",
+    "whatItDoes": "Uses existing source-fact evidence to clear the two source maturity atomized-stage gaps without running live extraction, reading or writing Google Sheets, mutating Drive permissions, calling models/providers, creating routes, or writing external systems.",
+    "whyItMatters": "Foundation can move signed-off Freedom Sheet source truth into the governed memory spine while staying honest that synthesis, routing, and apply remain separate proof lanes.",
+    "whereItLives": [
+      "lib/source-maturity-freedom-sheet-atom-flow-repair.js focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_atoms source-maturity-freedom-sheet-atom-flow-repair-v1 atoms",
+      "intelligence_atom_hits source-maturity-freedom-sheet-atom-flow-repair-v1 hits",
+      "docs/process/source-maturity-freedom-sheet-atom-flow-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-freedom-sheet-atom-flow-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-freedom-sheet-atom-flow-repair.js scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs",
+      "npm run process:source-maturity-freedom-sheet-atom-flow-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-freedom-sheet-atom-flow-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001.json --closeoutKey=source-maturity-freedom-sheet-atom-flow-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001 --closeoutKey=source-maturity-freedom-sheet-atom-flow-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001.json --closeoutKey=source-maturity-freedom-sheet-atom-flow-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing source facts for both Freedom Sheet targets, accepted atom persistence, atom-hit persistence, source maturity atom-flow movement, no live extraction/no Sheets/no external write posture, closeout registry, and done-card coverage.",
+    "reviewNext": "Continue the safe source maturity/source-contract queue from live truth. Routing repairs require source-backed atoms or review items and must not fabricate action routes.",
+    "knownLimits": [
+      "This repairs two atomized-stage targets only: SRC-FREEDOM-TEAM-001 and SRC-FREEDOM-COMMUNITY-REV-001.",
+      "This does not run live extraction, create extraction targets, crawl, read/write Google Sheets, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not create synthesized items, action routes, destination backlog cards, decisions, or open questions.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-freedom-sheet-routing-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001",
+        "Freedom Sheet routing gap repair",
+        "source-maturity-freedom-sheet-routing-gap-repair-v1",
+        "SRC-FREEDOM-TEAM-001",
+        "SRC-FREEDOM-COMMUNITY-REV-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001",
+      "SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Routed the two signed-off Freedom Sheet sources from routed-stage source maturity gaps into approval-required internal action routes.",
+    "whatItDoes": "Creates one bounded retrieval chunk per existing Freedom Sheet atom, then creates pending internal owner-decision routes without applying destination records, reading/writing Google Sheets, running extraction, or writing externally.",
+    "whyItMatters": "Foundation can move signed-off Freedom Sheet source truth into reviewable owner work while staying honest that route promotion/apply remains a separate human-approved workflow.",
+    "whereItLives": [
+      "lib/source-maturity-routing-gap-repair-db.js shared route DB writer for source maturity routing repairs",
+      "lib/source-maturity-freedom-sheet-routing-gap-repair.js Freedom Sheet-focused repair contract and dogfood proof",
+      "scripts/process-source-maturity-freedom-sheet-routing-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_retrieval_chunks Freedom Sheet review retrieval chunks",
+      "intelligence_synthesized_items source-maturity-freedom-sheet-routing-gap-repair-v1 items",
+      "intelligence_action_routes pending approval-required Freedom Sheet routes",
+      "docs/process/source-maturity-freedom-sheet-routing-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-freedom-sheet-routing-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-routing-gap-repair.js lib/source-maturity-routing-gap-repair-db.js lib/source-maturity-freedom-sheet-routing-gap-repair.js scripts/process-source-maturity-freedom-sheet-routing-gap-repair-check.mjs",
+      "npm run process:source-maturity-freedom-sheet-routing-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-freedom-sheet-routing-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-sheet-routing-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001 --closeoutKey=source-maturity-freedom-sheet-routing-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-freedom-sheet-routing-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing Freedom Sheet fact/atom evidence, retrieval chunk persistence, synthesized item and pending route metadata, source maturity routed-stage movement, no route apply, no external write, no Google Sheets read/write, docs, closeout registry, and done-card coverage.",
+    "reviewNext": "Continue the safe source maturity/source-contract queue from live truth. Freedom Sheet route promotion/apply, live Sheets reads, and connector work need separate approval.",
+    "knownLimits": [
+      "This repairs two routing targets only: SRC-FREEDOM-TEAM-001 and SRC-FREEDOM-COMMUNITY-REV-001.",
+      "This uses bounded source facts and accepted atoms that already existed before this card.",
+      "This does not read or write Google Sheets.",
+      "This does not apply routes, create destination backlog cards, decisions, or open question records.",
+      "This does not run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-verified-routing-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001",
+        "repair verified source routing",
+        "source-maturity-verified-routing-gap-repair-v1",
+        "SRC-CLICKUP-001",
+        "SRC-GDOCS-001",
+        "SRC-GSHEETS-001",
+        "SRC-DATAFORSEO-001",
+        "SRC-GHL-001",
+        "SRC-META-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-VERIFIED-EVIDENCE-GAP-REPAIR-001",
+      "SOURCE-MATURITY-VERIFIED-ATOM-FLOW-REPAIR-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Routed six verified/readable sources from routed-stage source maturity gaps into approval-required internal action routes.",
+    "whatItDoes": "Creates one bounded retrieval chunk per existing verified/readable source atom, then creates pending internal owner-decision routes without applying destination records, reading/writing source systems, running extraction, calling providers/models, or writing externally.",
+    "whyItMatters": "Foundation can move verified source truth into reviewable owner work while staying honest that route promotion/apply remains a separate human-approved workflow.",
+    "whereItLives": [
+      "lib/source-maturity-routing-gap-repair-db.js shared route DB writer for source maturity routing repairs",
+      "lib/source-maturity-verified-routing-gap-repair.js verified source-focused repair contract and dogfood proof",
+      "lib/intelligence-action-router.js bounded strategy route window",
+      "lib/strategy-shared-comms-routes.js Strategy Hub v2 route-window merge",
+      "scripts/process-source-maturity-verified-routing-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_retrieval_chunks verified source review retrieval chunks",
+      "intelligence_synthesized_items source-maturity-verified-routing-gap-repair-v1 items",
+      "intelligence_action_routes pending approval-required verified source routes",
+      "docs/process/source-maturity-verified-routing-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-verified-routing-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-routing-gap-repair.js lib/source-maturity-routing-gap-repair-db.js lib/source-maturity-verified-routing-gap-repair.js lib/intelligence-action-router.js lib/strategy-shared-comms-routes.js scripts/process-source-maturity-verified-routing-gap-repair-check.mjs",
+      "npm run process:source-maturity-verified-routing-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-verified-routing-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-verified-routing-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001 --closeoutKey=source-maturity-verified-routing-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-verified-routing-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing verified source fact/atom evidence, retrieval chunk persistence, synthesized item and pending route metadata, source maturity routed-stage movement, no route apply, no external write, no provider/source read/write, Strategy Hub route-window protection, docs, closeout registry, and done-card coverage.",
+    "reviewNext": "Continue the safe source maturity/source-contract queue from live truth. Verified source route promotion/apply, live source reads, provider calls, and connector work need separate approval.",
+    "knownLimits": [
+      "This repairs six routing targets only: SRC-CLICKUP-001, SRC-GDOCS-001, SRC-GSHEETS-001, SRC-DATAFORSEO-001, SRC-GHL-001, and SRC-META-001.",
+      "This uses bounded source facts and accepted atoms that already existed before this card.",
+      "This does not read or write source systems.",
+      "This does not apply routes, create destination backlog cards, decisions, or open question records.",
+      "This does not run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-routing-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+        "source maturity routing gap repair",
+        "Repair source maturity routing gap",
+        "routing gap repair",
+        "source-maturity-routing-gap-repair-v1",
+        "SRC-SLACK-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001",
+      "SOURCE-MATURITY-ATOM-FLOW-REPAIR-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Routed SRC-SLACK-001 from a source maturity routed-stage gap into an approval-required internal action route.",
+    "whatItDoes": "Uses an existing active source-health fact, intelligence atom, and retrieval chunk to create a pending internal owner-decision route without applying a destination record or writing externally.",
+    "whyItMatters": "Foundation can turn source-backed signals into reviewable work without confusing proposed action routes with trusted backlog/decision records or silently applying actions.",
+    "whereItLives": [
+      "lib/source-maturity-routing-gap-repair.js focused repair contract and dogfood proof",
+      "lib/intelligence-synthesis.js quality-exempt guard so targeted repair runs do not replace global synthesis quality proof",
+      "scripts/process-source-maturity-routing-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "intelligence_synthesized_items source-maturity-routing-gap-repair-v1 item",
+      "intelligence_action_routes pending approval-required SRC-SLACK-001 route",
+      "docs/process/source-maturity-routing-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-ROUTING-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/2026-05-18-source-maturity-routing-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-routing-gap-repair.js scripts/process-source-maturity-routing-gap-repair-check.mjs",
+      "npm run process:source-maturity-routing-gap-repair-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-routing-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-routing-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-ROUTING-GAP-REPAIR-001 --closeoutKey=source-maturity-routing-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-ROUTING-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-ROUTING-GAP-REPAIR-001.json --closeoutKey=source-maturity-routing-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, existing source-health fact/atom/chunk evidence, verified synthesized item and route metadata, pending approval gate, no destination apply, source maturity route signal, quality-exempt repair synthesis posture, docs, closeout registry, and no live extraction/auth/provider/external-write posture.",
+    "reviewNext": "Continue the safe source maturity child repair queue from live source coverage truth. Do not run live extraction, auth-required providers, paid work, external writes, Drive permission mutation, or Agent Feedback auto-send without Steve approval.",
+    "knownLimits": [
+      "This repairs one routing gap target only: SRC-SLACK-001.",
+      "This does not apply the route, create a destination backlog card, decision, or open question record.",
+      "This does not run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  },
+  {
+    "key": "source-maturity-contract-gap-repair-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001",
+        "source maturity contract gap repair",
+        "Repair source maturity video contract gap",
+        "video contract gap",
+        "source-maturity-contract-gap-repair-v1",
+        "SRC-VIDEO-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001",
+      "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+      "SOURCE-MATURITY-ATOM-FLOW-REPAIR-001",
+      "MULTIMODAL-EXTRACTOR-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Locked SRC-VIDEO-001 as a V1 source contract for existing manifest/subtitle evidence.",
+    "whatItDoes": "Uses the existing video-link inventory and YouTube subtitle transcript V1 evidence to clear the source maturity connected-stage contract gap without starting live extraction or broad video work.",
+    "whyItMatters": "Foundation can stop treating the video source as an unconnected contract while still keeping Loom, Drive video, Zoom, Skool, no-subtitle vision/transcription, and GOD-mode video understanding as separate proof lanes.",
+    "whereItLives": [
+      "lib/source-maturity-contract-gap-repair.js focused repair contract and dogfood proof",
+      "lib/source-contracts.js SRC-VIDEO-001 V1 source boundary",
+      "scripts/process-source-maturity-contract-gap-repair-check.mjs focused proof and Current Sprint progression",
+      "docs/source-notes/video-link-inventory.md repair boundary",
+      "docs/source-registry.md V1 source boundary row",
+      "docs/process/source-maturity-contract-gap-repair-001-plan.md",
+      "docs/process/approvals/SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-source-maturity-contract-gap-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-contract-gap-repair.js scripts/process-source-maturity-contract-gap-repair-check.mjs",
+      "npm run source-contract-registry:sync -- --apply --actor=codex-source-maturity-contract-gap-repair --json",
+      "npm run process:source-maturity-contract-gap-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001.json --closeoutKey=source-maturity-contract-gap-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001 --closeoutKey=source-maturity-contract-gap-repair-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001.json --closeoutKey=source-maturity-contract-gap-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog/current sprint truth, Plan Critic, real source maturity/extraction/coverage/validation snapshot wiring, stale-contract dogfood, repaired-contract dogfood, registry sync command, docs, closeout registry, and no live extraction/auth/provider/external-write posture.",
+    "reviewNext": "Continue the safe source maturity child repair queue. Do not run live extraction, auth-required providers, paid work, external writes, Drive permission mutation, or Agent Feedback auto-send without Steve approval.",
+    "knownLimits": [
+      "This only locks the video manifest and YouTube subtitle transcript V1 boundary.",
+      "This does not build Loom, Drive video, Zoom, Skool, no-subtitle vision/transcription, rich-vision, or GOD-mode video extraction.",
+      "This does not create extraction targets, run live extraction, crawl, fetch transcripts, capture screenshots, call models/providers, repair OAuth, approve paid-source auth, mutate Drive permissions, send email, write ClickUp, or run live Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
+    ]
+  }
+]

@@ -1,0 +1,502 @@
+[
+  {
+    "key": "verifier-surface-trust-split-module-v1",
+    "backlogIds": [
+      "VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001",
+        "Split surface trust verifier checks",
+        "surface/trust verifier split",
+        "verifier-surface-trust-split-module-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation verifier monolith split / surface and proof trust",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved the Foundation Hub surface/trust verifier proof domain out of `scripts/foundation-verify.mjs` into `lib/foundation-surface-trust-verifier.js`.",
+    "whatItDoes": "Keeps the same PASS/FAIL rows for Foundation Hub core arrays, dashboard/worker served-code trust, verifier exception ledger validity, done-card verifier coverage, claimed artifact existence, backlog seed/live drift exposure, DB constraint audit exposure, Foundation surface mapping, and surface freshness sweep exposure.",
+    "whyItMatters": "Surface trust is what makes Steve's command panel and done-work proof meaningful. The proof domain is now inspectable in one focused module while the root verifier keeps shrinking without product behavior changes.",
+    "whereItLives": [
+      "lib/foundation-surface-trust-verifier.js surface/trust evaluator, helper functions, and dogfood proof",
+      "scripts/foundation-verify.mjs root verifier delegation",
+      "scripts/process-verifier-surface-trust-split-module-check.mjs focused read-only proof",
+      "package.json process:verifier-surface-trust-split-module-check",
+      "docs/process/verifier-surface-trust-split-module-001-plan.md",
+      "docs/process/approvals/VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-surface-trust-split-module-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-surface-trust-verifier.js scripts/process-verifier-surface-trust-split-module-check.mjs scripts/foundation-verify.mjs lib/foundation-build-closeout-overnight-records.js",
+      "npm run process:verifier-surface-trust-split-module-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001 --planApprovalRef=docs/process/approvals/VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001.json --closeoutKey=verifier-surface-trust-split-module-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001 --closeoutKey=verifier-surface-trust-split-module-v1",
+      "npm run process:foundation-ship -- --card=VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001 --planApprovalRef=docs/process/approvals/VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001.json --closeoutKey=verifier-surface-trust-split-module-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed 13/13, dogfood rejected stale exceptions, missing done-card proof, missing artifact claims, stale served code, and incomplete surface maps, backlog hygiene had 0 findings, and `foundation:verify` passed 369/369 after a transient Agent Feedback diagnostic retry.",
+    "reviewNext": "Continue no-auth Foundation cleanup. Next likely slice is Agent Feedback verifier proof-domain extraction, unless a smaller Foundation DB/runtime store split is safer after inspection.",
+    "knownLimits": [
+      "This does not split all of `scripts/foundation-verify.mjs`.",
+      "This does not change Foundation Hub route behavior or payload semantics.",
+      "This does not change dashboard or worker runtime metadata behavior.",
+      "This does not change backlog, Current Sprint, DB schema, source contract, connector, auth, or route behavior.",
+      "This does not build hub features, Canva asset library work, Build Intel extraction, paid-source auth, or Drive permission mutation."
+    ]
+  },
+  {
+    "key": "verifier-process-hardening-split-module-v1",
+    "backlogIds": [
+      "VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001",
+        "Split process hardening verifier checks",
+        "process-hardening verifier split",
+        "verifier-process-hardening-split-module-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation verifier monolith split / process hardening proof",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved the process-hardening verifier proof domain out of `scripts/foundation-verify.mjs` into `lib/foundation-process-hardening-verifier.js`.",
+    "whatItDoes": "Keeps the same PASS/FAIL rows for read-only verifier fail-closed behavior, process-check write posture, scheduled mutation guards, Foundation DB init/seed separation, Current Sprint mutation guards, DB seed governance, KPI cache posture, Current Sprint store split proof, and backlog lost-update protection.",
+    "whyItMatters": "Process hardening is the proof that Foundation gates are honest. The proof domain is now inspectable in one focused module while the root verifier keeps shrinking without behavior changes.",
+    "whereItLives": [
+      "lib/foundation-process-hardening-verifier.js process-hardening evaluator and dogfood proof",
+      "scripts/foundation-verify.mjs root verifier delegation",
+      "scripts/process-verifier-process-hardening-split-module-check.mjs focused read-only proof",
+      "package.json process:verifier-process-hardening-split-module-check",
+      "docs/process/verifier-process-hardening-split-module-001-plan.md",
+      "docs/process/approvals/VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-process-hardening-split-module-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-process-hardening-verifier.js scripts/process-verifier-process-hardening-split-module-check.mjs scripts/foundation-verify.mjs lib/foundation-build-closeout-overnight-records.js",
+      "npm run process:verifier-process-hardening-split-module-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001 --planApprovalRef=docs/process/approvals/VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001.json --closeoutKey=verifier-process-hardening-split-module-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001 --closeoutKey=verifier-process-hardening-split-module-v1",
+      "npm run process:foundation-ship -- --card=VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001 --planApprovalRef=docs/process/approvals/VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001.json --closeoutKey=verifier-process-hardening-split-module-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed 13/13, backlog hygiene had 0 findings across 515 cards, `foundation:verify` passed 370/370, and dogfood rejected repair-then-pass verifier behavior, scheduled mutating process checks, seed/bootstrap writeback by default, and silent backlog lost updates.",
+    "reviewNext": "Continue the standard-mode no-auth Foundation cleanup queue with the next coherent verifier proof-domain split only if it stays tight; otherwise return to bounded Foundation DB store splits.",
+    "knownLimits": [
+      "This does not split all of `scripts/foundation-verify.mjs`.",
+      "This does not change process guard behavior.",
+      "This does not change route, auth, source, DB schema, backlog, Current Sprint, connector, or source contract behavior.",
+      "This does not run extraction or use paid-source auth.",
+      "This does not build hub features, Marketing Video Lab live wiring, Canva asset library work, Build Intel extraction, or Drive permission mutation."
+    ]
+  },
+  {
+    "key": "verifier-agent-feedback-split-module-v1",
+    "backlogIds": [
+      "VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001",
+        "Split Agent Feedback verifier checks",
+        "Agent Feedback verifier split",
+        "verifier-agent-feedback-split-module-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation verifier monolith split / Agent Feedback proof",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved the Agent Feedback verifier proof domain out of `scripts/foundation-verify.mjs` into `lib/foundation-agent-feedback-verifier.js`.",
+    "whatItDoes": "Keeps the same PASS/FAIL rows for replay-hardened feedback links, Agent Onboarding Feedback visibility, Stage 1 send infrastructure, governed auto-send, response notifications, reminder cadence, live reminders, Company Email policy, Steve full-loop gating, real-user submit repair, verifier health repair, and production auto-send visibility.",
+    "whyItMatters": "Agent Feedback touches public feedback links, send infrastructure, production auto-send approval, reminders, Company Email policy, and metadata-only privacy boundaries. The proof domain is now inspectable in one focused module while the root verifier keeps shrinking without behavior changes.",
+    "whereItLives": [
+      "lib/foundation-agent-feedback-verifier.js Agent Feedback evaluator and dogfood proof",
+      "scripts/foundation-verify.mjs root verifier delegation",
+      "scripts/process-verifier-agent-feedback-split-module-check.mjs focused read-only proof",
+      "package.json process:verifier-agent-feedback-split-module-check",
+      "docs/process/verifier-agent-feedback-split-module-001-plan.md",
+      "docs/process/approvals/VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-agent-feedback-split-module-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-agent-feedback-verifier.js scripts/process-verifier-agent-feedback-split-module-check.mjs scripts/foundation-verify.mjs lib/foundation-build-closeout-overnight-records.js",
+      "npm run process:verifier-agent-feedback-split-module-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001 --planApprovalRef=docs/process/approvals/VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001.json --closeoutKey=verifier-agent-feedback-split-module-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001 --closeoutKey=verifier-agent-feedback-split-module-v1",
+      "npm run process:foundation-ship -- --card=VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001 --planApprovalRef=docs/process/approvals/VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001.json --closeoutKey=verifier-agent-feedback-split-module-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed 12/12, `foundation:verify` passed 378/378, and dogfood rejected replay gaps, dry-run side effects, ungated production auto-send, personal-email routing, and private proof leakage.",
+    "reviewNext": "Continue the standard-mode no-auth Foundation cleanup queue with the next coherent verifier proof-domain split; if the next verifier slice is too broad, return to bounded store splits or route-payload latency work.",
+    "knownLimits": [
+      "This does not split all of `scripts/foundation-verify.mjs`.",
+      "This does not change Agent Feedback send behavior.",
+      "This does not change route, auth, source, DB schema, backlog, Current Sprint, connector, or source contract behavior.",
+      "This does not run extraction or use paid-source auth.",
+      "This does not build hub features, Marketing Video Lab live wiring, Canva asset library work, Build Intel extraction, or Drive permission mutation."
+    ]
+  },
+  {
+    "key": "foundation-shared-comms-store-split-v1",
+    "backlogIds": [
+      "FOUNDATION-DB-MONOLITH-SPLIT-009"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DB-MONOLITH-SPLIT-009",
+        "foundation-shared-comms-store-split-v1",
+        "Split shared-communications store out of Foundation DB monolith",
+        "shared-comms store split"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation DB monolith cleanup / shared communications store",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved shared-communications archive, candidate, synthesis, and review-application store behavior from `lib/foundation-db.js` into `lib/foundation-shared-comms-store.js`.",
+    "whatItDoes": "Keeps the existing Foundation DB public shared-comms exports as delegates while the actual store logic lives in a focused module with fake-pool behavior proof.",
+    "whyItMatters": "Shared communications is the source archive/proposal path that lets extracted source signal move upward into governed backlog, decisions, and questions. It should not keep growing the DB monolith.",
+    "whereItLives": [
+      "lib/foundation-shared-comms-store.js shared-comms store factory, evaluator, and dogfood proof",
+      "lib/foundation-db.js stable public export delegates",
+      "lib/foundation-db-split-verifier.js DB split coverage for FOUNDATION-DB-MONOLITH-SPLIT-009",
+      "scripts/process-foundation-shared-comms-store-split-check.mjs focused read-only proof",
+      "scripts/foundation-verify.mjs root verifier source wiring",
+      "package.json process:foundation-shared-comms-store-split-check",
+      "docs/process/foundation-db-shared-comms-store-split-009-plan.md",
+      "docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-009.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-shared-comms-store-split-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-shared-comms-store.js lib/foundation-db.js lib/foundation-db-split-verifier.js scripts/foundation-verify.mjs scripts/process-foundation-shared-comms-store-split-check.mjs lib/foundation-build-closeout-overnight-records.js",
+      "npm run process:foundation-shared-comms-store-split-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-009 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-009.json --closeoutKey=foundation-shared-comms-store-split-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-009 --closeoutKey=foundation-shared-comms-store-split-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DB-MONOLITH-SPLIT-009 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-009.json --closeoutKey=foundation-shared-comms-store-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed and dogfood rejected missing module ownership, old inline archive ownership, missing delegate wiring, and weak split plans. Synthetic fake-pool proof exercised source stats, existing external IDs, archive snapshot mapping, context search, candidate snapshot mapping, artifact upsert mapping, and candidate-to-backlog transaction behavior.",
+    "reviewNext": "Continue no-auth Foundation cleanup. Next likely slice is another bounded Foundation DB store split or verifier proof-domain split after reviewing current monolith line counts and verifier risk.",
+    "knownLimits": [
+      "This does not split all of `lib/foundation-db.js`.",
+      "This does not change shared communication table schema, indexes, constraints, columns, or migrations.",
+      "This does not run source extraction or change extraction schedules, quotas, prompts, providers, or source crawler behavior.",
+      "This does not build Strategy, Sales, Marketing, Ops, Canva, paid-source auth, Build Intel extraction, or Drive permission mutation.",
+      "This does not wire Marketing Video Lab live routes."
+    ]
+  },
+  {
+    "key": "foundation-llm-runtime-store-split-v1",
+    "backlogIds": [
+      "FOUNDATION-DB-MONOLITH-SPLIT-010"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DB-MONOLITH-SPLIT-010",
+        "foundation-llm-runtime-store-split-v1",
+        "Split LLM runtime store out of Foundation DB monolith",
+        "LLM runtime store split"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation DB monolith cleanup / LLM runtime store",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved LLM credential, route, probe, call, runtime snapshot, stale-call read, and stale-call reaper behavior from `lib/foundation-db.js` into `lib/foundation-llm-runtime-store.js`.",
+    "whatItDoes": "Keeps the existing Foundation DB public LLM runtime exports as delegates while the actual runtime store logic lives in a focused module with fake-pool behavior proof.",
+    "whyItMatters": "LLM route/runtime truth is a Foundation control-plane boundary. It should be inspectable and testable without continuing to grow the DB monolith.",
+    "whereItLives": [
+      "lib/foundation-llm-runtime-store.js LLM runtime store factory, evaluator, and dogfood proof",
+      "lib/foundation-db.js stable public export delegates",
+      "lib/foundation-db-split-verifier.js DB split coverage for FOUNDATION-DB-MONOLITH-SPLIT-010",
+      "scripts/process-foundation-llm-runtime-store-split-check.mjs focused read-only proof",
+      "scripts/foundation-verify.mjs root verifier source wiring",
+      "package.json process:foundation-llm-runtime-store-split-check",
+      "docs/process/foundation-db-llm-runtime-store-split-010-plan.md",
+      "docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-010.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-llm-runtime-store-split-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-llm-runtime-store.js lib/foundation-db.js lib/foundation-db-split-verifier.js scripts/foundation-verify.mjs scripts/process-foundation-llm-runtime-store-split-check.mjs lib/foundation-build-closeout-overnight-records.js lib/foundation-extraction-runtime-verifier.js scripts/process-verifier-extraction-runtime-split-module-check.mjs",
+      "npm run process:foundation-llm-runtime-store-split-check -- --json",
+      "npm run process:verifier-extraction-runtime-split-module-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-010 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-010.json --closeoutKey=foundation-llm-runtime-store-split-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-010 --closeoutKey=foundation-llm-runtime-store-split-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DB-MONOLITH-SPLIT-010 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-010.json --closeoutKey=foundation-llm-runtime-store-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed and dogfood rejected missing module ownership, old inline LLM runtime ownership, missing delegate wiring, and weak split plans. Synthetic fake-pool proof exercised runtime snapshot counts, credential/route/probe/call mapping, create/finish call mapping, stale-call reads, and stale-call reaper updates.",
+    "reviewNext": "Continue no-auth Foundation cleanup. Next likely slice is another bounded Foundation DB store split while `lib/foundation-db.js` remains above the 5,000-line danger threshold.",
+    "knownLimits": [
+      "This does not split all of `lib/foundation-db.js`.",
+      "This does not change LLM routing policy, provider auth, route selection, cost policy, table schema, indexes, constraints, columns, or migrations.",
+      "This does not run live model calls, source extraction, or paid-source auth.",
+      "This does not build Strategy, Sales, Marketing, Ops, Canva, Build Intel extraction, or Drive permission mutation.",
+      "This does not wire Marketing Video Lab live routes."
+    ]
+  },
+  {
+    "key": "foundation-runtime-job-store-split-v1",
+    "backlogIds": [
+      "FOUNDATION-DB-MONOLITH-SPLIT-011"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DB-MONOLITH-SPLIT-011",
+        "foundation-runtime-job-store-split-v1",
+        "Split Foundation runtime job store out of DB monolith",
+        "Split Foundation runtime/job store out of Foundation DB monolith",
+        "runtime/job store split"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation DB monolith cleanup / runtime and job store",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved Foundation runtime status, job controls, job schedule index, job run snapshots, job run mutation, and stale job-run reaper behavior from `lib/foundation-db.js` into `lib/foundation-runtime-job-store.js`.",
+    "whatItDoes": "Keeps the existing Foundation DB public runtime/job exports as delegates while the actual job control-plane store logic lives in a focused module with fake-pool behavior proof.",
+    "whyItMatters": "Foundation job state powers runtime activation, source health, workers, and ship gates. It should be inspectable and testable without continuing to grow the DB monolith.",
+    "whereItLives": [
+      "lib/foundation-runtime-job-store.js runtime/job store factory, evaluator, and dogfood proof",
+      "lib/foundation-db.js stable public export delegates",
+      "lib/foundation-db-split-verifier.js DB split coverage for FOUNDATION-DB-MONOLITH-SPLIT-011",
+      "scripts/process-foundation-runtime-job-store-split-check.mjs focused read-only proof",
+      "scripts/foundation-verify.mjs root verifier source wiring",
+      "package.json process:foundation-runtime-job-store-split-check",
+      "docs/process/foundation-db-runtime-job-store-split-011-plan.md",
+      "docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-011.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-runtime-job-store-split-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-runtime-job-store.js lib/foundation-db.js lib/foundation-db-split-verifier.js scripts/foundation-verify.mjs scripts/process-foundation-runtime-job-store-split-check.mjs lib/foundation-build-closeout-overnight-records.js",
+      "npm run process:foundation-runtime-job-store-split-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-011 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-011.json --closeoutKey=foundation-runtime-job-store-split-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-011 --closeoutKey=foundation-runtime-job-store-split-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DB-MONOLITH-SPLIT-011 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-011.json --closeoutKey=foundation-runtime-job-store-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed and dogfood rejected missing module ownership, old inline runtime/job ownership, missing delegate wiring, and weak split plans. Synthetic fake-pool proof exercised runtime status writes/lookups, job control updates, schedule index shape, job run snapshots, create/finish mapping, and stale job-run reaper updates.",
+    "reviewNext": "Continue no-auth Foundation cleanup. Next likely slice is another bounded Foundation DB store split while `lib/foundation-db.js` remains above the 5,000-line danger threshold, unless a verifier proof-domain split is safer after inspection.",
+    "knownLimits": [
+      "This does not split all of `lib/foundation-db.js`.",
+      "This does not change Foundation job definitions, schedule policy, worker process-control behavior, table schema, indexes, constraints, columns, or migrations.",
+      "This does not run live scheduled jobs, live connector calls, source extraction, or paid-source auth.",
+      "This does not build Strategy, Sales, Marketing, Ops, Canva, Build Intel extraction, or Drive permission mutation.",
+      "This does not wire Marketing Video Lab live routes."
+    ]
+  },
+  {
+    "key": "foundation-source-crawl-store-split-v1",
+    "backlogIds": [
+      "FOUNDATION-DB-MONOLITH-SPLIT-012"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DB-MONOLITH-SPLIT-012",
+        "foundation-source-crawl-store-split-v1",
+        "Split source crawl store out of Foundation DB monolith",
+        "Split Foundation source crawl store out of DB monolith",
+        "source-crawl store split"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation DB monolith cleanup / source-crawl and extraction-control store",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved source crawl target/run/item mapping, target leasing, stale-run reaping, item retry leasing, Drive/video extraction queue reads, extraction-control snapshots, and extraction hardening snapshots from `lib/foundation-db.js` into `lib/foundation-source-crawl-store.js`.",
+    "whatItDoes": "Keeps the existing Foundation DB public source-crawl and extraction-control exports as delegates while the actual intake-ledger store logic lives in a focused module with fake-pool behavior proof.",
+    "whyItMatters": "Source crawl truth is the Foundation supply chain for Drive, Gmail, Slack, Missive, video, and future Build Intel ingestion. It should be inspectable and testable without continuing to grow the DB monolith.",
+    "whereItLives": [
+      "lib/foundation-source-crawl-store.js source-crawl store factory, evaluator, and dogfood proof",
+      "lib/foundation-db.js stable public export delegates",
+      "lib/foundation-db-split-verifier.js DB split coverage for FOUNDATION-DB-MONOLITH-SPLIT-012",
+      "scripts/process-foundation-source-crawl-store-split-check.mjs focused read-only proof",
+      "scripts/foundation-verify.mjs root verifier source wiring",
+      "package.json process:foundation-source-crawl-store-split-check",
+      "docs/process/foundation-db-source-crawl-store-split-012-plan.md",
+      "docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-012.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-source-crawl-store-split-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-source-crawl-store.js lib/foundation-db.js lib/foundation-db-split-verifier.js lib/foundation-extraction-runtime-verifier.js scripts/foundation-verify.mjs scripts/process-foundation-source-crawl-store-split-check.mjs scripts/process-verifier-extraction-runtime-split-module-check.mjs lib/foundation-build-closeout-overnight-records.js",
+      "npm run process:foundation-source-crawl-store-split-check -- --json",
+      "npm run process:verifier-extraction-runtime-split-module-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-012 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-012.json --closeoutKey=foundation-source-crawl-store-split-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-012 --closeoutKey=foundation-source-crawl-store-split-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DB-MONOLITH-SPLIT-012 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-012.json --closeoutKey=foundation-source-crawl-store-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed and dogfood rejected missing module ownership, old inline source-crawl ownership, missing delegate wiring, and weak split plans. Synthetic fake-pool proof exercised stale target-run reaping, target/item mapping, Drive/video queue reads, extraction-control snapshots, and extraction hardening status without live connectors or source extraction.",
+    "reviewNext": "Continue no-auth Foundation cleanup. Next likely slice is another bounded Foundation DB store split while `lib/foundation-db.js` remains above the 5,000-line danger threshold, unless verifier shrink is safer after inspection.",
+    "knownLimits": [
+      "This does not split all of `lib/foundation-db.js`.",
+      "This does not change source crawl target definitions, retry policy defaults, schedule policy, worker behavior, table schema, indexes, constraints, columns, or migrations.",
+      "This does not run Drive, Gmail, Slack, Missive, video, YouTube, Loom, Skool, myICOR, Canva, ClickUp, FUB, Google, OpenAI, Anthropic, Gemini, or paid-source APIs.",
+      "This does not build Strategy, Sales, Marketing, Ops, Canva, Build Intel extraction, or Drive permission mutation.",
+      "This does not wire Marketing Video Lab live routes."
+    ]
+  },
+  {
+    "key": "foundation-drive-meeting-vault-store-split-v1",
+    "backlogIds": [
+      "FOUNDATION-DB-MONOLITH-SPLIT-013"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DB-MONOLITH-SPLIT-013",
+        "foundation-drive-meeting-vault-store-split-v1",
+        "Split Drive Meeting Vault proof store",
+        "Split Drive/Meeting Vault proof store out of Foundation DB monolith",
+        "Drive/Meeting Vault proof-store split"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation DB monolith cleanup / Drive Access and Meeting Vault proof store",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved Meeting raw Drive candidate listing, Drive Access preflight run storage, Meeting Vault ACL audit storage, Meeting Vault auto-enforcement run storage, and legacy exception reads from `lib/foundation-db.js` into `lib/foundation-drive-meeting-vault-store.js`.",
+    "whatItDoes": "Keeps the existing Foundation DB public Drive/Meeting Vault exports as delegates while the actual proof-store logic lives in a focused module with fake-pool behavior proof.",
+    "whyItMatters": "Drive Access and Meeting Vault proof rows support source-trust and file-access governance. They should be inspectable and testable without continuing to grow the DB monolith or risking another mapper/delegate mismatch.",
+    "whereItLives": [
+      "lib/foundation-drive-meeting-vault-store.js Drive/Meeting Vault proof-store factory, evaluator, and dogfood proof",
+      "lib/foundation-db.js stable public export delegates",
+      "lib/foundation-db-split-verifier.js DB split coverage for FOUNDATION-DB-MONOLITH-SPLIT-013",
+      "scripts/process-foundation-drive-meeting-vault-store-split-check.mjs focused read-only proof",
+      "scripts/foundation-verify.mjs root verifier source wiring",
+      "package.json process:foundation-drive-meeting-vault-store-split-check",
+      "docs/process/foundation-db-drive-meeting-vault-store-split-013-plan.md",
+      "docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-013.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-drive-meeting-vault-store-split-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-drive-meeting-vault-store.js lib/foundation-db.js lib/foundation-source-crawl-store.js lib/foundation-db-split-verifier.js scripts/foundation-verify.mjs scripts/process-foundation-drive-meeting-vault-store-split-check.mjs scripts/process-verifier-foundation-db-split-module-check.mjs lib/foundation-build-closeout-overnight-records.js",
+      "npm run process:foundation-drive-meeting-vault-store-split-check -- --json",
+      "npm run process:verifier-foundation-db-split-module-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-013 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-013.json --closeoutKey=foundation-drive-meeting-vault-store-split-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-013 --closeoutKey=foundation-drive-meeting-vault-store-split-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DB-MONOLITH-SPLIT-013 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-013.json --closeoutKey=foundation-drive-meeting-vault-store-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed and dogfood rejected missing module ownership, old inline Drive/Meeting Vault ownership, missing delegate wiring, and weak split plans. Synthetic fake-pool proof exercised candidate listing, Drive preflight recording/latest reads, Meeting Vault ACL audit recording, auto-enforcement recording/latest reads, legacy exception reads, and change-event emission without live Drive calls or live DB writes.",
+    "reviewNext": "Continue no-auth Foundation cleanup. Next likely slice is another bounded Foundation DB store split while `lib/foundation-db.js` remains above the 5,000-line danger threshold, unless verifier shrink is safer after inspection.",
+    "knownLimits": [
+      "This does not split all of `lib/foundation-db.js`.",
+      "This does not change Drive Access or Meeting Vault table schema, indexes, constraints, columns, migrations, policies, permission mutations, request-access emails, or apply scripts.",
+      "This does not run Drive, Gmail, Slack, Missive, video, YouTube, Loom, Skool, myICOR, Canva, ClickUp, FUB, Google, OpenAI, Anthropic, Gemini, or paid-source APIs.",
+      "This does not build Strategy, Sales, Marketing, Ops, Canva, Build Intel extraction, or Drive permission mutation.",
+      "This does not wire Marketing Video Lab live routes."
+    ]
+  },
+  {
+    "key": "foundation-agent-feedback-store-split-v1",
+    "backlogIds": [
+      "FOUNDATION-DB-MONOLITH-SPLIT-014"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DB-MONOLITH-SPLIT-014",
+        "foundation-agent-feedback-store-split-v1",
+        "Split Agent Feedback store out of Foundation DB monolith",
+        "Agent Feedback store split"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation DB monolith cleanup / Agent Feedback store",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved Agent Onboarding Feedback response, send-attempt, reminder-attempt, and response-notification storage behavior from `lib/foundation-db.js` into `lib/foundation-agent-feedback-store.js`.",
+    "whatItDoes": "Keeps the existing Foundation DB public Agent Feedback exports as stable delegates while the actual Agent Feedback DB store logic lives in a focused module with fake-pool behavior proof.",
+    "whyItMatters": "Agent Feedback is a live Foundation-to-Ops workflow ledger. Its DB behavior should be inspectable and testable without continuing to grow the DB monolith or risking live send/reminder behavior changes.",
+    "whereItLives": [
+      "lib/foundation-agent-feedback-store.js Agent Feedback store factory, evaluator, dogfood proof, and synthetic behavior proof",
+      "lib/foundation-db.js stable public export delegates",
+      "lib/foundation-db-split-verifier.js DB split coverage for FOUNDATION-DB-MONOLITH-SPLIT-014",
+      "scripts/process-foundation-agent-feedback-store-split-check.mjs focused read-only proof",
+      "scripts/foundation-verify.mjs root verifier source wiring",
+      "package.json process:foundation-agent-feedback-store-split-check",
+      "docs/process/foundation-db-agent-feedback-store-split-014-plan.md",
+      "docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-014.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-agent-feedback-store-split-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-agent-feedback-store.js lib/foundation-db.js lib/foundation-db-split-verifier.js scripts/foundation-verify.mjs scripts/process-foundation-agent-feedback-store-split-check.mjs scripts/process-verifier-foundation-db-split-module-check.mjs lib/foundation-build-closeout-overnight-records.js",
+      "npm run process:foundation-agent-feedback-store-split-check -- --json",
+      "npm run process:verifier-foundation-db-split-module-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-014 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-014.json --closeoutKey=foundation-agent-feedback-store-split-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-014 --closeoutKey=foundation-agent-feedback-store-split-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DB-MONOLITH-SPLIT-014 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-014.json --closeoutKey=foundation-agent-feedback-store-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed and dogfood rejected missing module ownership, old inline Agent Feedback ownership, missing delegate wiring, and weak split plans. Synthetic fake-pool proof exercised response insert mapping, send-attempt create/read/update mapping, token response reads, reminder create/update mapping, and response-notification create/update mapping without live Gmail or ClickUp calls.",
+    "reviewNext": "Continue no-auth Foundation cleanup. Next likely slice is a bounded Sales Listing store split to move `lib/foundation-db.js` below the 5,000-line risk threshold, unless a verifier split is safer after inspection.",
+    "knownLimits": [
+      "This does not split all of `lib/foundation-db.js`.",
+      "This does not change Agent Feedback table schema, indexes, constraints, columns, migrations, route behavior, Gmail send behavior, ClickUp writeback behavior, reminder cadence, notification recipient policy, token policy, or auth.",
+      "This does not run Drive, Gmail, Slack, Missive, video, YouTube, Loom, Skool, myICOR, Canva, ClickUp, FUB, Google, OpenAI, Anthropic, Gemini, or paid-source APIs.",
+      "This does not build Strategy, Sales, Marketing, Ops, Canva, Build Intel extraction, Marketing Video Lab, hub feature work, Drive permission mutation, request-access email, or Meeting Vault Phase B."
+    ]
+  },
+  {
+    "key": "foundation-sales-listing-store-split-v1",
+    "backlogIds": [
+      "FOUNDATION-DB-MONOLITH-SPLIT-015"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DB-MONOLITH-SPLIT-015",
+        "foundation-sales-listing-store-split-v1",
+        "Split Sales Listing store out of Foundation DB monolith",
+        "Sales Listing store split"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation DB monolith cleanup / Sales Listing store",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved Sales Listing assignment reads, tracked case reads, assignment upsert behavior, and case-history mapping from `lib/foundation-db.js` into `lib/foundation-sales-listing-store.js`.",
+    "whatItDoes": "Keeps the existing Foundation DB public Sales Listing exports as stable delegates while the actual Sales Listing DB store logic lives in a focused module with fake-pool behavior proof.",
+    "whyItMatters": "This brings `lib/foundation-db.js` below the 5,000-line architecture-risk line and gives Sales Listing storage a named owner before more Sales Hub work builds on it.",
+    "whereItLives": [
+      "lib/foundation-sales-listing-store.js Sales Listing store factory, evaluator, dogfood proof, and synthetic behavior proof",
+      "lib/foundation-db.js stable public export delegates",
+      "lib/foundation-db-split-verifier.js DB split coverage for FOUNDATION-DB-MONOLITH-SPLIT-015",
+      "scripts/process-foundation-sales-listing-store-split-check.mjs focused read-only proof",
+      "scripts/foundation-verify.mjs root verifier source wiring",
+      "package.json process:foundation-sales-listing-store-split-check",
+      "docs/process/foundation-db-sales-listing-store-split-015-plan.md",
+      "docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-015.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-sales-listing-store-split-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-sales-listing-store.js lib/foundation-db.js lib/foundation-db-split-verifier.js scripts/foundation-verify.mjs scripts/process-foundation-sales-listing-store-split-check.mjs scripts/process-verifier-foundation-db-split-module-check.mjs lib/foundation-build-closeout-overnight-records.js",
+      "npm run process:foundation-sales-listing-store-split-check -- --json",
+      "npm run process:verifier-foundation-db-split-module-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-015 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-015.json --closeoutKey=foundation-sales-listing-store-split-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-DB-MONOLITH-SPLIT-015 --closeoutKey=foundation-sales-listing-store-split-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DB-MONOLITH-SPLIT-015 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-015.json --closeoutKey=foundation-sales-listing-store-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed and dogfood rejected missing module ownership, old inline Sales Listing ownership, missing delegate wiring, and weak split plans. Synthetic fake-pool proof exercised create/update/list/case-history mapping without live ClickUp reads or writes.",
+    "reviewNext": "Continue no-auth Foundation cleanup. Next likely slice is verifier monolith cleanup, because `lib/foundation-db.js` is now below 5,000 lines and `scripts/foundation-verify.mjs` remains over the hard threshold.",
+    "knownLimits": [
+      "This does not split all of `lib/foundation-db.js`.",
+      "This does not change Sales Listing table schema, indexes, constraints, columns, route behavior, ClickUp read behavior, ClickUp writeback behavior, listing sync cadence, case status semantics, Sales Hub UI, auth, or source extraction.",
+      "This does not run Drive, Gmail, Slack, Missive, video, YouTube, Loom, Skool, myICOR, Canva, ClickUp, FUB, Google, OpenAI, Anthropic, Gemini, or paid-source APIs.",
+      "This does not build Strategy, Sales, Marketing, Ops, Canva, Build Intel extraction, Marketing Video Lab, hub feature work, Drive permission mutation, request-access email, or Meeting Vault Phase B."
+    ]
+  }
+]

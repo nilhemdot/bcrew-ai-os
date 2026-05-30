@@ -1,0 +1,860 @@
+[
+  {
+    "key": "agentic-codebase-map-v1",
+    "backlogIds": [
+      "AGENTIC-CODEBASE-MAP-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Add agentic codebase map proof",
+        "AGENTIC-CODEBASE-MAP-001",
+        "agentic-codebase-map-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-BROWSER-AGENTIC-RUNTIME-001",
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+      "HARLAN-OPERATOR-LOOP-V1-001"
+    ],
+    "systemArea": "Foundation agent runtime / codebase map",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added an AIOS-owned, read-only codebase map proof for future Codex, Claude, Harlan, and build-agent sessions.",
+    "whatItDoes": "Scans approved repo surfaces, classifies files by category and product surface, extracts markdown headings plus JavaScript import/export edges, flags large-file risk, and rejects private/local/archive/generated graph leaks.",
+    "whyItMatters": "Long Codex sessions and handoffs need a fast way to understand the codebase without loading private memory, installing third-party graph plugins, committing generated graphs, or guessing from stale chat context.",
+    "whereItLives": [
+      "lib/agentic-codebase-map.js read-only scanner, evaluator, and dogfood proof",
+      "scripts/process-agentic-codebase-map-check.mjs focused proof command",
+      "docs/process/agentic-codebase-map-001-plan.md approved implementation plan",
+      "docs/process/approvals/AGENTIC-CODEBASE-MAP-001.json approval record",
+      "docs/_archive/handoffs/2026-05-29-agentic-codebase-map-proof.md handoff",
+      "lib/foundation-verify-coverage-card-ids.js done-card verifier coverage",
+      "package.json process:agentic-codebase-map-check command"
+    ],
+    "proofCommands": [
+      "node --check lib/agentic-codebase-map.js scripts/process-agentic-codebase-map-check.mjs lib/foundation-build-closeout-agent-runtime-records.js lib/foundation-verify-coverage-card-ids.js",
+      "npm run process:agentic-codebase-map-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:ship-check -- --card=AGENTIC-CODEBASE-MAP-001 --planApprovalRef=docs/process/approvals/AGENTIC-CODEBASE-MAP-001.json --closeoutKey=agentic-codebase-map-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=AGENTIC-CODEBASE-MAP-001 --closeoutKey=agentic-codebase-map-v1",
+      "npm run process:foundation-ship -- --card=AGENTIC-CODEBASE-MAP-001 --planApprovalRef=docs/process/approvals/AGENTIC-CODEBASE-MAP-001.json --closeoutKey=agentic-codebase-map-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof maps 2,575 approved files, confirms 13/13 critical surfaces, surfaces 7 size-risk flags, rejects private/local paths, rejects archive inclusion, rejects generated graph paths, and confirms no install, symlink, subprocess, or write path in the repo-map module.",
+    "reviewNext": "Use this as the local AIOS-owned codebase map layer for future agent sessions. Continue SOURCE-BROWSER-AGENTIC-RUNTIME-001 and AGENT-TEMPLATE-RUNTIME-CONTRACT-001 for live browser/source-session and reusable agent runtime work. If generated graph artifacts or a dashboard view are needed, scope a separate artifact-policy card before committing generated output.",
+    "knownLimits": [
+      "This is a read-only codebase map proof, not a live source-browser, extractor, or Harlan runtime.",
+      "This does not install Understand-Anything, Graphify, Browserbase, Stagehand, or any third-party plugin.",
+      "This does not commit generated knowledge graphs, vector stores, screenshots, transcripts, or runtime artifacts.",
+      "This does not scan private/local-only workspace state such as memory, MEMORY.md, USER.md, TOOLS.md, IDENTITY.md, HEARTBEAT.md, .claude, .openclaw, .env, or node_modules.",
+      "This does not call providers/models, run live extraction, open browsers, mutate credentials, write external systems, or grant agents new authority."
+    ]
+  },
+  {
+    "key": "harlan-auth-live-delivery-preflight-v1",
+    "backlogIds": [
+      "HARLAN-AUTH-LIVE-DELIVERY-002"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Gate Harlan Telegram live delivery",
+        "HARLAN-AUTH-LIVE-DELIVERY-002",
+        "harlan-auth-live-delivery-preflight-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "HARLAN-LIVE-OPERATOR-RUNTIME-002",
+      "SOURCE-BROWSER-AGENTIC-RUNTIME-001",
+      "SOURCE-SESSION-BROKER-001",
+      "SKOOL-LIVE-NAVIGATION-PROOF-002",
+      "MYICOR-LIVE-NAVIGATION-PROOF-002"
+    ],
+    "systemArea": "Harlan / Telegram auth delivery preflight",
+    "status": "blocked-preflight",
+    "acceptanceState": "Verified Harlan Telegram live-delivery preflight is accepted as blocked-preflight, not done; it can prepare Steve-only Telegram request packets with sendsMessageNow=false, while live Telegram send, bot creation, source-session resume, login, signup, paid/private extraction, posting, messaging, downloads, credential mutation, and broad Harlan runtime remain approval-bound continuation work.",
+    "whatChanged": "Added the Harlan Telegram live-delivery preflight contract, focused proof, approval record, handoff, and current-doc readback.",
+    "whatItDoes": "Turns an auth-needed Harlan escalation into a Telegram delivery packet that is Steve-only, Telegram-only, metadata-ref-only, deduped by issue, DONE-gated, reverify-before-resume, and fail-closed when config or approval is missing. It can prepare an approved-live-test request preview, but proof paths keep sendsMessageNow=false and externalSent=false.",
+    "whyItMatters": "God Mode source-browser and source-session work needs a real operator escalation lane before Skool, MyICOR, newsletter, and auth-gated runs can be trusted overnight. This slice removes ambiguity around Telegram readiness without quietly enabling a live external sender.",
+    "whereItLives": [
+      "lib/harlan-auth-live-delivery.js Telegram delivery preflight contract, config resolver, request packet builder, evaluator, and dogfood proof",
+      "scripts/process-harlan-auth-live-delivery-check.mjs focused proof for approval, Plan Critic, dogfood, no-network-sender, closeout, and docs",
+      "docs/process/harlan-auth-live-delivery-002-plan.md approved plan",
+      "docs/process/approvals/HARLAN-AUTH-LIVE-DELIVERY-002.json approval record",
+      "docs/_archive/handoffs/2026-05-28-harlan-auth-live-delivery-preflight.md handoff",
+      "docs/rebuild/current-plan.md Harlan delivery preflight note",
+      "docs/rebuild/current-state.md Harlan delivery preflight note",
+      "package.json focused proof command"
+    ],
+    "proofCommands": [
+      "node --check lib/harlan-auth-live-delivery.js scripts/process-harlan-auth-live-delivery-check.mjs lib/foundation-build-closeout-agent-runtime-records.js",
+      "npm run process:harlan-auth-live-delivery-check -- --json",
+      "npm run process:harlan-auth-escalation-loop-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=HARLAN-AUTH-LIVE-DELIVERY-002 --planApprovalRef=docs/process/approvals/HARLAN-AUTH-LIVE-DELIVERY-002.json --closeoutKey=harlan-auth-live-delivery-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=HARLAN-AUTH-LIVE-DELIVERY-002 --closeoutKey=harlan-auth-live-delivery-preflight-v1",
+      "npm run process:foundation-ship -- --card=HARLAN-AUTH-LIVE-DELIVERY-002 --planApprovalRef=docs/process/approvals/HARLAN-AUTH-LIVE-DELIVERY-002.json --closeoutKey=harlan-auth-live-delivery-preflight-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog continuation card, Harlan Telegram contract, missing-config blocked-preflight behavior, approved-config request preview with no send, raw secret rejection, duplicate suppression, DONE/reverify/resume, timeout fail-closed, non-Steve target rejection, no Telegram network sender implementation, package script, closeout registry, current docs, handoff, and module-size guardrails.",
+    "reviewNext": "When Steve is ready, configure and approve the exact Telegram bot/token secret ref and Steve chat ID secret ref, then run one Steve-only live test. Continue Source Browser Agent and Source Session Broker work with Harlan packets still no-send until that approval lands. Broader Harlan runtime remains HARLAN-LIVE-OPERATOR-RUNTIME-002.",
+    "knownLimits": [
+      "This is blocked-preflight and not done as live Harlan auth delivery.",
+      "This does not send live Telegram, create a Telegram bot, call Telegram APIs, or implement a network sender.",
+      "This does not store or print raw Telegram bot tokens or raw chat IDs.",
+      "This does not log in, sign up, resume source sessions, solve challenges, buy, download, post, comment, message, mutate profiles, mutate credentials, or use a normal Chrome profile.",
+      "This does not launch broad Harlan live runtime, UI, voice, avatar, inbound Telegram bots, or external-action authority; continue HARLAN-LIVE-OPERATOR-RUNTIME-002 for that layer."
+    ]
+  },
+  {
+    "key": "harlan-auth-escalation-loop-v1",
+    "backlogIds": [
+      "HARLAN-AUTH-ESCALATION-LOOP-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "HARLAN-AUTH-ESCALATION-LOOP-001",
+        "harlan-auth-escalation-loop-v1",
+        "Harlan auth escalation loop"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "BRAIN-FLEET-FOUNDATION-001",
+      "BRAIN-FLEET-QUOTA-LEDGER-001",
+      "BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001",
+      "CODEX-DIRECT-SUBSCRIPTION-ROUTE-001",
+      "GEMINI-VIDEO-BRAIN-ROUTE-001",
+      "CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001",
+      "EXTRACTOR-BRAIN-FLEET-PROOF-001"
+    ],
+    "systemArea": "Harlan / extractor auth escalation governance",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Foundation-owned Harlan auth escalation loop contract and focused dry-run proof.",
+    "whatItDoes": "Turns provider, extractor, or Harlan `auth_needed` into a `blocked-auth` event, prepares a Steve-only Harlan-on-Telegram notification draft, dedups duplicate issue keys, waits for `DONE`, silently re-verifies, resumes only after proof, and fails closed on timeout or failed reverify.",
+    "whyItMatters": "Brain Fleet and extractor work need a governed auth-needed path before live provider probes, paid/private sources, Skool/MyICOR access, or overnight extraction scale can be trusted.",
+    "whereItLives": [
+      "lib/harlan-auth-escalation-loop.js",
+      "scripts/process-harlan-auth-escalation-loop-check.mjs",
+      "docs/agents/harlan-auth-escalation-loop.md",
+      "docs/agents/harlan.md",
+      "docs/process/harlan-auth-escalation-loop-001-plan.md",
+      "docs/process/approvals/HARLAN-AUTH-ESCALATION-LOOP-001.json",
+      "docs/_archive/handoffs/2026-05-20-harlan-auth-escalation-loop-closeout.md",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "lib/foundation-build-closeout-agent-runtime-records.js",
+      "lib/foundation-runtime-reliability-verifier.js",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "scripts/foundation-verify.mjs",
+      "package.json"
+    ],
+    "proofCommands": [
+      "node --check lib/harlan-auth-escalation-loop.js scripts/process-harlan-auth-escalation-loop-check.mjs lib/foundation-runtime-reliability-verifier.js scripts/foundation-verify.mjs",
+      "npm run process:harlan-auth-escalation-loop-check -- --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=HARLAN-AUTH-ESCALATION-LOOP-001 --planApprovalRef=docs/process/approvals/HARLAN-AUTH-ESCALATION-LOOP-001.json --closeoutKey=harlan-auth-escalation-loop-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=HARLAN-AUTH-ESCALATION-LOOP-001 --closeoutKey=harlan-auth-escalation-loop-v1",
+      "npm run process:foundation-ship -- --card=HARLAN-AUTH-ESCALATION-LOOP-001 --planApprovalRef=docs/process/approvals/HARLAN-AUTH-ESCALATION-LOOP-001.json --closeoutKey=harlan-auth-escalation-loop-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, old-system source harvest, auth_needed -> blocked-auth, dedup/no spam, timeout/fail-closed, DONE/retry/resume, no credential mutation, dry-run no-send behavior, package script, verifier coverage, closeout registry, current plan/state, and full Foundation ship gates.",
+    "reviewNext": "Continue BRAIN-FLEET-QUOTA-LEDGER-001 before live provider probes, route capability probes, or extractor runtime proof.",
+    "knownLimits": [
+      "This card does not send live Telegram, email, Gmail, Slack, ClickUp, Drive, or Agent Feedback messages.",
+      "This card does not mutate credentials, OAuth tokens, browser profiles, provider config, llm_credentials, llm_routes, source systems, Drive permissions, or external systems.",
+      "This card does not run live provider probes, model calls, paid/private source access, browser automation, broad crawls, or extractor runtime.",
+      "This card does not build Strategy, People, broad Skool/MyICOR/Loom extraction, quota ledger, capability registry, provider adapters, OpenClaw boundary, or extractor proof work."
+    ]
+  },
+  {
+    "key": "foundation-agent-usefulness-runtime-gates-v1",
+    "backlogIds": [
+      "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001",
+        "Foundation Agent Usefulness Runtime Gates",
+        "foundation-agent-usefulness-runtime-gates-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+      "AGENT-CAPABILITY-REGISTRY-001",
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+      "AGENT-STATUS-FRESHNESS-GATE-001",
+      "PARALLEL-BUILDER-OPERATING-SYSTEM-001"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Foundation-owned agent usefulness gate bundle and focused dogfood proof.",
+    "whatItDoes": "Defines the required runtime gates before Harlan, Crewbert, or future role assistants can sound current or capable: live-answer preflight, capability registry, action permission contract, stale-data warning, source-backed status-claim guard, failure visibility, and prompt-only rule rejection.",
+    "whyItMatters": "Agents become useful when important behavior is enforced by runtime proof, not when prompts merely ask the model to remember rules.",
+    "whereItLives": [
+      "lib/foundation-agent-usefulness-runtime-gates.js gate bundle contract, evaluator, and dogfood proof",
+      "scripts/process-foundation-agent-usefulness-runtime-gates-check.mjs focused proof and live card scaffold",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "scripts/foundation-verify.mjs current-progress allowlist for AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+      "docs/process/foundation-agent-usefulness-runtime-gates-001-plan.md",
+      "docs/process/approvals/FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001.json",
+      "docs/_archive/handoffs/2026-05-18-foundation-agent-usefulness-runtime-gates-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-agent-usefulness-runtime-gates.js lib/foundation-runtime-reliability-verifier.js scripts/process-foundation-agent-usefulness-runtime-gates-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:foundation-agent-usefulness-runtime-gates-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001 --planApprovalRef=docs/process/approvals/FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001.json --closeoutKey=foundation-agent-usefulness-runtime-gates-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001 --closeoutKey=foundation-agent-usefulness-runtime-gates-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001 --planApprovalRef=docs/process/approvals/FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001.json --closeoutKey=foundation-agent-usefulness-runtime-gates-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, runtime gate dogfood, child-card staging, package script, verifier coverage, closeout registry, current plan/state, and no hidden subagents, live extraction, provider/model calls, or external writes.",
+    "reviewNext": "Continue with AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001 unless live repo truth surfaces a higher P0 repair.",
+    "knownLimits": [
+      "This scopes and proves the gate bundle; it does not build the Harlan UI or runtime feature.",
+      "This does not create the capability registry implementation; that remains AGENT-CAPABILITY-REGISTRY-001.",
+      "This does not build the reusable runtime template; that remains AGENT-TEMPLATE-RUNTIME-CONTRACT-001.",
+      "This does not run live extraction, auth-required or paid jobs, model/provider probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not launch hidden subagents or parallel builders."
+    ]
+  },
+  {
+    "key": "agent-live-answer-preflight-gate-v1",
+    "backlogIds": [
+      "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+        "Agent Live Answer Preflight Gate",
+        "agent-live-answer-preflight-gate-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001",
+      "AGENT-STATUS-FRESHNESS-GATE-001",
+      "AGENT-CAPABILITY-REGISTRY-001"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the live-answer preflight gate for operational agent answers.",
+    "whatItDoes": "Requires fresh live/local evidence stamps before agents can answer current system health, builder status, repo status, source freshness, or audit/verifier run status.",
+    "whyItMatters": "Agents should not sound current from memory when live Foundation, repo, or source truth has moved.",
+    "whereItLives": [
+      "lib/agent-live-answer-preflight-gate.js claim classes, evaluator, and dogfood proof",
+      "scripts/process-agent-live-answer-preflight-gate-check.mjs focused proof and live card scaffold",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "scripts/foundation-verify.mjs current-progress allowlist for AGENT-CAPABILITY-REGISTRY-001",
+      "docs/process/agent-live-answer-preflight-gate-001-plan.md",
+      "docs/process/approvals/AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001.json",
+      "docs/_archive/handoffs/2026-05-18-agent-live-answer-preflight-gate-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/agent-live-answer-preflight-gate.js lib/foundation-runtime-reliability-verifier.js scripts/process-agent-live-answer-preflight-gate-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:agent-live-answer-preflight-gate-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001 --planApprovalRef=docs/process/approvals/AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001.json --closeoutKey=agent-live-answer-preflight-gate-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001 --closeoutKey=agent-live-answer-preflight-gate-v1",
+      "npm run process:foundation-ship -- --card=AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001 --planApprovalRef=docs/process/approvals/AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001.json --closeoutKey=agent-live-answer-preflight-gate-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, claim-class preflight behavior, stale/memory/missing-tool dogfood, package script, verifier coverage, closeout registry, current plan/state, and no live agent/runtime side effects.",
+    "reviewNext": "Continue with AGENT-CAPABILITY-REGISTRY-001 unless live repo truth surfaces a higher P0 repair.",
+    "knownLimits": [
+      "This does not build Harlan UI or launch live agent runtime work.",
+      "This does not implement the capability registry.",
+      "This does not run live extraction, provider/model calls, external writes, Drive permission mutation, or Agent Feedback auto-send."
+    ]
+  },
+  {
+    "key": "agent-capability-registry-v1",
+    "backlogIds": [
+      "AGENT-CAPABILITY-REGISTRY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "AGENT-CAPABILITY-REGISTRY-001",
+        "Agent Capability Registry",
+        "agent-capability-registry-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001",
+      "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the read-only agent capability registry contract and focused dogfood proof.",
+    "whatItDoes": "Declares agent identities, tools, source refs, read/write posture, model route policy, logging, approval boundaries, and fallback behavior before agents can claim capability.",
+    "whyItMatters": "Agents should not sound like they can read, write, send, mutate, call models, or run extraction unless Foundation has declared the capability and fail-closed boundary.",
+    "whereItLives": [
+      "lib/agent-capability-registry.js registry contract, evaluator, and dogfood proof",
+      "scripts/process-agent-capability-registry-check.mjs focused proof and live card scaffold",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "scripts/foundation-verify.mjs current-progress allowlist for AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+      "docs/process/agent-capability-registry-001-plan.md",
+      "docs/process/approvals/AGENT-CAPABILITY-REGISTRY-001.json",
+      "docs/_archive/handoffs/2026-05-18-agent-capability-registry-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/agent-capability-registry.js lib/foundation-runtime-reliability-verifier.js scripts/process-agent-capability-registry-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:agent-capability-registry-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=AGENT-CAPABILITY-REGISTRY-001 --planApprovalRef=docs/process/approvals/AGENT-CAPABILITY-REGISTRY-001.json --closeoutKey=agent-capability-registry-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=AGENT-CAPABILITY-REGISTRY-001 --closeoutKey=agent-capability-registry-v1",
+      "npm run process:foundation-ship -- --card=AGENT-CAPABILITY-REGISTRY-001 --planApprovalRef=docs/process/approvals/AGENT-CAPABILITY-REGISTRY-001.json --closeoutKey=agent-capability-registry-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, registry field dogfood, claim-only and unknown capability rejection, unapproved side-effect rejection, package script, verifier coverage, closeout registry, current plan/state, and no live agent/runtime side effects.",
+    "reviewNext": "Continue with AGENT-TEMPLATE-RUNTIME-CONTRACT-001 unless live repo truth surfaces a higher P0 repair.",
+    "knownLimits": [
+      "This does not build Harlan UI or launch live agent runtime work.",
+      "This does not implement the reusable runtime template.",
+      "This does not run live extraction, provider/model calls, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not launch hidden subagents or parallel builders."
+    ]
+  },
+  {
+    "key": "foundation-up-capability-registry-v1",
+    "backlogIds": [
+      "FOUNDATION-UP-CAPABILITY-REGISTRY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-UP-CAPABILITY-REGISTRY-001",
+        "Foundation-up Capability Registry",
+        "foundation-up-capability-registry-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "AGENT-CAPABILITY-REGISTRY-001",
+      "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001",
+      "EXTRACTION-PARALLEL-WORKER-PROTOCOL-001",
+      "HARLAN-TERMINAL-RUNTIME-001",
+      "FAL-IMAGE-ITERATION-TOOL-001",
+      "CANVA-CLIENT-001",
+      "MEMORY-002"
+    ],
+    "systemArea": "Foundation provider/tool capability governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Foundation-up provider/tool capability registry and fail-closed focused proof.",
+    "whatItDoes": "Registers Fal image generation, ElevenLabs voice, Canva read metadata, and local terminal worker capabilities before any agent or worker can claim/use them. Each row names owner, env refs by name only, permission class, cost policy, audit log, callable path, proof command, approval boundary, and blocked agent binding status.",
+    "whyItMatters": "Provider tools and local workers must become Foundation-governed capabilities before Harlan, Crewbert, role assistants, or builders can drift into hidden authority, provider spend, unclear ownership, or side-effect lanes.",
+    "whereItLives": [
+      "lib/foundation-up-capability-registry.js registry contract, evaluator, report renderer, and dogfood proof",
+      "scripts/process-foundation-up-capability-registry-check.mjs focused proof and live card scaffold",
+      "scripts/foundation-verify.mjs current-progress baseline for FOUNDATION-UP-CAPABILITY-REGISTRY-001 and MEMORY-002",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "lib/foundation-build-closeout-agent-runtime-records.js closeout registry",
+      "docs/process/foundation-up-capability-registry-001-plan.md",
+      "docs/process/approvals/FOUNDATION-UP-CAPABILITY-REGISTRY-001.json",
+      "docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-foundation-up-capability-registry-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-up-capability-registry.js lib/foundation-runtime-reliability-verifier.js scripts/process-foundation-up-capability-registry-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:foundation-up-capability-registry-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-UP-CAPABILITY-REGISTRY-001 --planApprovalRef=docs/process/approvals/FOUNDATION-UP-CAPABILITY-REGISTRY-001.json --closeoutKey=foundation-up-capability-registry-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-UP-CAPABILITY-REGISTRY-001 --closeoutKey=foundation-up-capability-registry-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-UP-CAPABILITY-REGISTRY-001 --planApprovalRef=docs/process/approvals/FOUNDATION-UP-CAPABILITY-REGISTRY-001.json --closeoutKey=foundation-up-capability-registry-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, provider/tool registry fields, fail-closed dogfood, no live side effects, package script, verifier coverage, closeout registry, current plan/state, and file budgets.",
+    "reviewNext": "Continue MEMORY-002 from repo truth as safe scope/preflight only; do not mutate OpenClaw runtime or private memory surfaces unless the next card has process approval and proof.",
+    "knownLimits": [
+      "This registers capability truth; it does not approve provider/tool/runtime use.",
+      "This does not call Fal, ElevenLabs, Canva write/export/upload/design APIs, OpenAI, Anthropic, Gemini, or any other provider.",
+      "This does not spend provider credits, generate media/voice/model output, launch terminal workers, launch hidden subagents, or run parallel builders.",
+      "This does not grant Harlan, Crewbert, role assistants, extraction workers, or builders new runtime authority.",
+      "This does not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, Canva, external systems, private memory, or OpenClaw runtime state.",
+      "This does not run live extraction, source crawls, transcript/keyframe/screenshot/download work, summarization, vision, or model calls.",
+      "This does not store or print secret values."
+    ]
+  },
+  {
+    "key": "memory-002-openclaw-native-memory-preflight-v1",
+    "backlogIds": [
+      "MEMORY-002"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "MEMORY-002",
+        "OpenClaw Native Memory Preflight",
+        "memory-002-openclaw-native-memory-preflight-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-UP-CAPABILITY-REGISTRY-001",
+      "SLICE-001",
+      "AGENT-010"
+    ],
+    "systemArea": "Foundation agent memory governance",
+    "status": "blocked-preflight",
+    "acceptanceState": "Verified preflight; runtime enablement not accepted",
+    "whatChanged": "Added a metadata-only OpenClaw native memory preflight and returned MEMORY-002 pending explicit local-runtime approval.",
+    "whatItDoes": "Checks OpenClaw memory config validity, memory-core/active-memory/dreaming posture, and compact memory status metadata without reading private memory content, mutating OpenClaw config, restarting the gateway, running recall, or marking MEMORY-002 done.",
+    "whyItMatters": "Harlan memory should become real only through an explicit runtime approval and proof path; a Foundation builder should not silently turn on private memory behavior because the sprint reached the next card.",
+    "whereItLives": [
+      "lib/openclaw-native-memory-preflight.js evaluator and dogfood proof",
+      "scripts/process-memory-002-openclaw-native-memory-preflight-check.mjs focused metadata-only proof",
+      "docs/process/memory-002-openclaw-native-memory-preflight-plan.md",
+      "docs/process/approvals/MEMORY-002.json",
+      "docs/_archive/handoffs/2026-05-18-memory-002-openclaw-native-memory-preflight.md",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md"
+    ],
+    "proofCommands": [
+      "node --check lib/openclaw-native-memory-preflight.js scripts/process-memory-002-openclaw-native-memory-preflight-check.mjs",
+      "npm run process:memory-002-openclaw-native-memory-preflight-check -- --apply --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=MEMORY-002 --planApprovalRef=docs/process/approvals/MEMORY-002.json --closeoutKey=memory-002-openclaw-native-memory-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=MEMORY-002 --closeoutKey=memory-002-openclaw-native-memory-preflight-v1",
+      "npm run process:post-ship-fanout -- --card=MEMORY-002 --closeoutKey=memory-002-openclaw-native-memory-preflight-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=MEMORY-002 --planApprovalRef=docs/process/approvals/MEMORY-002.json --closeoutKey=memory-002-openclaw-native-memory-preflight-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live OpenClaw metadata, dogfood failure modes, package script, closeout registry, current plan/state, live backlog scoped state, returned Current Sprint state, and no runtime mutation/private recall commands.",
+    "reviewNext": "MEMORY-002 needs explicit local-runtime approval before actual enablement. If not approved, continue the next safe Foundation card from repo truth.",
+    "knownLimits": [
+      "This is not MEMORY-002 implementation completion.",
+      "This does not enable active-memory or dreaming.",
+      "This does not mutate OpenClaw runtime config or restart the gateway.",
+      "This does not run memory search, promote, index mutation, active recall, dreaming, or private recall proof.",
+      "This does not read or print private memory content, transcripts, tokens, or session files.",
+      "This does not call providers/models, run extraction/source crawls, mutate external systems, mutate Drive permissions, or run Agent Feedback auto-send."
+    ]
+  },
+  {
+    "key": "agent-template-runtime-contract-v1",
+    "backlogIds": [
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+        "Agent Template Runtime Contract",
+        "agent-template-runtime-contract-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001",
+      "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+      "AGENT-CAPABILITY-REGISTRY-001",
+      "OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001",
+      "AGENT-010"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the reusable agent runtime template contract and focused dogfood proof.",
+    "whatItDoes": "Defines the required template fields before future Harlan, Crewbert, role assistant, or worker runtime work expands: identity, owner, role, source access, memory scope, tools, model route, approval posture, live preflight, capability registry, action routing, logging, failure visibility, onboarding/profile contract, and decommission path.",
+    "whyItMatters": "Future agents should inherit one enforceable Foundation template instead of drifting into prompt-only, unowned, unlogged, or side-effect-capable assistants.",
+    "whereItLives": [
+      "lib/agent-template-runtime-contract.js template contract, evaluator, and dogfood proof",
+      "scripts/process-agent-template-runtime-contract-check.mjs focused proof and live card scaffold",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "scripts/foundation-verify.mjs current-progress allowlist for OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001",
+      "docs/process/agent-template-runtime-contract-001-plan.md",
+      "docs/process/approvals/AGENT-TEMPLATE-RUNTIME-CONTRACT-001.json",
+      "docs/_archive/handoffs/2026-05-18-agent-template-runtime-contract-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/agent-template-runtime-contract.js lib/foundation-runtime-reliability-verifier.js scripts/process-agent-template-runtime-contract-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:agent-template-runtime-contract-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=AGENT-TEMPLATE-RUNTIME-CONTRACT-001 --planApprovalRef=docs/process/approvals/AGENT-TEMPLATE-RUNTIME-CONTRACT-001.json --closeoutKey=agent-template-runtime-contract-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=AGENT-TEMPLATE-RUNTIME-CONTRACT-001 --closeoutKey=agent-template-runtime-contract-v1",
+      "npm run process:foundation-ship -- --card=AGENT-TEMPLATE-RUNTIME-CONTRACT-001 --planApprovalRef=docs/process/approvals/AGENT-TEMPLATE-RUNTIME-CONTRACT-001.json --closeoutKey=agent-template-runtime-contract-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, valid Harlan/Crewbert/extraction-worker templates, missing field dogfood, prompt-only rejection, runtime side-effect rejection, package script, verifier coverage, closeout registry, current plan/state, and no live agent/runtime side effects.",
+    "reviewNext": "Continue with OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001 unless live repo truth surfaces a higher P0 repair.",
+    "knownLimits": [
+      "This does not build Harlan UI or launch live agent runtime work.",
+      "This does not harvest old BCrew-Buddy onboarding evidence.",
+      "This does not run live extraction, provider/model calls, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not launch hidden subagents or parallel builders."
+    ]
+  },
+  {
+    "key": "old-system-agent-onboarding-harvest-v1",
+    "backlogIds": [
+      "OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001",
+        "Old-System Agent Onboarding Harvest",
+        "old-system-agent-onboarding-harvest-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001",
+      "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+      "AGENT-CAPABILITY-REGISTRY-001",
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+      "AGENT-010"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Harvested old BCrew-Buddy onboarding/coaching lessons into a Foundation-owned AGENT-010 prep contract.",
+    "whatItDoes": "Promotes only evidence metadata, keep/rebuild/retire lessons, profile fields, calibration questions, coaching-loop requirements, and AGENT-010 proof requirements while rejecting raw private content and runtime side effects.",
+    "whyItMatters": "AGENT-010 can reuse earned old-system onboarding lessons without copying stale bot setup, old adoption claims, private transcripts, or prompt-only behavior into the new system.",
+    "whereItLives": [
+      "lib/old-system-agent-onboarding-harvest.js harvest contract, evaluator, and dogfood proof",
+      "scripts/process-old-system-agent-onboarding-harvest-check.mjs focused proof and live card scaffold",
+      "docs/agents/old-system-agent-onboarding-harvest.md evidence metadata and keep/rebuild/retire lessons",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "scripts/foundation-verify.mjs current-progress allowlist for AGENT-010",
+      "docs/process/old-system-agent-onboarding-harvest-001-plan.md",
+      "docs/process/approvals/OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001.json",
+      "docs/_archive/handoffs/2026-05-18-old-system-agent-onboarding-harvest-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/old-system-agent-onboarding-harvest.js lib/foundation-runtime-reliability-verifier.js scripts/process-old-system-agent-onboarding-harvest-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:old-system-agent-onboarding-harvest-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001 --planApprovalRef=docs/process/approvals/OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001.json --closeoutKey=old-system-agent-onboarding-harvest-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001 --closeoutKey=old-system-agent-onboarding-harvest-v1",
+      "npm run process:foundation-ship -- --card=OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001 --planApprovalRef=docs/process/approvals/OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001.json --closeoutKey=old-system-agent-onboarding-harvest-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, old-system evidence metadata, keep/rebuild/retire dogfood, profile/calibration coverage, private-content rejection, package script, verifier coverage, closeout registry, current plan/state, and no runtime side effects.",
+    "reviewNext": "Continue with AGENT-010 unless live repo truth surfaces a higher P0 repair.",
+    "knownLimits": [
+      "This does not implement AGENT-010.",
+      "This does not build Harlan UI or launch live agent runtime work.",
+      "This does not run live extraction, provider/model calls, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not copy raw private transcripts or private profile data into repo truth.",
+      "This does not launch hidden subagents or parallel builders."
+    ]
+  },
+  {
+    "key": "personal-agent-onboarding-contract-v1",
+    "backlogIds": [
+      "AGENT-010"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "AGENT-010",
+        "Personal Agent Onboarding",
+        "personal-agent-onboarding-contract-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001",
+      "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+      "AGENT-CAPABILITY-REGISTRY-001",
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+      "OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001",
+      "ROLE-ASSISTANT-CONTRACTS-001"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Foundation personal-agent onboarding contract for Harlan and future human assistants.",
+    "whatItDoes": "Defines private profile schema, privacy tiers, first useful source-backed read, calibration interview, daily nugget limits, feedback/non-response rules, allowed read-only source lookups, and profile update rules.",
+    "whyItMatters": "Personal agents can onboard like operating partners without generic feature dumps, private-profile leaks, runtime launch drift, or unapproved sends/writes.",
+    "whereItLives": [
+      "lib/personal-agent-onboarding-contract.js contract, evaluator, and dogfood proof",
+      "scripts/process-agent-010-check.mjs focused proof and live card scaffold",
+      "docs/agents/personal-agent-onboarding.md contract v1 doctrine",
+      "lib/foundation-core-governance-verifier.js review-marker date guard",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "scripts/foundation-verify.mjs current-progress allowlist for ROLE-ASSISTANT-CONTRACTS-001",
+      "docs/process/agent-010-personal-agent-onboarding-contract-plan.md",
+      "docs/process/approvals/AGENT-010.json",
+      "docs/_archive/handoffs/2026-05-18-agent-010-personal-agent-onboarding-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/personal-agent-onboarding-contract.js lib/foundation-core-governance-verifier.js lib/foundation-runtime-reliability-verifier.js scripts/process-agent-010-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:agent-010-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=AGENT-010 --planApprovalRef=docs/process/approvals/AGENT-010.json --closeoutKey=personal-agent-onboarding-contract-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=AGENT-010 --closeoutKey=personal-agent-onboarding-contract-v1",
+      "npm run process:foundation-ship -- --card=AGENT-010 --planApprovalRef=docs/process/approvals/AGENT-010.json --closeoutKey=personal-agent-onboarding-contract-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, private profile schema, calibration, first useful read, daily nugget, feedback loop, source lookup/update dogfood, package script, verifier coverage, closeout registry, current plan/state, and no runtime side effects.",
+    "reviewNext": "Continue with ROLE-ASSISTANT-CONTRACTS-001 unless live repo truth surfaces a higher P0 repair.",
+    "knownLimits": [
+      "This does not implement Harlan.",
+      "This does not build Harlan UI or launch live agent runtime work.",
+      "This does not build private profile storage runtime or send daily nuggets.",
+      "This does not run live extraction, provider/model calls, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not copy raw private profile values into repo truth.",
+      "This does not launch hidden subagents or parallel builders."
+    ]
+  },
+  {
+    "key": "role-assistant-contracts-v1",
+    "backlogIds": [
+      "ROLE-ASSISTANT-CONTRACTS-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "ROLE-ASSISTANT-CONTRACTS-001",
+        "Role Assistant Contracts",
+        "role-assistant-contracts-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001",
+      "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+      "AGENT-CAPABILITY-REGISTRY-001",
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+      "AGENT-010",
+      "HARLAN-PROJECT-REGISTRY-001",
+      "SYSTEM-011"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Foundation role assistant contract catalog for the first visible assistant and worker shapes.",
+    "whatItDoes": "Defines what Steve/Harlan, Sales Leadership, Ops, Marketing, Agent KPI Coach, and Extraction Worker assistants can see, do, trust, escalate, report, block, and require approval for before runtime work expands.",
+    "whyItMatters": "Role assistants should not inherit generic agent rules and then invent authority, source reach, hidden workers, memory-only current claims, or unapproved sends/writes.",
+    "whereItLives": [
+      "lib/role-assistant-contracts.js contract, evaluator, and dogfood proof",
+      "scripts/process-role-assistant-contracts-check.mjs focused proof and live card scaffold",
+      "docs/agents/role-assistant-contracts.md contract v1 doctrine",
+      "docs/agents/README.md active agent index link",
+      "docs/rebuild/agent-architecture.md role contract doctrine link",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "scripts/foundation-verify.mjs current-progress allowlist for HARLAN-PROJECT-REGISTRY-001",
+      "docs/process/role-assistant-contracts-001-plan.md",
+      "docs/process/approvals/ROLE-ASSISTANT-CONTRACTS-001.json",
+      "docs/_archive/handoffs/2026-05-18-role-assistant-contracts-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/role-assistant-contracts.js lib/foundation-runtime-reliability-verifier.js scripts/process-role-assistant-contracts-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:role-assistant-contracts-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=ROLE-ASSISTANT-CONTRACTS-001 --planApprovalRef=docs/process/approvals/ROLE-ASSISTANT-CONTRACTS-001.json --closeoutKey=role-assistant-contracts-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=ROLE-ASSISTANT-CONTRACTS-001 --closeoutKey=role-assistant-contracts-v1",
+      "npm run process:foundation-ship -- --card=ROLE-ASSISTANT-CONTRACTS-001 --planApprovalRef=docs/process/approvals/ROLE-ASSISTANT-CONTRACTS-001.json --closeoutKey=role-assistant-contracts-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, six role examples, missing role/source/ref/escalation dogfood, memory-only current claim rejection, unapproved write rejection, raw private value rejection, runtime side-effect rejection, package script, verifier coverage, closeout registry, current plan/state, and no live agent/runtime side effects.",
+    "reviewNext": "Continue with HARLAN-PROJECT-REGISTRY-001 unless live repo truth surfaces a higher P0 repair.",
+    "knownLimits": [
+      "This does not implement Harlan, Crewbert, or role assistant runtime.",
+      "This does not launch live assistants or specialist workers.",
+      "This does not grant project reach or external-write authority.",
+      "This does not build private profile storage runtime or send daily nuggets.",
+      "This does not run live extraction, provider/model calls, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not launch hidden subagents or parallel builders."
+    ]
+  },
+  {
+    "key": "harlan-project-registry-v1",
+    "backlogIds": [
+      "HARLAN-PROJECT-REGISTRY-001",
+      "SYSTEM-011"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "HARLAN-PROJECT-REGISTRY-001",
+        "Harlan Project Registry",
+        "harlan-project-registry-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ROLE-ASSISTANT-CONTRACTS-001",
+      "AGENT-010",
+      "AGENT-CAPABILITY-REGISTRY-001",
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+      "HARLAN-OPERATOR-LOOP-V1-001"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the explicit Harlan project registry contract and focused dogfood proof.",
+    "whatItDoes": "Defines the initial systems Harlan may know about, including local paths/API bases, auth posture, allowed reads, approval-bound writes, source refs, escalation owner, capability status, and fail-closed unknown-system behavior.",
+    "whyItMatters": "Harlan needs declared reach before operator-loop work so project access is not hidden in Steve memory or invented by a runtime chat.",
+    "whereItLives": [
+      "lib/harlan-project-registry.js registry contract, evaluator, and dogfood proof",
+      "scripts/process-harlan-project-registry-check.mjs focused proof and live card scaffold",
+      "docs/agents/harlan-project-registry.md contract v1 doctrine",
+      "docs/agents/harlan.md active Harlan doctrine link",
+      "docs/rebuild/agent-architecture.md project registry doctrine link",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "scripts/foundation-verify.mjs current-progress allowlist for HARLAN-OPERATOR-LOOP-V1-001",
+      "docs/process/harlan-project-registry-001-plan.md",
+      "docs/process/approvals/HARLAN-PROJECT-REGISTRY-001.json",
+      "docs/_archive/handoffs/2026-05-18-harlan-project-registry-closeout.md",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md"
+    ],
+    "proofCommands": [
+      "node --check lib/harlan-project-registry.js lib/foundation-runtime-reliability-verifier.js scripts/process-harlan-project-registry-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:harlan-project-registry-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=HARLAN-PROJECT-REGISTRY-001 --planApprovalRef=docs/process/approvals/HARLAN-PROJECT-REGISTRY-001.json --closeoutKey=harlan-project-registry-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=HARLAN-PROJECT-REGISTRY-001 --closeoutKey=harlan-project-registry-v1",
+      "npm run process:foundation-ship -- --card=HARLAN-PROJECT-REGISTRY-001 --planApprovalRef=docs/process/approvals/HARLAN-PROJECT-REGISTRY-001.json --closeoutKey=harlan-project-registry-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, required registry systems, missing system/auth/escalation/source dogfood, unapproved write rejection, unknown-system rejection, runtime side-effect rejection, package script, verifier coverage, closeout registry, current plan/state, and no live agent/runtime side effects.",
+    "reviewNext": "Continue with HARLAN-OPERATOR-LOOP-V1-001 unless live repo truth surfaces a higher P0 repair.",
+    "knownLimits": [
+      "This does not implement Harlan or build Harlan UI.",
+      "This does not launch live agent runtime work or operator loops.",
+      "This does not create or move the external Harlan home.",
+      "This does not grant project reach, connector/auth access, or external-write authority.",
+      "This does not run live extraction, provider/model calls, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not launch hidden subagents or parallel builders."
+    ]
+  },
+  {
+    "key": "harlan-operator-loop-v1",
+    "backlogIds": [
+      "HARLAN-OPERATOR-LOOP-V1-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "HARLAN-OPERATOR-LOOP-V1-001",
+        "Harlan Operator Loop",
+        "harlan-operator-loop-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "HARLAN-PROJECT-REGISTRY-001",
+      "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+      "AGENT-CAPABILITY-REGISTRY-001",
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+      "BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added Harlan first read-only source-backed Foundation operator loop contract and dogfood proof.",
+    "whatItDoes": "Defines the Harlan operator answer shape for what is true now, what changed, what is broken, what is blocked, who owns it, and what happens next using declared Current Sprint, build-log, system-health, audit, telemetry, backlog, and source/action-route inputs.",
+    "whyItMatters": "Harlan needs one useful operator answer before runtime, UI, voice, avatar, or side-effect work expands.",
+    "whereItLives": [
+      "lib/harlan-operator-loop.js operator-loop contract, evaluator, text formatter, and dogfood proof",
+      "scripts/process-harlan-operator-loop-check.mjs focused proof and live card scaffold",
+      "docs/agents/harlan-operator-loop.md contract v1 doctrine",
+      "docs/agents/harlan.md active Harlan doctrine link",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "scripts/foundation-verify.mjs current-progress allowlist for BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001",
+      "docs/process/harlan-operator-loop-v1-001-plan.md",
+      "docs/process/approvals/HARLAN-OPERATOR-LOOP-V1-001.json",
+      "docs/_archive/handoffs/2026-05-18-harlan-operator-loop-closeout.md",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md"
+    ],
+    "proofCommands": [
+      "node --check lib/harlan-operator-loop.js lib/foundation-runtime-reliability-verifier.js scripts/process-harlan-operator-loop-check.mjs scripts/foundation-verify.mjs",
+      "npm run process:harlan-operator-loop-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=HARLAN-OPERATOR-LOOP-V1-001 --planApprovalRef=docs/process/approvals/HARLAN-OPERATOR-LOOP-V1-001.json --closeoutKey=harlan-operator-loop-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=HARLAN-OPERATOR-LOOP-V1-001 --closeoutKey=harlan-operator-loop-v1",
+      "npm run process:foundation-ship -- --card=HARLAN-OPERATOR-LOOP-V1-001 --planApprovalRef=docs/process/approvals/HARLAN-OPERATOR-LOOP-V1-001.json --closeoutKey=harlan-operator-loop-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, required source inputs, required answer sections, stale/memory/missing proof dogfood, unapproved write rejection, runtime side-effect rejection, package script, verifier coverage, closeout registry, current plan/state, and no live agent/runtime side effects.",
+    "reviewNext": "Continue with BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001 unless live repo truth surfaces a higher P0 repair.",
+    "knownLimits": [
+      "This does not implement Harlan live runtime, UI, voice, avatar, or Telegram behavior.",
+      "This does not build private profile storage runtime.",
+      "This does not create or move the external Harlan home.",
+      "This does not grant project reach, connector/auth access, or external-write authority.",
+      "This does not run live extraction, provider/model calls, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not launch hidden subagents or parallel builders."
+    ]
+  },
+  {
+    "key": "trusted-assistant-loop-v1",
+    "backlogIds": [
+      "SLICE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SLICE-001",
+        "Trusted Assistant Loop",
+        "trusted-assistant-loop-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+      "AGENT-CAPABILITY-REGISTRY-001",
+      "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+      "AGENT-010",
+      "ROLE-ASSISTANT-CONTRACTS-001",
+      "HARLAN-PROJECT-REGISTRY-001",
+      "HARLAN-OPERATOR-LOOP-V1-001",
+      "MARKETING-VIDEO-LAB-LIVE-SAFETY-001"
+    ],
+    "systemArea": "Foundation agent runtime governance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the first trusted assistant loop contract, evaluator, operator doc, and focused dogfood proof.",
+    "whatItDoes": "Defines the v1 Harlan trusted loop before wider agent expansion: source prerequisites, read-only inputs, allowed draft/proposal actions, approval-bound writes, evidence output, failure policy, and blockers-block-actions behavior.",
+    "whyItMatters": "Foundation can now reject broad agent/source expansion that lacks source prerequisites, evidence shape, write boundaries, or safe continuation behavior.",
+    "whereItLives": [
+      "lib/trusted-assistant-loop.js trusted-loop contract, evaluator, and dogfood proof",
+      "scripts/process-slice-001-check.mjs focused proof and live card/current sprint scaffold",
+      "docs/agents/trusted-assistant-loop.md operator contract v1",
+      "docs/agents/harlan.md active Harlan doctrine link",
+      "docs/agents/README.md agent index link",
+      "lib/foundation-runtime-reliability-verifier.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage",
+      "docs/process/slice-001-trusted-assistant-loop-plan.md",
+      "docs/process/approvals/SLICE-001.json",
+      "docs/_archive/handoffs/2026-05-20-slice-001-trusted-assistant-loop-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/trusted-assistant-loop.js lib/foundation-runtime-reliability-verifier.js scripts/process-slice-001-check.mjs",
+      "npm run process:slice-001-check -- --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SLICE-001 --planApprovalRef=docs/process/approvals/SLICE-001.json --closeoutKey=trusted-assistant-loop-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SLICE-001 --closeoutKey=trusted-assistant-loop-v1",
+      "npm run process:foundation-ship -- --card=SLICE-001 --planApprovalRef=docs/process/approvals/SLICE-001.json --closeoutKey=trusted-assistant-loop-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, source prerequisites, required inputs, output/evidence shape, write/runtime/extraction dogfood, package script, verifier coverage, closeout registry, and safe continuation to the next card.",
+    "reviewNext": "Continue with MARKETING-VIDEO-LAB-LIVE-SAFETY-001 unless raw health, repeated failures, foundation:verify, main sync, or destructive data risk blocks safe work.",
+    "knownLimits": [
+      "This does not launch Harlan live runtime, UI, voice, avatar, Telegram behavior, or outbound identity.",
+      "This does not call providers/models, run live extraction, perform broad private backfill, send messages, mutate Drive permissions, mutate Calendar, mutate credentials, or add source access.",
+      "This does not store raw private memory/profile values in repo truth.",
+      "This does not launch hidden subagents or parallel builders."
+    ]
+  }
+]

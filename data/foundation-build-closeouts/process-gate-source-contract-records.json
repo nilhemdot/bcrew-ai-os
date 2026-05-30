@@ -1,0 +1,815 @@
+[
+  {
+    "key": "build-intel-snapshot-baseline-v1",
+    "backlogIds": [
+      "BUILD-INTEL-SNAPSHOT-BASELINE-001",
+      "DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001",
+      "VERIFIER-ASSUMPTION-REGISTRY-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "BUILD-INTEL-SNAPSHOT-BASELINE-001",
+        "Build Intel snapshot baseline",
+        "build-intel-snapshot-baseline-v1"
+      ]
+    },
+    "systemArea": "Build Intel snapshot freshness semantics",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Classified fixed Build Intel inspected commits as snapshot evidence with explicit source posture and latest monitoring boundaries.",
+    "whatItDoes": "Keeps GStack Build Intel inspected commit proof useful as evidence while preventing it from being treated as latest upstream monitoring truth.",
+    "whyItMatters": "The May 19 deep audit found a fixed Build Intel commit baseline that could become false-green freshness proof. Snapshot metadata separates inspected evidence from current monitoring truth.",
+    "whereItLives": [
+      "lib/build-intel-snapshot-baseline.js snapshot baseline constants, helpers, evaluator, dogfood, and proof commands",
+      "lib/gstack-build-intel.js snapshotBaseline/sourcePosture/latest monitoring metadata",
+      "scripts/process-gstack-build-intel-check.mjs validates snapshot semantics for GStack proof",
+      "lib/code-quality-nightly-audit.js uses the snapshot-baseline evaluator instead of raw fixed-commit reference scanning",
+      "lib/foundation-intelligence-audit-verifier.js validates snapshot posture in the intelligence audit",
+      "lib/deep-audit-findings-closure-gate.js routes the May 19 finding to this closeout",
+      "docs/source-notes/github-build-intel.md documents the snapshot/freshness boundary",
+      "scripts/process-build-intel-snapshot-baseline-check.mjs focused proof and close-card writer",
+      "docs/process/build-intel-snapshot-baseline-001-plan.md",
+      "docs/process/approvals/BUILD-INTEL-SNAPSHOT-BASELINE-001.json",
+      "docs/_archive/handoffs/2026-05-19-build-intel-snapshot-baseline-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/build-intel-snapshot-baseline.js scripts/process-build-intel-snapshot-baseline-check.mjs",
+      "npm run process:build-intel-snapshot-baseline-check -- --close-card --json",
+      "npm run process:code-quality-nightly-audit-check -- --json --no-write --skip-endpoint-fetch",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=BUILD-INTEL-SNAPSHOT-BASELINE-001 --planApprovalRef=docs/process/approvals/BUILD-INTEL-SNAPSHOT-BASELINE-001.json --closeoutKey=build-intel-snapshot-baseline-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-INTEL-SNAPSHOT-BASELINE-001 --closeoutKey=build-intel-snapshot-baseline-v1",
+      "npm run process:foundation-ship -- --card=BUILD-INTEL-SNAPSHOT-BASELINE-001 --planApprovalRef=docs/process/approvals/BUILD-INTEL-SNAPSHOT-BASELINE-001.json --closeoutKey=build-intel-snapshot-baseline-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods stale fixed-commit latest-truth logic as rejected, proves healthy snapshot metadata clears the code-quality audit finding, and advances Current Sprint to the build closeout data-source card.",
+    "reviewNext": "Continue `BUILD-CLOSEOUT-DATA-SOURCE-001` in the overnight audit-control sprint.",
+    "knownLimits": [
+      "This does not build a new GitHub crawler.",
+      "This does not run live GitHub extraction.",
+      "This does not import GStack code or install GStack.",
+      "This does not auto-create backlog cards from Build Intel findings.",
+      "This does not start source/value/extraction expansion."
+    ]
+  },
+  {
+    "key": "approval-threshold-registry-v1",
+    "backlogIds": [
+      "APPROVAL-THRESHOLD-REGISTRY-001",
+      "DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001",
+      "VERIFIER-ASSUMPTION-REGISTRY-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "APPROVAL-THRESHOLD-REGISTRY-001",
+        "approval threshold registry",
+        "approval-threshold-registry-v1"
+      ]
+    },
+    "systemArea": "Plan Critic approval threshold registry",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved the Plan Critic approval threshold behind one shared registry and wired the load-bearing approval paths to that registry.",
+    "whatItDoes": "Keeps Plan Critic, approval integrity, Current Sprint pass-threshold normalization, Current Sprint store mapping, and code-quality audit drift detection aligned on one approval threshold contract.",
+    "whyItMatters": "The May 19 deep audit found raw approval-threshold logic duplicated across Foundation proof paths. A shared registry prevents drift without rewriting every historical approval artifact that mentions the threshold label.",
+    "whereItLives": [
+      "lib/approval-threshold-registry.js canonical threshold, helpers, evaluator, dogfood, proof commands, and next-card metadata",
+      "lib/process-plan-critic.js re-exports the registry threshold for compatibility",
+      "lib/approval-integrity.js validates approval scores through registry helpers",
+      "lib/foundation-current-sprint.js normalizes Plan Critic thresholds through registry helpers",
+      "lib/foundation-current-sprint-store.js maps DB pass thresholds through registry fallback",
+      "lib/code-quality-nightly-audit.js uses registry evaluator instead of blanket raw-literal scanning",
+      "lib/deep-audit-findings-closure-gate.js routes the May 19 finding to this closeout",
+      "scripts/process-approval-threshold-registry-check.mjs focused proof and close-card writer",
+      "docs/process/approval-threshold-registry-001-plan.md",
+      "docs/process/approvals/APPROVAL-THRESHOLD-REGISTRY-001.json",
+      "docs/_archive/handoffs/2026-05-19-approval-threshold-registry-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/approval-threshold-registry.js scripts/process-approval-threshold-registry-check.mjs",
+      "npm run process:approval-threshold-registry-check -- --close-card --json",
+      "npm run process:code-quality-nightly-audit-check -- --json --no-write --skip-endpoint-fetch",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=APPROVAL-THRESHOLD-REGISTRY-001 --planApprovalRef=docs/process/approvals/APPROVAL-THRESHOLD-REGISTRY-001.json --closeoutKey=approval-threshold-registry-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=APPROVAL-THRESHOLD-REGISTRY-001 --closeoutKey=approval-threshold-registry-v1",
+      "npm run process:foundation-ship -- --card=APPROVAL-THRESHOLD-REGISTRY-001 --planApprovalRef=docs/process/approvals/APPROVAL-THRESHOLD-REGISTRY-001.json --closeoutKey=approval-threshold-registry-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods stale local threshold logic as rejected, proves below-threshold scores fail, proves the code-quality audit no longer proposes the threshold card when registry usage is healthy, and advances Current Sprint to Build Intel snapshot baseline.",
+    "reviewNext": "Continue `BUILD-INTEL-SNAPSHOT-BASELINE-001` in the overnight audit-control sprint.",
+    "knownLimits": [
+      "This does not rewrite every historical approval JSON, closeout, or operator label that mentions 9.8.",
+      "This does not change the approval threshold value.",
+      "This does not redesign Plan Critic scoring.",
+      "This does not start source/value/extraction work."
+    ]
+  },
+  {
+    "key": "admin-deal-policy-source-contract-v1",
+    "backlogIds": [
+      "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+      "DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001",
+      "FOUNDATION-API-PERF-AUDIT-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+        "admin deal policy source contract",
+        "admin-deal-policy-source-contract-v1"
+      ]
+    },
+    "systemArea": "Ops Admin deal-review policy source contract",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Moved Admin deal-review policy dates, daily limit, maturity gate, source IDs, and write boundary behind one repo-local source-contract module.",
+    "whatItDoes": "Keeps the Admin runner, scheduled job metadata, and Ops UI copy aligned by reading policy values from `lib/admin-deal-policy-source-contract.js` instead of duplicating cutoff/effective-date literals in each surface.",
+    "whyItMatters": "The May 19 deep audit flagged policy-date drift across the runner, job config, and UI. A source-owned policy contract lets future Ops policy changes happen in one place and gives the nightly audit a concrete invariant to enforce.",
+    "whereItLives": [
+      "lib/admin-deal-policy-source-contract.js policy contract, job helpers, source evaluator, and dogfood",
+      "scripts/review-admin-deals.mjs imports Admin policy values from the contract",
+      "lib/foundation-jobs.js Admin backlog job args/summary/input builders",
+      "public/ops.js Admin backlog detail sourced from job summary",
+      "lib/code-quality-nightly-audit.js Admin policy stale-finding suppression guard",
+      "scripts/process-admin-deal-policy-source-contract-check.mjs focused proof and close-card writer",
+      "docs/process/admin-deal-policy-source-contract-001-plan.md",
+      "docs/process/approvals/ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001.json",
+      "docs/_archive/handoffs/2026-05-19-admin-deal-policy-source-contract-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/admin-deal-policy-source-contract.js scripts/process-admin-deal-policy-source-contract-check.mjs",
+      "npm run process:admin-deal-policy-source-contract-check -- --close-card --json",
+      "npm run process:code-quality-nightly-audit-check -- --json --no-write --skip-endpoint-fetch",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001 --planApprovalRef=docs/process/approvals/ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001.json --closeoutKey=admin-deal-policy-source-contract-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001 --closeoutKey=admin-deal-policy-source-contract-v1",
+      "npm run process:foundation-ship -- --card=ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001 --planApprovalRef=docs/process/approvals/ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001.json --closeoutKey=admin-deal-policy-source-contract-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods stale runner-local policy constants, hardcoded scheduled job args, and hardcoded Ops UI policy copy as rejected; code-quality audit no longer proposes the Admin policy source-contract card when runner/job/UI contract usage passes.",
+    "reviewNext": "Continue `APPROVAL-THRESHOLD-REGISTRY-001` in the overnight audit-control sprint.",
+    "knownLimits": [
+      "This does not run live Admin deal review jobs.",
+      "This does not call Google Sheets, FUB, ClickUp, or external connectors.",
+      "This does not change Admin review logic or source-field write boundaries.",
+      "This does not approve an Ops source-field apply/fix lane."
+    ]
+  },
+  {
+    "key": "legacy-system-audit-v1",
+    "backlogIds": [
+      "LEGACY-SYSTEM-AUDIT-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "LEGACY-SYSTEM-AUDIT-001",
+        "legacy-system-audit-v1"
+      ]
+    },
+    "systemArea": "Foundation legacy-system salvage",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a bounded legacy-system audit that scans local old-system roots as sanitized evidence and routes durable patterns into current backlog/source/spec/proof truth.",
+    "whatItDoes": "Uses lib/legacy-system-audit.js and process:legacy-system-audit-check to represent BCrew-Buddy, old skill library, FUB/Zahnd schema, old dashboard prototype, OpenClaw metadata-only workspace evidence, and Unchained strategy notes. Every finding is classified as promote, backlog, source_note, spec, evidence_only, duplicate, reject, or approval_bound.",
+    "whyItMatters": "Steve explicitly asked that the gold from the old-system/deep-audit conversation be carded and not lost. This converts useful legacy patterns into durable routing while rejecting old-code import, old-agent execution, stale report piles, and private runtime copying.",
+    "whereItLives": [
+      "lib/legacy-system-audit.js",
+      "scripts/process-legacy-system-audit-check.mjs",
+      "docs/_archive/audits/2026-05-19-legacy-system-audit.md",
+      "docs/audits/2026-05-19-legacy-system-audit.json",
+      "docs/process/legacy-system-audit-001-plan.md",
+      "docs/process/approvals/LEGACY-SYSTEM-AUDIT-001.json",
+      "docs/_archive/handoffs/2026-05-19-legacy-system-audit-closeout.md",
+      "package.json script process:legacy-system-audit-check"
+    ],
+    "proofCommands": [
+      "node --check lib/legacy-system-audit.js scripts/process-legacy-system-audit-check.mjs",
+      "npm run process:legacy-system-audit-check -- --write-report --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=LEGACY-SYSTEM-AUDIT-001 --planApprovalRef=docs/process/approvals/LEGACY-SYSTEM-AUDIT-001.json --closeoutKey=legacy-system-audit-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=LEGACY-SYSTEM-AUDIT-001 --closeoutKey=legacy-system-audit-v1",
+      "npm run process:foundation-ship -- --card=LEGACY-SYSTEM-AUDIT-001 --planApprovalRef=docs/process/approvals/LEGACY-SYSTEM-AUDIT-001.json --closeoutKey=legacy-system-audit-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval integrity, Plan Critic, targeted legacy root evidence, metadata-only private runtime boundary, live promoted-card destinations, dogfood rejection of missing roots/unclassified findings/unsafe imports, live backlog, Current Sprint advancement, audit artifacts, and closeout registry wiring.",
+    "reviewNext": "Continue STRATEGIC-INTEL-001 using the salvage map, current atom/action-router/retrieval truth, and source-backed evidence layers. Do not restart old agent sprawl or broad extraction from old-system notes.",
+    "knownLimits": [
+      "This card does not import old-system code.",
+      "This card does not run old agents, crawlers, browser automation, scheduled jobs, model calls, extraction, source-system mutation, or external writes.",
+      "This card does not copy raw private runtime content, credentials, messages, media, or OpenClaw local state into repo artifacts.",
+      "This card does not approve paid/private source access, provider/tool runtime use, credential mutation, Drive permission mutation, or Value Builder split.",
+      "Legacy notes remain evidence until promoted into live source, backlog, specs, or verifier proof."
+    ]
+  },
+  {
+    "key": "strategic-intel-loop-v1",
+    "backlogIds": [
+      "STRATEGIC-INTEL-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "STRATEGIC-INTEL-001",
+        "strategic-intel-loop-v1"
+      ]
+    },
+    "systemArea": "Foundation strategic intelligence",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the v1 Strategic Intelligence issue ledger and feedback event ledger, seeded from current source-backed strategy-eligible synthesized items, and updated the follow-up backlog verifier to accept the shipped ledger closeout.",
+    "whatItDoes": "Uses lib/strategic-intel-loop.js and process:strategic-intel-check to create intelligence_strategic_issues and intelligence_strategic_issue_events, map strategy synthesized items into owner-scored issues, preserve source/fact/atom/chunk/synthesized-item refs, encode weekly operating targets, and keep Scoper/decision work downstream. The support verifier change keeps the historical Strategic Intelligence guard honest after STRATEGIC-INTEL-001 moves from scoped to done.",
+    "whyItMatters": "Steve wants continuous strategy, not old-system report piles or a dashboard that does not create action. This gives strategic issues stable identity, scoring, lifecycle, provenance, and feedback before DECISION-008 and INTEL-SCOPER-001 build on top.",
+    "whereItLives": [
+      "lib/strategic-intel-loop.js",
+      "lib/foundation-verifier-followup-backlog-assurance.js",
+      "scripts/process-strategic-intel-check.mjs",
+      "Postgres table intelligence_strategic_issues",
+      "Postgres table intelligence_strategic_issue_events",
+      "docs/process/strategic-intel-001-plan.md",
+      "docs/process/approvals/STRATEGIC-INTEL-001.json",
+      "docs/_archive/handoffs/2026-05-19-strategic-intel-loop-closeout.md",
+      "package.json script process:strategic-intel-check"
+    ],
+    "proofCommands": [
+      "node --check lib/strategic-intel-loop.js scripts/process-strategic-intel-check.mjs",
+      "npm run process:strategic-intel-check -- --close-card --json",
+      "npm run process:verifier-followup-backlog-assurance-split-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=STRATEGIC-INTEL-001 --planApprovalRef=docs/process/approvals/STRATEGIC-INTEL-001.json --closeoutKey=strategic-intel-loop-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=STRATEGIC-INTEL-001 --closeoutKey=strategic-intel-loop-v1",
+      "npm run process:foundation-ship -- --card=STRATEGIC-INTEL-001 --planApprovalRef=docs/process/approvals/STRATEGIC-INTEL-001.json --closeoutKey=strategic-intel-loop-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval integrity, Plan Critic, strategic issue schema, source-backed issue seeding, scoring fields, evidence refs, weekly target encoding, resolution feedback events, dogfood rejection of weak issue fixtures, live backlog rows, Current Sprint advancement, and closeout registry wiring.",
+    "reviewNext": "Continue DECISION-008. It must use intelligence_strategic_issues and write resolution feedback back to the strategic issue loop instead of creating disconnected doctrine/backlog records.",
+    "knownLimits": [
+      "This card does not run extraction, browser automation, old agents, provider/model calls, or old-system runtime.",
+      "This card does not build the Strategy UI or Scoper implementation.",
+      "This card does not fake resolved-to-applied outcomes; it encodes the target and measures actual status separately.",
+      "This card does not write external systems, send messages, mutate credentials, mutate provider config, or change Drive permissions.",
+      "Downstream decision/doctrine application remains human-approved under DECISION-008 and action-route apply rules."
+    ]
+  },
+  {
+    "key": "system-004-live-capabilities-surface-v1",
+    "backlogIds": [
+      "SYSTEM-004"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "SYSTEM-004",
+        "system-004-live-capabilities-surface-v1"
+      ]
+    },
+    "systemArea": "Foundation capability surface",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact live capabilitySurface payload to /api/system-inventory and updated the existing System Inventory capability pages to render generated System Capabilities and Agent Inventory truth.",
+    "whatItDoes": "Uses lib/system-004-capabilities-surface.js and process:system-004-capabilities-surface-check to expose generated capability rows, current guarded agents, old-system agent evidence, governed jobs, and blocked provider/tool capability boundaries in the operator System Inventory surface.",
+    "whyItMatters": "Capability truth cannot stay buried in generated JSON or old static copy. Steve needs one visible place that says what the OS can use, what is guarded, what is evidence-only, and what is blocked before agent/runtime/extraction scale.",
+    "whereItLives": [
+      "lib/system-004-capabilities-surface.js",
+      "scripts/process-system-004-capabilities-surface-check.mjs",
+      "server.js /api/system-inventory capabilitySurface",
+      "public/foundation-system-inventory-renderers.js generated capability surface rendering",
+      "docs/process/system-004-live-capabilities-surface-plan.md",
+      "docs/process/approvals/SYSTEM-004.json",
+      "docs/_archive/handoffs/2026-05-19-system-004-live-capabilities-surface-closeout.md",
+      "package.json script process:system-004-capabilities-surface-check"
+    ],
+    "proofCommands": [
+      "node --check lib/system-004-capabilities-surface.js scripts/process-system-004-capabilities-surface-check.mjs public/foundation-system-inventory-renderers.js server.js",
+      "npm run process:system-004-capabilities-surface-check -- --close-card --json",
+      "curl -fsS http://localhost:3000/api/system-inventory",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SYSTEM-004 --planApprovalRef=docs/process/approvals/SYSTEM-004.json --closeoutKey=system-004-live-capabilities-surface-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SYSTEM-004 --closeoutKey=system-004-live-capabilities-surface-v1",
+      "npm run process:foundation-ship -- --card=SYSTEM-004 --planApprovalRef=docs/process/approvals/SYSTEM-004.json --closeoutKey=system-004-live-capabilities-surface-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval integrity, Plan Critic, generated Pillar 4 and Pillar 5 artifact backing, /api/system-inventory capabilitySurface wiring, renderer consumption markers, source/proof refs, provider/tool runtime blocking, agent runtime blocking, old-system evidence-only boundary, live backlog, Current Sprint, and closeout registry wiring.",
+    "reviewNext": "Continue LEGACY-SYSTEM-AUDIT-001 to line-read old systems and promote only durable rebuild truth.",
+    "knownLimits": [
+      "This card does not approve provider/tool runtime use.",
+      "This card does not approve live agent runtime.",
+      "This card does not import old-system code or prompts.",
+      "This card does not launch workers, scouts, model calls, extraction, source-system mutation, or external writes.",
+      "This card does not mutate credentials, provider config, Drive permissions, or public exposure.",
+      "This card does not start Value Builder split."
+    ]
+  },
+  {
+    "key": "pillar-5-agent-inventory-v1",
+    "backlogIds": [
+      "PILLAR-5-AGENT-INVENTORY-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "PILLAR-5-AGENT-INVENTORY-001",
+        "pillar-5-agent-inventory-v1"
+      ]
+    },
+    "systemArea": "Foundation agent inventory",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added generated Agent Inventory artifacts and a focused proof over current Foundation agent declarations, governed job definitions, old-system agent roster evidence, and old-system research/scout harvest truth.",
+    "whatItDoes": "Uses process:pillar-5-agent-inventory-check to generate docs/agents/agent-inventory.generated.json and docs/agents/agent-inventory.generated.md from lib/agent-capability-registry.js, lib/foundation-jobs.js, ~/bcrew-buddy-reference/dashboard/agent-data.json, docs/audits/2026-05-19-old-system-research-team-harvest.json, and Pillar 4 System Capabilities truth.",
+    "whyItMatters": "The old system had useful research/scout/team patterns, but stale agent status and prompt-only confidence created sprawl. Foundation needs one generated inventory that separates current guarded agents, old evidence rows, harvested skills, and governed jobs before agent/runtime scale.",
+    "whereItLives": [
+      "lib/pillar-5-agent-inventory.js",
+      "scripts/process-pillar-5-agent-inventory-check.mjs",
+      "docs/agents/agent-inventory.generated.json",
+      "docs/agents/agent-inventory.generated.md",
+      "docs/process/pillar-5-agent-inventory-001-plan.md",
+      "docs/process/approvals/PILLAR-5-AGENT-INVENTORY-001.json",
+      "docs/_archive/handoffs/2026-05-19-pillar-5-agent-inventory-closeout.md",
+      "package.json script process:pillar-5-agent-inventory-check"
+    ],
+    "proofCommands": [
+      "node --check lib/pillar-5-agent-inventory.js scripts/process-pillar-5-agent-inventory-check.mjs",
+      "npm run process:pillar-5-agent-inventory-check -- --write-report --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=PILLAR-5-AGENT-INVENTORY-001 --planApprovalRef=docs/process/approvals/PILLAR-5-AGENT-INVENTORY-001.json --closeoutKey=pillar-5-agent-inventory-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=PILLAR-5-AGENT-INVENTORY-001 --closeoutKey=pillar-5-agent-inventory-v1",
+      "npm run process:foundation-ship -- --card=PILLAR-5-AGENT-INVENTORY-001 --planApprovalRef=docs/process/approvals/PILLAR-5-AGENT-INVENTORY-001.json --closeoutKey=pillar-5-agent-inventory-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates generated JSON/Markdown equality with function output, source/proof refs on every current and legacy agent row, governed job rows, old WORKING status conversion to evidence-only, runtime approval blocking, old-code import blocking, private/secret leakage dogfood, live backlog, Current Sprint, approval integrity, and closeout registry wiring.",
+    "reviewNext": "Continue SYSTEM-004 to render generated capability and agent/job inventory truth in the operator surface.",
+    "knownLimits": [
+      "This card does not approve live agent runtime.",
+      "This card does not import old-system code or prompts.",
+      "This card does not launch hidden workers, run model calls, run extraction, mutate source systems, or perform external writes.",
+      "This card does not copy private profile content, team emails, chat IDs, raw memories, tokens, or secret values into generated artifacts.",
+      "This card does not build the System Capabilities UI surface; SYSTEM-004 owns that."
+    ]
+  },
+  {
+    "key": "pillar-4-system-capabilities-v1",
+    "backlogIds": [
+      "PILLAR-4-SYSTEM-CAPABILITIES-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "PILLAR-4-SYSTEM-CAPABILITIES-001",
+        "pillar-4-system-capabilities-v1"
+      ]
+    },
+    "systemArea": "Foundation capability inventory",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added generated System Capabilities artifacts and a focused proof over live Foundation source, route, job, runtime, provider/tool, and agent capability truth.",
+    "whatItDoes": "Uses process:pillar-4-system-capabilities-check to generate docs/system-capabilities.generated.json and docs/system-capabilities.generated.md from source contracts, connectors, grouped source systems, the Foundation surface map, job definitions, /api/system-inventory, Foundation-up provider/tool capability registry, and the agent capability registry.",
+    "whyItMatters": "Capability truth must not live in stale docs, chat claims, or hidden agent assumptions. Builders and future agents need source-backed capability rows with proof, owners, statuses, and approval boundaries.",
+    "whereItLives": [
+      "lib/pillar-4-system-capabilities.js",
+      "scripts/process-pillar-4-system-capabilities-check.mjs",
+      "docs/system-capabilities.generated.json",
+      "docs/system-capabilities.generated.md",
+      "docs/process/pillar-4-system-capabilities-001-plan.md",
+      "docs/process/approvals/PILLAR-4-SYSTEM-CAPABILITIES-001.json",
+      "docs/_archive/handoffs/2026-05-19-pillar-4-system-capabilities-closeout.md",
+      "package.json script process:pillar-4-system-capabilities-check"
+    ],
+    "proofCommands": [
+      "node --check lib/pillar-4-system-capabilities.js scripts/process-pillar-4-system-capabilities-check.mjs",
+      "npm run process:pillar-4-system-capabilities-check -- --write-report --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=PILLAR-4-SYSTEM-CAPABILITIES-001 --planApprovalRef=docs/process/approvals/PILLAR-4-SYSTEM-CAPABILITIES-001.json --closeoutKey=pillar-4-system-capabilities-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=PILLAR-4-SYSTEM-CAPABILITIES-001 --closeoutKey=pillar-4-system-capabilities-v1",
+      "npm run process:foundation-ship -- --card=PILLAR-4-SYSTEM-CAPABILITIES-001 --planApprovalRef=docs/process/approvals/PILLAR-4-SYSTEM-CAPABILITIES-001.json --closeoutKey=pillar-4-system-capabilities-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates live /api/system-inventory access, generated JSON/Markdown equality with function output, source/proof refs on every row, provider/tool runtime-use blocking, agent runtime blocking, private metadata boundary, secret leakage dogfood, live backlog, Current Sprint, approval integrity, and closeout registry wiring.",
+    "reviewNext": "Continue PILLAR-5-AGENT-INVENTORY-001 to generate the detailed agent inventory before agent/team scale.",
+    "knownLimits": [
+      "This card does not approve provider/tool runtime use.",
+      "This card does not approve live agent runtime.",
+      "This card does not build detailed agent inventory; PILLAR-5 owns that.",
+      "Generated artifacts summarize capability truth; operational details remain in the source registries and APIs."
+    ]
+  },
+  {
+    "key": "foundation-sprint-closeout-continuous-work-ready-v1",
+    "backlogIds": [
+      "FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001",
+        "foundation-sprint-closeout-continuous-work-ready-v1"
+      ]
+    },
+    "systemArea": "Foundation control",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the final Foundation-only sprint closeout gate and continuous-work readiness decision.",
+    "whatItDoes": "Uses process:foundation-sprint-closeout-continuous-work-ready-check to require green System Health, green repeated-failure gate, green backlog hygiene, green Current Sprint truth, completed required sprint cards, and clean/synced main before closing the sprint. It records the recommendation that continuous Foundation Builder can run under repair-first rules, while full Value Builder split is deferred until the next clean overnight/morning cycle or explicit Steve approval.",
+    "whyItMatters": "Steve needs the system to keep working without babysitting, but not by silently restarting parallel chaos. This closeout turns the end-of-sprint decision into proof-backed operating truth instead of chat memory.",
+    "whereItLives": [
+      "lib/foundation-sprint-closeout-continuous-work.js",
+      "scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs",
+      "docs/process/foundation-sprint-closeout-and-continuous-work-ready-001-plan.md",
+      "docs/process/approvals/FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-sprint-closeout-continuous-work-ready.md",
+      "package.json script process:foundation-sprint-closeout-continuous-work-ready-check"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-sprint-closeout-continuous-work.js scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs",
+      "npm run process:foundation-sprint-closeout-continuous-work-ready-check -- --apply --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run process:current-sprint-dynamic-truth-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001 --planApprovalRef=docs/process/approvals/FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001.json --closeoutKey=foundation-sprint-closeout-continuous-work-ready-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001 --closeoutKey=foundation-sprint-closeout-continuous-work-ready-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001 --planApprovalRef=docs/process/approvals/FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001.json --closeoutKey=foundation-sprint-closeout-continuous-work-ready-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates Plan Critic approval, final readiness dogfood, live System Health, repeated-failure action gate, backlog hygiene, Current Sprint truth, required-card closure, clean main, closeout registry, and no active blocker after close.",
+    "reviewNext": "Start the next sprint from morning audit truth; continuous Foundation Builder is ready under repair-first rules.",
+    "knownLimits": [
+      "This does not start Value Builder split by itself.",
+      "This does not approve broad private extraction, external writes, sends, permission mutation, credential mutation, paid/provider access, or browser-auth work.",
+      "This does not replace the morning raw-green audit.",
+      "This does not make historical failed job rows disappear; it requires current gates to be green and repeated failures resolved."
+    ]
+  },
+  {
+    "key": "foundation-operator-pulse-v1",
+    "backlogIds": [
+      "FOUNDATION-OPERATOR-PULSE-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-OPERATOR-PULSE-001",
+        "foundation-operator-pulse-v1"
+      ]
+    },
+    "systemArea": "Foundation control",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a local Steve-facing Foundation operator pulse API and Runtime Health panel, and tightened full diagnostics backlog payload size without dropping verifier-critical row shape.",
+    "whatItDoes": "Uses /api/foundation/operator-pulse and renderFoundationOperatorPulsePanel() to summarize System Health, repeated-failure status, Current Sprint, backlog hygiene, approvals, recent builds, recent changes, and the next card from live Foundation truth. The supporting hub-read route change trims expanded whyItMatters text from full diagnostics backlog rows while preserving the dedicated backlog detail route.",
+    "whyItMatters": "Steve needs the short operator answer before diagnostic detail: what is green, what needs repair, what needs approval, and what should run next. This keeps the sprint moving without hiding red health or relying on chat memory.",
+    "whereItLives": [
+      "lib/foundation-operator-pulse.js",
+      "lib/foundation-operator-routes.js /api/foundation/operator-pulse",
+      "lib/hub-read-routes.js full diagnostics backlog row compaction",
+      "public/foundation-data.js fetchFoundationOperatorPulse",
+      "public/foundation-runtime-renderers.js renderFoundationOperatorPulsePanel",
+      "public/foundation-operations-renderers.js Runtime Health placement",
+      "scripts/process-foundation-operator-pulse-check.mjs",
+      "docs/process/foundation-operator-pulse-001-plan.md",
+      "docs/process/approvals/FOUNDATION-OPERATOR-PULSE-001.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-operator-pulse-closeout.md",
+      "package.json script process:foundation-operator-pulse-check"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-operator-pulse.js lib/foundation-operator-routes.js public/foundation-runtime-renderers.js public/foundation-operations-renderers.js scripts/process-foundation-operator-pulse-check.mjs server.js",
+      "npm run process:foundation-operator-pulse-check -- --json",
+      "npm run process:foundation-hub-full-payload-reduce-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=FOUNDATION-OPERATOR-PULSE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-OPERATOR-PULSE-001.json --closeoutKey=foundation-operator-pulse-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-OPERATOR-PULSE-001 --closeoutKey=foundation-operator-pulse-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-OPERATOR-PULSE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-OPERATOR-PULSE-001.json --closeoutKey=foundation-operator-pulse-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval integrity, admin-gated API route, live source-backed inputs, Runtime Health placement, green/risk/watch dogfood states, local-only boundaries, and required operator summary cards.",
+    "reviewNext": "Continue WEB-GODMODE-001 if System Health and repeated-failure gates remain green.",
+    "knownLimits": [
+      "This does not send email, Telegram, Slack, or public messages.",
+      "This does not auto-fix code or mutate source systems.",
+      "This does not mutate credentials, provider config, keys, or Drive permissions.",
+      "This does not run broad/private extraction or paid/provider/browser-auth work.",
+      "This does not implement WEB-GODMODE-001."
+    ]
+  },
+  {
+    "key": "email-attachments-next-bite-v1",
+    "backlogIds": [
+      "EMAIL-ATTACHMENTS-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "EMAIL-ATTACHMENTS-001",
+        "email-attachments-next-bite-v1"
+      ]
+    },
+    "systemArea": "Foundation extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added bounded application/ics calendar invite text extraction to the Gmail attachment lane, added calendar retry prefixes to the target budget, and made explicitly retried skipped attachment rows take priority over fresh backlog.",
+    "whatItDoes": "Uses process:email-attachments-check to prove the scheduled email-attachments-backfill lane stays bounded/idempotent, supports Gmail PDF/text/calendar attachments, retires existing calendar_invite_not_in_v1 skips through a governed target run, and preserves explicit skip routing for images, Office files, spreadsheets, slides, audio, video, and other unsupported attachment classes.",
+    "whyItMatters": "Email attachment extraction is useful only when safe file types become source-backed artifacts and unsafe classes stay owned follow-up work. This slice turns calendar invite skips into local artifacts without sends, external writes, credential mutation, or broad private extraction.",
+    "whereItLives": [
+      "lib/email-attachments-next-bite.js",
+      "scripts/process-email-attachments-check.mjs",
+      "scripts/extract-email-attachments.mjs",
+      "scripts/run-extraction-target.mjs",
+      "scripts/seed-extraction-control.mjs",
+      "docs/process/email-attachments-001-plan.md",
+      "docs/process/approvals/EMAIL-ATTACHMENTS-001.json",
+      "docs/_archive/handoffs/2026-05-19-email-attachments-next-bite-closeout.md",
+      "package.json script process:email-attachments-check"
+    ],
+    "proofCommands": [
+      "node --check scripts/extract-email-attachments.mjs scripts/run-extraction-target.mjs lib/email-attachments-next-bite.js scripts/process-email-attachments-check.mjs",
+      "npm run process:email-attachments-check -- --apply --json",
+      "npm run extraction:target -- --target=email-attachments-backfill --force=true --actor=codex-email-attachments-ics-proof",
+      "npm run process:email-attachments-check -- --apply --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=EMAIL-ATTACHMENTS-001 --planApprovalRef=docs/process/approvals/EMAIL-ATTACHMENTS-001.json --closeoutKey=email-attachments-next-bite-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=EMAIL-ATTACHMENTS-001 --closeoutKey=email-attachments-next-bite-v1",
+      "npm run process:foundation-ship -- --card=EMAIL-ATTACHMENTS-001 --planApprovalRef=docs/process/approvals/EMAIL-ATTACHMENTS-001.json --closeoutKey=email-attachments-next-bite-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates Plan Critic approval, live email attachment target budget/state, application/ics extraction support, retry-skip prioritization, governed target run proof, System Health, repeated-failure gate, closeout registry, and Current Sprint advancement.",
+    "reviewNext": "Continue FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001.",
+    "knownLimits": [
+      "This does not send emails or external messages.",
+      "This does not mutate Gmail, Missive, Drive permissions, credentials, provider config, or keys.",
+      "This does not run broad historical private extraction outside the bounded target.",
+      "This does not add paid/provider/browser-auth extraction.",
+      "This does not implement OCR/images/audio/video/multimodal extraction.",
+      "This does not start Value Builder split."
+    ]
+  },
+  {
+    "key": "drive-content-next-bite-v1",
+    "backlogIds": [
+      "DRIVE-CONTENT-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "DRIVE-CONTENT-001",
+        "drive-content-next-bite-v1"
+      ]
+    },
+    "systemArea": "Foundation extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added bounded DOCX text extraction to the Drive content lane, added Office retry prefixes to the target budget, and made explicitly retried skipped rows take priority over fresh backlog.",
+    "whatItDoes": "Uses process:drive-content-check to prove the scheduled drive-content-extract-backfill lane stays bounded/idempotent, supports Google Docs/Sheets/PDF/text/markdown/DOCX, retires existing Office conversion skips through a governed target run, and preserves explicit skip routing for vision, video, shortcuts, forms, and drawings. DOCX outputs use the existing drive_document artifact type with DOCX extraction metadata.",
+    "whyItMatters": "Drive content is useful only when skipped file types become owned follow-up work or real extraction support. This slice turns safe DOCX skips into source-backed artifacts without permission mutation or broad Drive sweeps.",
+    "whereItLives": [
+      "lib/drive-content-next-bite.js",
+      "scripts/process-drive-content-check.mjs",
+      "scripts/extract-drive-content.mjs",
+      "scripts/run-extraction-target.mjs",
+      "lib/foundation-source-crawl-store.js",
+      "docs/process/drive-content-001-plan.md",
+      "docs/process/approvals/DRIVE-CONTENT-001.json",
+      "docs/_archive/handoffs/2026-05-19-drive-content-next-bite-closeout.md",
+      "package.json script process:drive-content-check"
+    ],
+    "proofCommands": [
+      "node --check scripts/extract-drive-content.mjs scripts/run-extraction-target.mjs lib/foundation-source-crawl-store.js lib/drive-content-next-bite.js scripts/process-drive-content-check.mjs",
+      "npm run process:drive-content-check -- --apply --json",
+      "npm run extraction:target -- --target=drive-content-extract-backfill --force=true --actor=codex-drive-content-docx-proof",
+      "npm run process:drive-content-check -- --apply --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DRIVE-CONTENT-001 --planApprovalRef=docs/process/approvals/DRIVE-CONTENT-001.json --closeoutKey=drive-content-next-bite-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DRIVE-CONTENT-001 --closeoutKey=drive-content-next-bite-v1",
+      "npm run process:foundation-ship -- --card=DRIVE-CONTENT-001 --planApprovalRef=docs/process/approvals/DRIVE-CONTENT-001.json --closeoutKey=drive-content-next-bite-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates Plan Critic approval, live Drive target budget/state, DOCX extraction support, retry-skip prioritization, governed target run proof, System Health, repeated-failure gate, closeout registry, and Current Sprint advancement.",
+    "reviewNext": "Continue EMAIL-ATTACHMENTS-001.",
+    "knownLimits": [
+      "This does not mutate Google Drive permissions.",
+      "This does not send request-access emails or perform external writes.",
+      "This does not run broad Drive sweeps outside the bounded target.",
+      "This does not add paid/provider/browser-auth extraction.",
+      "This does not implement OCR/vision/video/media extraction.",
+      "This does not start Value Builder split."
+    ]
+  },
+  {
+    "key": "extract-backfill-cursor-contract-v1",
+    "backlogIds": [
+      "EXTRACT-BACKFILL-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "EXTRACT-BACKFILL-001",
+        "extract-backfill-cursor-contract-v1"
+      ]
+    },
+    "systemArea": "Foundation extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added focused bounded historical backfill proof for Drive corpus inventory, Drive content extraction, email attachment extraction, video transcript extraction, and meeting transcript backlog processing. The proof also parks Skool, Zoom audio recovery, old-system report mining, and video link inventory with owner/reason/next trigger instead of stopping the sprint.",
+    "whatItDoes": "Uses buildExtractBackfillCursorContractStatus() to prove active historical lanes are scheduled daily quota missions with durable cursor/checkpoint state, bite-size caps, runtime caps, idempotent dedupe, latest governed job success, item-level proof, explicit skip reasons, and no hidden failed items.",
+    "whyItMatters": "Current-day lanes are only half the extraction story. Steve now has proof that working backward through history is controlled by cursors, quotas, skip/retry visibility, and parked approval boundaries before Drive content work expands coverage.",
+    "whereItLives": [
+      "lib/extract-backfill-cursor-contract.js",
+      "scripts/process-extract-backfill-check.mjs",
+      "docs/process/extract-backfill-001-plan.md",
+      "docs/process/approvals/EXTRACT-BACKFILL-001.json",
+      "docs/_archive/handoffs/2026-05-19-extract-backfill-cursor-contract-closeout.md",
+      "package.json script process:extract-backfill-check"
+    ],
+    "proofCommands": [
+      "node --check lib/extract-backfill-cursor-contract.js scripts/process-extract-backfill-check.mjs",
+      "npm run process:extract-backfill-check -- --apply --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=EXTRACT-BACKFILL-001 --planApprovalRef=docs/process/approvals/EXTRACT-BACKFILL-001.json --closeoutKey=extract-backfill-cursor-contract-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=EXTRACT-BACKFILL-001 --closeoutKey=extract-backfill-cursor-contract-v1",
+      "npm run process:foundation-ship -- --card=EXTRACT-BACKFILL-001 --planApprovalRef=docs/process/approvals/EXTRACT-BACKFILL-001.json --closeoutKey=extract-backfill-cursor-contract-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates Plan Critic approval, live extraction-control target/job state, bounded cursor/checkpoint contract, skip/retry visibility, parked approval-bound lanes, System Health, repeated-failure gate, closeout registry, and Current Sprint advancement.",
+    "reviewNext": "Continue DRIVE-CONTENT-001.",
+    "knownLimits": [
+      "This does not run broad historical extraction.",
+      "This does not send messages or perform external writes.",
+      "This does not mutate Drive permissions, credentials, provider config, or keys.",
+      "This does not add new source access, paid/provider access, or browser-auth work.",
+      "This does not start Value Builder split."
+    ]
+  },
+  {
+    "key": "extract-current-source-freshness-v1",
+    "backlogIds": [
+      "EXTRACT-CURRENT-001"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "EXTRACT-CURRENT-001",
+        "extract-current-source-freshness-v1"
+      ]
+    },
+    "systemArea": "Foundation extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added focused current-day source freshness proof for Gmail, Missive, meeting notes, Google Calendar, and Slack. The proof reads live extraction-control and Foundation job-ledger state, verifies cadence freshness and item-level crawl proof, and requires current-day failed items to be repaired to zero when governed recovery is safe.",
+    "whatItDoes": "Uses buildExtractCurrentSourceFreshnessStatus() to prove five current-day targets are active, scheduled, latest-success, fresh for their cadence, item-ledgered, and free of hidden failed items. The dogfood path rejects stale lanes, hidden partial failures, and unsafe approval-bound operations being presented as green.",
+    "whyItMatters": "Backfill and richer extraction are only useful if today stays fresh. Steve can now see that the current-day source lanes are green before the system works backward through history.",
+    "whereItLives": [
+      "lib/extract-current-source-freshness.js",
+      "scripts/process-extract-current-check.mjs",
+      "docs/process/extract-current-001-plan.md",
+      "docs/process/approvals/EXTRACT-CURRENT-001.json",
+      "docs/_archive/handoffs/2026-05-19-extract-current-source-freshness-closeout.md",
+      "package.json script process:extract-current-check"
+    ],
+    "proofCommands": [
+      "node --check lib/extract-current-source-freshness.js scripts/process-extract-current-check.mjs",
+      "npm run process:extract-current-check -- --apply --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=EXTRACT-CURRENT-001 --planApprovalRef=docs/process/approvals/EXTRACT-CURRENT-001.json --closeoutKey=extract-current-source-freshness-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=EXTRACT-CURRENT-001 --closeoutKey=extract-current-source-freshness-v1",
+      "npm run process:foundation-ship -- --card=EXTRACT-CURRENT-001 --planApprovalRef=docs/process/approvals/EXTRACT-CURRENT-001.json --closeoutKey=extract-current-source-freshness-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates Plan Critic approval, live current-day target/job state, cadence freshness, item-level proof, failed-item retry recovery, System Health, repeated-failure gate, closeout registry, and Current Sprint advancement.",
+    "reviewNext": "Continue EXTRACT-BACKFILL-001.",
+    "knownLimits": [
+      "This does not run broad historical extraction.",
+      "This does not send messages or perform external writes.",
+      "This does not mutate Drive permissions, credentials, provider config, or keys.",
+      "This does not add new source access, paid/provider access, or browser-auth work.",
+      "This does not start Value Builder split."
+    ]
+  },
+  {
+    "key": "source-018-google-gemini-meeting-notes-contract-v1",
+    "backlogIds": [
+      "SOURCE-018"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-018",
+        "source-018-google-gemini-meeting-notes-contract-v1"
+      ]
+    },
+    "systemArea": "Source contracts and meeting notes",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Closed the Google Gemini meeting notes source contract for current Foundation/Steve owner use while keeping broad raw transcript, team/agent query access, Drive permission mutation, meeting-video understanding, and broad historical extraction out of scope.",
+    "whatItDoes": "Marks SRC-MEETINGS-001 as Signed Off For Current Reality, proves current-day meeting-note sync and transcript-extraction job state, checks metadata-only meeting note/transcript artifact coverage, keeps transcript candidate extraction tied to transcript evidence, and reuses the meeting vault no-duplicate/no-Drive-write proof.",
+    "whyItMatters": "Extraction work can now depend on a clear meeting-note source boundary. Steve can use current meeting notes/transcripts as Foundation evidence without confusing owner-usable archives with broad raw transcript access or future team/agent query permission.",
+    "whereItLives": [
+      "lib/source-018-google-gemini-meeting-notes-contract.js",
+      "lib/source-contracts.js",
+      "lib/source-lifecycle-completion.js",
+      "docs/source-registry.md",
+      "docs/source-notes/shared-communications.md",
+      "scripts/process-source-018-check.mjs",
+      "docs/process/source-018-google-gemini-meeting-notes-contract-plan.md",
+      "docs/process/approvals/SOURCE-018.json",
+      "docs/_archive/handoffs/2026-05-19-source-018-google-gemini-meeting-notes-contract-closeout.md",
+      "package.json script process:source-018-check"
+    ],
+    "proofCommands": [
+      "node --check lib/source-018-google-gemini-meeting-notes-contract.js lib/source-contracts.js lib/source-lifecycle-completion.js scripts/process-source-018-check.mjs",
+      "npm run process:source-018-check -- --apply --close-card --json",
+      "npm run source-contract-registry:sync -- --apply --actor=codex-source-018 --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-018 --planApprovalRef=docs/process/approvals/SOURCE-018.json --closeoutKey=source-018-google-gemini-meeting-notes-contract-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-018 --closeoutKey=source-018-google-gemini-meeting-notes-contract-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-018 --planApprovalRef=docs/process/approvals/SOURCE-018.json --closeoutKey=source-018-google-gemini-meeting-notes-contract-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, source contract semantics, source lifecycle boundary, live meeting target/job metadata, meeting artifact counts, transcript-evidence dogfood, System Health, repeated-failure gate, closeout registry, and Current Sprint advancement.",
+    "reviewNext": "Continue EXTRACT-CURRENT-001.",
+    "knownLimits": [
+      "This does not mutate Google Drive permissions.",
+      "This does not expose raw transcripts to broad team or agent query surfaces.",
+      "This does not approve future team/agent meeting-query access.",
+      "This does not run broad historical meeting extraction.",
+      "This does not start Value Builder split."
+    ]
+  },
+  {
+    "key": "source-012-source-connector-live-layers-v1",
+    "backlogIds": [
+      "SOURCE-012"
+    ],
+    "operatorCloseout": true,
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-012",
+        "source-012-source-connector-live-layers-v1"
+      ]
+    },
+    "systemArea": "Source contracts and connectors",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the live source/connector layer model to /api/source-of-truth and rendered it on Data Sources so source contracts, connector reach, trust, freshness/drift, and dependencies are visible as separate layers.",
+    "whatItDoes": "Builds compact source rows with source status, connector status, trust status, freshness status, drift status, owner, direct source links, dependent systems, and connector IDs. Connector rows carry connector status and an explicit trust boundary. Dogfood proves a working connector can support trusted and untrusted sources without upgrading trust.",
+    "whyItMatters": "Source/extract work should not expand on fuzzy source truth. Steve can now tell whether a source is trusted, merely readable, technically connected, stale/watch, blocked, or depended on by a system without treating connector access as business truth.",
+    "whereItLives": [
+      "lib/source-012-source-connector-layers.js",
+      "lib/source-of-truth-payload.js",
+      "public/foundation-source-registry-renderers.js",
+      "public/foundation.js",
+      "scripts/process-source-012-check.mjs",
+      "docs/process/source-012-source-connector-live-layers-plan.md",
+      "docs/process/approvals/SOURCE-012.json",
+      "docs/_archive/handoffs/2026-05-19-source-012-source-connector-live-layers-closeout.md",
+      "package.json script process:source-012-check"
+    ],
+    "proofCommands": [
+      "node --check lib/source-012-source-connector-layers.js lib/source-of-truth-payload.js public/foundation-source-registry-renderers.js public/foundation.js scripts/process-source-012-check.mjs",
+      "npm run process:source-012-check -- --apply --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-012 --planApprovalRef=docs/process/approvals/SOURCE-012.json --closeoutKey=source-012-source-connector-live-layers-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-012 --closeoutKey=source-012-source-connector-live-layers-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-012 --planApprovalRef=docs/process/approvals/SOURCE-012.json --closeoutKey=source-012-source-connector-live-layers-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, source-layer dogfood, live /api/source-of-truth layer counts, Data Sources rendering, System Health, repeated-failure gate, closeout registry, and Current Sprint advancement.",
+    "reviewNext": "Continue SOURCE-018 before EXTRACT-CURRENT-001.",
+    "knownLimits": [
+      "This does not run extraction.",
+      "This does not add new connectors or source access.",
+      "This does not mutate source data, credentials, provider config, Drive permissions, or external systems.",
+      "This does not redesign Data Sources beyond one compact layer summary panel."
+    ]
+  }
+]

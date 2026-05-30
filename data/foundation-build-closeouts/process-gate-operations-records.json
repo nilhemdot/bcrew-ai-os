@@ -1,0 +1,1402 @@
+[
+  {
+    "key": "verify-gate-tiering-v1",
+    "backlogIds": [
+      "VERIFY-GATE-TIERING-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "VERIFY-GATE-TIERING-001"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added proportional verification tiers for protected Foundation changes: static, focused, and full.",
+    "whatItDoes": "Lets bounded docs, Current Sprint, process-proof, and Foundation/Ops surface changes pass pre-push with a recorded focused proof while keeping full-risk substrate changes on the full Foundation ship gate.",
+    "whyItMatters": "Automatic proof still holds, but small safe changes no longer pay the full verifier cost every time or rely on informal bypasses.",
+    "whereItLives": [
+      "Current Sprint",
+      "lib/process-verify-gate-tiering.js",
+      "scripts/process-verify-gate-tiering-check.mjs",
+      "lib/process-git-hooks.js",
+      "docs/process/verify-gate-tiering-001-plan.md"
+    ],
+    "proofCommands": [
+      "npm run process:verify-gate-tiering-check -- --json=true",
+      "npm run backlog:hygiene -- --json"
+    ],
+    "proofStatus": "Focused verification tiering proof passed; backlog hygiene reported healthy with 354 cards and 0 findings.",
+    "reviewNext": "Use the focused proof for bounded non-full changes; pull REBUILD-PLAN-RECONCILE-001 next.",
+    "knownLimits": [
+      "This is not the VERIFIER-BEHAVIOR-SWEEP-001 cleanup.",
+      "Full-risk paths still require process:foundation-ship or an explicit card/reason bypass.",
+      "The bootstrap commit touches package/backlog seed files, so the old full-risk protection still applies to that ship."
+    ]
+  },
+  {
+    "key": "foundation-verify-gate-tiering-finish-v1",
+    "backlogIds": [
+      "FOUNDATION-VERIFY-GATE-TIERING-FINISH-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-VERIFY-GATE-TIERING-FINISH-001",
+        "foundation-verify-gate-tiering-finish-v1",
+        "Finish verifier gate deletion tiering"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Finished the tune-up verifier tiering gap by making protected Foundation file deletions classify as full-gate work and by recording focused proof from the actual HEAD diff.",
+    "whatItDoes": "Keeps docs/process/hook edits on the fast focused path, while preventing deleted verifier, approval, plan, or process files from passing as focused work or producing `node --check` commands for files that no longer exist.",
+    "whyItMatters": "The audit warned that bulk verifier cleanup can crash gates when named files vanish. This makes cleanup wait for the full repoint/ship path instead of relying on Steve or a builder to catch the deletion manually.",
+    "whereItLives": [
+      "lib/process-verify-gate-tiering.js deletion-aware classifier",
+      "scripts/process-verify-gate-tiering-check.mjs HEAD-diff proof recording",
+      "docs/process/foundation-verify-gate-tiering-finish-001-plan.md",
+      "docs/process/approvals/FOUNDATION-VERIFY-GATE-TIERING-FINISH-001.json",
+      "Foundation tune-up Current Sprint active card"
+    ],
+    "proofCommands": [
+      "node --check lib/process-verify-gate-tiering.js scripts/process-verify-gate-tiering-check.mjs lib/process-git-hooks.js",
+      "npm run process:verify-gate-tiering-check -- --json=true",
+      "npm run process:foundation-tuneup-roadmap-check -- --json",
+      "npm run process:builder-memory-system-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-VERIFY-GATE-TIERING-FINISH-001 --planApprovalRef=docs/process/approvals/FOUNDATION-VERIFY-GATE-TIERING-FINISH-001.json --closeoutKey=foundation-verify-gate-tiering-finish-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-VERIFY-GATE-TIERING-FINISH-001 --closeoutKey=foundation-verify-gate-tiering-finish-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-VERIFY-GATE-TIERING-FINISH-001 --planApprovalRef=docs/process/approvals/FOUNDATION-VERIFY-GATE-TIERING-FINISH-001.json --closeoutKey=foundation-verify-gate-tiering-finish-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof has 9 synthetic cases, including deleted protected checker -> full gate with no missing-file node check; roadmap, startup packet, backlog hygiene, and foundation:verify pass 519/519 after restart.",
+    "reviewNext": "Continue Phase 3 cleanup prerequisites without deleting files first. Safe next unattended card is SOURCE-MATURITY-REPAIR-COLLAPSE-001 scoping/engine work or FOUNDATION-ORPHAN-SCRIPT-REVIEW-001 review-only; keep FOUNDATION-HUB-FOLDER-ISOLATION-001 parked for Steve checkpoint.",
+    "knownLimits": [
+      "This does not archive or delete any verifier, approval, plan, check, closeout, source/browser proof, route-policy, source-session readiness, or Dev Hub System Truth file.",
+      "This does not start the per-hub folder restructure.",
+      "This does not collapse source-maturity repair clones, closeout records-as-code, oversized frontend files, or done-semantics labeling.",
+      "This does not mutate Drive permissions, source rows, browser/session state, atoms/vectors, or external systems."
+    ]
+  },
+  {
+    "key": "source-maturity-repair-collapse-v1",
+    "backlogIds": [
+      "SOURCE-MATURITY-REPAIR-COLLAPSE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-MATURITY-REPAIR-COLLAPSE-001",
+        "source-maturity-repair-collapse-v1",
+        "Collapse source-maturity repair clones into one engine",
+        "Collapse source maturity repair proofs"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation source-maturity process",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a shared source-maturity repair collapse V1 manifest and reusable proof engine for the existing repair/check clone families.",
+    "whatItDoes": "Classifies the current source-maturity repair/check surface into contract, trust, monitoring, evidence, atom-flow, routing, and gap-followup families, then proves one legacy synthetic failure/pass fixture from each family through one shared evaluator.",
+    "whyItMatters": "The audit found source-maturity repair clones as a major copy-paste bloat surface. V1 gives future builders a single control point and proof path before any wrapper migration or archive work.",
+    "whereItLives": [
+      "lib/source-maturity-repair-collapse.js shared family manifest and evaluator",
+      "scripts/process-source-maturity-repair-collapse-check.mjs reusable focused proof/checker",
+      "docs/process/source-maturity-repair-collapse-001-plan.md approved V1 plan",
+      "docs/process/approvals/SOURCE-MATURITY-REPAIR-COLLAPSE-001.json approval artifact",
+      "package.json process:source-maturity-repair-collapse-check command",
+      "Foundation tune-up Current Sprint active-card closeout"
+    ],
+    "proofCommands": [
+      "node --check lib/source-maturity-repair-collapse.js",
+      "node --check scripts/process-source-maturity-repair-collapse-check.mjs",
+      "npm run process:source-maturity-repair-collapse-check -- --apply --stage=building_now --json",
+      "npm run process:source-maturity-repair-collapse-check -- --close-card --json",
+      "npm run process:foundation-tuneup-roadmap-check -- --json",
+      "npm run process:builder-memory-system-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-MATURITY-REPAIR-COLLAPSE-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-REPAIR-COLLAPSE-001.json --closeoutKey=source-maturity-repair-collapse-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-MATURITY-REPAIR-COLLAPSE-001 --closeoutKey=source-maturity-repair-collapse-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-MATURITY-REPAIR-COLLAPSE-001 --planApprovalRef=docs/process/approvals/SOURCE-MATURITY-REPAIR-COLLAPSE-001.json --closeoutKey=source-maturity-repair-collapse-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof classifies 37 source-maturity repair wrappers and 37 checks across 7 families, measures 32,629 lines, runs 7/7 legacy family fixtures, and proves no deletion, source-row mutation, extraction, browser/session, atom/vector, Drive permission, or external-write path.",
+    "reviewNext": "Continue the tune-up cleanup sequence with closeout records-as-data or a separate wrapper-migration card. Keep FOUNDATION-HUB-FOLDER-ISOLATION-001 parked for Steve checkpoint.",
+    "knownLimits": [
+      "This is V1 manifest/control collapse. It does not delete, archive, move, or thin the old source-maturity wrapper/check files yet.",
+      "Wrapper migration/archive needs a separate follow-up card that repoints gates first and proves named check paths do not break.",
+      "This does not start the per-hub folder restructure.",
+      "This does not mutate source rows, extraction targets, browser/session state, atoms/vectors, Drive permissions, or external systems.",
+      "This does not touch the real source/browser proof lane, local-browser route policy, source-session readiness, or Dev Hub System Truth posture."
+    ]
+  },
+  {
+    "key": "foundation-closeout-records-data-store-v1",
+    "backlogIds": [
+      "FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001",
+        "foundation-closeout-records-data-store-v1",
+        "Move closeout records to data artifact"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation build log / closeout data source",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the first closeout records-as-data storage slice: source-newsletter closeout records now live in a JSON artifact loaded through a reusable validated loader.",
+    "whatItDoes": "Keeps the existing JS export surface intact while moving one closeout family out of hand-written JS literals, validating the artifact schema, preserving Build Log/source visibility, and proving fanout still resolves migrated closeout keys.",
+    "whyItMatters": "The audit found closeout records-as-code as a major bloat surface. This V1 proves the migration pattern on one small family before touching large registry groups.",
+    "whereItLives": [
+      "data/foundation-build-closeouts/source-newsletter-records.json migrated source-newsletter closeout artifact",
+      "lib/foundation-build-closeout-data-artifacts.js reusable JSON artifact loader and validator",
+      "lib/foundation-build-closeout-source-newsletter-records.js thin compatibility wrapper",
+      "lib/foundation-closeout-records-data-store.js card constants and focused snapshot proof",
+      "scripts/process-foundation-closeout-records-data-store-check.mjs reusable focused proof/checker",
+      "lib/foundation-build-log-source.js source visibility includes migrated JSON artifacts"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-build-closeout-data-artifacts.js",
+      "node --check lib/foundation-closeout-records-data-store.js",
+      "node --check scripts/process-foundation-closeout-records-data-store-check.mjs",
+      "npm run process:foundation-closeout-records-data-store-check -- --apply --stage=building_now --json",
+      "npm run process:foundation-closeout-records-data-store-check -- --close-card --json",
+      "npm run process:build-closeout-data-source-check -- --json",
+      "npm run process:build-closeout-registry-extract-check -- --json",
+      "npm run process:foundation-tuneup-roadmap-check -- --json",
+      "npm run process:builder-memory-system-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001.json --closeoutKey=foundation-closeout-records-data-store-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001 --closeoutKey=foundation-closeout-records-data-store-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001.json --closeoutKey=foundation-closeout-records-data-store-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the migrated JSON artifact has 6 records, rejects malformed and duplicate-key fixtures, keeps the JS wrapper at 6 lines, preserves 554 Build Log closeouts with zero invalid closeout keys or ownership overlaps, and proves registry source visibility includes the migrated artifact.",
+    "reviewNext": "Continue with oversized-file split work, or scope a separate follow-up to migrate the next closeout family. Keep FOUNDATION-HUB-FOLDER-ISOLATION-001 parked for Steve checkpoint.",
+    "knownLimits": [
+      "This migrates only the source-newsletter closeout family.",
+      "This does not migrate all closeout record families, create a closeout DB table, redesign Recent Builds, or delete closeout history.",
+      "This does not delete verifier, approval, plan, check, or closeout files.",
+      "This does not start the per-hub folder restructure.",
+      "This does not mutate source rows, extraction targets, browser/session state, atoms/vectors, Drive permissions, credentials, or external systems.",
+      "This does not touch the real source/browser proof lane, local-browser route policy, source-session readiness, or Dev Hub System Truth posture."
+    ]
+  },
+  {
+    "key": "foundation-oversized-file-split-wave-v1",
+    "backlogIds": [
+      "FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001",
+        "foundation-oversized-file-split-wave-v1",
+        "Split Dev CSS oversized file"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation frontend architecture",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split the oversized Dev Hub CSS surface into ordered Dev core, YouTube/source intelligence, and source/approval/responsive CSS modules.",
+    "whatItDoes": "Keeps the existing Dev page route and visual behavior while moving active styling ownership out of one 4,998-line file and updating the focused proofs to read the same CSS bundle the page loads.",
+    "whyItMatters": "The audit flagged oversized files as edit blockers. This V1 lowers frontend collision risk without starting the larger per-hub restructure or weakening the source/browser proof lane.",
+    "whereItLives": [
+      "public/dev.css Dev core CSS after split",
+      "public/dev-youtube-source.css YouTube/source intelligence CSS",
+      "public/dev-source-approval.css approval/source leaderboard/responsive CSS",
+      "public/dev.html ordered CSS bundle links",
+      "lib/foundation-oversized-file-split-wave.js card constants and focused snapshot proof",
+      "scripts/process-foundation-oversized-file-split-wave-check.mjs focused proof/checker"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-oversized-file-split-wave.js",
+      "node --check scripts/process-foundation-oversized-file-split-wave-check.mjs",
+      "node --check scripts/process-dev-team-hub-v0-check.mjs",
+      "node --check scripts/process-source-session-readiness-check.mjs",
+      "node --check scripts/process-source-family-god-mode-extractors-check.mjs",
+      "node --check scripts/process-dev-page-system-truth-cleanup-check.mjs",
+      "npm run process:foundation-oversized-file-split-wave-check -- --apply --stage=building_now --json",
+      "npm run process:foundation-oversized-file-split-wave-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:source-session-readiness-check -- --json",
+      "npm run process:source-family-god-mode-extractors-check -- --json",
+      "npm run process:dev-page-system-truth-cleanup-check -- --json",
+      "npm run process:foundation-tuneup-roadmap-check -- --json",
+      "npm run process:builder-memory-system-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001.json --closeoutKey=foundation-oversized-file-split-wave-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001 --closeoutKey=foundation-oversized-file-split-wave-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001.json --closeoutKey=foundation-oversized-file-split-wave-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof measures public/dev.css at 3,109 lines with two bounded CSS modules, proves HTML load order, rejects unsplit oversized and missing-selector fixtures, registers the next non-hub tune-up blockers for historical progression checks, and runs existing Dev Hub/source-session/source-family/System Truth bundle checks before full Foundation ship.",
+    "reviewNext": "Continue the tune-up cleanup sequence with FOUNDATION-DONE-SEMANTICS-REPAIR-001. Keep FOUNDATION-HUB-FOLDER-ISOLATION-001 parked for Steve checkpoint.",
+    "knownLimits": [
+      "This splits only public/dev.css. It does not split scripts/foundation-verify.mjs, lib/dev-team-hub.js, public/dev.js, or the remaining oversized files.",
+      "This does not redesign the Dev page or change runtime behavior.",
+      "This does not delete verifier, approval, plan, check, or closeout files.",
+      "This does not start the per-hub folder restructure.",
+      "This does not mutate source rows, extraction targets, browser/session state, atoms/vectors, Drive permissions, credentials, or external systems.",
+      "This does not touch the real source/browser proof lane, local-browser route policy, source-session readiness, or Dev Hub System Truth posture."
+    ]
+  },
+  {
+    "key": "foundation-done-semantics-repair-v1",
+    "backlogIds": [
+      "FOUNDATION-DONE-SEMANTICS-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DONE-SEMANTICS-REPAIR-001",
+        "foundation-done-semantics-repair-v1",
+        "Repair done semantics"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation backlog truth",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added computed done-outcome semantics to backlog list, done archive, single-card detail, and Foundation UI readback.",
+    "whatItDoes": "Classifies done rows as behavior-proven, V1 contract, preflight/contract, blocked/waiting, blocked preflight, or done-needs-review so limiting language cannot masquerade as feature-complete.",
+    "whyItMatters": "The audit found done rows with V1, preflight, blocked, pending, and approval-bound language. Steve needs done to mean the right kind of done without remembering chat context.",
+    "whereItLives": [
+      "lib/foundation-backlog-detail.js done semantics classifier and summary",
+      "public/foundation.js Done Outcome readback in backlog accordion rows",
+      "lib/foundation-done-semantics-repair.js focused snapshot and dogfood proof",
+      "scripts/process-foundation-done-semantics-repair-check.mjs focused proof/checker"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-backlog-detail.js",
+      "node --check public/foundation.js",
+      "node --check lib/foundation-done-semantics-repair.js",
+      "node --check scripts/process-foundation-done-semantics-repair-check.mjs",
+      "npm run process:foundation-done-semantics-repair-check -- --apply --stage=building_now --json",
+      "npm run process:foundation-done-semantics-repair-check -- --close-card --json",
+      "npm run process:foundation-tuneup-roadmap-check -- --json",
+      "npm run process:builder-memory-system-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-DONE-SEMANTICS-REPAIR-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DONE-SEMANTICS-REPAIR-001.json --closeoutKey=foundation-done-semantics-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-DONE-SEMANTICS-REPAIR-001 --closeoutKey=foundation-done-semantics-repair-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DONE-SEMANTICS-REPAIR-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DONE-SEMANTICS-REPAIR-001.json --closeoutKey=foundation-done-semantics-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods blocked-preflight, preflight-only, bounded V1, behavior-proven, unclear, and not-done fixtures; checks live backlog list/archive/detail summaries and UI readback; blocks V1/preflight/blocked/unclear rows from feature-complete claims.",
+    "reviewNext": "Continue the tune-up cleanup sequence with FOUNDATION-ORPHAN-SCRIPT-REVIEW-001. Keep FOUNDATION-HUB-FOLDER-ISOLATION-001 parked for Steve checkpoint.",
+    "knownLimits": [
+      "This does not rewrite historical backlog rows; it adds computed readback semantics over existing text.",
+      "This does not prove every old done card is behavior-complete; unclear rows remain review candidates.",
+      "This does not delete verifier, approval, plan, check, closeout, or source files.",
+      "This does not start the per-hub folder restructure.",
+      "This does not mutate source rows, extraction targets, browser/session state, atoms/vectors, Drive permissions, credentials, or external systems.",
+      "This does not touch the real source/browser proof lane, local-browser route policy, source-session readiness, or Dev Hub System Truth posture."
+    ]
+  },
+  {
+    "key": "foundation-orphan-script-review-v1",
+    "backlogIds": [
+      "FOUNDATION-ORPHAN-SCRIPT-REVIEW-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-ORPHAN-SCRIPT-REVIEW-001",
+        "foundation-orphan-script-review-v1",
+        "Review orphan scripts without deleting first"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation process cleanup",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a no-delete orphan-script review manifest and proof for the audit-named script candidates.",
+    "whatItDoes": "Records owner-backed keep decisions for codex-chat, codex-status, doc index generation, weekly actuals inspection, paid-source browser mapping, and Zoom text archive sync scripts without moving or deleting files.",
+    "whyItMatters": "The audit warned that file-level orphan signal is noisy. This prevents a useful local operator tool or source/browser proof script from being removed just because imports do not point at it.",
+    "whereItLives": [
+      "lib/foundation-orphan-script-review.js candidate manifest, evaluator, and dogfood proof",
+      "scripts/process-foundation-orphan-script-review-check.mjs focused proof/checker",
+      "docs/process/foundation-orphan-script-review-001-plan.md approved V1 plan",
+      "docs/process/approvals/FOUNDATION-ORPHAN-SCRIPT-REVIEW-001.json approval artifact",
+      "Foundation tune-up Current Sprint active-card closeout"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-orphan-script-review.js",
+      "node --check scripts/process-foundation-orphan-script-review-check.mjs",
+      "npm run process:foundation-orphan-script-review-check -- --apply --stage=building_now --json",
+      "npm run process:foundation-orphan-script-review-check -- --close-card --json",
+      "npm run process:foundation-tuneup-roadmap-check -- --json",
+      "npm run process:builder-memory-system-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-ORPHAN-SCRIPT-REVIEW-001 --planApprovalRef=docs/process/approvals/FOUNDATION-ORPHAN-SCRIPT-REVIEW-001.json --closeoutKey=foundation-orphan-script-review-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-ORPHAN-SCRIPT-REVIEW-001 --closeoutKey=foundation-orphan-script-review-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-ORPHAN-SCRIPT-REVIEW-001 --planApprovalRef=docs/process/approvals/FOUNDATION-ORPHAN-SCRIPT-REVIEW-001.json --closeoutKey=foundation-orphan-script-review-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof keeps 7/7 named scripts with owner/classification/reference rationale, protects codex-status and paid-source browser proof, identifies Zoom text sync as write-capable manual archive sync, and rejects protected delete-first plus unsupported keep fixtures.",
+    "reviewNext": "Continue the tune-up sequence with FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001 if Steve wants safe unattended cleanup. Keep FOUNDATION-HUB-FOLDER-ISOLATION-001 parked for Steve checkpoint.",
+    "knownLimits": [
+      "This does not delete, archive, rename, or move any script.",
+      "This does not repoint package scripts or verifier gates away from existing script paths.",
+      "This does not make sync-zoom-text-archive.mjs dry-run-by-default; it only names the write-capable posture for future review.",
+      "This does not start the per-hub folder restructure.",
+      "This does not work MEETING-VAULT-ACL-001 Phase B.",
+      "This does not mutate source rows, extraction targets, browser/session state, atoms/vectors, Drive permissions, credentials, or external systems.",
+      "This does not touch the real source/browser proof lane, local-browser route policy, source-session readiness, or Dev Hub System Truth posture."
+    ]
+  },
+  {
+    "key": "foundation-doc-consolidation-truth-archive-v1",
+    "backlogIds": [
+      "FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001",
+        "foundation-doc-consolidation-truth-archive-v1",
+        "Classify docs without deleting useful material"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation process cleanup",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a no-delete doc classification proof for canonical truth, supporting docs, active handoffs/audits, plan history, and archive buckets.",
+    "whatItDoes": "Turns the doc-consolidation audit item into a runnable readback that scans tracked markdown, preserves archive material, and lists bounded competing current-truth language for later review.",
+    "whyItMatters": "Steve can keep useful handoffs, audits, and source notes without letting old markdown masquerade as current operating truth.",
+    "whereItLives": [
+      "lib/foundation-doc-consolidation-truth-archive.js classification snapshot and dogfood proof",
+      "scripts/process-foundation-doc-consolidation-truth-archive-check.mjs focused proof/checker",
+      "docs/process/foundation-doc-consolidation-truth-archive-001-plan.md approved V1 plan",
+      "docs/process/approvals/FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001.json approval artifact",
+      "Foundation tune-up Current Sprint active-card closeout"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-doc-consolidation-truth-archive.js",
+      "node --check scripts/process-foundation-doc-consolidation-truth-archive-check.mjs",
+      "npm run process:foundation-doc-consolidation-truth-archive-check -- --json",
+      "npm run process:foundation-doc-consolidation-truth-archive-check -- --apply --stage=building_now --json",
+      "npm run process:foundation-doc-consolidation-truth-archive-check -- --close-card --json",
+      "npm run process:foundation-tuneup-roadmap-check -- --json",
+      "npm run process:builder-memory-system-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001.json --closeoutKey=foundation-doc-consolidation-truth-archive-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001 --closeoutKey=foundation-doc-consolidation-truth-archive-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DOC-CONSOLIDATION-TRUTH-ARCHIVE-001.json --closeoutKey=foundation-doc-consolidation-truth-archive-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof scans tracked markdown from git truth, preserves archive and active handoff/audit groups, classifies explicit canonical paths, and dogfoods canonical/archive/stale-current behavior without moving or deleting docs.",
+    "reviewNext": "Continue with FOUNDATION-TUNEUP-REMAP-PROOF-001 to measure the tune-up before any per-hub restructure. Keep FOUNDATION-HUB-FOLDER-ISOLATION-001 parked for Steve checkpoint.",
+    "knownLimits": [
+      "This does not delete, archive, rename, move, or rewrite any doc.",
+      "This does not consolidate doc content into fewer files yet; it creates the classification/readback guard first.",
+      "This does not decide every stale-current wording candidate; it lists bounded review candidates for follow-up.",
+      "This does not start the per-hub folder restructure.",
+      "This does not work MEETING-VAULT-ACL-001 Phase B.",
+      "This does not mutate source rows, extraction targets, browser/session state, atoms/vectors, Drive permissions, credentials, or external systems.",
+      "This does not touch the real source/browser proof lane, local-browser route policy, source-session readiness, or Dev Hub System Truth posture."
+    ]
+  },
+  {
+    "key": "foundation-tuneup-remap-proof-v1",
+    "backlogIds": [
+      "FOUNDATION-TUNEUP-REMAP-PROOF-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-TUNEUP-REMAP-PROOF-001",
+        "foundation-tuneup-remap-proof-v1",
+        "Capture tune-up before/after remap proof"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation process cleanup",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a read-only tune-up remap proof that compares the audit baselines to live repo facts after the overnight cleanup sequence.",
+    "whatItDoes": "Runs the AIOS-owned codebase map, counts remaining Foundation DB facade imports, checks Dev CSS split evidence, lists remaining oversized files, and leaves the per-hub restructure checkpoint-only.",
+    "whyItMatters": "Steve gets a measurable morning before/after read instead of trusting chat claims that the repo got leaner.",
+    "whereItLives": [
+      "lib/foundation-tuneup-remap-proof.js before/after snapshot and dogfood proof",
+      "scripts/process-foundation-tuneup-remap-proof-check.mjs focused proof/checker",
+      "docs/process/foundation-tuneup-remap-proof-001-plan.md approved V1 plan",
+      "docs/process/approvals/FOUNDATION-TUNEUP-REMAP-PROOF-001.json approval artifact",
+      "lib/agentic-codebase-map.js script visibility repair for current Source Browser proof commands",
+      "lib/foundation-verify-coverage-card-ids.js progression registry entry for the per-hub checkpoint",
+      "Foundation tune-up Current Sprint checkpoint handoff"
+    ],
+    "proofCommands": [
+      "node --check lib/agentic-codebase-map.js",
+      "node --check lib/foundation-tuneup-remap-proof.js",
+      "node --check scripts/process-foundation-tuneup-remap-proof-check.mjs",
+      "npm run process:agentic-codebase-map-check -- --json",
+      "npm run process:foundation-tuneup-remap-proof-check -- --json",
+      "npm run process:foundation-tuneup-remap-proof-check -- --apply --stage=building_now --json",
+      "npm run process:foundation-tuneup-remap-proof-check -- --close-card --json",
+      "npm run process:foundation-tuneup-roadmap-check -- --json",
+      "npm run process:builder-memory-system-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-TUNEUP-REMAP-PROOF-001 --planApprovalRef=docs/process/approvals/FOUNDATION-TUNEUP-REMAP-PROOF-001.json --closeoutKey=foundation-tuneup-remap-proof-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-TUNEUP-REMAP-PROOF-001 --closeoutKey=foundation-tuneup-remap-proof-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-TUNEUP-REMAP-PROOF-001 --planApprovalRef=docs/process/approvals/FOUNDATION-TUNEUP-REMAP-PROOF-001.json --closeoutKey=foundation-tuneup-remap-proof-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof runs the actual codebase map, compares 551 audit-baseline Foundation DB facade import pressure to live importers, verifies Dev CSS split evidence against the 4,998-line baseline, lists remaining oversized risks, and dogfoods unreduced import pressure plus accidentally started hub implementation.",
+    "reviewNext": "Stop for Steve checkpoint before FOUNDATION-HUB-FOLDER-ISOLATION-001. Do not implement per-hub folders until Steve reviews the remap proof and explicitly approves the build card.",
+    "knownLimits": [
+      "This does not implement the per-hub folder restructure.",
+      "This does not delete, archive, rename, move, or rewrite docs, verifier files, closeout records, plans, approvals, or scripts.",
+      "This does not claim all source-maturity wrappers or closeout records are fully collapsed; it records the current proof and remaining visible risk.",
+      "This does not install Understand-Anything or commit generated graph artifacts.",
+      "This does not work MEETING-VAULT-ACL-001 Phase B.",
+      "This does not mutate source rows, extraction targets, browser/session state, atoms/vectors, Drive permissions, credentials, or external systems.",
+      "This does not touch the real source/browser proof lane, local-browser route policy, source-session readiness, or Dev Hub System Truth posture."
+    ]
+  },
+  {
+    "key": "foundation-surface-sweep-v1",
+    "backlogIds": [
+      "FOUNDATION-SWEEP-001"
+    ],
+    "match": {
+      "shortShas": [
+        "7e97658"
+      ],
+      "subjectIncludes": [
+        "Close Foundation surface sweep"
+      ]
+    },
+    "systemArea": "Foundation visibility",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Mapped every Foundation nav page to its backing API, docs, tables, source IDs, and backlog owner, then added stale source-crawl run detection.",
+    "whatItDoes": "Lets Runtime Health show whether Foundation surfaces are still backed by live truth and whether a crawl/job has silently rotted.",
+    "whyItMatters": "Steve no longer has to discover stale pages or stuck crawl runs by reading code, chat history, or raw database rows.",
+    "whereItLives": [
+      "Foundation > Runtime Health > Foundation Surface Sweep",
+      "lib/foundation-surface-map.js",
+      "lib/foundation-db.js",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "passed 99/99 after dashboard restart",
+    "reviewNext": "Review Runtime Health when nav pages, source contracts, jobs, docs, or hub links change.",
+    "knownLimits": [
+      "Existing seed/live backlog drift is still reported, not solved.",
+      "Health Auditor and Cleanup Agent remain deferred future cards."
+    ]
+  },
+  {
+    "key": "foundation-recent-builds-v2",
+    "backlogIds": [
+      "FOUNDATION-CHANGELOG-002"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-CHANGELOG-002"
+      ]
+    },
+    "systemArea": "Foundation visibility",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Upgraded Recent Builds from a commit/file list into an operator changelog with closeout records, backlog links, proof commands, review-next notes, and known limits.",
+    "whatItDoes": "Groups recent repo work by day and system area so Steve can see what shipped, what it does, where it lives, and what to inspect next.",
+    "whyItMatters": "A heavy AI build day has to explain itself through Foundation instead of relying on long chat memory or raw git logs.",
+    "whereItLives": [
+      "Foundation > Recent Builds",
+      "/api/foundation/build-log",
+      "lib/foundation-build-log.js",
+      "public/foundation.js",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "passed 103/103 after dashboard restart",
+    "reviewNext": "Open Recent Builds and confirm the newest Foundation Visibility group answers what changed, proof, backlog status, and what remains.",
+    "knownLimits": [
+      "This is a repo-truth closeout layer, not a separate build-record database yet.",
+      "Older commits without closeout metadata still show derived summaries until major closeouts are backfilled."
+    ]
+  },
+  {
+    "key": "slack-current-day-channel-proof",
+    "backlogIds": [
+      "EXTRACTION-TEAM-001",
+      "EXTRACT-CONTROL-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "EXTRACTION-TEAM-001 Slack current-day item proof"
+      ]
+    },
+    "systemArea": "Foundation extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Hardened the Slack current-day extraction lane so each channel writes source_crawl_items, then exposed extraction item summaries and health findings in Runtime Health.",
+    "whatItDoes": "Turns a stale or opaque Slack crawl into visible channel-level proof: succeeded channels, skipped channels, failed channel items, stale reaped runs, and schedule mismatches can be inspected from Foundation.",
+    "whyItMatters": "A green or failed target run alone is not enough for operations monitoring. Steve needs to see what was actually crawled, what was skipped, and whether stale runner state is still hiding.",
+    "whereItLives": [
+      "Foundation > Runtime Health > Extraction Control",
+      "scripts/sync-slack-archive.mjs",
+      "scripts/run-extraction-target.mjs",
+      "lib/foundation-db.js",
+      "public/foundation.js",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run extraction:target -- --target=slack-current-day --force=true --actor=codex-slack-proof",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Slack proof run succeeded with 61 channel items; foundation:verify passed 106/106 after dashboard restart.",
+    "reviewNext": "Review Runtime Health for extraction targets with failed/skipped items and reconcile the Foundation-job next run against target next_run_at.",
+    "knownLimits": [
+      "This improves one Slack current-day lane; it is not broad Slack history backfill.",
+      "Schedule reconciliation, failed-item retry/backoff, and coverage-by-target views remain open.",
+      "Drive, email attachment, meeting video, multimodal, Scoper, Strategy UI, Agent Factory, Health Auditor, and Cleanup Agent work remain out of this slice."
+    ]
+  },
+  {
+    "key": "extract-control-schedule-truth",
+    "backlogIds": [
+      "EXTRACT-CONTROL-001",
+      "EXTRACT-SCHEDULE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "EXTRACT-CONTROL-001 reconcile schedule truth"
+      ]
+    },
+    "systemArea": "Foundation extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Reconciled extraction schedule display so scheduled crawl targets use Foundation job runtime as visible next-run truth while target next_run_at is preserved as runner checkpoint metadata.",
+    "whatItDoes": "Removes the dual-schedule ambiguity in Runtime Health: operators see the Foundation job schedule for scheduled targets, and the target checkpoint is labeled separately as crawlCheckpointNextRunAt.",
+    "whyItMatters": "When a job and target disagree after a stale or manual run, Steve should not have to guess which clock controls the next run.",
+    "whereItLives": [
+      "Foundation > Runtime Health > Extraction Control",
+      "lib/foundation-db.js",
+      "public/foundation.js",
+      "scripts/foundation-verify.mjs",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "foundation:verify passed 110/110 after dashboard restart.",
+    "reviewNext": "Ship coverage-by-target as the next separate EXTRACT-CONTROL-001 slice after checking source_crawl_items shape consistency across Drive, video, attachments, meetings, Gmail, Missive, and Slack.",
+    "knownLimits": [
+      "This is schedule reconciliation only; it does not build coverage-by-target.",
+      "Failed-item retry/backoff remains parked in EXTRACT-RETRY-001.",
+      "Drive, email, video, Strategy UI, Scoper, Agent Factory, Health Auditor, and Cleanup Agent work remain out of this slice."
+    ]
+  },
+  {
+    "key": "extract-metrics-missive-item-ledger",
+    "backlogIds": [
+      "EXTRACT-METRICS-001",
+      "EXTRACT-CONTROL-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "EXTRACT-METRICS-001 normalize Missive item ledger"
+      ]
+    },
+    "systemArea": "Foundation extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Persisted the extraction lane item-shape inspection, then normalized Missive current-day so each selected conversation writes a source_crawl_items row with succeeded/skipped/failed state and reason metadata.",
+    "whatItDoes": "Makes Missive visible in Runtime Health at the same item-ledger layer as Gmail, Slack, meetings, Drive, attachments, and video extraction before the coverage-by-target UI is built.",
+    "whyItMatters": "Coverage-by-target would be misleading if one successful current-day lane had zero item rows. Operators need to see what Missive inspected, what was already current, what was empty, and whether any conversations failed.",
+    "whereItLives": [
+      "Foundation > Runtime Health > Extraction Control",
+      "scripts/sync-missive-archive.mjs",
+      "scripts/run-extraction-target.mjs",
+      "docs/_archive/audits/2026-04-28-extraction-lane-item-shape.md",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run extraction:target -- --target=missive-current-day --force=true --actor=codex-missive-ledger-proof",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Missive proof run succeeded with 100 conversation items, 17 succeeded, 83 skipped, and 0 failed; foundation:verify passed 114/114 after dashboard restart.",
+    "reviewNext": "Build the EXTRACT-METRICS-001 coverage-by-target panel and then close EXTRACT-CONTROL-001 v1, leaving retry/backoff in EXTRACT-RETRY-001.",
+    "knownLimits": [
+      "This normalizes Missive item proof; it does not ship the coverage-by-target UI.",
+      "Drive content still has 4 failed crawl items that belong to EXTRACT-RETRY-001, not this slice.",
+      "No Drive/email/video expansion, Strategy UI, Scoper, Agent Factory, Health Auditor, or Cleanup Agent work is included."
+    ]
+  },
+  {
+    "key": "extract-metrics-coverage-by-target",
+    "backlogIds": [
+      "EXTRACT-METRICS-001",
+      "EXTRACT-CONTROL-001",
+      "FOUNDATION-SURFACE-UPDATES-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "EXTRACT-METRICS-001 build coverage-by-target panel"
+      ]
+    },
+    "systemArea": "Foundation extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a Runtime Health coverage-by-target panel for extraction targets with last success, last failure, next bite, item totals, top failed/skipped reasons, and remaining backlog indicators where the lane exposes them.",
+    "whatItDoes": "Turns the extraction control plane from individual target cards into a per-target operator readout that shows current-day, backfill, corpus, and recovery lanes on the same coverage contract.",
+    "whyItMatters": "EXTRACT-CONTROL-001 v1 needed a usable surface for Steve to see what ran, what skipped, what failed, and what remains before choosing retry/backoff or another corpus lane.",
+    "whereItLives": [
+      "Foundation > Runtime Health > Extraction Control: Coverage By Target",
+      "/api/foundation-hub",
+      "lib/foundation-db.js",
+      "public/foundation.js",
+      "scripts/foundation-verify.mjs",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "foundation:verify passed 117/117 after dashboard restart on localhost:3000.",
+    "reviewNext": "Use the coverage panel to pick the next evidence-based extraction slice. Failed-item retry/backoff stays in EXTRACT-RETRY-001; broader Drive/email/video expansion still waits for Runtime Health evidence.",
+    "knownLimits": [
+      "This does not execute retry/backoff for failed items.",
+      "Remaining backlog indicators only appear where the current lane already exposes them.",
+      "FOUNDATION-SURFACE-UPDATES-001 was added as a follow-up card for app-surface breadcrumbs and updated markers, but it was not built in this slice.",
+      "The earlier synthesis snapshot repair in 00c426d remains folded into this closeout as prerequisite verifier/live-state cleanup."
+    ]
+  },
+  {
+    "key": "drive-content-sheets-text-extraction",
+    "backlogIds": [
+      "DRIVE-CONTENT-001",
+      "EXTRACTION-TEAM-001",
+      "RUNTIME-SUPERVISOR-001",
+      "SYSTEM-010"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "DRIVE-CONTENT-001 add Drive Sheets text extraction"
+      ]
+    },
+    "systemArea": "Foundation extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added Google Sheets text extraction to the Drive content lane and made the scheduled target retry existing sheet_text_extraction_not_in_v1 skips.",
+    "whatItDoes": "Reads bounded Google Sheet values through the Sheets API, stores drive_spreadsheet source artifacts, and clears sheet skipped rows through the same source_crawl_items ledger as Drive Docs/PDF/text extraction.",
+    "whyItMatters": "The coverage-by-target panel showed Sheets as the largest actionable Drive content skip. This hardens one missing corpus lane without broad Drive expansion or retry/backoff work.",
+    "whereItLives": [
+      "Foundation > Runtime Health > Extraction Control: Coverage By Target",
+      "scripts/extract-drive-content.mjs",
+      "scripts/run-extraction-target.mjs",
+      "scripts/seed-extraction-control.mjs",
+      "lib/google-delegated.js",
+      "lib/foundation-db.js",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md"
+    ],
+    "proofCommands": [
+      "npm run extraction:target -- --target=drive-content-extract-backfill --force=true --actor=codex-drive-sheets-proof",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Drive Sheets proof run inspected 5 existing sheet-skipped items, archived 5 drive_spreadsheet artifacts / 308,697 chars, and recorded 0 crawl item failures; foundation:verify passed 120/120 after dashboard restart on localhost:3000.",
+    "reviewNext": "Read Runtime Health coverage again. With failed items cleared, choose between remaining Drive content skipped reasons, email image/calendar attachment gaps, video transcript gaps, and Drive corpus backlog indicators.",
+    "knownLimits": [
+      "This reads bounded sheet values; it does not implement Sheets formulas/notes/comments as a full spreadsheet intelligence lane.",
+      "Slides, Office files, shortcuts, high-confidence handwriting/screenshots, and Drive media remain separate follow-on lanes.",
+      "Retry/backoff remains parked in EXTRACT-RETRY-001 unless failed items reappear in Runtime Health.",
+      "SYSTEM-010 served-code/deploy freshness is now explicitly tracked, not solved in this slice."
+    ]
+  },
+  {
+    "key": "kpi-health-supabase-probe",
+    "backlogIds": [
+      "KPI-HEALTH-001",
+      "SOURCE-010"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "KPI-HEALTH-001 add KPI Supabase health probe"
+      ]
+    },
+    "systemArea": "Foundation source health",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a read-only KPI / Supabase health probe and surfaced it in Foundation Data Sources, with Runtime Health warnings only when unhealthy.",
+    "whatItDoes": "Checks the locked KPI read model against live Supabase and the Lee zahnd-team-dashboard repo: 14 load-bearing tables, 5 RPCs, per-source freshness windows, expected columns/output fields, and table/RPC references in the KPI app code or migrations.",
+    "whyItMatters": "Steve uses KPI numbers in Sales, finance, Owners pulse, competition, usage, and weekly operator conversations. This catches stale data or schema/code drift before the dashboard silently gives wrong numbers in a meeting.",
+    "whereItLives": [
+      "Foundation > Data Sources > APIs / Apps > KPI / Supabase Health",
+      "Foundation > Runtime Health, KPI warning only when unhealthy",
+      "/api/source-of-truth > kpiHealth",
+      "/api/foundation-hub > kpiHealth",
+      "npm run kpi:health",
+      "lib/kpi-health.js",
+      "scripts/foundation-verify.mjs",
+      "docs/source-notes/kpi-dashboard.md"
+    ],
+    "proofCommands": [
+      "npm run kpi:health",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "KPI health probe passed for 14/14 tables and 5/5 RPCs with schema drift healthy; foundation:verify passed on localhost:3000 after dashboard restart.",
+    "reviewNext": "Read Action Router pending/apply state, KPI health, synthesis quality, and extraction coverage before picking the next slice. With KPI healthy and failed crawl items still at 0, the likely next area is an Action Router review/apply/resolution slice, not retry/backoff or another corpus lane.",
+    "knownLimits": [
+      "This does not rebuild KPI or create Sales Hub coaching workflows.",
+      "This does not apply Action Router routes or improve review UX.",
+      "This does not add extraction retry/backoff, Strategy UI, Scoper, or Agent Factory work.",
+      "Freshness warnings are surfaced as operator health findings; only broken probe/schema/RPC/read-rule drift fails the script."
+    ]
+  },
+  {
+    "key": "foundation-operator-ux-capture",
+    "backlogIds": [
+      "FOUNDATION-SURFACE-UPDATES-001",
+      "ACTION-REVIEW-APPLY-001",
+      "RESEARCH-INBOX-001",
+      "RUNTIME-HEALTH-SIMPLIFY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-SURFACE-UPDATES-001 capture operator UX backlog"
+      ]
+    },
+    "systemArea": "Foundation planning",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Captured Steve’s plain-English Foundation UX standard, expanded the Recent Work/Overview backlog card, and added the next Action Router review/apply child card plus parked Research Inbox and Runtime Health simplification cards.",
+    "whatItDoes": "Turns a long planning conversation into repo truth: Foundation should read like a CEO dashboard for system-building, daily nav should be Overview -> Systems -> Backlog -> Recent Work, done velocity should become visible, and the next build should be Action Router review/apply instead of another extraction lane.",
+    "whyItMatters": "This prevents the rebuild plan, UI phase labels, backlog, and chat memory from becoming four competing sources of truth. Steve should be able to see what is next, what shipped, and why without decoding technical terms.",
+    "whereItLives": [
+      "Foundation > Overview, future CEO-dashboard pattern",
+      "Foundation > Backlog, ACTION-REVIEW-APPLY-001",
+      "Foundation > Recent Work, future collapsed closeout cards",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "lib/foundation-db.js",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "foundation:verify passed after the capture pass; verifier guards the new cards, plain-English standard, nav target, command-order warning, and parked follow-ups.",
+    "reviewNext": "Build ACTION-REVIEW-APPLY-001 next: pending routes panel, Approve/Reject, Apply confirmation with destination-record proof, aged-route visibility, verifier coverage, and closeout. After that, stop and re-plan with Steve before auto-picking another Foundation slice.",
+    "knownLimits": [
+      "This captures backlog and plan truth; it does not yet move the nav or build the Recent Work UX.",
+      "This does not simplify Runtime Health yet.",
+      "This does not build Research Inbox ingestion or Scoper/dev-intelligence.",
+      "This does not change Action Router behavior yet; it only creates the child card and next-slice acceptance."
+    ]
+  },
+  {
+    "key": "runtime-supervisor-served-code-trust",
+    "backlogIds": [
+      "RUNTIME-SUPERVISOR-001",
+      "SYSTEM-010",
+      "ACTION-REVIEW-APPLY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "RUNTIME-SUPERVISOR-001 add served-code trust check"
+      ]
+    },
+    "systemArea": "Foundation runtime",
+    "status": "hardened",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a served-code trust check so Foundation can prove the dashboard is running the same commit as the current repo.",
+    "whatItDoes": "The dashboard captures its server-start commit once at startup, exposes it in Runtime Health, and foundation:verify compares that running commit to repo HEAD. If the dashboard is stale, the verifier prints the exact restart command.",
+    "whyItMatters": "Reviewers need verifier output they can trust after a build ships, not only during the minute Codex restarted the dashboard. This protects the measuring stick before the Action Router review/apply UI is built.",
+    "whereItLives": [
+      "Foundation > Runtime Health > Dashboard Code Trust",
+      "/api/foundation-hub > runtimeSupervisor.servedCode",
+      "server.js startup metadata",
+      "scripts/foundation-verify.mjs served-code check",
+      "lib/foundation-db.js RUNTIME-SUPERVISOR-001 / SYSTEM-010 backlog truth"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "foundation:verify passed after dashboard restart on localhost:3000; the verifier now fails if the served dashboard commit does not match repo HEAD.",
+    "reviewNext": "Return immediately to ACTION-REVIEW-APPLY-001: Foundation > Backlog > Action Review, pending routes panel, Approve/Reject, Apply confirmation, destination-record proof, aged-route visibility, verifier coverage, and closeout. After that, stop and re-plan with Steve.",
+    "knownLimits": [
+      "This does not add auto-restart-on-push yet; it makes stale served code visible and actionable.",
+      "This does not complete all SYSTEM-010 process controls, dead-man checks, or cost controls.",
+      "This does not build Action Router review/apply UI yet."
+    ]
+  },
+  {
+    "key": "backlog-hygiene-pass",
+    "backlogIds": [
+      "BACKLOG-HYGIENE-PASS-001",
+      "BACKLOG-HYGIENE-001",
+      "DEV-PROCESS-AUDIT-001",
+      "PROCESS-HOOKS-001",
+      "FOUNDATION-SURFACE-UPDATES-001",
+      "DOC-AUTHORITY-001",
+      "DATA-004",
+      "SOURCE-021",
+      "SOURCE-021-PROOF-001",
+      "SECURITY-001",
+      "SECURITY-006"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BACKLOG-HYGIENE-PASS-001 clean stale backlog lanes"
+      ]
+    },
+    "systemArea": "Foundation backlog",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Cleaned stale and unclear backlog lanes, split completed proof from remaining work, and created the structural hygiene/process cards before returning to product UI.",
+    "whatItDoes": "Moves the backlog closer to being the actual build control plane: done work is no longer left in executing, partial cards keep only the remaining work, inactive security work is scoped instead of pretending to be in progress, and the next prevention cards are explicit.",
+    "whyItMatters": "Steve should not have to manually notice stale doing cards. Foundation has to show what is active, done, scoped, and next before Codex builds more features.",
+    "whereItLives": [
+      "Foundation > Backlog, lane/status truth",
+      "Foundation > Recent Builds, this closeout",
+      "docs/rebuild/current-plan.md, backlog-pulled and 9.8 plan-gate doctrine",
+      "docs/rebuild/current-state.md, current command order",
+      "lib/foundation-db.js, live/seed backlog card truth",
+      "scripts/foundation-verify.mjs, hygiene outcome checks"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "foundation:verify passed after the hygiene pass; verifier guards the new hygiene/process cards and the cleaned status of the known stale executing cards.",
+    "reviewNext": "Plan BACKLOG-HYGIENE-001 next under the 9.8 review gate: automatic findings for stale executing cards, missing closeout proof, and cards whose evidence says done but lane still says active. After hygiene/probe/process gates, return to ACTION-REVIEW-APPLY-001.",
+    "knownLimits": [
+      "This is the one-time cleanup pass, not the autonomous probe.",
+      "Recent Builds / Recent Work breadcrumb and link UX remains grouped under FOUNDATION-SURFACE-UPDATES-001.",
+      "Pre-commit and post-ship hooks remain scoped under PROCESS-HOOKS-001.",
+      "Action Router review/apply UI is still not built."
+    ]
+  },
+  {
+    "key": "backlog-hygiene-probe",
+    "backlogIds": [
+      "BACKLOG-HYGIENE-001",
+      "BACKLOG-HYGIENE-PASS-001",
+      "DEV-PROCESS-AUDIT-001",
+      "PROCESS-HOOKS-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BACKLOG-HYGIENE-001 add automatic backlog hygiene probe"
+      ]
+    },
+    "systemArea": "Foundation backlog",
+    "status": "hardened",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added an automatic read-only backlog hygiene probe with CLI proof, Foundation API payload, Runtime Health visibility, and verifier coverage.",
+    "whatItDoes": "Scans live backlog cards for stale executing work, done cards without proof, executing cards that sound done, scoped cards that sound active, and active P0 cards missing process-gate clarity. Findings explain the card, evidence, and recommended action in plain English.",
+    "whyItMatters": "Steve should not be the stale-card detector. Foundation now warns when the backlog stops matching the work before the team drifts into another chat-only plan.",
+    "whereItLives": [
+      "Foundation > Runtime Health > Backlog Hygiene",
+      "/api/foundation-hub > backlogHygiene",
+      "npm run backlog:hygiene",
+      "lib/backlog-hygiene.js",
+      "scripts/backlog-hygiene.mjs",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run backlog:hygiene -- --includeSynthetic=true",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Backlog hygiene proof includes a synthetic stale executing card finding; foundation:verify guards the CLI, API, Runtime Health panel, closeout, and known-cleaned card regression set.",
+    "reviewNext": "Build DEV-PROCESS-AUDIT-001 next, then PROCESS-HOOKS-001, then return to ACTION-REVIEW-APPLY-001 after process enforcement is in place.",
+    "knownLimits": [
+      "Read-only only; it does not auto-move cards.",
+      "Pre-commit and post-ship enforcement remains in PROCESS-HOOKS-001.",
+      "Recent Builds / Recent Work UX remains in FOUNDATION-SURFACE-UPDATES-001.",
+      "Info-level findings are CLI-only in v1 to keep Runtime Health readable."
+    ]
+  },
+  {
+    "key": "dev-process-audit-hook-map",
+    "backlogIds": [
+      "DEV-PROCESS-AUDIT-001",
+      "PROCESS-HOOKS-001",
+      "BACKLOG-HYGIENE-001",
+      "RUNTIME-SUPERVISOR-001",
+      "FOUNDATION-SURFACE-UPDATES-001",
+      "ACTION-REVIEW-APPLY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "DEV-PROCESS-AUDIT-001 map failures to hooks"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Documented the real 2026-04-28 dev-loop failures and converted them into enforceable hook requirements for the next process slice.",
+    "whatItDoes": "Maps each failure to exactly one owner: Backlog Hygiene for stale lane findings, Runtime Supervisor for stale served code, Foundation Surface Updates for where-it-lives and plan/backlog UX, and Process Hooks for plan gates, post-ship proof, backlog update proof, and red-verifier stop behavior.",
+    "whyItMatters": "Steve should not manually police backlog truth, plan gates, closeouts, dashboard freshness, or verifier trust. The system needs to stop those misses before feature work continues.",
+    "whereItLives": [
+      "docs/_archive/audits/2026-04-28-dev-process-audit.md",
+      "Foundation > Backlog, DEV-PROCESS-AUDIT-001",
+      "Foundation > Backlog, PROCESS-HOOKS-001",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "foundation:verify passed after the audit and hook requirements were added; verifier guards the audit file, required failure map, PROCESS-HOOKS-001 acceptance, and Recent Builds closeout.",
+    "reviewNext": "Build PROCESS-HOOKS-001 next as narrow enforcement, then return to ACTION-REVIEW-APPLY-001, then stop and re-plan with Steve.",
+    "knownLimits": [
+      "This audit does not build hooks.",
+      "This audit does not redesign Recent Builds / Recent Work; that remains in FOUNDATION-SURFACE-UPDATES-001.",
+      "This audit does not build Action Router review/apply UI.",
+      "This audit creates no new process cards."
+    ]
+  },
+  {
+    "key": "process-hooks-v1",
+    "backlogIds": [
+      "PROCESS-HOOKS-001",
+      "DEV-PROCESS-AUDIT-001",
+      "ACTION-REVIEW-APPLY-001",
+      "FOUNDATION-SURFACE-UPDATES-001",
+      "RUNTIME-SUPERVISOR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "PROCESS-HOOKS-001 add process ship check"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "hardened",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a v1 process ship check with evidence-based plan approval, closeout validation, served-code trust, and live verifier proof.",
+    "whatItDoes": "Checks the target backlog card, plan approval file, approval score, approver, timestamp, seven closeout fields, where-it-lives metadata, proof commands, dashboard served commit, and default foundation:verify before a ship is trusted.",
+    "whyItMatters": "Steve should not manually police whether Codex followed the build process. The repo now has a plain-English gate that fails when the ship is missing approval, closeout proof, live dashboard trust, or a green verifier.",
+    "whereItLives": [
+      "scripts/process-ship-check.mjs",
+      "docs/process/ship-check.md",
+      "docs/process/approvals/PROCESS-HOOKS-001.json",
+      "package.json script process:ship-check",
+      "Foundation > Backlog, PROCESS-HOOKS-001",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run process:ship-check -- --card=PROCESS-HOOKS-001 --planApprovalRef=docs/process/approvals/PROCESS-HOOKS-001.json --closeoutKey=process-hooks-v1",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "process:ship-check passed with approval-file evidence and live dashboard served-code proof; foundation:verify passed after dashboard restart.",
+    "reviewNext": "Build ACTION-REVIEW-APPLY-001 next, then stop and re-plan with Steve.",
+    "knownLimits": [
+      "V1 is a manual/scripted gate, not auto-installed as a Git hook.",
+      "V1 does not redesign Recent Builds / Recent Work; that remains in FOUNDATION-SURFACE-UPDATES-001.",
+      "V1 does not auto-move backlog cards.",
+      "V1 does not build Action Router review/apply UI."
+    ]
+  },
+  {
+    "key": "action-review-apply-v1",
+    "backlogIds": [
+      "ACTION-REVIEW-APPLY-001",
+      "ACTION-ROUTER-001",
+      "PROCESS-HOOKS-001",
+      "FOUNDATION-SURFACE-UPDATES-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "ACTION-REVIEW-APPLY-001 add Foundation action review"
+      ]
+    },
+    "systemArea": "Foundation Backlog",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the first Foundation Action Review surface under Backlog and exposed a Foundation action-review API for pending Action Router routes.",
+    "whatItDoes": "Shows pending and approved routes in plain English, lets Steve approve or reject with a saved reason, applies approved routes into their destination ledger, and shows destination-record proof after apply.",
+    "whyItMatters": "The intelligence spine only creates value when findings become real decisions, backlog work, questions, ignore/snooze records, or owner actions. This closes the first human review/apply loop without expanding Strategy UI or Scoper work.",
+    "whereItLives": [
+      "Foundation > Backlog > Action Review",
+      "/api/foundation/action-review",
+      "/api/foundation/action-review/:routeId/review",
+      "public/foundation.js",
+      "public/styles.css",
+      "lib/intelligence-action-router.js existing approve/apply helpers",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=ACTION-REVIEW-APPLY-001 --planApprovalRef=docs/process/approvals/ACTION-REVIEW-APPLY-001.json --closeoutKey=action-review-apply-v1"
+    ],
+    "proofStatus": "Foundation verifier and process gate passed with Action Review API/UI, reject-reason enforcement, destination proof checks, and served-code trust.",
+    "reviewNext": "Stop and re-plan with Steve before picking another Foundation slice. Do not auto-pick Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or more process work.",
+    "knownLimits": [
+      "V1 does not prove high-volume route resolution feedback or recurrence prevention.",
+      "V1 does not redesign Recent Work / Recent Builds where-it-lives links; that remains under FOUNDATION-SURFACE-UPDATES-001.",
+      "V1 does not add owner reassignment, snooze, or ignore controls to Foundation Action Review; those remain available in Strategy route review where relevant.",
+      "V1 does not automate backlog management beyond the existing hygiene probe and process gate."
+    ]
+  },
+  {
+    "key": "process-fanout-v1-repair",
+    "backlogIds": [
+      "PROCESS-FANOUT-001",
+      "PROCESS-HOOKS-001",
+      "BACKLOG-HYGIENE-001",
+      "VERIFIER-DONE-COVERAGE-001",
+      "VERIFIER-ARTIFACT-EXISTS-001",
+      "WORKER-CODE-TRUST-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "PROCESS-FANOUT-001 repair false-done fanout gate"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "repaired",
+    "acceptanceState": "Verified",
+    "whatChanged": "Repaired PROCESS-FANOUT-001 by adding the actual process fanout check, plain-English doc, npm script, and verifier coverage for claimed artifact existence.",
+    "whatItDoes": "Checks that a done card and closeout did not claim missing files, docs, scripts, Recent Builds proof, where-it-lives metadata, verifier proof, or stale served dashboard code.",
+    "whyItMatters": "PROCESS-FANOUT-001 was marked done while claiming artifacts that did not exist. This repair makes the card true and prevents that same false-done class from passing quietly again.",
+    "whereItLives": [
+      "scripts/process-fanout-check.mjs",
+      "docs/process/ship-fanout.md",
+      "package.json script process:fanout-check",
+      "Foundation > Backlog, PROCESS-FANOUT-001",
+      "scripts/foundation-verify.mjs",
+      "lib/foundation-build-log.js closeout process-fanout-v1-repair"
+    ],
+    "proofCommands": [
+      "npm run process:fanout-check -- --card=PROCESS-FANOUT-001 --closeoutKey=process-fanout-v1-repair",
+      "npm run process:ship-check -- --card=PROCESS-FANOUT-001 --planApprovalRef=docs/process/approvals/PROCESS-FANOUT-001.json --closeoutKey=process-fanout-v1-repair",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "process:fanout-check, process:ship-check, and foundation:verify passed after the actual script, doc, npm command, and claimed-artifact verifier checks were added.",
+    "reviewNext": "Open Wave 2: Cards 1+2 can combine verifier done-card coverage and artifact-exists checks in one chat, while Card 3 worker served-code trust can run in a parallel chat.",
+    "knownLimits": [
+      "V1 is a script gate, not an automatic Git hook.",
+      "V1 checks explicit claimed artifacts and the target closeout; it does not yet scan every historical done card for full ID-named verifier coverage.",
+      "V1 does not add worker served-code trust; that remains WORKER-CODE-TRUST-001.",
+      "V1 does not automate downstream fan-out updates; that remains POST-SHIP-FAN-OUT-001."
+    ]
+  },
+  {
+    "key": "worker-code-trust-v1",
+    "backlogIds": [
+      "WORKER-CODE-TRUST-001",
+      "RUNTIME-SUPERVISOR-001",
+      "SYSTEM-010",
+      "PROCESS-FANOUT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "WORKER-CODE-TRUST-001 add worker served-code trust"
+      ]
+    },
+    "systemArea": "Foundation runtime",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added worker served-code trust so the supervised Foundation worker reports the code commit it started from.",
+    "whatItDoes": "The worker writes its startup commit and process id into DB-backed runtime status. Foundation Hub exposes it, Runtime Health renders it, and foundation:verify compares it to repo HEAD and the LaunchAgent pid.",
+    "whyItMatters": "The dashboard already proves it is serving current code. The worker also needs that proof because scheduled jobs can keep running old code in the background.",
+    "whereItLives": [
+      "scripts/foundation-worker.mjs",
+      "lib/foundation-db.js table foundation_runtime_status",
+      "/api/foundation-hub > runtimeSupervisor.workerCode",
+      "Foundation > Runtime Health > Worker Code Trust",
+      "scripts/foundation-verify.mjs",
+      "docs/process/approvals/WORKER-CODE-TRUST-001.json"
+    ],
+    "proofCommands": [
+      "launchctl kickstart -k gui/$(id -u)/ai.bcrew.foundation-worker",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=WORKER-CODE-TRUST-001 --planApprovalRef=docs/process/approvals/WORKER-CODE-TRUST-001.json --closeoutKey=worker-code-trust-v1",
+      "npm run process:fanout-check -- --card=WORKER-CODE-TRUST-001 --closeoutKey=worker-code-trust-v1"
+    ],
+    "proofStatus": "Worker restart captured the startup commit, Runtime Health exposed Worker Code Trust, process gates passed, and foundation:verify confirmed the worker startup commit and LaunchAgent pid match repo HEAD.",
+    "reviewNext": "Complete Wave 2 Chat A after its revised 9.8 plan: VERIFIER-DONE-COVERAGE-001 plus VERIFIER-ARTIFACT-EXISTS-001.",
+    "knownLimits": [
+      "V1 proves the worker startup commit and supervised process id. It does not prove continuous liveness after startup.",
+      "Dead-man visibility, auto-restart-on-push, and broader process alarms remain under SYSTEM-010 / RUNTIME-SUPERVISOR-001."
+    ]
+  },
+  {
+    "key": "verifier-done-artifact-gates",
+    "backlogIds": [
+      "VERIFIER-DONE-COVERAGE-001",
+      "VERIFIER-ARTIFACT-EXISTS-001",
+      "PROCESS-FANOUT-001",
+      "PROCESS-HOOKS-001",
+      "SHEETS-QUOTA-HARDENING-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "VERIFIER-DONE-COVERAGE-001 add done and artifact verifier gates"
+      ]
+    },
+    "systemArea": "Foundation verifier",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added verifier gates for done-card proof coverage and claimed artifact existence, plus a constrained exception ledger for historical cards.",
+    "whatItDoes": "foundation:verify now fails when a done card has no ID-named verifier coverage and no valid exception, or when a done card/closeout claims a missing file, doc, npm script, or simple API route.",
+    "whyItMatters": "This blocks the PROCESS-FANOUT-001 false-done failure class at the main Foundation verifier layer, not just in a one-off process script.",
+    "whereItLives": [
+      "scripts/foundation-verify.mjs",
+      "docs/process/verifier-exceptions.json",
+      "docs/process/approvals/VERIFIER-DONE-COVERAGE-001.json",
+      "docs/process/approvals/VERIFIER-ARTIFACT-EXISTS-001.json",
+      "Foundation > Backlog, VERIFIER-DONE-COVERAGE-001",
+      "Foundation > Backlog, VERIFIER-ARTIFACT-EXISTS-001",
+      "Foundation > Recent Work closeout verifier-done-artifact-gates"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=VERIFIER-DONE-COVERAGE-001 --planApprovalRef=docs/process/approvals/VERIFIER-DONE-COVERAGE-001.json --closeoutKey=verifier-done-artifact-gates",
+      "npm run process:ship-check -- --card=VERIFIER-ARTIFACT-EXISTS-001 --planApprovalRef=docs/process/approvals/VERIFIER-ARTIFACT-EXISTS-001.json --closeoutKey=verifier-done-artifact-gates",
+      "npm run process:fanout-check -- --card=VERIFIER-DONE-COVERAGE-001 --closeoutKey=verifier-done-artifact-gates",
+      "npm run process:fanout-check -- --card=VERIFIER-ARTIFACT-EXISTS-001 --closeoutKey=verifier-done-artifact-gates"
+    ],
+    "proofStatus": "foundation:verify caught the synthetic missing-proof card and synthetic missing file/script/API route, while live done cards passed through ID-named verifier coverage or 24 explicit legacy exceptions.",
+    "reviewNext": "Open Wave 3 plan submissions: Card 4 POST-SHIP-FAN-OUT-001, with SHEETS-QUOTA-HARDENING-001 as an optional parallel Card 6.5 before Wave 5 parallel ramp.",
+    "knownLimits": [
+      "V1 starts with 24 open-ended historical exceptions for done cards that predate the ID-named verifier coverage rule.",
+      "The verifier counts total and open-ended exceptions; it fails missing fields, expired exceptions, and open-ended exceptions older than 90 days.",
+      "Artifact parsing covers explicit files/docs, npm run scripts, and simple API routes. Ambiguous natural-language claims should be rewritten as concrete artifacts before closeout.",
+      "SHEETS-QUOTA-HARDENING-001 was added as a scoped follow-up, not built in this slice."
+    ]
+  },
+  {
+    "key": "post-ship-fanout-v1",
+    "backlogIds": [
+      "POST-SHIP-FAN-OUT-001",
+      "PROCESS-FANOUT-001",
+      "PROCESS-HOOKS-001",
+      "EXCEPTION-CURATION-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "POST-SHIP-FAN-OUT-001 add post-ship fanout gate"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the post-ship fanout gate and scoped exception curation before the historical verifier exceptions expire.",
+    "whatItDoes": "The new gate checks whether a shipped closeout updated the surrounding truth when code touches Backlog, verifier, Foundation UI, rebuild plan/state docs, or npm commands.",
+    "whyItMatters": "A ship is not trustworthy if code moves but Backlog, Recent Work, Runtime Health, docs, or verifier proof do not move with it. This makes that drift visible before Steve has to catch it manually.",
+    "whereItLives": [
+      "lib/post-ship-fanout.js",
+      "scripts/process-post-ship-fanout.mjs",
+      "docs/process/post-ship-fanout.md",
+      "docs/process/approvals/POST-SHIP-FAN-OUT-001.json",
+      "package.json npm script process:post-ship-fanout",
+      "Foundation > Runtime Health > Post-Ship Fanout",
+      "Foundation > Backlog, POST-SHIP-FAN-OUT-001",
+      "Foundation > Backlog, EXCEPTION-CURATION-001",
+      "Foundation > Recent Work closeout post-ship-fanout-v1",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=POST-SHIP-FAN-OUT-001 --planApprovalRef=docs/process/approvals/POST-SHIP-FAN-OUT-001.json --closeoutKey=post-ship-fanout-v1",
+      "npm run process:fanout-check -- --card=POST-SHIP-FAN-OUT-001 --closeoutKey=post-ship-fanout-v1",
+      "npm run process:post-ship-fanout -- --card=POST-SHIP-FAN-OUT-001 --closeoutKey=post-ship-fanout-v1 --commitRef=7335a8f"
+    ],
+    "proofStatus": "Post-ship fanout caught the synthetic missing-fanout case, Runtime Health exposed the latest fanout status, process gates passed, and foundation:verify guarded the new card, script, doc, npm command, closeout, and EXCEPTION-CURATION-001 follow-up.",
+    "reviewNext": "Wave 4 remains before Phase C: ship DOCTRINE-PROPAGATION-001 and DECISION-AUTO-EMIT-001, then Phase B is complete.",
+    "knownLimits": [
+      "V1 checks and reports missing fanout. It does not auto-edit backlog, docs, or UI metadata.",
+      "The v1 rules are intentionally simple and documented in docs/process/post-ship-fanout.md.",
+      "EXCEPTION-CURATION-001 is scoped only; it must triage the 24 historical verifier exceptions before 2026-07-27."
+    ]
+  },
+  {
+    "key": "sheets-quota-hardening-v1",
+    "backlogIds": [
+      "SHEETS-QUOTA-HARDENING-001",
+      "POST-SHIP-FAN-OUT-001",
+      "PROCESS-HOOKS-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SHEETS-QUOTA-HARDENING-001 add Sheets quota hardening"
+      ]
+    },
+    "systemArea": "Foundation runtime",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added Google Sheets read caching, batchGet support, and Runtime Health visibility for Sheets API quota pressure.",
+    "whatItDoes": "Foundation now reuses recent read-only Sheets responses inside a short TTL, exposes cache hit/miss and recent 429 status, and reads Drive spreadsheet tabs through batchGet instead of one request per tab.",
+    "whyItMatters": "Parallel ship gates repeatedly read the same Google Sheets sources. This reduces avoidable 429 quota failures without hiding real source failures or caching writes.",
+    "whereItLives": [
+      "lib/google-sheets-cache.js",
+      "lib/google-delegated.js",
+      "scripts/extract-drive-content.mjs",
+      "docs/process/sheets-quota-hardening.md",
+      "docs/process/approvals/SHEETS-QUOTA-HARDENING-001.json",
+      "/api/foundation-hub > sheetsApiTrust",
+      "Foundation > Runtime Health > Sheets API Trust",
+      "Foundation > Backlog, SHEETS-QUOTA-HARDENING-001",
+      "Foundation > Recent Work closeout sheets-quota-hardening-v1"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SHEETS-QUOTA-HARDENING-001 --planApprovalRef=docs/process/approvals/SHEETS-QUOTA-HARDENING-001.json --closeoutKey=sheets-quota-hardening-v1",
+      "npm run process:fanout-check -- --card=SHEETS-QUOTA-HARDENING-001 --closeoutKey=sheets-quota-hardening-v1"
+    ],
+    "proofStatus": "Sheets cache syntax and verifier checks passed; Runtime Health exposes Sheets API Trust; Drive Sheets extraction uses batchGet; writes remain uncached and Google API errors are not cached as healthy data.",
+    "reviewNext": "Do not open Phase C yet. Wave 4 is DOCTRINE-PROPAGATION-001 and DECISION-AUTO-EMIT-001, then Phase B is complete.",
+    "knownLimits": [
+      "This does not request the Google Cloud quota increase automatically; docs/process/sheets-quota-hardening.md gives the operator checklist.",
+      "The cache is intentionally short-lived by default: 30 seconds.",
+      "The cache file lives under store/, which is local-only and ignored by git.",
+      "If the cache file has a problem, Foundation falls back to live reads and records the cache error in Sheets API Trust."
+    ]
+  },
+  {
+    "key": "current-sprint-active-card-gate-v1",
+    "backlogIds": [
+      "CURRENT-SPRINT-ACTIVE-CARD-GATE-001",
+      "DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001",
+      "FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "CURRENT-SPRINT-ACTIVE-CARD-GATE-001 gate active sprint truth"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the active-card gate and reset the approved overnight work into live Current Sprint truth.",
+    "whatItDoes": "Requires active blocker, owner, next action, definition of done, proof commands, not-next boundaries, repo posture, and park-and-continue policy before durable work starts.",
+    "whyItMatters": "Steve approved unattended overnight work. This prevents builders from relying on chat-only sprint instructions or stopping the whole sprint for one approval-bound action.",
+    "whereItLives": [
+      "lib/current-sprint-active-card-gate.js",
+      "scripts/process-current-sprint-active-card-gate-check.mjs",
+      "docs/process/current-sprint-active-card-gate-001-plan.md",
+      "docs/process/approvals/CURRENT-SPRINT-ACTIVE-CARD-GATE-001.json",
+      "docs/_archive/handoffs/2026-05-19-current-sprint-active-card-gate-closeout.md",
+      "package.json script process:current-sprint-active-card-gate-check",
+      "Foundation > Current Sprint"
+    ],
+    "proofCommands": [
+      "node --check lib/current-sprint-active-card-gate.js scripts/process-current-sprint-active-card-gate-check.mjs",
+      "npm run process:current-sprint-active-card-gate-check -- --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=CURRENT-SPRINT-ACTIVE-CARD-GATE-001 --planApprovalRef=docs/process/approvals/CURRENT-SPRINT-ACTIVE-CARD-GATE-001.json --closeoutKey=current-sprint-active-card-gate-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=CURRENT-SPRINT-ACTIVE-CARD-GATE-001 --closeoutKey=current-sprint-active-card-gate-v1",
+      "npm run process:foundation-ship -- --card=CURRENT-SPRINT-ACTIVE-CARD-GATE-001 --planApprovalRef=docs/process/approvals/CURRENT-SPRINT-ACTIVE-CARD-GATE-001.json --closeoutKey=current-sprint-active-card-gate-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods missing active blocker, missing definition of done, missing repo posture, and stop-whole-sprint policy; Current Sprint advances to DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001.",
+    "reviewNext": "Continue DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001, then the audit cleanup/intelligence sprint order.",
+    "knownLimits": [
+      "V1 gates active-card metadata and resets sprint truth; it does not implement the downstream audit cleanup cards.",
+      "V1 parks approval-bound actions but does not authorize external writes, credential mutation, paid/provider access, browser auth, or Drive permission mutation.",
+      "V1 keeps Value Builder split off until a later closeout explicitly approves it."
+    ]
+  },
+  {
+    "key": "foundation-overnight-closeout-morning-readiness-v1",
+    "backlogIds": [
+      "FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001",
+      "SLICE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001 close sprint"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "operatorCloseout": true,
+    "whatChanged": "Added an overnight closeout/readiness gate that closes a clean sprint and opens the next safe Foundation sprint instead of stopping.",
+    "whatItDoes": "Verifies raw System Health, repeated-failure gate, Current Sprint truth, backlog hygiene, required done cards, main sync, and safe continuation availability, then moves Current Sprint to the next safe card.",
+    "whyItMatters": "Steve approved nonstop overnight work. Clean sprint closeout should not strand the builder in chat; approval-bound actions park, while safe Foundation work continues.",
+    "whereItLives": [
+      "lib/foundation-overnight-closeout-morning-readiness.js",
+      "scripts/process-foundation-overnight-closeout-morning-readiness-check.mjs",
+      "docs/process/foundation-overnight-closeout-and-morning-readiness-001-plan.md",
+      "docs/process/approvals/FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001.json",
+      "docs/_archive/handoffs/2026-05-20-foundation-overnight-closeout-morning-readiness.md",
+      "package.json script process:foundation-overnight-closeout-morning-readiness-check",
+      "Foundation > Current Sprint"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-overnight-closeout-morning-readiness.js scripts/process-foundation-overnight-closeout-morning-readiness-check.mjs",
+      "npm run process:foundation-overnight-closeout-morning-readiness-check -- --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run process:current-sprint-dynamic-truth-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001 --planApprovalRef=docs/process/approvals/FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001.json --closeoutKey=foundation-overnight-closeout-morning-readiness-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001 --closeoutKey=foundation-overnight-closeout-morning-readiness-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001 --planApprovalRef=docs/process/approvals/FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001.json --closeoutKey=foundation-overnight-closeout-morning-readiness-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof rejects raw health risk/watch, repeated-failure risk, backlog hygiene risk, Current Sprint drift, unfinished required cards, dirty main, no safe continuation card, and stop-whole-sprint behavior for parked approval work.",
+    "reviewNext": "Continue SLICE-001 in FOUNDATION-TRUSTED-LOOP-AND-SAFE-SURFACES-2026-05-20.",
+    "knownLimits": [
+      "Does not start Value Builder split.",
+      "Does not authorize live Loom, Skool, Mycro, meeting-video, paid/provider, browser-auth, broad private extraction, external writes, Drive permission mutation, credential mutation, provider config, or key rotation.",
+      "If a future card hits approval-bound work, the unsafe action parks and the next safe card continues."
+    ]
+  },
+  {
+    "key": "deep-audit-findings-closure-gate-v1",
+    "backlogIds": [
+      "DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001",
+      "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+      "BUILD-LOG-API-CACHE-AND-SLIM-001",
+      "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+      "APPROVAL-THRESHOLD-REGISTRY-001",
+      "BUILD-INTEL-SNAPSHOT-BASELINE-001",
+      "BUILD-CLOSEOUT-DATA-SOURCE-001",
+      "FOCUSED-SPRINT-ID-HISTORICAL-AWARE-001",
+      "FOUNDATION-CSS-SURFACE-DECOUPLE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001 route audit findings"
+      ]
+    },
+    "systemArea": "Foundation audit",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the deep-audit findings closure gate and routed the May 19 deep-merge audit findings into live backlog truth.",
+    "whatItDoes": "Reads the May 19 deep-audit JSON, verifies all 13 P1/P2 findings have done or scoped live backlog routes, and advances Current Sprint to the first remaining P1 repair.",
+    "whyItMatters": "Deep audit findings are not allowed to sit in report files. They must become shipped proof, scoped work, or explicit follow-up truth.",
+    "whereItLives": [
+      "lib/deep-audit-findings-closure-gate.js",
+      "scripts/process-deep-audit-findings-closure-gate-check.mjs",
+      "docs/process/deep-audit-findings-closure-gate-001-plan.md",
+      "docs/process/approvals/DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001.json",
+      "docs/_archive/handoffs/2026-05-19-deep-audit-findings-closure-gate-closeout.md",
+      "docs/audits/2026-05-19-foundation-deep-merge-audit.json",
+      "package.json script process:deep-audit-findings-closure-gate-check",
+      "Foundation > Current Sprint"
+    ],
+    "proofCommands": [
+      "node --check lib/deep-audit-findings-closure-gate.js scripts/process-deep-audit-findings-closure-gate-check.mjs",
+      "npm run process:deep-audit-findings-closure-gate-check -- --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001 --planApprovalRef=docs/process/approvals/DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001.json --closeoutKey=deep-audit-findings-closure-gate-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001 --closeoutKey=deep-audit-findings-closure-gate-v1",
+      "npm run process:foundation-ship -- --card=DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001 --planApprovalRef=docs/process/approvals/DEEP-AUDIT-FINDINGS-CLOSURE-GATE-001.json --closeoutKey=deep-audit-findings-closure-gate-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods missing audit routes, duplicate finding-id route matching, and verifies 13 May 19 findings with 6 P1 and 7 P2 routes.",
+    "reviewNext": "Continue FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001 as the first remaining P1 audit repair.",
+    "knownLimits": [
+      "V1 routes audit findings; it does not implement the scoped P1/P2 repairs.",
+      "Scoped routes remain live work and must not be treated as fixed until their own cards ship.",
+      "V1 keeps external/private/provider/permission mutations out of scope."
+    ]
+  }
+]

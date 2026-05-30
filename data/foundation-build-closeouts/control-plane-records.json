@@ -1,0 +1,2392 @@
+[
+  {
+    "key": "foundation-gate-check-serialization-v1",
+    "backlogIds": [
+      "FOUNDATION-GATE-CHECK-SERIALIZATION-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-GATE-CHECK-SERIALIZATION-001",
+        "foundation-gate-check-serialization-v1",
+        "Foundation gate check serialization"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "BRAIN-FLEET-FOUNDATION-001",
+      "HARLAN-AUTH-ESCALATION-LOOP-001",
+      "BRAIN-FLEET-QUOTA-LEDGER-001",
+      "BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001",
+      "CODEX-DIRECT-SUBSCRIPTION-ROUTE-001",
+      "GEMINI-VIDEO-BRAIN-ROUTE-001",
+      "CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001",
+      "OPENCLAW-ADAPTER-BOUNDARY-001",
+      "EXTRACTOR-BRAIN-FLEET-PROOF-001",
+      "YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001",
+      "STRATEGY-003"
+    ],
+    "systemArea": "Foundation control-plane reliability",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Serialized DB-heavy Foundation proof checks before Brain Fleet/extractor readiness work so concurrent proof bundles cannot create misleading raw health failures from local DB contention.",
+    "whatItDoes": "Classifies the heavy Foundation DB proof entrypoints, wraps them in a shared local atomic lock with owner-token reentry and stale-lock cleanup, documents sequential heavy-check behavior in the Foundation ship gate, and adds focused dogfood for concurrent proof attempts, owner reentry, and permanent fail-closed failures.",
+    "whyItMatters": "Steve asked for Foundation to stay 100% clean before building. A false red from concurrent proof contention would block the run for the wrong reason; hiding real DB failures would be worse. This keeps raw health trustworthy before Brain Fleet starts.",
+    "whereItLives": [
+      "lib/foundation-gate-check-serialization.js",
+      "scripts/process-foundation-gate-check-serialization-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "scripts/process-system-health-nightly-audit-check.mjs",
+      "scripts/process-build-lane-repeated-failure-action-gate-check.mjs",
+      "scripts/backlog-hygiene.mjs",
+      "docs/process/foundation-gate-check-serialization-001-plan.md",
+      "docs/process/approvals/FOUNDATION-GATE-CHECK-SERIALIZATION-001.json",
+      "docs/process/foundation-ship-gate.md",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "docs/_archive/handoffs/2026-05-20-foundation-gate-check-serialization-closeout.md",
+      "lib/foundation-build-closeout-control-plane-records.js",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "package.json"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-gate-check-serialization.js scripts/process-foundation-gate-check-serialization-check.mjs scripts/foundation-verify.mjs scripts/process-system-health-nightly-audit-check.mjs scripts/process-build-lane-repeated-failure-action-gate-check.mjs scripts/backlog-hygiene.mjs",
+      "npm run process:foundation-gate-check-serialization-check -- --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-GATE-CHECK-SERIALIZATION-001 --planApprovalRef=docs/process/approvals/FOUNDATION-GATE-CHECK-SERIALIZATION-001.json --closeoutKey=foundation-gate-check-serialization-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-GATE-CHECK-SERIALIZATION-001 --closeoutKey=foundation-gate-check-serialization-v1",
+      "npm run process:post-ship-fanout -- --card=FOUNDATION-GATE-CHECK-SERIALIZATION-001 --closeoutKey=foundation-gate-check-serialization-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=FOUNDATION-GATE-CHECK-SERIALIZATION-001 --planApprovalRef=docs/process/approvals/FOUNDATION-GATE-CHECK-SERIALIZATION-001.json --closeoutKey=foundation-gate-check-serialization-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods two concurrent synthetic heavy-gate attempts and proves they do not overlap, proves the second waits on the local lock, proves an owner-token child proof re-enters without waiting, and proves a permanent synthetic DB verifier failure still fails closed. The required raw gates then run sequentially: System Health, repeated-failure gate, backlog hygiene, foundation:verify, and process:foundation-ship.",
+    "reviewNext": "Continue to BRAIN-FLEET-FOUNDATION-001 only after all required gates are green and main is clean/pushed. Brain Fleet v1 is no-auth contract/interface work only; no live provider probes.",
+    "knownLimits": [
+      "This does not make every future Postgres deadlock impossible.",
+      "This does not speed up or rewrite foundation:verify.",
+      "This does not approve provider probes, model calls, extraction, auth-required sources, credential mutation, or external writes.",
+      "This does not start Strategy Hub, STRATEGY-003, or People work."
+    ]
+  },
+  {
+    "key": "foundation-control-plane-truth-cleanup-v1",
+    "backlogIds": [
+      "FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001",
+        "foundation-control-plane-truth-cleanup-v1",
+        "Foundation control-plane truth cleanup"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "BRAIN-FLEET-FOUNDATION-001",
+      "BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001",
+      "EXTRACTOR-BRAIN-FLEET-PROOF-001",
+      "EXTRACTOR-OVERNIGHT-RUN-GUARD-001",
+      "STRATEGY-003"
+    ],
+    "systemArea": "Foundation control-plane truth",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Repaired the live Current Sprint and plan-reconcile control plane so active work follows Steve May 20 order: Foundation/control-plane cleanup, Brain Fleet, extractor proof, extraction scale, then Strategy Hub. The current-sprint active-card proof no longer requires stale overnight sprint IDs as live truth, the foundation-plan reconcile proof treats the May 12 control-plane sprint as historical closeout truth, the verifier uses durable closeout fallback for old reliability proof after the Recent Builds window rolls forward, and the Current Sprint overlay parks Strategy behind Brain Fleet and extractor proof.",
+    "whatItDoes": "Makes the cleanup itself auditable through a focused proof that validates May 20 deep-audit finding routing, Current Sprint active-card health, active docs/API agreement, closeout coverage, verifier coverage, and the live backlog order before Foundation work can proceed.",
+    "whyItMatters": "Foundation was otherwise raw green, but command truth still pointed at stale assumptions. Steve should not have to manually notice that the health plane and the work-order plane disagree before starting the next build.",
+    "whereItLives": [
+      "lib/foundation-control-plane-truth-cleanup.js",
+      "scripts/process-foundation-control-plane-truth-cleanup-check.mjs",
+      "scripts/process-current-sprint-active-card-gate-check.mjs",
+      "scripts/process-foundation-plan-reconcile-check.mjs",
+      "docs/process/foundation-control-plane-truth-cleanup-001-plan.md",
+      "docs/process/approvals/FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001.json",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "docs/_archive/handoffs/2026-05-20-foundation-control-plane-truth-cleanup-closeout.md",
+      "lib/foundation-build-closeout-control-plane-records.js",
+      "lib/foundation-verifier-build-log-closeouts.js",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "package.json"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-control-plane-truth-cleanup.js scripts/process-foundation-control-plane-truth-cleanup-check.mjs scripts/process-current-sprint-active-card-gate-check.mjs scripts/process-foundation-plan-reconcile-check.mjs",
+      "npm run process:foundation-control-plane-truth-cleanup-check -- --close-card --json",
+      "npm run process:deep-audit-findings-closure-gate-check -- --json",
+      "npm run process:current-sprint-active-card-gate-check -- --json",
+      "npm run process:foundation-plan-reconcile-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001 --planApprovalRef=docs/process/approvals/FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001.json --closeoutKey=foundation-control-plane-truth-cleanup-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001 --closeoutKey=foundation-control-plane-truth-cleanup-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001 --planApprovalRef=docs/process/approvals/FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001.json --closeoutKey=foundation-control-plane-truth-cleanup-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "May 20 deep audit ran with 7 deterministic findings and 0 P0; every P1/P2 finding is routed to done/scoped/accepted owner truth. Focused proof closes the exact failure mode where active-card and plan-reconcile checks expected old sprint/order assumptions while Steve ordered control-plane cleanup first. Ship retry also proved old GATE-RELIABILITY-002/003 closeouts remain durable after the Recent Builds window rolls forward instead of failing with closeout=missing. Final ship proof requires raw System Health 0 risk / 0 watch, repeated-failure gate healthy, backlog hygiene healthy, foundation:verify green, process:foundation-ship green, and clean pushed main.",
+    "reviewNext": "Pause after ship. The next scoped blocker is BRAIN-FLEET-FOUNDATION-001; do not start it until Steve gives the next build order.",
+    "knownLimits": [
+      "This does not implement Brain Fleet.",
+      "This does not run extractor proof or extraction scale.",
+      "This does not start STRATEGY-003, Strategy Hub, or People work.",
+      "This does not run live extraction, source crawls, transcript fetches, screenshots, keyframes, downloads, model/provider calls, or paid/private auth.",
+      "This does not mutate credentials, provider config, Drive permissions, external systems, emails, public posts, or source systems."
+    ]
+  },
+  {
+    "key": "backlog-scrum-master-grooming-v1",
+    "backlogIds": [
+      "BACKLOG-SCRUM-MASTER-GROOMING-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Ship backlog scrum master grooming",
+        "BACKLOG-SCRUM-MASTER-GROOMING-001",
+        "backlog-scrum-master-grooming-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-SURFACE-UPDATES-001",
+      "FOUNDATION-SYSTEMS-EMPTY-GROUP-AUDIT-001",
+      "SYSTEM-010",
+      "FOUNDATION-USERS-001",
+      "SOURCE-001",
+      "SOURCE-002",
+      "SOURCE-003",
+      "SOURCE-012",
+      "SOURCE-ID-ARRAY-PROVENANCE-IMPLEMENTATION-001",
+      "SECURITY-006",
+      "SECURITY-PROVIDER-ROTATION-PROOF-001",
+      "SECURITY-EDGE-001",
+      "SECURITY-FILTERED-COMMS-ACCESS-001",
+      "EXTRACT-CURRENT-001",
+      "EXTRACT-BACKFILL-001",
+      "DRIVE-CONTENT-001",
+      "EMAIL-ATTACHMENTS-001",
+      "MEETING-VIDEO-001",
+      "EXTRACTION-TEAM-001",
+      "MARKETING-PIPELINE-REBUILD-001",
+      "MKT-002",
+      "MARKETING-PIPELINE-REBUILD",
+      "REPLY-WATCHING-LOOP",
+      "REPLY-WATCHING-LOOP-001"
+    ],
+    "systemArea": "Foundation backlog truth / sprint planning hygiene",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a live backlog grooming sprint that classifies all non-done cards, aliases duplicate/overlap cards, enriches thin high-priority cards, scans done-card integrity lightly, and publishes the next sprint bundles from live backlog truth. During ship-gate repair, compacted bulky Recent Changes and Per-User Changelog rows in the Foundation Hub payload so the existing route budgets stay green as the backlog grows.",
+    "whatItDoes": "Keeps active and next sprint queues from pulling missing, thin, duplicate-without-alias, stale/parked, or done cards as active work. The focused proof reads live backlog, Current Sprint, Plan Critic, approval, package, queue doc, and closeout registry truth, then dogfoods the bad queue cases through the same function path.",
+    "whyItMatters": "Foundation can only keep shipping safely if sprint planning starts from groomed live backlog truth. Steve should not have to spot stale cards, duplicate labels, thin cards, or old done-card references manually before choosing the next sprint.",
+    "whereItLives": [
+      "lib/backlog-scrum-master-grooming.js",
+      "lib/hub-read-routes.js",
+      "scripts/process-backlog-scrum-master-grooming-check.mjs",
+      "package.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-next-sprint-queue.md",
+      "docs/process/backlog-scrum-master-grooming-001-plan.md",
+      "docs/process/approvals/BACKLOG-SCRUM-MASTER-GROOMING-001.json",
+      "lib/foundation-build-closeout-control-plane-records.js",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-backlog-scrum-master-grooming-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/backlog-scrum-master-grooming.js scripts/process-backlog-scrum-master-grooming-check.mjs lib/foundation-build-closeout-control-plane-records.js lib/foundation-verify-coverage-card-ids.js",
+      "npm run process:backlog-scrum-master-grooming-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=BACKLOG-SCRUM-MASTER-GROOMING-001 --planApprovalRef=docs/process/approvals/BACKLOG-SCRUM-MASTER-GROOMING-001.json --closeoutKey=backlog-scrum-master-grooming-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BACKLOG-SCRUM-MASTER-GROOMING-001 --closeoutKey=backlog-scrum-master-grooming-v1",
+      "npm run process:post-ship-fanout -- --card=BACKLOG-SCRUM-MASTER-GROOMING-001 --closeoutKey=backlog-scrum-master-grooming-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=BACKLOG-SCRUM-MASTER-GROOMING-001 --planApprovalRef=docs/process/approvals/BACKLOG-SCRUM-MASTER-GROOMING-001.json --closeoutKey=backlog-scrum-master-grooming-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof classifies every non-done card, verifies alias/supersede targets for MKT-002, MARKETING-PIPELINE-REBUILD, and REPLY-WATCHING-LOOP, confirms thin high-priority cards are enriched or explicitly blocked/stale/duplicate, confirms active/next queue bundles exclude missing/thin/duplicate/stale/done cards, and dogfoods each failure mode. Done-card scan found no blocking active/next issues and surfaced only legacy weak-proof warnings. Full verifier payload repair kept default Foundation Hub and full diagnostics route budgets green without rerunning live Agent Feedback auto-send.",
+    "reviewNext": "Pause after ship. Recommended next sprint bundle is foundation-operator-surface-truth, starting with FOUNDATION-SURFACE-UPDATES-001, only after Steve starts that sprint.",
+    "knownLimits": [
+      "This does not start FOUNDATION-SURFACE-UPDATES-001.",
+      "This does not start another root split.",
+      "This does not resolve legacy weak-proof done-card warnings; it confirms none are referenced as active/next work.",
+      "Security/access cards may still need Steve/provider/source-access action before execution even though they are grouped for planning.",
+      "This does not touch Harlan, Fal, voice, Canva, hub feature work, connector feature work, Agent Feedback live auto-send, DB schema, shared feature files, or Steve local mockup assets.",
+      "Route work was limited to Foundation Hub payload compaction for Recent Changes and Per-User Changelog budget repair; it did not add feature behavior or external writes."
+    ]
+  },
+  {
+    "key": "backlog-queue-reconcile-v1",
+    "backlogIds": [
+      "BACKLOG-QUEUE-RECONCILE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Ship backlog queue reconcile guardrail",
+        "BACKLOG-QUEUE-RECONCILE-001",
+        "backlog-queue-reconcile-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SYSTEM-HEALTH-NIGHTLY-AUDIT-001",
+      "SYSTEM-HEALTH-RED-TO-GREEN-001",
+      "CRITICAL-FILES-UNDER-5K-001",
+      "FILE-SIZE-ENGINEERING-STANDARD-001",
+      "CRITICAL-ROOTS-UNDER-3K-PHASE-1",
+      "CONNECTOR-COMPLETION-SPRINT",
+      "NO-AUTH-CONNECTOR-COMPLETION-001",
+      "FOUNDATION-SURFACE-UPDATES-001"
+    ],
+    "systemArea": "Foundation backlog truth / sprint queue control",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Reconciled the May 17 Foundation next-sprint queue so live backlog cards, former handoff labels, process artifacts, and next-step truth agree before more building.",
+    "whatItDoes": "Makes the queue handoff derive from live backlog truth: former labels map to existing live cards where appropriate, `BACKLOG-QUEUE-RECONCILE-001` owns this guardrail sprint, the focused proof fails when a queue references a missing live card without an explicit alias, and the historical sprint-gate verifier accepts a healthy completed-sprint review state without requiring stale active-blocker wording.",
+    "whyItMatters": "Foundation sprint order cannot depend on chat-only or handoff-only labels. Steve and future builders need the queue to point at real backlog cards so work is shipped, closed out, and reviewed against the same operational truth.",
+    "whereItLives": [
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-next-sprint-queue.md",
+      "docs/process/backlog-queue-reconcile-001-plan.md",
+      "docs/process/approvals/BACKLOG-QUEUE-RECONCILE-001.json",
+      "scripts/process-backlog-queue-reconcile-check.mjs",
+      "package.json",
+      "lib/foundation-verify-coverage-card-ids.js",
+      "lib/foundation-current-sprint-verifier.js complete-review state guard",
+      "lib/foundation-verifier-sprint-gate-progression.js complete-review state guard",
+      "lib/foundation-build-closeout-control-plane-records.js",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-backlog-queue-reconcile-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check scripts/process-backlog-queue-reconcile-check.mjs lib/foundation-build-closeout-control-plane-records.js lib/foundation-verify-coverage-card-ids.js lib/foundation-current-sprint-verifier.js lib/foundation-verifier-sprint-gate-progression.js",
+      "npm run process:backlog-queue-reconcile-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=BACKLOG-QUEUE-RECONCILE-001 --planApprovalRef=docs/process/approvals/BACKLOG-QUEUE-RECONCILE-001.json --closeoutKey=backlog-queue-reconcile-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BACKLOG-QUEUE-RECONCILE-001 --closeoutKey=backlog-queue-reconcile-v1",
+      "npm run process:post-ship-fanout -- --card=BACKLOG-QUEUE-RECONCILE-001 --closeoutKey=backlog-queue-reconcile-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=BACKLOG-QUEUE-RECONCILE-001 --planApprovalRef=docs/process/approvals/BACKLOG-QUEUE-RECONCILE-001.json --closeoutKey=backlog-queue-reconcile-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the queue doc against live backlog IDs, verifies required mappings, confirms alias context is present on existing live cards, and dogfoods missing-card, explicit-alias, and missing-alias-target fixtures. The verifier repair keeps completed-sprint review green only when both Current Sprint status and the served hub API are healthy.",
+    "reviewNext": "Pause after ship. Recommended next live backlog sprint is FOUNDATION-SURFACE-UPDATES-001; do not start it inside this reconcile sprint.",
+    "knownLimits": [
+      "This does not start FOUNDATION-SURFACE-UPDATES-001.",
+      "This does not start another under-3K split.",
+      "This does not create duplicate cards for SYSTEM-HEALTH-RED-TO-GREEN-001 or NO-AUTH-CONNECTOR-COMPLETION-001 because existing live cards own that work.",
+      "This does not touch Harlan, Fal, voice, Canva, hub feature work, connector auth, Agent Feedback live auto-send, DB schema, route behavior, or Steve local mockup assets."
+    ]
+  },
+  {
+    "key": "foundation-build-closeout-registry-split-v1",
+    "backlogIds": [
+      "FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001",
+        "Foundation build closeout registry split",
+        "foundation-build-closeout-registry-split-v1",
+        "Split build closeout registry"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-SWEEP-001",
+      "CLEANUP-003"
+    ],
+    "systemArea": "Foundation build log / closeout registry truth",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split the oversized Foundation build closeout registry into a dedicated control-plane closeout module and kept the root registry below the architecture-risk threshold.",
+    "whatItDoes": "Keeps Recent Builds and ship-gate closeout lookup behavior intact while moving the recent Foundation/control-plane closeout records out of the root closeout registry. The focused proof compares required records through the actual build-log lookup path and rejects a dropped-record fixture.",
+    "whyItMatters": "Closeout registry truth is now load-bearing for sprint review and ship gates. If that registry becomes another monolith, Steve loses trust in Recent Builds and future cleanup work can silently drop historical closeout context.",
+    "whereItLives": [
+      "lib/foundation-build-closeout-control-plane-records.js",
+      "lib/foundation-build-closeout-records.js",
+      "lib/foundation-build-closeout-registry-split.js",
+      "lib/foundation-build-log-source.js",
+      "scripts/process-foundation-build-closeout-registry-split-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "docs/process/foundation-build-closeout-registry-split-001-plan.md",
+      "docs/process/approvals/FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-foundation-build-closeout-registry-split-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-build-closeout-control-plane-records.js lib/foundation-build-closeout-registry-split.js scripts/process-foundation-build-closeout-registry-split-check.mjs lib/foundation-build-closeout-records.js lib/foundation-build-log-source.js scripts/foundation-verify.mjs",
+      "npm run process:foundation-build-closeout-registry-split-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001.json --closeoutKey=foundation-build-closeout-registry-split-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001 --closeoutKey=foundation-build-closeout-registry-split-v1",
+      "npm run process:post-ship-fanout -- --card=FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001 --closeoutKey=foundation-build-closeout-registry-split-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001.json --closeoutKey=foundation-build-closeout-registry-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood accepts the split registry, rejects a missing moved-record fixture, checks the root registry is below 5,000 lines, confirms closeout validation is clean, and confirms FOUNDATION-SWEEP-001 remains visible through the 500-row build-log lookup.",
+    "reviewNext": "Continue verifier and Foundation DB monolith cleanup after sprint review. Do not use the closeout registry as a place to hide new behavior.",
+    "knownLimits": [
+      "This does not split the overnight closeout registry module.",
+      "This does not change Recent Builds behavior beyond source discovery for split registry modules.",
+      "This does not reduce scripts/foundation-verify.mjs or lib/foundation-db.js.",
+      "This does not build Canva, Marketing, Build Intel, hub feature work, or paid-source auth."
+    ]
+  },
+  {
+    "key": "source-outage-boundary-v1",
+    "backlogIds": [
+      "SOURCE-OUTAGE-BOUNDARY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-OUTAGE-BOUNDARY-001",
+        "Source outage boundary",
+        "source-outage-boundary-v1",
+        "Handle ClickUp read outages as degraded source health"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "HUB-001"
+    ],
+    "systemArea": "Foundation source boundaries / ClickUp read health",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a fail-soft ClickUp read boundary so Foundation and Ops report paths expose degraded source health instead of crashing or pretending ClickUp returned clean data.",
+    "whatItDoes": "Converts ClickUp read failures into sanitized degraded source-health snapshots for dashboard/report paths while keeping existing write paths fail-hard. Agent Roster shows a source-degraded queue item, and agent feedback auto-send, production dry-run, and reminder readiness fail closed with no Gmail, ClickUp, or ledger side effects.",
+    "whyItMatters": "A ClickUp `500 DB_003` blocked the `HUB-001` ship path and exposed that external connector outages could take down Foundation/Ops read APIs. Foundation must separate internal code health from vendor uptime so Steve can keep working while the dashboard clearly says which source is degraded.",
+    "whereItLives": [
+      "lib/clickup.js safe read snapshots and source-health metadata",
+      "lib/agent-roster-review.js source-degraded queue item",
+      "lib/agent-feedback-auto-send.js fail-closed source outage readiness",
+      "lib/agent-feedback-production-autosend-dry-run.js source outage dry-run status",
+      "lib/agent-feedback-reminders.js reminder fail-closed source outage readiness",
+      "lib/source-outage-boundary.js dogfood proof builder",
+      "scripts/process-source-outage-boundary-check.mjs focused process gate",
+      "server.js Foundation/Ops sourceOutageBoundary payloads",
+      "package.json process:source-outage-boundary-check",
+      "docs/process/source-outage-boundary-001-plan.md",
+      "docs/process/approvals/SOURCE-OUTAGE-BOUNDARY-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-source-outage-boundary-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/clickup.js lib/agent-roster-review.js lib/agent-feedback-auto-send.js lib/agent-feedback-production-autosend-dry-run.js lib/agent-feedback-reminders.js lib/source-outage-boundary.js scripts/process-source-outage-boundary-check.mjs server.js",
+      "npm run process:source-outage-boundary-check -- --json",
+      "npm run process:hub-work-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=SOURCE-OUTAGE-BOUNDARY-001 --planApprovalRef=docs/process/approvals/SOURCE-OUTAGE-BOUNDARY-001.json --closeoutKey=source-outage-boundary-v1",
+      "npm run process:fanout-check -- --card=SOURCE-OUTAGE-BOUNDARY-001 --closeoutKey=source-outage-boundary-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-OUTAGE-BOUNDARY-001 --planApprovalRef=docs/process/approvals/SOURCE-OUTAGE-BOUNDARY-001.json --closeoutKey=source-outage-boundary-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood recreates a ClickUp `500 DB_003`, proves the error becomes sanitized degraded source health, proves Agent Roster does not show fake zero issues, and proves auto-send, production dry-run, and reminders do not produce Gmail, ClickUp, or ledger side effects while the source is unavailable. The focused gate also checks live Foundation and Ops API routes expose source outage boundary status.",
+    "reviewNext": "Stop at sprint review after the recovery card ships. The nightly code audit remains report-only; a separate connector uptime monitor can be scoped later if Steve wants proactive external-source alerts.",
+    "knownLimits": [
+      "This does not repair ClickUp if ClickUp itself is returning 500.",
+      "This does not make ClickUp write paths fail soft.",
+      "This does not add a recurring connector uptime scheduler.",
+      "This does not build Sales, Ops, Build Intel, or hub feature work.",
+      "This does not make the nightly code audit autonomous."
+    ]
+  },
+  {
+    "key": "hub-work-coordination-v1",
+    "backlogIds": [
+      "HUB-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "HUB-001",
+        "Hub Work Coordination",
+        "hub-work-coordination-v1",
+        "Add hub sprint checkpoints for Sales and Ops work"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SALES-GLS-MANAGER-USABILITY-001"
+    ],
+    "systemArea": "Foundation process / hub coordination",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a lightweight hub-work coordination rail with a protocol, ownership matrix, hub prompt template, handoff template, and deterministic manifest validator.",
+    "whatItDoes": "Lets Sales, Ops, Strategy, and future hub chats keep working in parallel as product/workflow layers while Foundation remains the substrate/control plane. Hub chats can edit hub-owned files, but shared/Foundation/process files require main-session coordination before merge or push.",
+    "whyItMatters": "Steve needs to keep building hub feedback in live meetings without turning every hub chat into Foundation drift. This gives hub builders a small plan/handoff manifest and gives the main session a fast gate that catches missing card, proof, handoff, uncoordinated shared files, or premature push claims.",
+    "whereItLives": [
+      "docs/process/hub-work-protocol.md",
+      "docs/process/hub-file-ownership-matrix.json",
+      "docs/process/hub-chat-prompt-template.md",
+      "docs/process/hub-handoff-template.md",
+      "lib/hub-work-check.js",
+      "scripts/process-hub-work-check.mjs",
+      "package.json process:hub-work-check",
+      "docs/process/hub-work-coordination-001-plan.md",
+      "docs/process/approvals/HUB-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-hub-work-coordination-sprint-handoff.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-hub-work-coordination-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/hub-work-check.js scripts/process-hub-work-check.mjs",
+      "npm run process:hub-work-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=HUB-001 --planApprovalRef=docs/process/approvals/HUB-001.json --closeoutKey=hub-work-coordination-v1",
+      "npm run process:fanout-check -- --card=HUB-001 --closeoutKey=hub-work-coordination-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=HUB-001 --planApprovalRef=docs/process/approvals/HUB-001.json --closeoutKey=hub-work-coordination-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates live backlog/card doctrine, approval integrity, Plan Critic pass row, required docs, ownership matrix coverage, and nine dogfood manifest cases. Dogfood proves Sales/Ops hub-owned files pass, uncoordinated Foundation files fail, coordinated shared package changes pass, missing card/proof/handoff fail, premature push fails, and unknown files fail.",
+    "reviewNext": "Hub chats may now continue with Sales/Ops/Strategy work using the prompt and handoff manifest. Main Foundation work should return to the next hardening/monolith cleanup card unless Steve explicitly prioritizes a hub build.",
+    "knownLimits": [
+      "This does not create a separate Hub Sprint board UI.",
+      "This does not build Sales, Ops, Strategy, or Marketing hub features.",
+      "This does not automatically parse another chat transcript into a manifest.",
+      "This does not allow hub chats to commit or push without main-session coordination.",
+      "This does not weaken Foundation/process ownership for `server.js`, `package.json`, `lib/foundation-*`, `scripts/process-*`, or `docs/process/*`."
+    ]
+  },
+  {
+    "key": "sales-gls-manager-usability-v1",
+    "backlogIds": [
+      "SALES-GLS-MANAGER-USABILITY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SALES-GLS-MANAGER-USABILITY-001",
+        "Sales GLS Manager usability",
+        "Sales GLS manager filters",
+        "Add Sales GLS manager filters and snooze controls",
+        "sales-gls-manager-usability-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SALES-GLS-SCOREBOARD-V1",
+      "SALES-GLS-GROUPING-OVERRIDES-001",
+      "SALES-GLS-RESTALE-REOPEN-001",
+      "HUB-001"
+    ],
+    "systemArea": "Sales Hub GLS Manager",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added GLS Manager queue filters, default active-view hiding for snoozed/blocked/failed/sold work, per-listing and grouped-project snooze controls, a Print / PDF action, and tighter active-pipeline semantics for assigned/taken-on/game-plan counts.",
+    "whatItDoes": "Sales leaders can view active GLS work, needs-owner cases, needs-plan cases, adjusted-but-unsold cases, snoozed cases, blocked/failed cases, sold/closed cases, or all cases. Snooze state is stored in existing GLS case metadata as `glsSnooze` and is preserved through the existing assignment upsert path. Active pipeline metrics now avoid treating adjusted or closed outcomes as proof that a game plan was created.",
+    "whyItMatters": "Steve and Nick need GLS to operate like a manager queue instead of a raw stale-listing list. The active view now focuses attention on live cases that need action while keeping paused, failed, and sold work available in explicit review lanes.",
+    "whereItLives": [
+      "public/sales.js GLS Manager filters, snooze controls, and filtered manager report",
+      "public/styles.css Sales manager filter and snooze control styling",
+      "lib/sales-hub-case-metadata.js Sales Hub case metadata helper for `glsSnooze`",
+      "server.js Sales Hub case endpoints call the Sales-owned metadata helper",
+      "lib/sales-listing-assignments.js sanitized GLS snooze metadata",
+      "lib/sales-listing-inventory.js grouped-project snooze propagation and active-pipeline metric semantics",
+      "scripts/process-sales-listings-hub-check.mjs focused Sales Hub proof and manager-filter dogfood assertions",
+      "docs/process/sales-gls-manager-usability-001-plan.md",
+      "docs/process/approvals/SALES-GLS-MANAGER-USABILITY-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-sales-gls-manager-usability-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check scripts/process-sales-listings-hub-check.mjs public/sales.js lib/sales-listing-assignments.js lib/sales-listing-inventory.js lib/sales-hub-case-metadata.js server.js",
+      "git diff --check",
+      "npm run process:sales-listings-hub-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=SALES-GLS-MANAGER-USABILITY-001 --planApprovalRef=docs/process/approvals/SALES-GLS-MANAGER-USABILITY-001.json --closeoutKey=sales-gls-manager-usability-v1",
+      "npm run process:fanout-check -- --card=SALES-GLS-MANAGER-USABILITY-001 --closeoutKey=sales-gls-manager-usability-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=SALES-GLS-MANAGER-USABILITY-001 --planApprovalRef=docs/process/approvals/SALES-GLS-MANAGER-USABILITY-001.json --closeoutKey=sales-gls-manager-usability-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused Sales proof passes against live ClickUp/AIOS data and executes the real browser manager-filter functions in a VM. Dogfood assertions prove active view includes normal and adjusted-but-unsold work, excludes snoozed/blocked/sold work, and routes those cases into their explicit review filters.",
+    "reviewNext": "Stop at Sales Hub review. `HUB-001` is scoped as the next process work: add a lightweight hub-sprint/checkpoint flow so Sales and Ops chats can build in parallel without bypassing backlog, proof, and closeout discipline.",
+    "knownLimits": [
+      "This does not write changes back to ClickUp.",
+      "This does not add manual split/merge controls for grouped GLS cases.",
+      "This does not create a separate Hub Sprint board; this slice was reviewed and closed after the Sales chat built it.",
+      "This does not build the Sales KPI coach, FUB cleanup, or broader Sales Hub product layer.",
+      "This does not change the Foundation current sprint board semantics."
+    ]
+  },
+  {
+    "key": "foundation-db-store-split-v1",
+    "backlogIds": [
+      "FOUNDATION-DB-STORE-SPLIT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-DB-STORE-SPLIT-001",
+        "Foundation DB store split",
+        "Split foundation current sprint store",
+        "foundation-db-store-split-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CLEANUP-003",
+      "CURRENT-SPRINT-MUTATION-GUARDS-001",
+      "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "FOUNDATION-PERFORMANCE-001"
+    ],
+    "systemArea": "Foundation monolith cleanup",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split the Current Sprint store and mutation guard behavior out of `lib/foundation-db.js` into `lib/foundation-current-sprint-store.js` while preserving the existing public exports from `foundation-db.js`. Ship-gate repair also made synthesis proof use a stable source-backed Strategy query and kept stale hit-list snapshot age as a visible warning instead of a hard verifier blocker.",
+    "whatItDoes": "Current Sprint reads, Plan Critic run reads, overlay upserts, mutation guard errors, item diffing, and the Current Sprint mutation dogfood proof now live in a dedicated store module. `foundation-db.js` wires through that module so existing callers keep using the same API.",
+    "whyItMatters": "The deep audit found Foundation DB code had grown into a 19K-line monolith. This safe split reduces the blast radius around sprint-board state and makes future parallel Foundation/hub work easier to review without weakening write guards.",
+    "whereItLives": [
+      "lib/foundation-current-sprint-store.js Current Sprint store factory, guard, evaluator, and dogfood proof",
+      "lib/foundation-db.js compatibility exports and store wiring",
+      "scripts/process-foundation-db-store-split-check.mjs focused proof",
+      "scripts/foundation-verify.mjs verifier coverage",
+      "scripts/intelligence-synthesis-engine-proof.mjs stable Strategy proof query",
+      "scripts/process-runtime-safety-hardening-check.mjs updated mutation guard source check",
+      "package.json process:foundation-db-store-split-check",
+      "docs/process/foundation-db-store-split-001-plan.md",
+      "docs/process/approvals/FOUNDATION-DB-STORE-SPLIT-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-db-store-split-sprint-handoff.md"
+    ],
+    "proofCommands": [
+      "npm run process:foundation-db-store-split-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FOUNDATION-DB-STORE-SPLIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-STORE-SPLIT-001.json --closeoutKey=foundation-db-store-split-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-DB-STORE-SPLIT-001 --closeoutKey=foundation-db-store-split-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=FOUNDATION-DB-STORE-SPLIT-001 --planApprovalRef=docs/process/approvals/FOUNDATION-DB-STORE-SPLIT-001.json --closeoutKey=foundation-db-store-split-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof shows `lib/foundation-db.js` dropped from 19,594 lines to 18,961 lines, the new store module owns the extracted behavior, the old unsplit shape fails dogfood evaluation, and the actual Current Sprint mutation dogfood proof still blocks unsafe writes after the split. Full verification passed 295/295 after refreshing LLM auth job proof and synthesis proof, and after correcting verifier handling for a stale manual hit-list snapshot warning.",
+    "reviewNext": "Stop at sprint review. Recommended next cleanup slice should split another named monolith seam, likely a small verifier or server route module, unless Steve explicitly chooses hub work with strict file ownership.",
+    "knownLimits": [
+      "This does not finish splitting `lib/foundation-db.js`; it is still oversized and needs more safe slices.",
+      "This does not split `public/foundation.js`, `server.js`, or `scripts/foundation-verify.mjs`.",
+      "The manual hit-list snapshot is still stale and should be refreshed from Steve when he wants that source updated; this slice only keeps the stale warning visible without blocking unrelated Foundation ships.",
+      "This does not build Sales Hub, Ops Hub, Build Intel, external extraction, paid auth, or autonomous dev.",
+      "This preserves the existing public Foundation DB API instead of creating a new database abstraction."
+    ]
+  },
+  {
+    "key": "foundation-build-log-monolith-slice-v1",
+    "backlogIds": [
+      "CLEANUP-003"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "CLEANUP-003",
+        "Foundation build log monolith slice",
+        "Split foundation build log closeout registry",
+        "foundation-build-log-monolith-slice-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "PLAN-CRITIC-ARCHITECTURAL-RULES-001",
+      "FOUNDATION-PERFORMANCE-001"
+    ],
+    "systemArea": "Foundation monolith cleanup",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Split the static Foundation build closeout registry out of `lib/foundation-build-log.js` into `lib/foundation-build-closeout-records.js`, leaving the build-log module as behavior only.",
+    "whatItDoes": "Recent Builds and build-log enrichment still call the same public functions, but static closeout data now lives in a data-only module. The focused proof checks the real function path, validation, ownership proof, line-count budget, and a dogfood unsplit failure.",
+    "whyItMatters": "The deep code audit found oversized Foundation files making review slower and rot easier to miss. This is the first low-risk monolith split: code and static data no longer live in the same 5K+ line build-log file.",
+    "whereItLives": [
+      "lib/foundation-build-closeout-records.js data-only closeout registry",
+      "lib/foundation-build-log.js behavior module and compatibility exports",
+      "lib/foundation-build-log-monolith-slice.js line-budget evaluator and dogfood proof",
+      "scripts/process-foundation-build-log-monolith-slice-check.mjs focused proof",
+      "scripts/foundation-verify.mjs verifier coverage",
+      "package.json process:foundation-build-log-monolith-slice-check",
+      "docs/process/cleanup-003-foundation-build-log-monolith-slice-plan.md",
+      "docs/process/approvals/CLEANUP-003.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-foundation-build-log-monolith-slice-sprint-handoff.md"
+    ],
+    "proofCommands": [
+      "npm run process:foundation-build-log-monolith-slice-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=CLEANUP-003 --planApprovalRef=docs/process/approvals/CLEANUP-003.json --closeoutKey=foundation-build-log-monolith-slice-v1",
+      "npm run process:fanout-check -- --card=CLEANUP-003 --closeoutKey=foundation-build-log-monolith-slice-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=CLEANUP-003 --planApprovalRef=docs/process/approvals/CLEANUP-003.json --closeoutKey=foundation-build-log-monolith-slice-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof shows `lib/foundation-build-log.js` dropped from 5,823 lines to 277 lines, closeout validation stays clean, recent closeout keys still resolve through `getFoundationBuildCloseouts()`, ownership proof still passes, and synthetic unsplit oversized build-log shape fails closed.",
+    "reviewNext": "Stop at sprint review. Recommended next cleanup should split another named seam from the monolith audit, not launch product or Build Intel work.",
+    "knownLimits": [
+      "This does not split `lib/foundation-db.js`, `public/foundation.js`, `server.js`, or the verifier monolith.",
+      "This does not reduce the total number of closeout-record lines; it separates static data from behavior.",
+      "This does not build Build Intel, product hubs, autonomous dev, or broad frontend cleanup."
+    ]
+  },
+  {
+    "key": "foundation-performance-v1",
+    "backlogIds": [
+      "FOUNDATION-PERFORMANCE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-PERFORMANCE-001",
+        "Foundation Hub performance",
+        "foundation-performance-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-API-PERF-AUDIT-001",
+      "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+      "FOUNDATION-MONOLITH-RISK-AUDIT-001"
+    ],
+    "systemArea": "Foundation command-surface performance",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Changed `/api/foundation-hub` from a full diagnostic payload by default into a fast summary command-surface payload, while preserving the old diagnostic payload at `/api/foundation-hub?view=full`.",
+    "whatItDoes": "Normal Foundation pages now load the small summary payload from `getFoundationCoreSnapshot()`. Runtime Health can still request full diagnostics explicitly. The response includes performance metadata and budget status, and the focused proof measures both real routes plus a synthetic dogfood budget failure.",
+    "whyItMatters": "The deep audit found the default Foundation Hub route taking about 63.5 seconds and sending roughly 4.5 MB. That made the command surface feel broken and hid performance rot behind green process checks. This card makes the normal path fast without deleting diagnostic depth.",
+    "whereItLives": [
+      "lib/foundation-db.js getFoundationCoreSnapshot",
+      "lib/foundation-hub-performance.js budgets and dogfood proof",
+      "server.js /api/foundation-hub summary/full split",
+      "public/foundation.js full diagnostic fetch for Runtime Health",
+      "scripts/process-foundation-performance-check.mjs focused real-route proof",
+      "scripts/foundation-verify.mjs verifier coverage",
+      "package.json process:foundation-performance-check",
+      "docs/process/foundation-performance-001-plan.md",
+      "docs/process/approvals/FOUNDATION-PERFORMANCE-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-foundation-performance-hardening-sprint-handoff.md"
+    ],
+    "proofCommands": [
+      "npm run process:foundation-performance-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FOUNDATION-PERFORMANCE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-PERFORMANCE-001.json --closeoutKey=foundation-performance-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-PERFORMANCE-001 --closeoutKey=foundation-performance-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=FOUNDATION-PERFORMANCE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-PERFORMANCE-001.json --closeoutKey=foundation-performance-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof measured the real default route dropping from the captured baseline of about 63.5s / 4.5 MB to about 129ms / 831 KB. It also proves the explicit full route remains available with Runtime Health diagnostic keys, the summary route stays under the 2500ms / 1.5 MB budget, and synthetic oversized/too-slow payloads fail closed.",
+    "reviewNext": "Stop at sprint review. Recommended next hardening work is oversized-file/monolith split and deeper frontend route/cache cleanup, not product or Build Intel features.",
+    "knownLimits": [
+      "The full diagnostic route is intentionally still heavy and should be optimized separately.",
+      "This does not split the existing oversized files.",
+      "This does not build product features, Build Intel extraction, autonomous dev, or hub work."
+    ]
+  },
+  {
+    "key": "plan-critic-architectural-rules-v1",
+    "backlogIds": [
+      "PLAN-CRITIC-ARCHITECTURAL-RULES-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Plan Critic architecture guardrails",
+        "PLAN-CRITIC-ARCHITECTURAL-RULES-001",
+        "architecture guardrail"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-API-PERF-AUDIT-001",
+      "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+      "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "VERIFIER-ASSUMPTION-REGISTRY-001"
+    ],
+    "systemArea": "Foundation Plan Critic architecture guardrails",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Upgraded Plan Critic with deterministic architecture-risk rules that reject plans touching large files without a split plan, check/process scripts that write without explicit apply posture, verifier/check paths that repair live state, durable plans without focused proof, and audit-fix plans without dogfood proof.",
+    "whatItDoes": "The architecture layer runs inside the real `evaluatePlanCriticPlan()` path when enabled. It inspects changed files, file sizes, and the plan text, then adds critical findings before implementation can start. The focused proof dogfoods the exact rot patterns from the deep audit by feeding synthetic bad plans through the same function path and proving each one revises while a compliant plan passes.",
+    "whyItMatters": "Steve asked for the rebuild to stop relying on him to notice senior-engineering risks. This makes Plan Critic catch the file-size, write-boundary, verifier-trust, missing-proof, and audit-fix theater patterns before Codex starts building.",
+    "whereItLives": [
+      "lib/plan-critic-architectural-rules.js deterministic architecture rules",
+      "lib/process-plan-critic.js architecture-rule integration and synthetic dogfood proof",
+      "scripts/process-plan-critic-architectural-rules-check.mjs focused proof",
+      "scripts/foundation-verify.mjs verifier coverage",
+      "package.json process:plan-critic-architectural-rules-check",
+      "docs/process/plan-critic-architectural-rules-001-plan.md",
+      "docs/process/approvals/PLAN-CRITIC-ARCHITECTURAL-RULES-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-plan-critic-architecture-guardrails-sprint-handoff.md"
+    ],
+    "proofCommands": [
+      "npm run process:plan-critic-architectural-rules-check -- --json",
+      "npm run process:plan-critic-check -- --json=true",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=PLAN-CRITIC-ARCHITECTURAL-RULES-001 --planApprovalRef=docs/process/approvals/PLAN-CRITIC-ARCHITECTURAL-RULES-001.json --closeoutKey=plan-critic-architectural-rules-v1",
+      "npm run process:fanout-check -- --card=PLAN-CRITIC-ARCHITECTURAL-RULES-001 --closeoutKey=plan-critic-architectural-rules-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=PLAN-CRITIC-ARCHITECTURAL-RULES-001 --planApprovalRef=docs/process/approvals/PLAN-CRITIC-ARCHITECTURAL-RULES-001.json --closeoutKey=plan-critic-architectural-rules-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood proof feeds synthetic plans through `evaluatePlanCriticPlan()` with architecture rules enabled. It proves a large-file touch without split plan revises, a mutating check script without --apply revises, a verifier repair path revises, an audit-fix plan without dogfood proof revises, a durable plan without focused proof revises, and a compliant plan passes at 10/10.",
+    "reviewNext": "Stop at sprint review. Recommended next hardening sprint: performance and monolith split work for the slow Foundation Hub payload and oversized Foundation files, not Build Intel or product hub work.",
+    "knownLimits": [
+      "This does not optimize the 70-second Foundation Hub response or shrink existing monolith files.",
+      "This does not block every possible architectural issue; it covers the high-signal patterns caught by the deep audit.",
+      "This does not build product features, Build Intel extraction, autonomous dev, or hub work."
+    ]
+  },
+  {
+    "key": "foundation-runtime-safety-hardening-v1",
+    "backlogIds": [
+      "VERIFY-READONLY-GATE-001",
+      "PROCESS-CHECK-APPLY-BOUNDARY-001",
+      "PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001",
+      "FOUNDATION-DB-INIT-SEED-SPLIT-001",
+      "CURRENT-SPRINT-MUTATION-GUARDS-001",
+      "BACKLOG-STORE-CONCURRENCY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Close verify read-only gate",
+        "Close process check apply boundary",
+        "PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001",
+        "VERIFY-READONLY-GATE-001",
+        "PROCESS-CHECK-APPLY-BOUNDARY-001",
+        "runtime safety hardening"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "PLAN-CRITIC-ARCHITECTURAL-RULES-001"
+    ],
+    "systemArea": "Foundation runtime safety hardening",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Made the live foundation:verify retry path read-only, added a process-check write posture guard, blocked scheduled mutating process-check jobs from the Foundation worker/job runner, split default Foundation DB init from explicit seed/bootstrap writes, guarded Current Sprint overlay mutation, and locked backlog item updates against silent lost writes.",
+    "whatItDoes": "The verifier can still retry bounded transient failures, but it no longer attaches a repair hook that can make broken live state green before reporting success. Process check scripts now route audited close/report/sprint mutation paths through an explicit apply/write guard. Foundation job definitions now carry mutation posture and the scheduler blocks process-check jobs that are mutating or unknown. `initFoundationDb()` now runs schema setup only by default; seed/bootstrap writes require the explicit `bootstrapFoundationDb()` / `foundation:db-bootstrap` path. `upsertFoundationCurrentSprintOverlay()` now requires explicit apply posture, expected previous active sprint id, and explicit item replacement approval before it can close active sprints or replace sprint items. `updateBacklogItem()` now locks the target row before merging fields, and backlog change events carry full before/after state plus changed fields. Focused dogfood proofs recreate the old repair-then-pass pattern, a no-flag check write attempt, a scheduled mutating check, the old schema-init-writes-live-truth failure mode, the old broad Current Sprint helper mutation, and the old stale backlog merge write that loses one writer, then prove the new paths fail closed, require explicit posture, leave watched truth rows unchanged, or preserve both concurrent backlog writes.",
+    "whyItMatters": "Steve asked for the rebuild to be tight enough that green gates mean real health and check commands are safe to run. A verifier that repairs what it verifies, check scripts that quietly mutate live state, scheduled checks that can close backlog/sprint rows, an init function that rewrites backlog/source/sprint truth, a broad sprint overlay helper that can replace active sprint truth, and backlog writes that silently lose one writer all create false confidence across every sprint.",
+    "whereItLives": [
+      "lib/foundation-runtime-safety.js",
+      "lib/process-write-guard.js",
+      "lib/foundation-jobs.js scheduled mutation posture",
+      "lib/foundation-db.js schema-only init and explicit bootstrap boundary",
+      "scripts/foundation-worker.mjs blocked scheduled job selection",
+      "scripts/run-foundation-job.mjs blocked schedule posture refusal",
+      "lib/foundation-db.js job scheduleMutationGuard snapshot",
+      "scripts/bootstrap-foundation-db.mjs explicit --apply DB bootstrap",
+      "lib/foundation-db.js Current Sprint mutation guard and item diff metadata",
+      "lib/foundation-db.js backlog row locking",
+      "lib/backlog-store-concurrency.js isolated concurrency dogfood proof",
+      "scripts/process-runtime-safety-hardening-check.mjs",
+      "scripts/foundation-verify.mjs read-only retry wrapper",
+      "scripts/process-source-maturity-grid-check.mjs explicit write posture",
+      "scripts/process-connector-credential-check.mjs explicit write posture",
+      "scripts/process-llm-auth-audit-check.mjs explicit write posture",
+      "scripts/process-source-extraction-gap-followup-check.mjs explicit write posture",
+      "package.json process:runtime-safety-hardening-check",
+      "docs/process/verify-readonly-gate-001-plan.md",
+      "docs/process/process-check-apply-boundary-001-plan.md",
+      "docs/process/process-check-scheduled-mutation-guard-001-plan.md",
+      "docs/process/foundation-db-init-seed-split-001-plan.md",
+      "docs/process/current-sprint-mutation-guards-001-plan.md",
+      "docs/process/backlog-store-concurrency-001-plan.md",
+      "docs/process/approvals/VERIFY-READONLY-GATE-001.json",
+      "docs/process/approvals/PROCESS-CHECK-APPLY-BOUNDARY-001.json",
+      "docs/process/approvals/PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001.json",
+      "docs/process/approvals/FOUNDATION-DB-INIT-SEED-SPLIT-001.json",
+      "docs/process/approvals/CURRENT-SPRINT-MUTATION-GUARDS-001.json",
+      "docs/process/approvals/BACKLOG-STORE-CONCURRENCY-001.json"
+    ],
+    "proofCommands": [
+      "npm run process:runtime-safety-hardening-check -- --card=VERIFY-READONLY-GATE-001 --json",
+      "npm run process:runtime-safety-hardening-check -- --card=PROCESS-CHECK-APPLY-BOUNDARY-001 --json",
+      "npm run process:runtime-safety-hardening-check -- --card=PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001 --json",
+      "npm run process:runtime-safety-hardening-check -- --card=FOUNDATION-DB-INIT-SEED-SPLIT-001 --json",
+      "npm run process:runtime-safety-hardening-check -- --card=CURRENT-SPRINT-MUTATION-GUARDS-001 --json",
+      "npm run process:runtime-safety-hardening-check -- --card=BACKLOG-STORE-CONCURRENCY-001 --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=BACKLOG-STORE-CONCURRENCY-001 --planApprovalRef=docs/process/approvals/BACKLOG-STORE-CONCURRENCY-001.json --closeoutKey=foundation-runtime-safety-hardening-v1",
+      "npm run process:fanout-check -- --card=BACKLOG-STORE-CONCURRENCY-001 --closeoutKey=foundation-runtime-safety-hardening-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=BACKLOG-STORE-CONCURRENCY-001 --planApprovalRef=docs/process/approvals/BACKLOG-STORE-CONCURRENCY-001.json --closeoutKey=foundation-runtime-safety-hardening-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood proof shows the legacy verifier fixture goes green only after one repair call, while the new foundation:verify read-only path retries once, performs zero repairs, rejects repair hooks, and fails closed on still-broken state. A second dogfood proof shows a synthetic process-check write without flags is blocked, --write-report cannot mutate live sprint/backlog state, and --apply/--close-card explicitly allow governed closeout posture. A third dogfood proof shows scheduled mutating and unknown process-check jobs are blocked, declared read-only/report-only checks remain schedulable, manual mutating checks remain manual, and the existing scheduled verification-runs job is classified mutating and blocked. A fourth dogfood proof calls the real `initFoundationDb()` path and compares watched backlog/sprint/seed table fingerprints before and after, proving schema init does not rewrite live truth rows. A fifth dogfood proof replays the broad Current Sprint helper failure mode: no-apply calls are blocked, apply without expected previous active sprint id is blocked, item replacement without explicit replacement approval is blocked, and an explicit apply+expected-id+replacement call records item diff metadata inside a rollback transaction. A sixth dogfood proof runs in an isolated PostgreSQL database, shows the old stale backlog merge write loses writer A, then proves the real locked `updateBacklogItem()` path preserves writer A summary and writer B status note while recording full before/after change metadata.",
+    "reviewNext": "Stop at sprint review. Keep PLAN-CRITIC-ARCHITECTURAL-RULES-001 scoped for the follow-up sprint.",
+    "knownLimits": [
+      "This does not yet optimize the slow Foundation Hub or verifier runtime.",
+      "This leaves the large lib/foundation-db.js file intact for V1; a later monolith split should be planned separately.",
+      "This does not build product features, Build Intel extraction, or hub work."
+    ]
+  },
+  {
+    "key": "nightly-audit-fleet-v1",
+    "backlogIds": [
+      "NIGHTLY-AUDIT-FLEET-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "NIGHTLY-AUDIT-FLEET-001",
+        "nightly-audit-fleet-v1",
+        "Nightly Specialist Audit Fleet"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "GOD-MODE-EXTRACTOR-PARITY-GATE-001",
+      "SYNTHESIS-ROUTER-FRESHNESS-TRIGGER-001",
+      "EXTRACTOR-HANDS-PRODUCTION-RUNNER-001"
+    ],
+    "systemArea": "Foundation specialist audit / morning health rollup",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Closed the audit-fleet support card by turning the deterministic specialist registry into a scheduled read-only 03:05 Foundation job and adding an auditFleet section to the 05:15 System Health JSON/markdown rollup.",
+    "whatItDoes": "The fleet registry now checks eight report-only lanes: code quality, hardcoded truth/runtime config, extractor God Mode parity, synthesis/director quality, source coverage/freshness, UI/brand system, process/write boundaries, and mission/doctrine alignment. System Health fails closed if the job, allowlist, registry, hardcoded-truth lane, or report-only boundaries drift.",
+    "whyItMatters": "Steve asked for multiple auditors specifically to catch hardcoded truth and Frankenstein-system drift before normal source/extractor work looks green. This makes the audit fleet part of the overnight/morning operating loop instead of a standalone proof file.",
+    "whereItLives": [
+      "lib/nightly-audit-fleet.js registry, schedule constants, rollup evaluator, and dogfood proof",
+      "scripts/process-nightly-audit-fleet-check.mjs focused read-only proof",
+      "lib/foundation-jobs.js scheduled nightly-audit-fleet job",
+      "lib/foundation-job-mutation-allowlist.js scheduled read-only allowlist row",
+      "lib/foundation-system-health.js auditFleet morning rollup",
+      "scripts/process-system-health-nightly-audit-check.mjs auditFleet proof/readout",
+      "docs/process/nightly-audit-fleet-001-plan.md",
+      "docs/process/approvals/NIGHTLY-AUDIT-FLEET-001.json",
+      "docs/rebuild/current-plan.md and docs/rebuild/current-state.md sprint truth",
+      "docs/_archive/handoffs/2026-05-26-nightly-audit-fleet-v1-closeout.md",
+      "lib/foundation-backlog-seed-chunks/chunk-005.js backlog seed status",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "lib/foundation-build-closeout-control-plane-records.js closeout record"
+    ],
+    "proofCommands": [
+      "node --check lib/nightly-audit-fleet.js lib/foundation-jobs.js lib/foundation-job-mutation-allowlist.js lib/foundation-system-health.js scripts/process-nightly-audit-fleet-check.mjs scripts/process-system-health-nightly-audit-check.mjs",
+      "npm run process:nightly-audit-fleet-check -- --json",
+      "npm run foundation:job -- --job=nightly-audit-fleet --actor=codex-nightly-audit-fleet-proof --force",
+      "npm run process:foundation-job-mutation-allowlist-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=NIGHTLY-AUDIT-FLEET-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-001.json --closeoutKey=nightly-audit-fleet-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=NIGHTLY-AUDIT-FLEET-001 --closeoutKey=nightly-audit-fleet-v1",
+      "npm run process:foundation-ship -- --card=NIGHTLY-AUDIT-FLEET-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-001.json --closeoutKey=nightly-audit-fleet-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the package script, eight specialist lanes, P1 hardcoded truth/runtime config lane, scheduled read-only job registration, mutation allowlist, System Health auditFleet JSON/markdown integration, and dogfood failures for missing hardcoded lane, auto-fix, unsafe LLM lane, and operator-excluded comment regression.",
+    "reviewNext": "Use the morning System Health report to review `auditFleet` before calling Foundation green. Real findings remain report-only and must become separate scoped repair cards before any code/backlog/source mutation.",
+    "knownLimits": [
+      "This does not make audit findings auto-fix code or auto-create backlog cards.",
+      "This does not run unbudgeted LLM/deep-review lanes; deterministic registry proof is the scheduled V1 path.",
+      "This does not replace the nightly hybrid deep audit or System Health; it feeds them.",
+      "This does not run extraction, browse websites, mutate credentials, write source systems, or perform external actions."
+    ]
+  },
+  {
+    "key": "nightly-audit-fleet-runtime-scan-v1",
+    "backlogIds": [
+      "NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001",
+        "nightly-audit-fleet-runtime-scan-v1",
+        "Add audit fleet runtime scan",
+        "audit fleet runtime scan",
+        "hardcoded truth runtime scan"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "NIGHTLY-AUDIT-FLEET-001",
+      "YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001",
+      "GOD-MODE-EXTRACTOR-PARITY-GATE-001"
+    ],
+    "systemArea": "Foundation specialist audit / hardcoded truth runtime scan",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a deterministic runtime scan to the scheduled audit fleet so the hardcoded truth/runtime config lane executes real codebase checks instead of only proving registry presence.",
+    "whatItDoes": "The runtime scan reports hardcoded model names outside route/capability ownership, schedule/budget literals outside runtime registries, source/source-family count literals, static UI live-truth copy, unguarded process-check writes, YouTube comment-regression drift, and extractor parity violations. The base audit-fleet proof now includes the runtimeScan packet in JSON output.",
+    "whyItMatters": "Steve asked for multiple auditors to find hardcoded bullshit and Foundation drift. This closes the registry-only gap while keeping findings report-only and approval-routed.",
+    "whereItLives": [
+      "lib/nightly-audit-fleet-runtime-scan.js scanner, lane packets, and dogfood proof",
+      "scripts/process-nightly-audit-fleet-runtime-scan-check.mjs focused proof",
+      "scripts/process-nightly-audit-fleet-check.mjs runtimeScan integration",
+      "docs/process/nightly-audit-fleet-runtime-scan-001-plan.md",
+      "docs/process/approvals/NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001.json",
+      "docs/_archive/handoffs/2026-05-26-nightly-audit-fleet-runtime-scan-closeout.md",
+      "lib/foundation-backlog-seed-chunks/chunk-005.js backlog seed status",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "lib/foundation-build-closeout-control-plane-records.js closeout record"
+    ],
+    "proofCommands": [
+      "node --check lib/nightly-audit-fleet-runtime-scan.js scripts/process-nightly-audit-fleet-runtime-scan-check.mjs scripts/process-nightly-audit-fleet-check.mjs",
+      "npm run process:nightly-audit-fleet-runtime-scan-check -- --json",
+      "npm run process:nightly-audit-fleet-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001.json --closeoutKey=nightly-audit-fleet-runtime-scan-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001 --closeoutKey=nightly-audit-fleet-runtime-scan-v1",
+      "npm run process:foundation-ship -- --card=NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001.json --closeoutKey=nightly-audit-fleet-runtime-scan-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval integrity, live backlog card, package script, runtime scan module, base audit-fleet integration, report-only/read-only/no-auto posture, dogfood fixtures for unowned model literal, static UI truth, unguarded process writes, and comment regression, plus closeout and verifier coverage wiring.",
+    "reviewNext": "Review `runtimeScan.activeFindings` from the audit-fleet JSON output. Convert real findings into separate scoped repair cards only after human review; do not auto-fix or auto-create backlog cards.",
+    "knownLimits": [
+      "V1 executes hardcoded/runtime, process-write, mission/comment, and extractor-parity lanes.",
+      "Code-quality, synthesis/director, source freshness, and UI/brand lanes remain explicit packet-only statuses until focused scanners exist.",
+      "This does not run LLM/deep-review lanes, live extraction, browser automation, external writes, or credential/provider mutation."
+    ]
+  },
+  {
+    "key": "nightly-audit-fleet-signal-quality-v1",
+    "backlogIds": [
+      "NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001",
+        "nightly-audit-fleet-signal-quality-v1",
+        "Add audit fleet signal quality",
+        "audit fleet signal quality"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "NIGHTLY-AUDIT-FLEET-001",
+      "NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001",
+      "LLM-RUNTIME-CONFIG-AUDIT-001",
+      "PROCESS-CHECK-REPORT-OUTPUT-POLICY-001",
+      "YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001"
+    ],
+    "systemArea": "Foundation specialist audit / runtime-scan signal quality",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Sharpened the audit fleet runtime scan so it reuses shared exact-model and process-write classifiers instead of paging seed, closeout, verifier, and dogfood proof text as active runtime drift.",
+    "whatItDoes": "The runtime scan now keeps historical evidence/proof literals visible as owned signals while preserving active findings for unowned model literals, static UI live truth, real source-count literals, unguarded process writes, and YouTube comment regressions.",
+    "whyItMatters": "Steve asked for auditors that find hardcoded truth, not noisy Frankenstein reports. This makes the runtime-scan output reviewable enough to route real findings into scoped repair cards.",
+    "whereItLives": [
+      "lib/nightly-audit-fleet-runtime-scan.js classifier reuse, evidence-only boundaries, and signal-quality dogfood proof",
+      "scripts/process-nightly-audit-fleet-signal-quality-check.mjs focused proof",
+      "docs/process/nightly-audit-fleet-signal-quality-001-plan.md",
+      "docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json",
+      "docs/_archive/handoffs/2026-05-26-nightly-audit-fleet-signal-quality-closeout.md",
+      "lib/foundation-backlog-seed-chunks/chunk-005.js backlog seed status",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "lib/foundation-build-closeout-control-plane-records.js closeout record",
+      "package.json process script"
+    ],
+    "proofCommands": [
+      "node --check lib/nightly-audit-fleet-runtime-scan.js scripts/process-nightly-audit-fleet-signal-quality-check.mjs scripts/process-nightly-audit-fleet-runtime-scan-check.mjs scripts/process-nightly-audit-fleet-check.mjs",
+      "npm run process:nightly-audit-fleet-signal-quality-check -- --json",
+      "npm run process:nightly-audit-fleet-runtime-scan-check -- --json",
+      "npm run process:nightly-audit-fleet-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json --closeoutKey=nightly-audit-fleet-signal-quality-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --closeoutKey=nightly-audit-fleet-signal-quality-v1",
+      "npm run process:foundation-ship -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json --closeoutKey=nightly-audit-fleet-signal-quality-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval integrity, live done backlog card, package script, classifier reuse, signal-quality dogfood, no active seed/closeout/verifier/proof-fixture findings, report-only/no-auto posture, closeout registry, and verifier coverage wiring.",
+    "reviewNext": "Review the smaller `runtimeScan.activeFindings` set from the audit-fleet JSON output. Convert real current-runtime risks into separate scoped repair cards only after review.",
+    "knownLimits": [
+      "This improves deterministic runtime-scan signal quality only.",
+      "Code-quality, synthesis/director, source freshness, and UI/brand lanes remain explicit packet-only statuses until focused scanners exist.",
+      "This does not run LLM/deep-review lanes, live extraction, browser automation, external writes, or credential/provider mutation."
+    ]
+  },
+  {
+    "key": "nightly-audit-fleet-signal-quality-noise-reduction-v2",
+    "backlogIds": [
+      "NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001",
+        "nightly-audit-fleet-signal-quality-noise-reduction-v2",
+        "Reduce audit fleet hardcoded-truth noise",
+        "audit fleet signal quality noise reduction"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "NIGHTLY-AUDIT-FLEET-001",
+      "NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001",
+      "LLM-RUNTIME-CONFIG-AUDIT-001",
+      "SOURCE-FAMILY-GOD-MODE-EXTRACTORS-001",
+      "YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001"
+    ],
+    "systemArea": "Foundation specialist audit / runtime-scan signal quality",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Reduced false active hardcoded-truth/runtime-config findings by classifying synthetic proof model literals, source-backed schedule readbacks, and process proof markdown reads correctly while keeping true runtime literals active.",
+    "whatItDoes": "The audit fleet now treats model names in synthetic/proof modules as owned evidence, ignores source-backed schedule property readbacks that are not hardcoded schedules, routes process-check markdown evidence reads as owned signals, and keeps real hardcoded schedules, unowned model literals, unguarded writes, runtime doc reads, and comment regressions active.",
+    "whyItMatters": "Steve wants a clean system that can take on more features without bloat or false-green proof. This keeps the hardcoded-truth auditor useful by cutting noisy active findings while preserving the failures that should still block or route repair work.",
+    "whereItLives": [
+      "lib/nightly-audit-fleet-runtime-scan.js signal classifier refinements and dogfood proof cases",
+      "lib/gemini-video-brain-route.js shared Gemini video model route constants",
+      "lib/god-mode-youtube-end-to-end-extractor.js model route reuse",
+      "lib/youtube-latest-20-full-watch-runner.js model route reuse",
+      "lib/mark-kashef-god-mode-small-batch.js model route reuse",
+      "lib/youtube-latest-20-intel-run.js model route reuse",
+      "lib/youtube-public-comments-extractor.js explicit operator-excluded status marker",
+      "docs/process/nightly-audit-fleet-signal-quality-001-plan.md existing approved plan",
+      "docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json existing approval",
+      "lib/foundation-build-closeout-control-plane-records.js closeout record"
+    ],
+    "proofCommands": [
+      "node --check lib/nightly-audit-fleet-runtime-scan.js lib/gemini-video-brain-route.js lib/god-mode-youtube-end-to-end-extractor.js lib/youtube-latest-20-full-watch-runner.js lib/mark-kashef-god-mode-small-batch.js lib/youtube-latest-20-intel-run.js lib/youtube-public-comments-extractor.js",
+      "npm run process:nightly-audit-fleet-signal-quality-check -- --json",
+      "npm run process:nightly-audit-fleet-runtime-scan-check -- --json",
+      "npm run process:llm-runtime-config-audit-check -- --json",
+      "npm run process:code-quality-nightly-audit-check -- --json --no-write --skip-endpoint-fetch",
+      "npm run process:nightly-audit-fleet-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json --no-write",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json --closeoutKey=nightly-audit-fleet-signal-quality-noise-reduction-v2 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --closeoutKey=nightly-audit-fleet-signal-quality-noise-reduction-v2",
+      "npm run process:foundation-ship -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json --closeoutKey=nightly-audit-fleet-signal-quality-noise-reduction-v2 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates classifier behavior for synthetic model evidence, source-backed schedule readbacks, real hardcoded schedule literals, process proof markdown reads, runtime doc reads, shared model route reuse, and operator-excluded YouTube comments. Audit-fleet active findings dropped from 117 to 29 without suppressing true active review classes.",
+    "reviewNext": "Review the remaining 29 active runtime-scan findings and split real current-runtime risks into focused repair cards before starting broad feature work.",
+    "knownLimits": [
+      "This is a no-spend/no-live-extraction cleanup slice.",
+      "It does not make any source family God Mode ready.",
+      "It does not run LLM/deep-review lanes, browser automation, Skool/MyICOR login, external crawls, or credential/provider mutation."
+    ]
+  },
+  {
+    "key": "nightly-audit-fleet-signal-quality-clean-v3",
+    "backlogIds": [
+      "NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001",
+        "nightly-audit-fleet-signal-quality-clean-v3",
+        "Clean audit fleet active findings",
+        "audit fleet signal quality clean"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "NIGHTLY-AUDIT-FLEET-001",
+      "NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001",
+      "LLM-RUNTIME-CONFIG-AUDIT-001",
+      "YOUTUBE-PUBLIC-COMMENTS-EXTRACTOR-001",
+      "SOURCE-FAMILY-GOD-MODE-EXTRACTORS-001"
+    ],
+    "systemArea": "Foundation specialist audit / runtime-scan signal quality",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Finished the audit-fleet signal cleanup by routing proof fixtures, verifier source-readback assertions, schedule registries, source-count historical evidence, foundation-verify markdown reads, and explicit YouTube-comments exclusion markers out of active findings.",
+    "whatItDoes": "The runtime scan now emits clean active output for the current repo while still dogfooding active failures for unowned model literals, real hardcoded schedule literals, runtime doc reads, unguarded process writes, and YouTube-comments regressions.",
+    "whyItMatters": "This gives Steve a clean Foundation audit surface before more extractor work. Clean means current known evidence/proof text is classified correctly, not that future hardcoded runtime drift will be ignored.",
+    "whereItLives": [
+      "lib/nightly-audit-fleet-runtime-scan.js classifier refinements, source assertion detection, and dogfood cases",
+      "lib/foundation-build-closeout-control-plane-records.js closeout record",
+      "docs/process/nightly-audit-fleet-signal-quality-001-plan.md existing approved plan",
+      "docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json existing approval"
+    ],
+    "proofCommands": [
+      "node --check lib/nightly-audit-fleet-runtime-scan.js lib/foundation-build-closeout-control-plane-records.js",
+      "npm run process:nightly-audit-fleet-signal-quality-check -- --json",
+      "npm run process:nightly-audit-fleet-runtime-scan-check -- --json",
+      "npm run process:nightly-audit-fleet-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json --no-write",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json --closeoutKey=nightly-audit-fleet-signal-quality-clean-v3 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --closeoutKey=nightly-audit-fleet-signal-quality-clean-v3",
+      "npm run process:foundation-ship -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json --closeoutKey=nightly-audit-fleet-signal-quality-clean-v3 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused signal-quality proof reports scanStatus=clean, activeFindingCount=0, ownedSignalCount=343, evidenceOnlyActiveCount=0, and dogfood still proves real active regressions remain active in synthetic fixtures.",
+    "reviewNext": "With the deterministic hardcoded-truth audit clean, continue cleanup from the next highest-signal health/audit surface before broad extractor feature work.",
+    "knownLimits": [
+      "This is classifier cleanup only; it does not run providers, extraction, browser automation, private/auth flows, external writes, or backlog mutation.",
+      "Clean active findings are current-repo truth for this deterministic scanner, not a guarantee that packet-only audit lanes are implemented.",
+      "Source families remain not God Mode ready until the extractor parent/SOP/runtime work is implemented and proved separately."
+    ]
+  },
+  {
+    "key": "nightly-audit-fleet-refactor-hardcoded-routes-v4",
+    "backlogIds": [
+      "NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001",
+        "nightly-audit-fleet-refactor-hardcoded-routes-v4",
+        "Harden nightly audit fleet refactor and hardcoded routes",
+        "audit fleet refactor hardcoded route hardening"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "NIGHTLY-AUDIT-FLEET-001",
+      "NIGHTLY-AUDIT-FLEET-RUNTIME-SCAN-001",
+      "FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001",
+      "SOURCE-MATURITY-REPAIR-COLLAPSE-001",
+      "FOUNDATION-VERIFY-GATE-TIERING-FINISH-001",
+      "FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001",
+      "SOURCE-BROWSER-AGENTIC-RUNTIME-001",
+      "SOURCE-BROWSER-BRAIN-ROUTE-POLICY-001",
+      "LLM-ROUTER-001"
+    ],
+    "systemArea": "Foundation specialist audit / runtime-scan hardening",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Hardened the existing nightly audit fleet instead of adding new audit jobs: the code-quality lane now runs a deterministic refactor scanner, source-browser model-policy proof literals stay owned, active hardcoded findings route to live backlog cards, and signal-quality proof verifies the routes.",
+    "whatItDoes": "The runtime scan now executes five lanes: code quality, hardcoded truth/runtime config, process write boundary, mission/doctrine, and extractor parity. The code-quality lane reports oversized runtime files, source-maturity repair clones, process-check sprawl, and closeout-records-as-code against the existing tune-up cards. The hardcoded lane keeps source-browser dogfood/guard model literals as owned signals while preserving source-browser budget literals as active findings routed to SOURCE-BROWSER-AGENTIC-RUNTIME-001.",
+    "whyItMatters": "Steve asked for the fleet to find bugs/refactor/hardcoded drift without creating more verifier sprawl or noisy paperwork. This turns one packet-only lane into a real scanner and proves active findings point at cards a builder can actually act on.",
+    "whereItLives": [
+      "lib/nightly-audit-fleet-runtime-scan.js refactor scanner, hardcoded route ownership, and hardening dogfood",
+      "scripts/process-nightly-audit-fleet-signal-quality-check.mjs active-finding route proof",
+      "lib/foundation-build-closeout-control-plane-records.js closeout record",
+      "docs/process/nightly-audit-fleet-signal-quality-001-plan.md existing approved plan",
+      "docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json existing approval"
+    ],
+    "proofCommands": [
+      "node --check lib/nightly-audit-fleet-runtime-scan.js scripts/process-nightly-audit-fleet-signal-quality-check.mjs scripts/process-nightly-audit-fleet-runtime-scan-check.mjs scripts/process-nightly-audit-fleet-check.mjs lib/foundation-build-closeout-control-plane-records.js",
+      "npm run process:nightly-audit-fleet-signal-quality-check -- --json",
+      "npm run process:nightly-audit-fleet-runtime-scan-check -- --json",
+      "npm run process:nightly-audit-fleet-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json --no-write",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json --closeoutKey=nightly-audit-fleet-refactor-hardcoded-routes-v4 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --closeoutKey=nightly-audit-fleet-refactor-hardcoded-routes-v4",
+      "npm run process:foundation-ship -- --card=NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001 --planApprovalRef=docs/process/approvals/NIGHTLY-AUDIT-FLEET-SIGNAL-QUALITY-001.json --closeoutKey=nightly-audit-fleet-refactor-hardcoded-routes-v4 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused signal-quality proof reports executedLaneCount=5, packetOnlyLaneCount=3, activeFindingCount=10, evidenceOnlyActiveCount=0, and activeRouteIds all present in live backlog: FOUNDATION-OVERSIZED-FILE-SPLIT-WAVE-001, SOURCE-MATURITY-REPAIR-COLLAPSE-001, FOUNDATION-VERIFY-GATE-TIERING-FINISH-001, FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001, and SOURCE-BROWSER-AGENTIC-RUNTIME-001. Hardening dogfood proves the refactor scanner, source-browser model-policy ownership, and active card routing.",
+    "reviewNext": "Run the remap. The audit fleet now identifies the remaining cleanup cards without creating a new nightly job. Do not start per-hub folder restructuring until Steve approves the existing FOUNDATION-HUB-FOLDER-ISOLATION-001 checkpoint.",
+    "knownLimits": [
+      "Synthesis/director quality, source freshness, and UI/brand lanes remain packet-only until their own focused scanners exist.",
+      "This reports refactor and hardcoded drift findings; it does not implement the referenced cleanup cards.",
+      "This does not add a new nightly job, auto-fix findings, auto-create backlog cards, run providers, browse, extract, mutate credentials, write external systems, or run per-hub restructuring."
+    ]
+  },
+  {
+    "key": "extractor-hands-production-runner-v1",
+    "backlogIds": [
+      "EXTRACTOR-HANDS-PRODUCTION-RUNNER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "EXTRACTOR-HANDS-PRODUCTION-RUNNER-001",
+        "extractor-hands-production-runner-v1",
+        "production Hands runner"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "EXTRACTOR-HANDS-BROWSER-RUNTIME-001",
+      "SOURCE-PACKET-WORKER-RUNNER-001",
+      "GOD-MODE-EXTRACTOR-PARITY-GATE-001",
+      "YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001",
+      "SOURCE-FAMILY-GOD-MODE-EXTRACTORS-001"
+    ],
+    "systemArea": "Extractor God Mode Hands / source-packet execution",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Closed the production Hands continuation by wiring approved source-packet decisions with explicit Hands policy into a separate guarded run route, queue/status read model, source-crawl status row, intelligence report proof artifact, Dev Data Pool visibility, and God Mode parity truth.",
+    "whatItDoes": "Runs only public/free approved source packets through one bounded browser click/navigation action after the packet names selector/action, allowed next URL or pattern, stop condition, and evidence target. The synthetic proof covers decision -> Hands runner -> artifact -> status/readback -> Foundation persistence, while approval remains separate from execution.",
+    "whyItMatters": "Steve asked for a real God Mode extractor with Hands, not a transcript-only or no-click label. This is the bridge from bounded Hands proof to an operator-visible production path that can process approved public/resource source packets without broad crawling or unsafe side effects.",
+    "whereItLives": [
+      "lib/extractor-hands-production-runner.js",
+      "scripts/process-extractor-hands-production-runner-check.mjs",
+      "lib/foundation-build-intel-routes.js guarded Hands run and queue routes",
+      "lib/dev-team-hub.js source-packet worker and Hands queue read models",
+      "public/dev.js Hands runner status surface",
+      "lib/god-mode-extractor-parity-gate.js production-safe Hands queue posture",
+      "lib/source-packet-approval-decision-ledger.js Hands policy metadata preservation",
+      "docs/process/extractor-hands-production-runner-001-plan.md",
+      "docs/process/approvals/EXTRACTOR-HANDS-PRODUCTION-RUNNER-001.json",
+      "docs/_archive/handoffs/2026-05-26-extractor-hands-production-runner-v1-closeout.md",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "lib/foundation-backlog-seed-chunks/chunk-005.js backlog seed status",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "lib/foundation-build-closeout-control-plane-records.js closeout record",
+      "package.json"
+    ],
+    "proofCommands": [
+      "node --check lib/extractor-hands-production-runner.js scripts/process-extractor-hands-production-runner-check.mjs lib/foundation-build-intel-routes.js lib/dev-team-hub.js public/dev.js lib/god-mode-extractor-parity-gate.js lib/source-packet-approval-decision-ledger.js",
+      "npm run process:extractor-hands-production-runner-check -- --json",
+      "npm run process:extractor-hands-browser-runtime-check -- --json",
+      "npm run process:source-packet-worker-runner-check -- --json",
+      "npm run process:god-mode-extractor-parity-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=EXTRACTOR-HANDS-PRODUCTION-RUNNER-001 --planApprovalRef=docs/process/approvals/EXTRACTOR-HANDS-PRODUCTION-RUNNER-001.json --closeoutKey=extractor-hands-production-runner-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=EXTRACTOR-HANDS-PRODUCTION-RUNNER-001 --closeoutKey=extractor-hands-production-runner-v1",
+      "npm run process:foundation-ship -- --card=EXTRACTOR-HANDS-PRODUCTION-RUNNER-001 --planApprovalRef=docs/process/approvals/EXTRACTOR-HANDS-PRODUCTION-RUNNER-001.json --closeoutKey=extractor-hands-production-runner-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods one approved public/free packet with explicit Hands policy, runs the bounded synthetic click/navigation path, persists a source_crawl_items row and intelligence_report_artifacts proof row through injected stores, builds ready/already-run/blocked queue status, and rejects missing policy, held/rejected packets, Skool/auth sources, follow-link mode, live mode without allowLive, external writes, and backlog writes.",
+    "reviewNext": "Continue GOD-MODE-EXTRACTOR-PARITY-GATE-001 and source-specific Skool/MyICOR packet/session cards before any private/auth Hands run. Use YouTube/resource-link catch-up through approved public packets only.",
+    "knownLimits": [
+      "This does not log in.",
+      "This does not approve Skool, MyICOR, paid, private, member, course, community, form, download, purchase, opt-in, posting, commenting, messaging, or external-write flows.",
+      "This does not auto-create backlog cards or destination writes.",
+      "This does not make public/resource-link Hands equal full God Mode for every source family.",
+      "Live Playwright Hands still requires explicit allowLive=true; proof stays synthetic/no-network by default."
+    ]
+  },
+  {
+    "key": "foundation-code-quality-nightly-audit-v1",
+    "backlogIds": [
+      "CODEBASE-HARDCODE-AUDIT-001",
+      "FOUNDATION-API-PERF-AUDIT-001",
+      "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+      "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "SPRINT-STATE-MUTATION-AUDIT-001",
+      "NIGHTLY-AUDIT-REPORT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Code Quality Nightly Audit",
+        "CODEBASE-HARDCODE-AUDIT-001",
+        "NIGHTLY-AUDIT-REPORT-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CLEANUP-004",
+      "SYSTEM-HEALTH-AUDITOR-001",
+      "CLEANUP-003",
+      "BROWSER-QA-PROOF-001"
+    ],
+    "systemArea": "Foundation recurring code quality audit",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a deterministic, report-first Code Quality Nightly Audit loop that inventories hardcoded live truth, Foundation API performance risk, frontend performance/QA risk, monolith risk, verifier assumptions, and sprint-state mutation hazards.",
+    "whatItDoes": "The audit command reads repo code and selected Foundation endpoints, writes a morning report, validates its own no-auto boundaries, and leaves follow-up work as proposed backlog fixes only.",
+    "whyItMatters": "Steve asked for code and frontend quality to become recurring Foundation work without feature drift or autonomous development. This makes the loop repeatable and reviewable while preventing audit findings from mutating backlog or code on their own.",
+    "whereItLives": [
+      "lib/code-quality-nightly-audit.js",
+      "scripts/process-code-quality-nightly-audit-check.mjs",
+      "package.json process:code-quality-nightly-audit-check",
+      "lib/foundation-jobs.js code-quality-nightly-audit manual job",
+      "scripts/foundation-verify.mjs Code Quality Nightly Audit check",
+      "docs/process/codebase-hardcode-audit-001-plan.md",
+      "docs/process/foundation-api-perf-audit-001-plan.md",
+      "docs/process/foundation-frontend-perf-audit-001-plan.md",
+      "docs/process/foundation-monolith-risk-audit-001-plan.md",
+      "docs/process/verifier-assumption-registry-001-plan.md",
+      "docs/process/sprint-state-mutation-audit-001-plan.md",
+      "docs/process/nightly-audit-report-001-plan.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-code-quality-nightly-audit-report.md"
+    ],
+    "proofCommands": [
+      "npm run process:code-quality-nightly-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=CODEBASE-HARDCODE-AUDIT-001 --planApprovalRef=docs/process/approvals/CODEBASE-HARDCODE-AUDIT-001.json --closeoutKey=foundation-code-quality-nightly-audit-v1",
+      "npm run process:fanout-check -- --card=CODEBASE-HARDCODE-AUDIT-001 --closeoutKey=foundation-code-quality-nightly-audit-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=CODEBASE-HARDCODE-AUDIT-001 --planApprovalRef=docs/process/approvals/CODEBASE-HARDCODE-AUDIT-001.json --closeoutKey=foundation-code-quality-nightly-audit-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the synthetic detectors, plan approvals, Plan Critic rows, required endpoint coverage, report-only/no-auto flags, unchanged backlog lane counts, manual unscheduled job registration, and generated morning report. Full verifier and Foundation ship gates prove the closeout record, docs, package script, and done-card coverage.",
+    "reviewNext": "Sprint review with Steve: read the morning report, choose which proposed fixes become real scoped backlog cards, and decide separately whether the manual job graduates to a scheduled nightly report.",
+    "knownLimits": [
+      "This does not fix the reported hardcoded truth, performance, frontend, monolith, verifier, or mutation issues.",
+      "This does not auto-create, auto-close, auto-rank, auto-promote, or auto-move backlog cards.",
+      "This does not schedule the recurring nightly job; it remains manual until Steve accepts report quality.",
+      "This does not use LLMs or agents to detect findings; LLM/agent review is limited to summarizing and ranking deterministic output.",
+      "This does not build features, rebuild Foundation, or open the next sprint."
+    ]
+  },
+  {
+    "key": "code-quality-audit-guarded-mutator-classifier-v1",
+    "backlogIds": [
+      "CODE-QUALITY-AUDIT-GUARDED-MUTATOR-CLASSIFIER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "CODE-QUALITY-AUDIT-GUARDED-MUTATOR-CLASSIFIER-001",
+        "code-quality-audit-guarded-mutator-classifier-v1",
+        "Code quality audit guarded mutator classifier"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SPRINT-STATE-MUTATION-AUDIT-001",
+      "PROCESS-CHECK-READONLY-MODE-001",
+      "SPRINT-CHECK-HISTORICAL-MODE-001",
+      "FOUNDATION-JOB-MUTATION-ALLOWLIST-001"
+    ],
+    "systemArea": "Foundation code quality audit / process-check mutation classifier",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Wired the Code Quality Nightly Audit mutator detector to the existing process-check readonly classifier.",
+    "whatItDoes": "Suppresses protected process-check mutator false positives only when the classifier says the script is guarded, report-only, read-only, or historical, while preserving red findings for unguarded process-check and non-process mutators.",
+    "whyItMatters": "The May 18 audit still showed 99 P0 process-check mutation rows after readonly-mode shipped. Steve needs the audit list to point at real remaining process risk instead of already-protected check scripts.",
+    "whereItLives": [
+      "lib/code-quality-nightly-audit.js guarded process-check classifier integration",
+      "lib/code-quality-audit-guarded-mutator-classifier.js focused proof fixtures and audit summary checks",
+      "scripts/process-code-quality-audit-guarded-mutator-classifier-check.mjs",
+      "lib/foundation-verify-coverage-card-ids.js done-card verifier coverage",
+      "package.json process:code-quality-audit-guarded-mutator-classifier-check",
+      "docs/process/code-quality-audit-guarded-mutator-classifier-001-plan.md",
+      "docs/process/approvals/CODE-QUALITY-AUDIT-GUARDED-MUTATOR-CLASSIFIER-001.json",
+      "docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-code-quality-audit-guarded-mutator-classifier-closeout.md"
+    ],
+    "proofCommands": [
+      "node --check lib/code-quality-nightly-audit.js lib/code-quality-audit-guarded-mutator-classifier.js scripts/process-code-quality-audit-guarded-mutator-classifier-check.mjs",
+      "npm run process:code-quality-audit-guarded-mutator-classifier-check -- --close-card --json",
+      "npm run process:code-quality-nightly-audit-check -- --json --no-write --skip-endpoint-fetch",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=CODE-QUALITY-AUDIT-GUARDED-MUTATOR-CLASSIFIER-001 --planApprovalRef=docs/process/approvals/CODE-QUALITY-AUDIT-GUARDED-MUTATOR-CLASSIFIER-001.json --closeoutKey=code-quality-audit-guarded-mutator-classifier-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=CODE-QUALITY-AUDIT-GUARDED-MUTATOR-CLASSIFIER-001 --closeoutKey=code-quality-audit-guarded-mutator-classifier-v1",
+      "npm run process:foundation-ship -- --card=CODE-QUALITY-AUDIT-GUARDED-MUTATOR-CLASSIFIER-001 --planApprovalRef=docs/process/approvals/CODE-QUALITY-AUDIT-GUARDED-MUTATOR-CLASSIFIER-001.json --closeoutKey=code-quality-audit-guarded-mutator-classifier-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof calls the actual detector and audit function path: guarded process-check mutator fixtures return zero findings, unguarded process-check fixtures and non-process mutator fixtures remain red, the synthetic audit proof passes, and the no-write audit has zero protected process-check false positives.",
+    "reviewNext": "Continue the remaining P0 audit/process queue from repo truth; do not auto-fix the remaining hardcoded sprint/state, non-process action-router mutator, or scheduled-job mutation findings without scoped cards.",
+    "knownLimits": [
+      "This does not fix the remaining audit findings.",
+      "This does not change process-check write guard semantics.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, Gmail/ClickUp sends, or Agent Feedback auto-send.",
+      "This does not build Harlan, Fal, voice, Canva, OpenHuman, or UI feature work.",
+      "This does not spawn hidden subagents or launch parallel builders."
+    ]
+  },
+  {
+    "key": "gstack-build-intel-extraction-v1",
+    "backlogIds": [
+      "PUBLIC-DEV-COMMUNITY-WATCHLIST-001",
+      "GSTACK-EXTRACTION-001",
+      "BUILD-INTEL-GITHUB-MONITOR-001",
+      "SKILL-IMPROVER-GSTACK-ENRICHMENT-001",
+      "REVIEW-GATE-UPGRADE-001",
+      "BROWSER-QA-PROOF-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "GStack Build Intel",
+        "GSTACK-EXTRACTION-001",
+        "BROWSER-QA-PROOF-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CONTEXT-SAVE-RESTORE-001",
+      "AIOS-EVAL-HARNESS-001",
+      "OPENCLAW-DISPATCH-TIERS-001",
+      "VERIFIER-INCREMENTAL-COVERAGE-001",
+      "SKILL-IMPROVER-001"
+    ],
+    "systemArea": "Foundation public GitHub Build Intel",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a read-only public GStack/GitHub Build Intel extraction layer with a source map, pattern scorecard, public developer-community watchlist, Research Inbox proposal rows, and browser/review/skill enrichment recommendations.",
+    "whatItDoes": "The layer inventories the local public GStack mirror, records the inspected commit, extracts path-cited implementation patterns, keeps all outputs proposal-only, and exposes the snapshot through the Foundation API and hub payload.",
+    "whyItMatters": "Steve wants AIOS to monitor GitHub, Codex Community, Claude Code Community, OpenClaw, and strong public builder setups for implementation lessons. This turns that signal into reviewed proposals without importing another system or restarting autonomous-dev drift.",
+    "whereItLives": [
+      "lib/gstack-build-intel.js",
+      "scripts/process-gstack-build-intel-check.mjs",
+      "server.js /api/foundation/gstack-build-intel",
+      "server.js foundation-hub payload property gstackBuildIntel",
+      "package.json process:gstack-build-intel-check",
+      "scripts/foundation-verify.mjs GStack Build Intel check",
+      "docs/process/gstack-build-intel-extraction-2026-05-13-plan.md",
+      "docs/process/public-dev-community-watchlist-001-plan.md",
+      "docs/process/gstack-extraction-001-plan.md",
+      "docs/process/build-intel-github-monitor-001-plan.md",
+      "docs/process/skill-improver-gstack-enrichment-001-plan.md",
+      "docs/process/review-gate-upgrade-001-plan.md",
+      "docs/process/browser-qa-proof-001-plan.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-gstack-build-intel-extraction.md",
+      "docs/source-notes/github-build-intel.md",
+      "docs/source-registry.md SRC-GITHUB-BUILD-INTEL-001"
+    ],
+    "proofCommands": [
+      "npm run process:gstack-build-intel-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=PUBLIC-DEV-COMMUNITY-WATCHLIST-001 --planApprovalRef=docs/process/approvals/PUBLIC-DEV-COMMUNITY-WATCHLIST-001.json --closeoutKey=gstack-build-intel-extraction-v1",
+      "npm run process:fanout-check -- --card=PUBLIC-DEV-COMMUNITY-WATCHLIST-001 --closeoutKey=gstack-build-intel-extraction-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=PUBLIC-DEV-COMMUNITY-WATCHLIST-001 --planApprovalRef=docs/process/approvals/PUBLIC-DEV-COMMUNITY-WATCHLIST-001.json --closeoutKey=gstack-build-intel-extraction-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the public GStack mirror commit, source-map counts, scorecard path evidence, proposal-only Research Inbox rows, public developer-community watchlist, Skill Improver enrichment, review-gate upgrades, browser QA proof standard, unchanged backlog lane counts, and blocked code import/private scraping/paid auth/autonomous dev flags.",
+    "reviewNext": "Sprint review with Steve: decide whether to build public GitHub monitor implementation, frontend design pipeline, context save/restore, or eval harness next.",
+    "knownLimits": [
+      "This reads a local public mirror; it does not schedule recurring GitHub monitoring.",
+      "This does not install GStack, import runtime code, or copy GStack skills into AIOS.",
+      "This does not scrape private communities, use paid/auth content, or contact external services.",
+      "This does not auto-create, auto-close, auto-promote, or auto-move backlog cards.",
+      "This does not build autonomous dev, reviewer agents, or a browser runner."
+    ]
+  },
+  {
+    "key": "build-intel-extraction-implementation-v1",
+    "backlogIds": [
+      "YOUTUBE-SCOUT-001",
+      "PUBLIC-YOUTUBE-BUILD-INTEL-001",
+      "BUILD-INTEL-OBSERVATION-EXTRACTOR-001",
+      "BUILD-INTEL-RESEARCH-INBOX-PROPOSALS-001",
+      "BUILD-INTEL-BRIEF-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Build Intel Extraction Implementation",
+        "YOUTUBE-SCOUT-001",
+        "BUILD-INTEL-BRIEF-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CREATOR-WATCHLIST-001",
+      "MULTIMODAL-EXTRACTOR-001",
+      "RESEARCH-INBOX-001",
+      "INTERNAL-SCOPER-001",
+      "BUILDER-LESSON-LINKER-001",
+      "SKOOL-001",
+      "MYICRO-TRAINING-001",
+      "LOOM-001"
+    ],
+    "systemArea": "Foundation Build Intel extraction",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the no-auth Build Intel extraction implementation layer over existing public YouTube transcript artifacts.",
+    "whatItDoes": "The layer selects Build Intel transcript artifacts, extracts transcript-derived implementation observations, validates multimodal envelopes honestly as transcript-only, routes Research Inbox proposal rows without backlog writes, and generates a Build Intel brief.",
+    "whyItMatters": "Steve clarified the YouTube builders mostly help with how to implement existing AIOS ideas. This starts using real archived builder-video evidence while preserving the no-autonomous-dev and no-paid-auth boundaries.",
+    "whereItLives": [
+      "lib/build-intel-extraction-implementation.js",
+      "scripts/process-build-intel-extraction-check.mjs",
+      "server.js /api/foundation/build-intel-extraction",
+      "server.js foundation-hub payload property buildIntelExtraction",
+      "package.json process:build-intel-extraction-check",
+      "scripts/foundation-verify.mjs Build Intel Extraction Implementation check",
+      "docs/process/build-intel-extraction-implementation-2026-05-13-plan.md",
+      "docs/process/youtube-scout-001-plan.md",
+      "docs/process/public-youtube-build-intel-001-plan.md",
+      "docs/process/build-intel-observation-extractor-001-plan.md",
+      "docs/process/build-intel-research-inbox-proposals-001-plan.md",
+      "docs/process/build-intel-brief-001-plan.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-build-intel-extraction-implementation.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-build-intel-extraction-implementation-sprint-handoff.md"
+    ],
+    "proofCommands": [
+      "npm run process:build-intel-extraction-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=YOUTUBE-SCOUT-001 --planApprovalRef=docs/process/approvals/YOUTUBE-SCOUT-001.json --closeoutKey=build-intel-extraction-implementation-v1",
+      "npm run process:fanout-check -- --card=YOUTUBE-SCOUT-001 --closeoutKey=build-intel-extraction-implementation-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=YOUTUBE-SCOUT-001 --planApprovalRef=docs/process/approvals/YOUTUBE-SCOUT-001.json --closeoutKey=build-intel-extraction-implementation-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof consumes the real manual-priority AI Team Setup transcript artifact, validates multimodal envelopes as transcript-only, produces proposal-only Research Inbox rows, proves no paid auth/crawl/atoms/backlog mutation, and generates the Build Intel brief.",
+    "reviewNext": "Sprint review with Steve: decide whether to add current public-video discovery, paid-source auth preflight for Skool/myICOR, or screenshot/OCR/keyframe upgrade next.",
+    "knownLimits": [
+      "This consumes existing archived transcript artifacts; it does not discover latest uploads.",
+      "This does not connect Skool, myICOR, Loom, or any paid/private source.",
+      "This does not capture screenshots, OCR text, or keyframes.",
+      "This does not create atoms or auto-create, auto-close, auto-promote, or auto-move backlog cards.",
+      "This does not build an LLM BUILD-SCOPER agent, Director, daily digest, or autonomous dev loop."
+    ]
+  },
+  {
+    "key": "implementation-intelligence-v1",
+    "backlogIds": [
+      "INTERNAL-SCOPER-001",
+      "THIN-CARD-DETECTOR-001",
+      "RESEARCH-DISPOSITION-QUEUE-001",
+      "BUILDER-LESSON-LINKER-001",
+      "PUBLIC-YOUTUBE-PREFLIGHT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Implementation Intelligence",
+        "INTERNAL-SCOPER-001",
+        "THIN-CARD-DETECTOR-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "YOUTUBE-SCOUT-001",
+      "CREATOR-WATCHLIST-001",
+      "MULTIMODAL-EXTRACTOR-001",
+      "RESEARCH-INBOX-001",
+      "SKOOL-001",
+      "MYICRO-TRAINING-001",
+      "LOOM-001"
+    ],
+    "systemArea": "Foundation implementation intelligence",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the no-auth Implementation Intelligence layer: Internal Scoper proposals, thin-card detection, research disposition queue, builder lesson linker, and public YouTube preflight.",
+    "whatItDoes": "The layer detects thin cards, proposes 7-section build-ready doctrine, turns research cards into reviewable disposition rows, maps builder lessons to existing backlog cards through Research Inbox, and separates public YouTube candidates from paid/auth-blocked sources without extraction.",
+    "whyItMatters": "Steve clarified that builder content should mostly improve how existing ideas are implemented. This makes that signal attach to current backlog work without growing the backlog or repeating autonomous-dev drift.",
+    "whereItLives": [
+      "lib/implementation-intelligence.js",
+      "scripts/process-implementation-intelligence-check.mjs",
+      "server.js /api/foundation/implementation-intelligence",
+      "server.js foundation-hub payload property implementationIntelligence",
+      "package.json process:implementation-intelligence-check",
+      "scripts/foundation-verify.mjs Implementation Intelligence check",
+      "docs/process/implementation-intelligence-2026-05-13-plan.md",
+      "docs/process/internal-scoper-001-plan.md",
+      "docs/process/thin-card-detector-001-plan.md",
+      "docs/process/research-disposition-queue-001-plan.md",
+      "docs/process/builder-lesson-linker-001-plan.md",
+      "docs/process/public-youtube-preflight-001-plan.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-implementation-intelligence-sprint-handoff.md"
+    ],
+    "proofCommands": [
+      "npm run process:implementation-intelligence-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=INTERNAL-SCOPER-001 --planApprovalRef=docs/process/approvals/INTERNAL-SCOPER-001.json --closeoutKey=implementation-intelligence-v1",
+      "npm run process:fanout-check -- --card=INTERNAL-SCOPER-001 --closeoutKey=implementation-intelligence-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=INTERNAL-SCOPER-001 --planApprovalRef=docs/process/approvals/INTERNAL-SCOPER-001.json --closeoutKey=implementation-intelligence-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof detects a synthetic thin card, preserves a build-ready card, produces Internal Scoper enrichment without writes, covers promote/keep/future/kill-review research dispositions, routes builder lessons through Research Inbox proposals, validates a public YouTube preflight envelope, and proves live backlog counts/lanes do not change.",
+    "reviewNext": "Stop for sprint review. Good next options: apply selected Internal Scoper enrichments, run Build Intel Extraction Implementation starting with public YouTube, or harden runtime extraction before paid-source auth.",
+    "knownLimits": [
+      "This does not crawl YouTube, call Gemini, capture screenshots, fetch transcripts, or create atoms.",
+      "This does not connect Skool, myICOR, Loom, or any paid/private source.",
+      "This does not auto-create, auto-close, auto-promote, or auto-move backlog cards.",
+      "This does not build an LLM Build Scoper agent or autonomous dev loop."
+    ]
+  },
+  {
+    "key": "foundation-control-backlog-compression-v1",
+    "backlogIds": [
+      "FEEDBACK-CAPTURE-001",
+      "FEEDBACK-TRIAGE-001",
+      "BACKLOG-MONITOR-001",
+      "SPRINT-MASTER-ADVISOR-001",
+      "SYSTEM-FLOW-MAP-001",
+      "FOUNDATION-DONE-VELOCITY-001",
+      "PROCESS-ACK-STATES-001",
+      "VERIFIER-INCREMENTAL-COVERAGE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Foundation control",
+        "backlog compression",
+        "FEEDBACK-CAPTURE-001",
+        "BACKLOG-MONITOR-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "YOUTUBE-SCOUT-001",
+      "RUNTIME-ACTIVATION-001",
+      "EXTRACT-BACKFILL-001",
+      "EXTRACT-CURRENT-001",
+      "SKOOL-WORKER-001",
+      "INTERNAL-SCOPER-001"
+    ],
+    "systemArea": "Foundation control plane",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Foundation control compression layer: feedback capture, feedback triage, backlog monitor, sprint advisor, system flow map, done velocity, acknowledged states, and incremental verifier planning.",
+    "whatItDoes": "The layer captures Steve feedback durably, proposes routing without applying it, reports backlog pressure without mutation, proposes next sprints without opening them, renders live source-to-ship flow, computes done velocity, tracks expiring acknowledgements, and plans focused proof with full-verifier fallback.",
+    "whyItMatters": "The Foundation backlog is large. This gives Steve and Codex a control layer for running the backlog without repeating old-system autonomous-dev drift or losing important context in chat.",
+    "whereItLives": [
+      "lib/foundation-control-compression.js",
+      "lib/foundation-db.js foundation_feedback_items / foundation_acknowledged_states / foundation_incremental_verifier_runs",
+      "scripts/process-foundation-control-compression-check.mjs",
+      "server.js /api/foundation/control-compression",
+      "server.js foundation-hub payload property foundationControlCompression",
+      "package.json process:foundation-control-compression-check",
+      "scripts/foundation-verify.mjs Foundation control compression check",
+      "docs/process/foundation-control-backlog-compression-2026-05-13-plan.md",
+      "docs/process/feedback-capture-001-plan.md",
+      "docs/process/feedback-triage-001-plan.md",
+      "docs/process/backlog-monitor-001-plan.md",
+      "docs/process/sprint-master-advisor-001-plan.md",
+      "docs/process/system-flow-map-001-plan.md",
+      "docs/process/foundation-done-velocity-001-plan.md",
+      "docs/process/process-ack-states-001-plan.md",
+      "docs/process/verifier-incremental-coverage-001-plan.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-foundation-control-backlog-compression-sprint-handoff.md"
+    ],
+    "proofCommands": [
+      "npm run process:foundation-control-compression-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FEEDBACK-CAPTURE-001 --planApprovalRef=docs/process/approvals/FEEDBACK-CAPTURE-001.json --closeoutKey=foundation-control-backlog-compression-v1",
+      "npm run process:fanout-check -- --card=FEEDBACK-CAPTURE-001 --closeoutKey=foundation-control-backlog-compression-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=FEEDBACK-CAPTURE-001 --planApprovalRef=docs/process/approvals/FEEDBACK-CAPTURE-001.json --closeoutKey=foundation-control-backlog-compression-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof captures synthetic feedback, triages it proposal-only, reports live backlog pressure without row-count mutation, proposes sprint options without opening one, renders live flow, computes velocity, proves active/expired ack states, and confirms incremental verifier full fallback for protected paths.",
+    "reviewNext": "Stop for sprint review. Good next options: Internal Implementation Scoper Sprint for thin-card enrichment, Runtime + Extraction Hardening Foundation Sprint, Build Intel Extraction Implementation Sprint with Steve-present auth decisions, or research-lane promotion review from the backlog monitor.",
+    "knownLimits": [
+      "This does not run external extraction or paid-source auth.",
+      "This does not auto-create, move, rank, close, or delete backlog cards from feedback/advisor output.",
+      "This does not build autonomous dev, Directors, Reply/Watching Loop, Telegram bots, or hubs.",
+      "This does not suppress critical verifier failures automatically through acknowledgements."
+    ]
+  },
+  {
+    "key": "build-intel-intake-foundation-v1",
+    "backlogIds": [
+      "CREATOR-WATCHLIST-001",
+      "MULTIMODAL-EXTRACTOR-001",
+      "RESEARCH-INBOX-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Build Intel intake",
+        "CREATOR-WATCHLIST-001",
+        "MULTIMODAL-EXTRACTOR-001",
+        "RESEARCH-INBOX-001"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "YOUTUBE-SCOUT-001",
+      "WEB-GODMODE-001",
+      "MYICRO-TRAINING-001",
+      "RESEARCHER-AGENT-001",
+      "FEEDBACK-CAPTURE-001",
+      "SPRINT-MASTER-ADVISOR-001"
+    ],
+    "systemArea": "Foundation Build Intel intake",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Build Intel intake primitives: normalized creator/source watchlist, governed multimodal extractor contract, and proposal-only Research Inbox gate.",
+    "whatItDoes": "The watchlist separates 24 Build Intel sources from 4 later marketing-content sources, the extractor contract defines allowed evidence/policy/provenance rules before source crawling, and Research Inbox returns proposals without mutating backlog automatically.",
+    "whyItMatters": "AIOS can now prepare to learn from external builders without repeating the old pattern of chat-only source lists, ungoverned extraction, and autonomous dev/backlog mutation.",
+    "whereItLives": [
+      "lib/build-intel-watchlist.js",
+      "lib/multimodal-extractor-contract.js",
+      "lib/research-inbox.js",
+      "scripts/process-build-intel-intake-check.mjs",
+      "server.js /api/foundation/build-intel-watchlist",
+      "server.js /api/foundation/multimodal-extractor-contract",
+      "server.js /api/foundation/research-inbox-contract",
+      "package.json process:build-intel-intake-check",
+      "docs/process/build-intel-intake-foundation-2026-05-13-plan.md",
+      "docs/process/creator-watchlist-001-plan.md",
+      "docs/process/multimodal-extractor-001-plan.md",
+      "docs/process/research-inbox-001-plan.md",
+      "docs/process/approvals/CREATOR-WATCHLIST-001.json",
+      "docs/process/approvals/MULTIMODAL-EXTRACTOR-001.json",
+      "docs/process/approvals/RESEARCH-INBOX-001.json",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-build-intel-intake-sprint-handoff.md"
+    ],
+    "proofCommands": [
+      "npm run process:build-intel-intake-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=CREATOR-WATCHLIST-001 --planApprovalRef=docs/process/approvals/CREATOR-WATCHLIST-001.json --closeoutKey=build-intel-intake-foundation-v1",
+      "npm run process:fanout-check -- --card=CREATOR-WATCHLIST-001 --closeoutKey=build-intel-intake-foundation-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=CREATOR-WATCHLIST-001 --planApprovalRef=docs/process/approvals/CREATOR-WATCHLIST-001.json --closeoutKey=build-intel-intake-foundation-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the watchlist rows and category split, rejects unsafe extractor envelopes, rejects Research Inbox auto-create behavior, verifies promotion is proposal-only, and confirms no extraction or backlog mutation happens in the proof.",
+    "reviewNext": "Stop for sprint review. Next named sprint is Build Intel Extraction Implementation Sprint: bounded YouTube watchlist proof, Steve-present Skool/myICOR/Loom access decisions, Build Scoper proposals to Research Inbox, and Build Intel brief synthesis.",
+    "knownLimits": [
+      "This does not extract videos, Skool, myICOR, Loom, blogs, or social posts.",
+      "This does not create intelligence atoms or run Build Scoper.",
+      "This does not approve paid-source access or content-use boundaries.",
+      "This does not build marketing content production or autonomous dev."
+    ]
+  },
+  {
+    "key": "research-lane-purge-v1",
+    "backlogIds": [
+      "RESEARCH-LANE-PURGE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "RESEARCH-LANE-PURGE-001",
+        "Close research lane purge"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ATOM-FLOW-AUTO-DEMOTION-001",
+      "EXTRACT-RUN-HARDENING-EXECUTION-001"
+    ],
+    "systemArea": "Foundation backlog control",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a proposed-only research-lane purge classifier, generated a live research review report, and proved report generation does not mutate research backlog lanes.",
+    "whatItDoes": "The purge report scans live research backlog cards, assigns promote/keep/kill/future-concepts review dispositions, records age and related-signal context, and leaves every disposition as human-review input only.",
+    "whyItMatters": "The research lane had become a parking-lot risk. This makes the parked work reviewable without silently deleting, closing, or moving cards while Steve is asleep.",
+    "whereItLives": [
+      "lib/research-lane-purge.js",
+      "scripts/process-research-lane-purge-check.mjs",
+      "docs/_archive/handoffs/research-purge-2026-05-13.md",
+      "package.json process:research-lane-purge-check",
+      "docs/process/research-lane-purge-001-plan.md",
+      "docs/process/approvals/RESEARCH-LANE-PURGE-001.json"
+    ],
+    "proofCommands": [
+      "npm run process:research-lane-purge-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=RESEARCH-LANE-PURGE-001 --planApprovalRef=docs/process/approvals/RESEARCH-LANE-PURGE-001.json --closeoutKey=research-lane-purge-v1",
+      "npm run process:fanout-check -- --card=RESEARCH-LANE-PURGE-001 --closeoutKey=research-lane-purge-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=RESEARCH-LANE-PURGE-001 --planApprovalRef=docs/process/approvals/RESEARCH-LANE-PURGE-001.json --closeoutKey=research-lane-purge-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates synthetic stale/recent/high-priority/deprecated behavior, writes the live report, and compares research-lane signatures before and after report generation to prove no research cards were moved.",
+    "reviewNext": "Stop for Source Truth Guardrails sprint review. Do not silently open Reply/Watching Loop, source contract expansion, connector repair, or product work.",
+    "knownLimits": [
+      "This does not delete cards.",
+      "This does not auto-move research cards or edit/create a future-concepts parking doc.",
+      "This report is review input; Steve/reviewer must approve any later backlog mutations."
+    ]
+  },
+  {
+    "key": "extract-run-hardening-execution-v1",
+    "backlogIds": [
+      "EXTRACT-RUN-HARDENING-EXECUTION-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "EXTRACT-RUN-HARDENING-EXECUTION-001",
+        "Close extract run hardening execution"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ATOM-FLOW-AUTO-DEMOTION-001",
+      "RESEARCH-LANE-PURGE-001",
+      "EXTRACT-RUN-HARDENING-001"
+    ],
+    "systemArea": "Foundation extraction control",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a central failed-item retry executor, a manual Foundation recovery job, and focused proof for bounded retry execution.",
+    "whatItDoes": "The executor classifies failed source_crawl_items, selects only eligible retry rows, supports target-specific retry command construction, and proves success, exhaustion, waiting, and blocked outcomes without broad ingestion.",
+    "whyItMatters": "Extraction retry/backoff no longer lives only as policy/schema. Failed items now have a narrow execution lane that either retries safely, waits for the next window, exhausts at the hard cap, or stays blocked with a reason.",
+    "whereItLives": [
+      "lib/extraction-run-hardening-execution.js",
+      "scripts/retry-extraction-failed-items.mjs",
+      "scripts/process-extract-run-hardening-execution-check.mjs",
+      "lib/foundation-jobs.js extraction-retry-failed",
+      "package.json extraction:retry-failed / process:extract-run-hardening-execution-check",
+      "docs/process/extract-run-hardening-execution-001-plan.md",
+      "docs/process/approvals/EXTRACT-RUN-HARDENING-EXECUTION-001.json"
+    ],
+    "proofCommands": [
+      "npm run process:extract-run-hardening-execution-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=EXTRACT-RUN-HARDENING-EXECUTION-001 --planApprovalRef=docs/process/approvals/EXTRACT-RUN-HARDENING-EXECUTION-001.json --closeoutKey=extract-run-hardening-execution-v1",
+      "npm run process:fanout-check -- --card=EXTRACT-RUN-HARDENING-EXECUTION-001 --closeoutKey=extract-run-hardening-execution-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=EXTRACT-RUN-HARDENING-EXECUTION-001 --planApprovalRef=docs/process/approvals/EXTRACT-RUN-HARDENING-EXECUTION-001.json --closeoutKey=extract-run-hardening-execution-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof covers a synthetic retry success, a synthetic hard-max exhausted retry, waiting/blocked rows left untouched, and a live no-write dry run for meetings-current-day through extraction:retry-failed.",
+    "reviewNext": "Continue the Source Truth Guardrails sprint with RESEARCH-LANE-PURGE-001. Do not schedule retry globally or broaden retry targets until target-specific item retry paths are proven.",
+    "knownLimits": [
+      "V1 registers the retry job as manual, not scheduled.",
+      "V1 supports meetings-current-day as the proven target-specific failed-item retry path.",
+      "This does not run broad corpus ingestion, add connectors, mutate Drive permissions, or send request-access emails."
+    ]
+  },
+  {
+    "key": "atom-flow-auto-demotion-v1",
+    "backlogIds": [
+      "ATOM-FLOW-AUTO-DEMOTION-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "ATOM-FLOW-AUTO-DEMOTION-001",
+        "atom-flow auto-demotion",
+        "Close atom flow auto demotion"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "EXTRACT-RUN-HARDENING-EXECUTION-001",
+      "RESEARCH-LANE-PURGE-001"
+    ],
+    "systemArea": "Foundation source truth",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added atom-flow status to source maturity truth and demoted stale atomized claims when promoted intelligence_atoms are missing or outside the freshness window.",
+    "whatItDoes": "The source maturity grid now carries atomFlow metadata for every source row, including status, window, active atom count, latest atom timestamp, age, and stale reason. Stale rows no longer stay green on the atomized stage.",
+    "whyItMatters": "The source layer can no longer claim healthy extracted/atomized behavior from old labels or old atoms alone. Product loops will see stale atom flow before trusting source maturity.",
+    "whereItLives": [
+      "lib/atom-flow-auto-demotion.js",
+      "lib/source-maturity-grid.js atomFlow metadata",
+      "scripts/process-atom-flow-auto-demotion-check.mjs",
+      "package.json process:atom-flow-auto-demotion-check",
+      "docs/process/atom-flow-auto-demotion-001-plan.md",
+      "docs/process/approvals/ATOM-FLOW-AUTO-DEMOTION-001.json"
+    ],
+    "proofCommands": [
+      "npm run process:atom-flow-auto-demotion-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=ATOM-FLOW-AUTO-DEMOTION-001 --planApprovalRef=docs/process/approvals/ATOM-FLOW-AUTO-DEMOTION-001.json --closeoutKey=atom-flow-auto-demotion-v1",
+      "npm run process:fanout-check -- --card=ATOM-FLOW-AUTO-DEMOTION-001 --closeoutKey=atom-flow-auto-demotion-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=ATOM-FLOW-AUTO-DEMOTION-001 --planApprovalRef=docs/process/approvals/ATOM-FLOW-AUTO-DEMOTION-001.json --closeoutKey=atom-flow-auto-demotion-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates stale, restored, missing-promoted-atom, and not-applicable synthetic behavior through the actual source maturity function path. Live readback found atomFlow metadata on all source maturity rows and demoted stale atomized state.",
+    "reviewNext": "Continue the Source Truth Guardrails sprint with EXTRACT-RUN-HARDENING-EXECUTION-001. Do not pull research purge or product work until retry execution closes.",
+    "knownLimits": [
+      "This does not create source contracts or start new extraction.",
+      "This does not repair credentials or external connectors.",
+      "This does not mutate Drive permissions, run Meeting Vault Phase B, or send request-access emails."
+    ]
+  },
+  {
+    "key": "source-extraction-gap-followup-v1",
+    "backlogIds": [
+      "SOURCE-EXTRACTION-GAP-FOLLOWUP-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SOURCE-EXTRACTION-GAP-FOLLOWUP-001",
+        "source extraction gap"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ATOM-FLOW-AUTO-DEMOTION-001",
+      "EXTRACT-RUN-HARDENING-EXECUTION-001",
+      "RESEARCH-LANE-PURGE-001",
+      "SRC-CONTRACT-EXPANSION-001"
+    ],
+    "systemArea": "Foundation source readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a source extraction gap triage builder, generated the ranked source-gap report, and closed the Control Plane + Connector Readiness sprint without starting ingestion.",
+    "whatItDoes": "The triage turns live connector matrix, hub routing matrix, source maturity, and extraction coverage state into ranked safe-next, sprint-2-candidate, needs-Steve-access, and blocked queues.",
+    "whyItMatters": "The source layer can now tell the next sprint which gaps are safe to scope, which require Steve/access decisions, and which foundation guardrails should happen before product loops resume.",
+    "whereItLives": [
+      "lib/source-extraction-gap-followup.js",
+      "scripts/process-source-extraction-gap-followup-check.mjs",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-source-extraction-gap-triage.md",
+      "package.json process:source-extraction-gap-followup-check",
+      "scripts/foundation-verify.mjs SOURCE-EXTRACTION-GAP-FOLLOWUP-001 coverage",
+      "docs/process/source-extraction-gap-followup-001-plan.md",
+      "docs/process/approvals/SOURCE-EXTRACTION-GAP-FOLLOWUP-001.json"
+    ],
+    "proofCommands": [
+      "npm run process:source-extraction-gap-followup-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=SOURCE-EXTRACTION-GAP-FOLLOWUP-001 --planApprovalRef=docs/process/approvals/SOURCE-EXTRACTION-GAP-FOLLOWUP-001.json --closeoutKey=source-extraction-gap-followup-v1",
+      "npm run process:fanout-check -- --card=SOURCE-EXTRACTION-GAP-FOLLOWUP-001 --closeoutKey=source-extraction-gap-followup-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=SOURCE-EXTRACTION-GAP-FOLLOWUP-001 --planApprovalRef=docs/process/approvals/SOURCE-EXTRACTION-GAP-FOLLOWUP-001.json --closeoutKey=source-extraction-gap-followup-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof covered all 23 non-connected matrix rows, preserved the three queued next-sprint candidates, rejected a synthetic missing-gap variant, and verified this card imports no extraction job runners.",
+    "reviewNext": "Stop at sprint review. Do not silently open the next sprint; choose between atom-flow auto-demotion, extract retry execution, research purge, or source contract expansion from the triage.",
+    "knownLimits": [
+      "This does not create source contracts or implement broad ingestion.",
+      "This does not repair Google Ads, GHL, Meta, Skool, Loom, Mycro, Real, SocialPilot, Zoom, Telegram, WhatsApp, or web extraction.",
+      "This does not approve MEETING-VAULT-ACL-001 Phase B, Drive permissions mutation, or request-access emails."
+    ]
+  },
+  {
+    "key": "llm-auth-audit-v1",
+    "backlogIds": [
+      "LLM-AUTH-AUDIT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "LLM-AUTH-AUDIT-001",
+        "LLM auth audit"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-EXTRACTION-GAP-FOLLOWUP-001",
+      "MEETING-VAULT-ACL-001"
+    ],
+    "systemArea": "Foundation model routing",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Ran the LLM auth audit through the Foundation job ledger, recorded fresh route probes, added a focused readback proof, and wired verifier coverage for model route/auth truth.",
+    "whatItDoes": "The proof classifies OpenAI API fallback, OpenClaw subscription gateway, Claude Code subscription, Claude OAuth token, Anthropic API, and Gemini API route families from recorded job/probe/call state without copying secrets or enabling new workloads.",
+    "whyItMatters": "Scheduled intelligence jobs need current route truth before more workloads depend on GPT/Claude/subscription/API paths. The system can now distinguish available, missing, blocked, fallback-only, and probe-required model routes instead of trusting stale assumptions.",
+    "whereItLives": [
+      "scripts/audit-llm-auth-paths.mjs",
+      "scripts/process-llm-auth-audit-check.mjs",
+      "lib/llm-auth-audit-proof.js",
+      "lib/llm-router.js DEFAULT_LLM_ROUTES",
+      "server.js /api/foundation/llm-runtime",
+      "package.json foundation:job / llm:auth-audit / process:llm-auth-audit-check",
+      "scripts/foundation-verify.mjs LLM-AUTH-AUDIT-001 coverage",
+      "docs/process/llm-auth-audit-001-plan.md",
+      "docs/process/approvals/LLM-AUTH-AUDIT-001.json"
+    ],
+    "proofCommands": [
+      "npm run foundation:job -- --job=llm-auth-audit --actor=codex-llm-auth-audit-proof",
+      "npm run process:llm-auth-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=LLM-AUTH-AUDIT-001 --planApprovalRef=docs/process/approvals/LLM-AUTH-AUDIT-001.json --closeoutKey=llm-auth-audit-v1",
+      "npm run process:fanout-check -- --card=LLM-AUTH-AUDIT-001 --closeoutKey=llm-auth-audit-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=LLM-AUTH-AUDIT-001 --planApprovalRef=docs/process/approvals/LLM-AUTH-AUDIT-001.json --closeoutKey=llm-auth-audit-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "The Foundation job succeeded, required probes were fresh, OpenAI API and Gemini API were classified as guarded API fallbacks, OpenClaw subscription gateway passed the actual model probe under explicit router policy, Claude Code subscription remained experimental/probe-required, Anthropic API and Claude OAuth were blocked/missing, and the route-selection proof was dry-run only.",
+    "reviewNext": "Continue with SOURCE-EXTRACTION-GAP-FOLLOWUP-001 as triage only. Do not start broad ingestion, provider account repair, or new model workload migration.",
+    "knownLimits": [
+      "This does not rotate credentials, create provider accounts, or repair missing Anthropic/Claude OAuth configuration.",
+      "This does not enable direct spending paths outside router policy or migrate new scheduled intelligence jobs.",
+      "This does not approve MEETING-VAULT-ACL-001 Phase B, Drive permissions mutation, or request-access emails."
+    ]
+  },
+  {
+    "key": "connector-credential-v1",
+    "backlogIds": [
+      "CONNECTOR-CREDENTIAL-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "CONNECTOR-CREDENTIAL-001",
+        "connector credential"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "LLM-AUTH-AUDIT-001",
+      "SOURCE-EXTRACTION-GAP-FOLLOWUP-001",
+      "MEETING-VAULT-ACL-001"
+    ],
+    "systemArea": "Foundation connector readiness",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a no-secret connector credential/preflight registry, exposed it through a Foundation API, linked connector matrix rows to credential status, and added a focused no-secret proof.",
+    "whatItDoes": "The registry shows connector/source IDs, provider, credential class, credential reference names, owner, last probe status, source-unlocked state, unlocked workload, and blocker reason without outputting credential values.",
+    "whyItMatters": "Connector and routing matrices can now answer whether a source is blocked by missing contracts, missing connector code, or credential/preflight readiness before product loops depend on it.",
+    "whereItLives": [
+      "lib/connector-credential-registry.js",
+      "server.js /api/foundation/connector-credential-preflight",
+      "lib/source-connector-matrix.js credentialRegistryKeys / credential_status linkage",
+      "scripts/process-connector-credential-check.mjs",
+      "package.json process:connector-credential-check",
+      "scripts/foundation-verify.mjs CONNECTOR-CREDENTIAL-001 coverage",
+      "docs/process/connector-credential-001-plan.md",
+      "docs/process/approvals/CONNECTOR-CREDENTIAL-001.json"
+    ],
+    "proofCommands": [
+      "npm run process:connector-credential-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=CONNECTOR-CREDENTIAL-001 --planApprovalRef=docs/process/approvals/CONNECTOR-CREDENTIAL-001.json --closeoutKey=connector-credential-v1",
+      "npm run process:fanout-check -- --card=CONNECTOR-CREDENTIAL-001 --closeoutKey=connector-credential-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=CONNECTOR-CREDENTIAL-001 --planApprovalRef=docs/process/approvals/CONNECTOR-CREDENTIAL-001.json --closeoutKey=connector-credential-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof built a 27-row metadata-only registry, proved synthetic credential sentinel values do not appear in output, linked all 25 connector matrix rows to registry keys, and kept known blockers such as SocialPilot, Real Broker, Skool, Mycro, and media extraction blocked.",
+    "reviewNext": "Continue with LLM-AUTH-AUDIT-001. Probe route/auth truth only; do not change provider accounts or broaden scheduled model workloads.",
+    "knownLimits": [
+      "This does not rotate credentials, repair OAuth, create accounts, or validate owner/user auth context.",
+      "This does not implement Mycro, Skool, Loom, Zoom, Real, SocialPilot, Telegram, WhatsApp, or broad external extraction.",
+      "This does not approve MEETING-VAULT-ACL-001 Phase B, Drive permissions mutation, or request-access emails."
+    ]
+  },
+  {
+    "key": "foundation-plan-reconcile-control-plane-v1",
+    "backlogIds": [
+      "FOUNDATION-PLAN-RECONCILE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-PLAN-RECONCILE-001",
+        "foundation plan reconcile"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CURRENT-SPRINT-DYNAMIC-TRUTH-001",
+      "SPRINT-STAGE-GATE-001",
+      "CONNECTOR-CREDENTIAL-001",
+      "LLM-AUTH-AUDIT-001",
+      "SOURCE-EXTRACTION-GAP-FOLLOWUP-001",
+      "ATOM-FLOW-AUTO-DEMOTION-001",
+      "EXTRACT-RUN-HARDENING-EXECUTION-001",
+      "RESEARCH-LANE-PURGE-001"
+    ],
+    "systemArea": "Foundation control plane",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Reconciled rebuild plan, current state, and the control-plane sprint handoff to live Current Sprint truth, then added a focused API/doc proof for the reconcile card.",
+    "whatItDoes": "The active rebuild docs now name `control-plane-connector-readiness-2026-05-12` as the active sprint, route active-blocker truth to `/api/foundation/current-sprint`, record Source Once-Over, Connector/Routing Truth, and Process Repair as closed, and queue the next source-truth cards without pulling them.",
+    "whyItMatters": "Steve saw the dashboard correctly flag stale process truth. This closes the doc side of that drift so tomorrow’s chat sees the same sprint story in docs, live DB, and the dashboard.",
+    "whereItLives": [
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-12-control-plane-sprint-handoff.md",
+      "scripts/process-foundation-plan-reconcile-check.mjs",
+      "package.json process:foundation-plan-reconcile-check",
+      "scripts/foundation-verify.mjs FOUNDATION-PLAN-RECONCILE-001 coverage",
+      "docs/process/foundation-plan-reconcile-001-plan.md",
+      "docs/process/approvals/FOUNDATION-PLAN-RECONCILE-001.json"
+    ],
+    "proofCommands": [
+      "npm run process:foundation-plan-reconcile-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FOUNDATION-PLAN-RECONCILE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-PLAN-RECONCILE-001.json --closeoutKey=foundation-plan-reconcile-control-plane-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-PLAN-RECONCILE-001 --closeoutKey=foundation-plan-reconcile-control-plane-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=FOUNDATION-PLAN-RECONCILE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-PLAN-RECONCILE-001.json --closeoutKey=foundation-plan-reconcile-control-plane-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof read the live Current Sprint API, rejected stale Source Once-Over/Process Repair active-sprint markers in active doc sections, verified all six control-plane cards and queued next-sprint cards, and foundation:verify passed 274/274.",
+    "reviewNext": "Continue with CONNECTOR-CREDENTIAL-001. Keep it metadata-only and no-secret; do not repair provider auth or start new extraction.",
+    "knownLimits": [
+      "This does not build connector credential inventory; it only prepares the docs and proof for the next card.",
+      "This does not implement LLM auth audit, source-gap triage, atom-flow auto-demotion, extract retry execution, research-lane purge, Reply/Watching Loop, product UI, or external extraction.",
+      "This does not approve MEETING-VAULT-ACL-001 Phase B, Drive permissions mutation, or request-access emails."
+    ]
+  },
+  {
+    "key": "sprint-stage-gate-v1",
+    "backlogIds": [
+      "SPRINT-STAGE-GATE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SPRINT-STAGE-GATE-001",
+        "sprint stage gate"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CURRENT-SPRINT-DYNAMIC-TRUTH-001",
+      "FOUNDATION-PLAN-RECONCILE-001",
+      "SOURCE-CONNECTOR-MATRIX-001",
+      "SOURCE-HUB-ROUTING-MATRIX-001"
+    ],
+    "systemArea": "Foundation control plane",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a reusable Current Sprint stage-gate validator, wired Plan Critic run rows into the Current Sprint API, added a focused stage-gate proof script, and updated verifier coverage so invalid stage states surface as risk instead of quiet dashboard labels.",
+    "whatItDoes": "Sprint Ready and Building Now now require complete doctrine and a Plan Critic pass row. Done This Sprint requires complete doctrine, done backlog truth, and Recent Work closeout proof, with an explicit after-action exception for repaired historical records. Active blockers cannot already be Done This Sprint.",
+    "whyItMatters": "Steve caught that real work shipped while the dashboard said Doctrine missing. This makes the skip pattern mechanically visible and dogfoods the exact skipped Connector/Routing state that caused the concern.",
+    "whereItLives": [
+      "lib/foundation-current-sprint.js validateFoundationSprintStageGate",
+      "lib/foundation-db.js planCriticRuns on active sprint reads",
+      "server.js /api/foundation/current-sprint Plan Critic-backed stage findings",
+      "scripts/process-sprint-stage-gate-check.mjs",
+      "package.json process:sprint-stage-gate-check",
+      "scripts/foundation-verify.mjs SPRINT-STAGE-GATE-001 coverage",
+      "docs/process/sprint-stage-gate-001-plan.md",
+      "docs/process/approvals/SPRINT-STAGE-GATE-001.json",
+      "Foundation > Current Sprint"
+    ],
+    "proofCommands": [
+      "npm run process:sprint-stage-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=SPRINT-STAGE-GATE-001 --planApprovalRef=docs/process/approvals/SPRINT-STAGE-GATE-001.json --closeoutKey=sprint-stage-gate-v1",
+      "npm run process:fanout-check -- --card=SPRINT-STAGE-GATE-001 --closeoutKey=sprint-stage-gate-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=SPRINT-STAGE-GATE-001 --planApprovalRef=docs/process/approvals/SPRINT-STAGE-GATE-001.json --closeoutKey=sprint-stage-gate-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof rejected the original skipped Connector/Routing state, accepted the repaired after-action state, proved API risk/readback for a live invalid doctrine fixture with restoration, and foundation:verify passed 273/273 before closeout.",
+    "reviewNext": "Continue with FOUNDATION-PLAN-RECONCILE-001. Keep it to reconciling current plan/state/handoffs with live sprint truth; do not pull product work or UI polish.",
+    "knownLimits": [
+      "This is not a broad project manager or Scrum bot.",
+      "This does not create immutable historical stage-history rows; it validates the artifacts each stage claims.",
+      "This does not reconcile rebuild docs beyond adding the stage gate proof path.",
+      "This does not build connector credentials, LLM auth audit, source-gap triage, Reply/Watching Loop, product UI, or external extraction.",
+      "This does not approve MEETING-VAULT-ACL-001 Phase B, Drive permissions mutation, or request-access emails."
+    ]
+  },
+  {
+    "key": "current-sprint-dynamic-truth-v1",
+    "backlogIds": [
+      "CURRENT-SPRINT-DYNAMIC-TRUTH-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "CURRENT-SPRINT-DYNAMIC-TRUTH-001",
+        "current sprint dynamic truth"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SPRINT-STAGE-GATE-001",
+      "FOUNDATION-PLAN-RECONCILE-001",
+      "SPRINT-PROCESS-REPAIR-001",
+      "VERIFIER-SPRINT-INDEPENDENCE-001",
+      "VERIFIER-MODULAR-SPLIT-001",
+      "PROCESS-ROOT-VS-PATCH-001"
+    ],
+    "systemArea": "Foundation control plane",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Made active Current Sprint command truth fail closed when live sprint metadata is incomplete, added truth-source metadata to the Current Sprint payload, added a focused dynamic-truth proof script, and updated historical process-repair verifier checks so they prove closeouts instead of assuming the old repair sprint is still active.",
+    "whatItDoes": "The dashboard now treats live DB/backlog sprint records as the active command source. Hardcoded defaults are bootstrap-only, and a live sprint missing exit criteria becomes a risk instead of silently inheriting stale default criteria.",
+    "whyItMatters": "Steve caught that sprint truth can drift between chat, docs, seed constants, live DB, and the dashboard. This card makes the active command view harder to fake and prevents old sprint verifier checks from breaking just because a later sprint is active.",
+    "whereItLives": [
+      "lib/foundation-current-sprint.js truthSource and sprint_exit_criteria_required guard",
+      "scripts/process-current-sprint-dynamic-truth-check.mjs",
+      "package.json process:current-sprint-dynamic-truth-check",
+      "scripts/foundation-verify.mjs current-sprint dynamic truth coverage",
+      "docs/process/current-sprint-dynamic-truth-001-plan.md",
+      "docs/process/approvals/CURRENT-SPRINT-DYNAMIC-TRUTH-001.json",
+      "foundation_sprints control-plane-connector-readiness-2026-05-12",
+      "Foundation > Current Sprint"
+    ],
+    "proofCommands": [
+      "npm run process:current-sprint-dynamic-truth-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=CURRENT-SPRINT-DYNAMIC-TRUTH-001 --planApprovalRef=docs/process/approvals/CURRENT-SPRINT-DYNAMIC-TRUTH-001.json --closeoutKey=current-sprint-dynamic-truth-v1",
+      "npm run process:fanout-check -- --card=CURRENT-SPRINT-DYNAMIC-TRUTH-001 --closeoutKey=current-sprint-dynamic-truth-v1",
+      "npm run foundation:verify",
+      "npm run process:foundation-ship -- --card=CURRENT-SPRINT-DYNAMIC-TRUTH-001 --planApprovalRef=docs/process/approvals/CURRENT-SPRINT-DYNAMIC-TRUTH-001.json --closeoutKey=current-sprint-dynamic-truth-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passed with two live DB/API dynamic marker swaps and restoration, synthetic missing-metadata sprint rejection, clean backlog hygiene, explicit ship/fanout proof, and foundation:verify passed 272/272 after dashboard and worker restart.",
+    "reviewNext": "Continue with SPRINT-STAGE-GATE-001. The next proof must make stage skipping mechanically impossible and dogfood the original skipped Connector/Routing state.",
+    "knownLimits": [
+      "This does not implement SPRINT-STAGE-GATE-001.",
+      "This does not reconcile rebuild docs beyond the active sprint command source.",
+      "This does not build connector credentials, LLM auth audit, source-gap triage, Reply/Watching Loop, product UI, or external extraction.",
+      "This does not approve MEETING-VAULT-ACL-001 Phase B, Drive permissions mutation, or request-access emails."
+    ]
+  },
+  {
+    "key": "connector-routing-process-repair-v1",
+    "backlogIds": [
+      "SPRINT-PROCESS-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SPRINT-PROCESS-REPAIR-001",
+        "Connector Routing process repair"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ATOM-PROMOTION-DIAGNOSE-001",
+      "SPRINT-DB-RECONCILE-001",
+      "VERIFY-GATE-TIERING-FIX-001",
+      "PLAN-CRITIC-LOG-001",
+      "SOURCE-CONNECTOR-MATRIX-001",
+      "SOURCE-HUB-ROUTING-MATRIX-001",
+      "VERIFIER-SPRINT-INDEPENDENCE-001",
+      "VERIFIER-MODULAR-SPLIT-001",
+      "PROCESS-ROOT-VS-PATCH-001"
+    ],
+    "systemArea": "Foundation process repair",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Opened the Process Repair + Verifier Independence sprint formally, logged Plan Critic pass rows for all four repair cards, repaired the six Connector/Routing sprint item doctrine records as after-action truth, and moved the active blocker to VERIFIER-SPRINT-INDEPENDENCE-001.",
+    "whatItDoes": "The dashboard no longer needs to treat the six Connector/Routing cards as doctrine-missing, and the current active blocker is a not-done verifier-independence card. The repair preserves that the previous sprint skipped stage progression instead of pretending the stages happened before build.",
+    "whyItMatters": "Steve caught a real process skip. This closeout makes the repair visible in the same Recent Work/Current Sprint machinery that caught the defect, so the system repairs the process without hiding the warning.",
+    "whereItLives": [
+      "docs/process/process-repair-verifier-independence-2026-05-12-plan.md",
+      "docs/process/sprint-process-repair-001-plan.md",
+      "docs/process/connector-routing-truth-process-repair.md",
+      "scripts/process-repair-verifier-sprint-check.mjs",
+      "foundation_sprints process-repair-verifier-independence-2026-05-12",
+      "foundation_sprint_items for connector-routing-truth-2026-05-12",
+      "plan_critic_runs formal-plan-v1 rows for the four repair cards",
+      "Foundation > Recent Work > Current Sprint"
+    ],
+    "proofCommands": [
+      "npm run process:repair-verifier-sprint-check -- --open --json",
+      "npm run process:repair-verifier-sprint-check -- --close-process-repair --json",
+      "npm run process:repair-verifier-sprint-check -- --json",
+      "npm run process:plan-critic-check -- --json=true",
+      "npm run backlog:hygiene -- --json"
+    ],
+    "proofStatus": "Formal sprint repair proof passed: four repair cards had doctrine, four Plan Critic rows scored 10/10, SPRINT-PROCESS-REPAIR-001 moved to done, VERIFIER-SPRINT-INDEPENDENCE-001 became the active blocker, and the closed Connector/Routing sprint contains exactly its six shipped cards with complete after-action doctrine records.",
+    "reviewNext": "Finish VERIFIER-SPRINT-INDEPENDENCE-001 before product work resumes. Do not start Reply/Watching Loop until old sprint verifier checks prove shipped artifacts independent of current sprint state.",
+    "knownLimits": [
+      "This does not claim the six Connector/Routing cards moved through stages in real time.",
+      "This does not close VERIFIER-SPRINT-INDEPENDENCE-001.",
+      "This does not split the verifier monolith.",
+      "This does not add the Plan Critic root-vs-patch implementation.",
+      "This does not build product work, connectors, Reply Parser, Watching Items, or Drive ACL changes."
+    ]
+  },
+  {
+    "key": "verifier-sprint-independence-v1",
+    "backlogIds": [
+      "VERIFIER-SPRINT-INDEPENDENCE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "VERIFIER-SPRINT-INDEPENDENCE-001",
+        "verifier sprint independence"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SPRINT-PROCESS-REPAIR-001",
+      "VERIFIER-MODULAR-SPLIT-001",
+      "PROCESS-ROOT-VS-PATCH-001",
+      "SOURCE-CONNECTOR-MATRIX-001",
+      "SOURCE-HUB-ROUTING-MATRIX-001"
+    ],
+    "systemArea": "Foundation verifier",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Removed the Connector/Routing active-sprint shortcut from Foundation verification and made historical sprint checks rely on done backlog state plus verified closeouts and artifact checks.",
+    "whatItDoes": "Old sprint checks now stay green because their shipped work is still present, not because a later sprint is active. The active blocker then advances to VERIFIER-MODULAR-SPLIT-001 as the next not-done repair card.",
+    "whyItMatters": "This closes the sprint-state theatre bug Steve and Claude caught. Verifier proof is back to proving the invariant instead of accepting current sprint movement as a substitute.",
+    "whereItLives": [
+      "scripts/foundation-verify.mjs",
+      "scripts/process-repair-verifier-sprint-check.mjs",
+      "docs/process/verifier-sprint-independence-001-plan.md",
+      "docs/process/process-repair-verifier-independence-2026-05-12-plan.md",
+      "foundation_sprints process-repair-verifier-independence-2026-05-12",
+      "Foundation > Current Sprint"
+    ],
+    "proofCommands": [
+      "npm run process:ship-check -- --card=VERIFIER-SPRINT-INDEPENDENCE-001 --planApprovalRef=docs/process/approvals/VERIFIER-SPRINT-INDEPENDENCE-001.json --closeoutKey=verifier-sprint-independence-v1",
+      "npm run process:fanout-check -- --card=VERIFIER-SPRINT-INDEPENDENCE-001 --closeoutKey=verifier-sprint-independence-v1",
+      "npm run process:post-ship-fanout -- --card=VERIFIER-SPRINT-INDEPENDENCE-001 --closeoutKey=verifier-sprint-independence-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=VERIFIER-SPRINT-INDEPENDENCE-001 --planApprovalRef=docs/process/approvals/VERIFIER-SPRINT-INDEPENDENCE-001.json --closeoutKey=verifier-sprint-independence-v1 --commitRef=HEAD",
+      "rg -n \"connectorRoutingTruthSprintActive \\|\\| expectedSnippets|expectedCardIds.includes\\(currentSprintActiveBlockerCardId\\) \\|\\| connectorRoutingTruthSprintActive\" scripts/foundation-verify.mjs",
+      "npm run process:repair-verifier-sprint-check -- --close-verifier-independence --json",
+      "npm run process:repair-verifier-sprint-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Verifier sprint independence proof passed: the old Connector/Routing active-sprint shortcut grep returned no matches, process repair proof stayed green, backlog hygiene stayed healthy, and foundation:verify passed 266/266 before closeout.",
+    "reviewNext": "Continue with VERIFIER-MODULAR-SPLIT-001. Keep it to the smallest module-boundary proof before touching broader verifier structure.",
+    "knownLimits": [
+      "This does not split the verifier monolith.",
+      "This does not implement Plan Critic root-vs-patch hardening.",
+      "This does not start Reply/Watching Loop, connector builds, Strategy expansion, or Drive ACL changes.",
+      "The initial repair sprint open was still too compressed visually; future sprint openers must publish Scoping-only state before scoring or build advancement."
+    ]
+  },
+  {
+    "key": "verifier-modular-split-v1",
+    "backlogIds": [
+      "VERIFIER-MODULAR-SPLIT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "VERIFIER-MODULAR-SPLIT-001",
+        "verifier modular split"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SPRINT-PROCESS-REPAIR-001",
+      "VERIFIER-SPRINT-INDEPENDENCE-001",
+      "PROCESS-ROOT-VS-PATCH-001"
+    ],
+    "systemArea": "Foundation verifier",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Extracted the historical sprint closeout proof helper layer from scripts/foundation-verify.mjs into lib/foundation-verifier-sprint-proof.js, added a focused process proof for that module boundary, and updated Backlog seed state so VERIFIER-MODULAR-SPLIT-001 is done while PROCESS-ROOT-VS-PATCH-001 is building now.",
+    "whatItDoes": "Foundation verify still runs as the aggregate gate, but the first sprint-proof responsibility now lives in a reusable module with a two-millisecond focused proof instead of another inline block inside the verifier monolith.",
+    "whyItMatters": "This starts shrinking the verifier bottleneck without weakening proof. The split is real but bounded: one helper module, one focused check, and full verify still fails closed.",
+    "whereItLives": [
+      "lib/foundation-verifier-sprint-proof.js",
+      "scripts/process-verifier-modular-split-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "Backlog seed state in lib/foundation-db.js",
+      "docs/process/verifier-modular-split-001-plan.md",
+      "Foundation > Current Sprint"
+    ],
+    "proofCommands": [
+      "npm run process:ship-check -- --card=VERIFIER-MODULAR-SPLIT-001 --planApprovalRef=docs/process/approvals/VERIFIER-MODULAR-SPLIT-001.json --closeoutKey=verifier-modular-split-v1",
+      "npm run process:fanout-check -- --card=VERIFIER-MODULAR-SPLIT-001 --closeoutKey=verifier-modular-split-v1",
+      "npm run process:post-ship-fanout -- --card=VERIFIER-MODULAR-SPLIT-001 --closeoutKey=verifier-modular-split-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=VERIFIER-MODULAR-SPLIT-001 --planApprovalRef=docs/process/approvals/VERIFIER-MODULAR-SPLIT-001.json --closeoutKey=verifier-modular-split-v1 --commitRef=HEAD",
+      "npm run process:verifier-modular-split-check -- --json",
+      "npm run process:repair-verifier-sprint-check -- --close-verifier-modular-split --json",
+      "npm run process:repair-verifier-sprint-check -- --json",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Focused verifier modular split proof passed in 2ms, process repair sprint proof stayed green, and foundation:verify passed 268/268 before closeout.",
+    "reviewNext": "Continue with PROCESS-ROOT-VS-PATCH-001. Keep it to the narrow Plan Critic root-invariant rule.",
+    "knownLimits": [
+      "This is the first module boundary only, not a full split of every verifier section.",
+      "This does not weaken full foundation:verify or remove any historical sprint checks.",
+      "This does not implement Plan Critic root-vs-patch hardening.",
+      "This does not start Reply/Watching Loop, connector builds, Strategy expansion, or Drive ACL changes."
+    ]
+  },
+  {
+    "key": "process-root-vs-patch-v1",
+    "backlogIds": [
+      "PROCESS-ROOT-VS-PATCH-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "PROCESS-ROOT-VS-PATCH-001",
+        "root-vs-patch"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SPRINT-PROCESS-REPAIR-001",
+      "VERIFIER-SPRINT-INDEPENDENCE-001",
+      "VERIFIER-MODULAR-SPLIT-001"
+    ],
+    "systemArea": "Foundation process repair",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the Plan Critic root-vs-patch invariant rule, added a focused root-vs-patch proof script, and updated Backlog seed state so PROCESS-ROOT-VS-PATCH-001 closes the repair sprint without leaving a done card as active blocker.",
+    "whatItDoes": "Plans that patch verifier/dashboard symptoms with escape conditions now receive revise unless they name the underlying invariant and prove it through artifacts, DB/API/function behavior, or a synthetic failing case. Valid root-invariant verifier plans still pass.",
+    "whyItMatters": "This teaches the process gate to catch the exact failure Steve called out: clearing a warning or verifier failure by making the check accept new state instead of proving the thing the check claims to verify.",
+    "whereItLives": [
+      "lib/process-plan-critic.js",
+      "scripts/process-plan-critic-check.mjs",
+      "scripts/process-root-vs-patch-check.mjs",
+      "lib/foundation-current-sprint.js",
+      "scripts/process-repair-verifier-sprint-check.mjs",
+      "Backlog seed state in lib/foundation-db.js",
+      "Foundation > Current Sprint"
+    ],
+    "proofCommands": [
+      "npm run process:ship-check -- --card=PROCESS-ROOT-VS-PATCH-001 --planApprovalRef=docs/process/approvals/PROCESS-ROOT-VS-PATCH-001.json --closeoutKey=process-root-vs-patch-v1",
+      "npm run process:fanout-check -- --card=PROCESS-ROOT-VS-PATCH-001 --closeoutKey=process-root-vs-patch-v1",
+      "npm run process:post-ship-fanout -- --card=PROCESS-ROOT-VS-PATCH-001 --closeoutKey=process-root-vs-patch-v1 --commitRef=HEAD",
+      "npm run process:root-vs-patch-check -- --json",
+      "npm run process:plan-critic-check -- --json=true",
+      "npm run process:repair-verifier-sprint-check -- --close-root-vs-patch --json",
+      "npm run process:repair-verifier-sprint-check -- --json",
+      "npm run process:foundation-ship -- --card=PROCESS-ROOT-VS-PATCH-001 --planApprovalRef=docs/process/approvals/PROCESS-ROOT-VS-PATCH-001.json --closeoutKey=process-root-vs-patch-v1 --commitRef=HEAD",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Focused Plan Critic proof rejects the synthetic symptom-patch escape plan with root_vs_patch_invariant, accepts the synthetic root-invariant verifier plan at 10/10, and keeps the full Plan Critic dogfood proof healthy.",
+    "reviewNext": "Stop for sprint review. Decide the next sprint from the dashboard truth before pulling Reply/Watching Loop, connectors, Strategy, or Drive ACL work.",
+    "knownLimits": [
+      "This does not remove every historical verifier helper or fully modularize foundation:verify.",
+      "This does not make Plan Critic a broad reviewer framework.",
+      "This does not open the next product sprint.",
+      "This does not start Reply/Watching Loop, connector builds, Strategy expansion, or Drive ACL changes."
+    ]
+  },
+  {
+    "key": "connector-routing-truth-v1",
+    "backlogIds": [
+      "ATOM-PROMOTION-DIAGNOSE-001",
+      "SPRINT-DB-RECONCILE-001",
+      "VERIFY-GATE-TIERING-FIX-001",
+      "PLAN-CRITIC-LOG-001",
+      "SOURCE-CONNECTOR-MATRIX-001",
+      "SOURCE-HUB-ROUTING-MATRIX-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Connector Routing Truth Sprint"
+      ]
+    },
+    "mentionedBacklogIds": [
+      "SOURCE-EXTRACTION-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "REPLY-WATCHING-LOOP-001",
+      "SRC-GSHEETS-001",
+      "SRC-GDOCS-001",
+      "SRC-GSLIDES-001",
+      "SRC-GA4-001",
+      "SRC-GSC-001",
+      "SRC-GBP-001",
+      "SRC-WHATSAPP-001",
+      "SRC-TELEGRAM-IN-001",
+      "SRC-ZOOM-001"
+    ],
+    "systemArea": "Foundation connector and routing truth",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Restored fresh atom promotion, reconciled live sprint state, repaired proportional gate behavior, added durable Plan Critic logs, and exposed connector plus hub-routing truth on Source Lifecycle.",
+    "whatItDoes": "The Foundation surface now shows whether each important source has a contract, connector, extraction target, artifacts, candidates, promoted atoms, synthesis, routing, and an explicit blocker. It also shows where each source class can route across Strategy, Ops, Sales, Recruiting, Retention, Marketing, Training, brand, decision, backlog, and no-value hubs.",
+    "whyItMatters": "The audit found artifacts were flowing while intelligence_atoms had gone stale. This sprint makes that failure visible, restores the core artifact-to-atom path, and prevents the team from pulling Reply/Watching Loop before source truth is honest.",
+    "whereItLives": [
+      "scripts/intelligence-synthesis-engine-proof.mjs refresh-mode candidate promotion",
+      "scripts/process-atom-promotion-diagnose-check.mjs",
+      "scripts/process-sprint-db-reconcile-check.mjs",
+      "lib/process-verify-gate-tiering.js backlog-capture diff classifier",
+      "lib/foundation-db.js plan_critic_runs table and sprint cards",
+      "scripts/process-plan-critic-log-check.mjs",
+      "lib/source-connector-matrix.js",
+      "lib/source-hub-routing-matrix.js",
+      "/api/foundation/source-connector-matrix",
+      "/api/foundation/source-hub-routing-matrix",
+      "Foundation > Data Sources > Source Lifecycle"
+    ],
+    "proofCommands": [
+      "npm run intelligence:synthesis-refresh",
+      "npm run process:atom-promotion-diagnose-check -- --json",
+      "npm run process:sprint-db-reconcile-check -- --json",
+      "npm run process:verify-gate-tiering-check -- --json=true",
+      "npm run process:plan-critic-log-check -- --json",
+      "npm run process:plan-critic-check -- --json=true",
+      "npm run process:source-connector-matrix-check -- --json",
+      "npm run process:source-hub-routing-matrix-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=SOURCE-HUB-ROUTING-MATRIX-001 --planApprovalRef=docs/process/approvals/SOURCE-HUB-ROUTING-MATRIX-001.json --closeoutKey=connector-routing-truth-v1",
+      "npm run process:fanout-check -- --card=SOURCE-HUB-ROUTING-MATRIX-001 --closeoutKey=connector-routing-truth-v1",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Sprint proof passed: recent intelligence_atoms exist again, live sprint DB agrees with Source Once-Over closeout truth, backlog-card-only foundation-db captures are focused-gate eligible while substrate edits stay full-gate, Plan Critic pass/revise runs are persisted, the connector matrix contains 25 rows and all required missing connector families, and the routing matrix contains 16 hubs with route/candidate/blocked/n/a/unknown states.",
+    "reviewNext": "Do not pull Reply/Watching Loop next. Review the connector matrix blockers and pull the smallest source-gap follow-up: Slack/Drive atom-flow gaps, missing Google Workspace source-type contracts, GA4/GSC/GBP contracts, or the Skool/Real/Loom/Mycro/Zoom blocker cluster.",
+    "knownLimits": [
+      "This does not connect new external systems.",
+      "This does not start Reply Parser, Watching Items, Strategy expansion, Marketing production, Telegram bots, Directors, or agents.",
+      "This does not mutate Drive permissions, run MEETING-VAULT-ACL-001 Phase B, or send request-access emails.",
+      "Slack and Drive still show atom-flow gaps in the connector matrix.",
+      "Most old-system connector gaps are visible as missing or blocked, not solved."
+    ]
+  }
+]

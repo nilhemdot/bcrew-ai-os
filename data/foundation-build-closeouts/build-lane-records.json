@@ -1,0 +1,724 @@
+[
+  {
+    "key": "build-lane-served-code-fanout-sync-repair-v1",
+    "backlogIds": [
+      "BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001",
+        "Build Lane Served-Code Fanout Sync Repair",
+        "build-lane-served-code-fanout-sync-repair-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "BUILD-LANE-FAILURE-TELEMETRY-001",
+      "SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001",
+      "PARALLEL-BUILDER-OPERATING-SYSTEM-001"
+    ],
+    "systemArea": "Foundation build lane reliability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Repaired fanout failure classification for stale served dashboard code.",
+    "whatItDoes": "Keeps stale served code as a hard fanout failure while skipping dependent Recent Builds checks until the dashboard serves repo HEAD, preventing false build-log closeout/proof/where-it-lives telemetry.",
+    "whyItMatters": "Builders should fix the real root cause. Stale served code needs a runtime restart, not a misleading build-log registry repair.",
+    "whereItLives": [
+      "scripts/process-fanout-check.mjs SKIP behavior for dependent Recent Builds checks",
+      "scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs focused proof and live card scaffold",
+      "docs/process/build-lane-served-code-fanout-sync-repair-001-plan.md",
+      "docs/process/approvals/BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-build-lane-served-code-fanout-sync-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check scripts/process-fanout-check.mjs scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs",
+      "npm run process:build-lane-served-code-fanout-sync-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001.json --closeoutKey=build-lane-served-code-fanout-sync-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001 --closeoutKey=build-lane-served-code-fanout-sync-repair-v1",
+      "npm run process:foundation-ship -- --card=BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001.json --closeoutKey=build-lane-served-code-fanout-sync-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, fanout skip behavior, skipped-check telemetry dogfood, dashboard and worker served-code HEAD proof, representative served build-log closeout visibility, package script, closeout registry, verifier coverage, and no hidden subagent usage.",
+    "reviewNext": "Continue BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001 from repo truth unless a fresher Foundation blocker appears.",
+    "knownLimits": [
+      "This does not install auto-restart-on-push.",
+      "This does not launch parallel builders or hidden subagents.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "build-lane-verifier-result-parser-repair-v1",
+    "backlogIds": [
+      "BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001",
+        "Build Lane Verifier Result Parser Repair",
+        "build-lane-verifier-result-parser-repair-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "BUILD-LANE-FAILURE-TELEMETRY-001",
+      "BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001",
+      "BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001"
+    ],
+    "systemArea": "Foundation build lane reliability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Repaired build-lane failure telemetry output parsing so verifier PASS lines with failed-count details are not recorded as failures.",
+    "whatItDoes": "Ignores successful PASS lines such as source-run summaries ending in 0 failed while preserving explicit FAIL, ERROR, and Command failed failure events.",
+    "whyItMatters": "Build-lane telemetry should route builders to actual red checks, not successful verifier rows that include failed item counts in their detail text.",
+    "whereItLives": [
+      "lib/build-lane-failure-telemetry.js PASS-line parser guard",
+      "scripts/process-build-lane-verifier-result-parser-repair-check.mjs focused parser proof",
+      "docs/process/build-lane-verifier-result-parser-repair-001-plan.md",
+      "docs/process/approvals/BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-27-hot-doc-cleanup/2026-05-18-build-lane-verifier-result-parser-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/build-lane-failure-telemetry.js scripts/process-build-lane-verifier-result-parser-repair-check.mjs",
+      "npm run process:build-lane-verifier-result-parser-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001.json --closeoutKey=build-lane-verifier-result-parser-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001 --closeoutKey=build-lane-verifier-result-parser-repair-v1",
+      "npm run process:foundation-ship -- --card=BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001.json --closeoutKey=build-lane-verifier-result-parser-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, PASS-line false-positive dogfood, real FAIL/ERROR/Command failed parsing, package script, closeout registry, verifier coverage, and no hidden subagent usage.",
+    "reviewNext": "Continue BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001 from repo truth if present, or scope it from telemetry evidence before repair.",
+    "knownLimits": [
+      "This does not rewrite historical local telemetry logs.",
+      "This does not weaken, skip, bypass, or demote real verifier, ship, fanout, or backlog hygiene failures.",
+      "This does not launch parallel builders or hidden subagents.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "build-lane-verifier-snapshot-wiring-repair-v1",
+    "backlogIds": [
+      "BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001",
+        "Build Lane Verifier Snapshot Wiring Repair",
+        "build-lane-verifier-snapshot-wiring-repair-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-DB-SCHEMA-SEED-SPLIT-001",
+      "BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001",
+      "SPRINT-STATE-MUTATION-AUDIT-001"
+    ],
+    "systemArea": "Foundation build lane reliability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Repaired full foundation:verify snapshot wiring after the DB schema/seed split moved schema and store tokens out of the root DB file.",
+    "whatItDoes": "Builds an explicit verifier DB source bundle from the split schema/seed/store modules, classifies verifier red rows as stale wiring, approval-bound, or real runtime health, and keeps full verify from reporting unrelated false reds from stale source ownership.",
+    "whyItMatters": "Builders need full foundation:verify to identify real broken systems instead of failing because a baseline still points at old file ownership.",
+    "whereItLives": [
+      "lib/foundation-verifier-snapshot-wiring-repair.js source bundle, classifier, and dogfood",
+      "scripts/foundation-verify.mjs verifier source-bundle wiring",
+      "scripts/process-build-lane-verifier-snapshot-wiring-repair-check.mjs focused proof and live card scaffold",
+      "docs/process/build-lane-verifier-snapshot-wiring-repair-001-plan.md",
+      "docs/process/approvals/BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-18-build-lane-verifier-snapshot-wiring-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-verifier-snapshot-wiring-repair.js scripts/foundation-verify.mjs scripts/process-build-lane-verifier-snapshot-wiring-repair-check.mjs",
+      "npm run process:build-lane-verifier-snapshot-wiring-repair-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001.json --closeoutKey=build-lane-verifier-snapshot-wiring-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001 --closeoutKey=build-lane-verifier-snapshot-wiring-repair-v1",
+      "npm run process:foundation-ship -- --card=BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001.json --closeoutKey=build-lane-verifier-snapshot-wiring-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, stale-root-only verifier source dogfood, red-row classification, package script, closeout registry, verifier coverage, and no hidden subagent usage.",
+    "reviewNext": "Continue the reliability queue from live backlog truth after full foundation:verify and process:foundation-ship pass.",
+    "knownLimits": [
+      "This does not rerun live external-write jobs.",
+      "This does not run live extraction.",
+      "This does not weaken, skip, bypass, or demote real verifier failures.",
+      "This does not launch parallel builders or hidden subagents.",
+      "This does not mutate Drive permissions or send Agent Feedback reminders.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "build-lane-telemetry-resolution-repair-v1",
+    "backlogIds": [
+      "BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001",
+        "Build Lane Telemetry Resolution Repair",
+        "build-lane-telemetry-resolution-repair-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "BUILD-LANE-FAILURE-TELEMETRY-001",
+      "BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001",
+      "BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001",
+      "BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001"
+    ],
+    "systemArea": "Foundation build lane reliability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added ship-proof-based resolution classification for stale local build-lane telemetry fingerprints.",
+    "whatItDoes": "Keeps the immutable local failure log, but excludes failure groups from red/yellow System Health rollups once a later successful Foundation ship proof supersedes them. New repeats after that proof still fail normally.",
+    "whyItMatters": "System Health should route builders to current broken proof, not old fingerprints from failures that were later repaired and shipped cleanly.",
+    "whereItLives": [
+      "lib/build-lane-failure-telemetry.js resolution-aware telemetry snapshot",
+      "lib/foundation-system-health.js resolution-aware telemetry read path",
+      "scripts/process-build-lane-failure-telemetry-check.mjs historical-aware proof",
+      "scripts/process-build-lane-telemetry-resolution-repair-check.mjs focused proof and live card scaffold",
+      "docs/process/build-lane-telemetry-resolution-repair-001-plan.md",
+      "docs/process/approvals/BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001.json",
+      "docs/_archive/handoffs/2026-05-18-build-lane-telemetry-resolution-repair-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/build-lane-failure-telemetry.js lib/foundation-system-health.js scripts/process-build-lane-failure-telemetry-check.mjs scripts/process-build-lane-telemetry-resolution-repair-check.mjs",
+      "npm run process:build-lane-telemetry-resolution-repair-check -- --close-card --json",
+      "npm run process:build-lane-failure-telemetry-check -- --json",
+      "npm run process:fanout-check -- --card=FOUNDATION-DB-SCHEMA-SEED-SPLIT-001 --closeoutKey=foundation-db-schema-seed-split-v1",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001.json --closeoutKey=build-lane-telemetry-resolution-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001 --closeoutKey=build-lane-telemetry-resolution-repair-v1",
+      "npm run process:foundation-ship -- --card=BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001.json --closeoutKey=build-lane-telemetry-resolution-repair-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, telemetry resolution dogfood, projected post-ship local telemetry cleanup, System Health wiring, historical-aware telemetry proof, package script, closeout registry, verifier coverage, and no hidden subagent usage.",
+    "reviewNext": "Continue remaining P0 audit/process failures from repo truth.",
+    "knownLimits": [
+      "This does not delete or rewrite historical local telemetry events.",
+      "This does not hide new failure fingerprints after the latest successful ship proof.",
+      "This does not weaken, skip, bypass, or demote real verifier, ship, fanout, or backlog hygiene failures.",
+      "This does not launch parallel builders or hidden subagents.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "build-lane-repeated-failure-action-gate-v1",
+    "backlogIds": [
+      "BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001",
+        "Build Lane Repeated Failure Action Gate",
+        "build-lane-repeated-failure-action-gate-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "BUILD-LANE-FAILURE-TELEMETRY-001",
+      "BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001",
+      "BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001",
+      "CONNECTOR-UPTIME-MONITOR-001",
+      "FOUNDATION-VERIFY-HEALTH-REPAIR-001",
+      "PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001"
+    ],
+    "systemArea": "Foundation build lane reliability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Promoted repeated build-lane and Foundation job failures from passive telemetry into a P0 action gate before parallel-builder work.",
+    "whatItDoes": "Requires every repeated red fingerprint or repeated job failure to have count, latest affected card/job, owner, repair card, next action, and sprint-blocking decision before the sprint proceeds.",
+    "whyItMatters": "A build machine that fails dozens of times and then moves on is wasting the operator and builders. Repeated failures must either be retired by proof or routed as live repair work.",
+    "whereItLives": [
+      "lib/build-lane-repeated-failure-action-gate.js action decision engine and dogfood proof",
+      "scripts/process-build-lane-repeated-failure-action-gate-check.mjs focused proof and live card scaffold",
+      "lib/process-git-hooks.js post-ship local failure-summary refresh",
+      "docs/process/build-lane-repeated-failure-action-gate-001-plan.md",
+      "docs/process/approvals/BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001.json",
+      "docs/_archive/handoffs/2026-05-19-build-lane-repeated-failure-action-gate-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/build-lane-repeated-failure-action-gate.js scripts/process-build-lane-repeated-failure-action-gate-check.mjs lib/build-lane-failure-telemetry.js lib/process-git-hooks.js",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --apply --close-card --json",
+      "npm run process:build-lane-failure-telemetry-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001.json --closeoutKey=build-lane-repeated-failure-action-gate-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001 --closeoutKey=build-lane-repeated-failure-action-gate-v1",
+      "npm run process:post-ship-fanout -- --card=BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001 --closeoutKey=build-lane-repeated-failure-action-gate-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001.json --closeoutKey=build-lane-repeated-failure-action-gate-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live Backlog/Current Sprint truth, repeated red telemetry routing, repeated job-run later-success resolution, cached failure-summary action decision, package script, closeout registry, verifier coverage, and no hidden parallel-builder or external-write path.",
+    "reviewNext": "Continue PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001 only after this P0 gate is closed and pushed.",
+    "knownLimits": [
+      "This does not auto-repair failed jobs.",
+      "This does not delete or rewrite historical local telemetry events.",
+      "This does not weaken, skip, bypass, or demote real verifier, ship, fanout, or backlog hygiene failures.",
+      "This does not launch parallel builders or hidden subagents.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "parallel-builder-operating-system-v1",
+    "backlogIds": [
+      "PARALLEL-BUILDER-OPERATING-SYSTEM-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "PARALLEL-BUILDER-OPERATING-SYSTEM-001",
+        "Parallel Builder Operating System",
+        "parallel-builder-operating-system-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "PARALLEL-BUILDER-WORKTREE-PROTOCOL-001",
+      "SPRINT-STATE-MUTATION-AUDIT-001",
+      "PROCESS-CHECK-READONLY-MODE-001"
+    ],
+    "systemArea": "Foundation parallel builder coordination",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Created the visible parallel builder operating system above the shipped worktree protocol.",
+    "whatItDoes": "Defines visible builder chats, known worktrees/branches, file ownership, shared-file locks, merge order, commit/push ownership, status/wrap/blocker reports, crash recovery, hidden-subagent rules, paste-ready prompts, and a who-owns-what table.",
+    "whyItMatters": "Steve can run 2-3 builders without hidden-worker confusion, same-branch/worktree collisions, shared-file overlap, dirty-state ambiguity, or merge conflicts becoming his problem.",
+    "whereItLives": [
+      "lib/parallel-builder-operating-system.js visible builder protocol validator and dogfood",
+      "scripts/process-parallel-builder-operating-system-check.mjs focused proof and live card scaffold",
+      "docs/process/parallel-builder-operating-system-001-protocol.md protocol, prompts, and status table",
+      "docs/process/parallel-builder-operating-system-001-plan.md",
+      "docs/process/approvals/PARALLEL-BUILDER-OPERATING-SYSTEM-001.json",
+      "docs/_archive/handoffs/2026-05-18-parallel-builder-operating-system-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/parallel-builder-operating-system.js scripts/process-parallel-builder-operating-system-check.mjs lib/foundation-process-hardening-verifier.js",
+      "npm run process:parallel-builder-operating-system-check -- --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=PARALLEL-BUILDER-OPERATING-SYSTEM-001 --planApprovalRef=docs/process/approvals/PARALLEL-BUILDER-OPERATING-SYSTEM-001.json --closeoutKey=parallel-builder-operating-system-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=PARALLEL-BUILDER-OPERATING-SYSTEM-001 --closeoutKey=parallel-builder-operating-system-v1",
+      "npm run process:foundation-ship -- --card=PARALLEL-BUILDER-OPERATING-SYSTEM-001 --planApprovalRef=docs/process/approvals/PARALLEL-BUILDER-OPERATING-SYSTEM-001.json --closeoutKey=parallel-builder-operating-system-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog/current sprint truth, visible-builder protocol, paste-ready prompts, ownership table, same-worktree/same-branch/file-overlap dogfood, hidden-subagent dogfood, shared-file commit dogfood, dirty-no-wrap dogfood, package script, closeout registry, and verifier coverage.",
+    "reviewNext": "Use the protocol before launching visible parallel builders, then continue the Foundation queue from live backlog truth.",
+    "knownLimits": [
+      "This does not launch parallel builders or create real worktrees.",
+      "This does not allow hidden subagents as the default workflow.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "parallel-builder-merge-lane-enforcement-v1",
+    "backlogIds": [
+      "PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001",
+        "parallel-builder-merge-lane-enforcement-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "PARALLEL-BUILDER-OPERATING-SYSTEM-001",
+      "FOUNDATION-MERGE-QUEUE-001",
+      "BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001",
+      "FOUNDATION-HEALTH-WATCH-TO-GREEN-001"
+    ],
+    "systemArea": "Foundation parallel builder integration",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the P0 merge-lane enforcement gate that ties visible builders to queue intake, serialized main merges, post-merge verification, and blocker handoff.",
+    "whatItDoes": "Defines main session, worker branch/worktree, and review/integration lanes; rejects hidden/untracked workers, same branch/worktree collisions, overlapping file scopes, completed work without queue entry, simultaneous merges, failed main without repair, and 108-card pileups.",
+    "whyItMatters": "Parallel building must move fast without recreating the branch pileup that left completed work outside main.",
+    "whereItLives": [
+      "lib/parallel-builder-merge-lane-enforcement.js evaluator and dogfood",
+      "scripts/process-parallel-builder-merge-lane-enforcement-check.mjs focused proof and live card scaffold",
+      "docs/process/parallel-builder-merge-lane-enforcement-001-protocol.md",
+      "docs/process/parallel-builder-merge-lane-enforcement-001-plan.md",
+      "docs/process/approvals/PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001.json",
+      "docs/_archive/handoffs/2026-05-19-parallel-builder-merge-lane-enforcement-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/parallel-builder-merge-lane-enforcement.js scripts/process-parallel-builder-merge-lane-enforcement-check.mjs lib/foundation-process-hardening-verifier.js",
+      "npm run process:parallel-builder-merge-lane-enforcement-check -- --apply --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001 --planApprovalRef=docs/process/approvals/PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001.json --closeoutKey=parallel-builder-merge-lane-enforcement-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001 --closeoutKey=parallel-builder-merge-lane-enforcement-v1",
+      "npm run process:post-ship-fanout -- --card=PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001 --closeoutKey=parallel-builder-merge-lane-enforcement-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001 --planApprovalRef=docs/process/approvals/PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001.json --closeoutKey=parallel-builder-merge-lane-enforcement-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, live Backlog/Current Sprint truth, merge-lane protocol, same-worktree/same-branch/overlap dogfood, hidden/untracked builder dogfood, missing queue entry dogfood, simultaneous merge dogfood, post-merge verification dogfood, failed-main repair routing, 108-card pileup rejection, blocker handoff rules, package script, closeout registry, verifier coverage, and no external-write path.",
+    "reviewNext": "Run FOUNDATION-HEALTH-WATCH-TO-GREEN-001 next before source/extraction activation.",
+    "knownLimits": [
+      "This does not launch parallel builders or create real worktrees.",
+      "This does not merge worker branches to main.",
+      "This does not auto-repair failed main states.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "foundation-health-watch-to-green-v1",
+    "backlogIds": [
+      "FOUNDATION-HEALTH-WATCH-TO-GREEN-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-HEALTH-WATCH-TO-GREEN-001",
+        "foundation-health-watch-to-green-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "AUDIT-FINDING-TO-BACKLOG-ROUTER-001",
+      "EXTRACT-CURRENT-001",
+      "EXTRACT-BACKFILL-001",
+      "FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001",
+      "FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001",
+      "FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001",
+      "CONNECTOR-UPTIME-MONITOR-001"
+    ],
+    "systemArea": "Foundation system health",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Separated raw system-health red/yellow counts from unclassified red/yellow counts and classified every remaining non-green row with owner, reason, threshold, next action, and repair route.",
+    "whatItDoes": "Lets the health surface report green only when no non-green row is unclassified, while keeping approval-bound extraction rows, endpoint freshness, hot-doc, file-size, connector, and runtime ledger rows visible.",
+    "whyItMatters": "A green Foundation surface must mean the operator has no unknown red/yellow work, not that the report buried approval-bound or routed cleanup rows.",
+    "whereItLives": [
+      "lib/foundation-system-health.js classification-aware rollup",
+      "lib/foundation-health-watch-to-green.js focused dogfood proof",
+      "scripts/process-foundation-health-watch-to-green-check.mjs focused live proof and close-card scaffold",
+      "docs/process/foundation-health-watch-to-green-001-plan.md",
+      "docs/process/approvals/FOUNDATION-HEALTH-WATCH-TO-GREEN-001.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-health-watch-to-green-closeout.md",
+      "lib/foundation-verifier-health-live-summary.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-system-health.js lib/foundation-health-watch-to-green.js scripts/process-foundation-health-watch-to-green-check.mjs lib/foundation-verifier-health-live-summary.js",
+      "npm run process:foundation-health-watch-to-green-check -- --apply --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-HEALTH-WATCH-TO-GREEN-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HEALTH-WATCH-TO-GREEN-001.json --closeoutKey=foundation-health-watch-to-green-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-HEALTH-WATCH-TO-GREEN-001 --closeoutKey=foundation-health-watch-to-green-v1",
+      "npm run process:post-ship-fanout -- --card=FOUNDATION-HEALTH-WATCH-TO-GREEN-001 --closeoutKey=foundation-health-watch-to-green-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=FOUNDATION-HEALTH-WATCH-TO-GREEN-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HEALTH-WATCH-TO-GREEN-001.json --closeoutKey=foundation-health-watch-to-green-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates live health green with zero unclassified rows, raw classified counts visible, meeting-notes/Gmail/transcript approval-bound routing, endpoint/doc/file-size repair routing, false-green prevention dogfood, package script, closeout registry, verifier coverage, and no external-write path.",
+    "reviewNext": "Run AUDIT-FINDING-TO-BACKLOG-ROUTER-001 next before source/extraction activation.",
+    "knownLimits": [
+      "This does not run live meeting-notes, Gmail, or meeting transcript extraction.",
+      "This does not clear endpoint metrics, hot-doc bloat, or file-size watch rows; it routes them to the next explicit cards.",
+      "This does not mutate Drive permissions or send Agent Feedback reminders.",
+      "This does not launch parallel builders or hidden subagents.",
+      "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
+    ]
+  },
+  {
+    "key": "audit-finding-to-backlog-router-v1",
+    "backlogIds": [
+      "AUDIT-FINDING-TO-BACKLOG-ROUTER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "AUDIT-FINDING-TO-BACKLOG-ROUTER-001",
+        "audit-finding-to-backlog-router-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001",
+      "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+      "APPROVAL-THRESHOLD-REGISTRY-001",
+      "BUILD-INTEL-CONTEXT-SEARCH-INDEX-001",
+      "BUILD-INTEL-SNAPSHOT-BASELINE-001",
+      "BUILD-LOG-API-CACHE-AND-SLIM-001",
+      "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001"
+    ],
+    "systemArea": "Foundation audit routing",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added an explicit audit finding-to-backlog router so actionable red/yellow audit findings cannot remain only in markdown or JSON reports.",
+    "whatItDoes": "Routes May 18 archived audit findings and the current May 19 deterministic audit snapshot into existing live cards, newly scoped cards, stale proof, approval-required blockers, or watch-only thresholds while keeping scheduled audits report-only.",
+    "whyItMatters": "Audits need to create governed motion. Card-shaped recommendations must become backlog truth or an explicit non-work decision before source/extraction activation resumes.",
+    "whereItLives": [
+      "lib/audit-finding-to-backlog-router.js routing rules and dogfood proof",
+      "scripts/process-audit-finding-to-backlog-router-check.mjs focused live proof and close-card scaffold",
+      "docs/process/audit-finding-to-backlog-router-001-plan.md",
+      "docs/process/approvals/AUDIT-FINDING-TO-BACKLOG-ROUTER-001.json",
+      "docs/_archive/handoffs/2026-05-19-audit-finding-to-backlog-router-closeout.md",
+      "lib/foundation-verifier-health-live-summary.js verifier coverage",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/audit-finding-to-backlog-router.js scripts/process-audit-finding-to-backlog-router-check.mjs lib/foundation-verifier-health-live-summary.js",
+      "npm run process:audit-finding-to-backlog-router-check -- --apply --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=AUDIT-FINDING-TO-BACKLOG-ROUTER-001 --planApprovalRef=docs/process/approvals/AUDIT-FINDING-TO-BACKLOG-ROUTER-001.json --closeoutKey=audit-finding-to-backlog-router-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=AUDIT-FINDING-TO-BACKLOG-ROUTER-001 --closeoutKey=audit-finding-to-backlog-router-v1",
+      "npm run process:post-ship-fanout -- --card=AUDIT-FINDING-TO-BACKLOG-ROUTER-001 --closeoutKey=audit-finding-to-backlog-router-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=AUDIT-FINDING-TO-BACKLOG-ROUTER-001 --planApprovalRef=docs/process/approvals/AUDIT-FINDING-TO-BACKLOG-ROUTER-001.json --closeoutKey=audit-finding-to-backlog-router-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, May 18/19 audit source coverage, missing-card dogfood, new scoped card creation, live backlog readback, scheduled audit report-only boundaries, package script, closeout registry, verifier coverage, and no external-write path.",
+    "reviewNext": "Run FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001 next before source/extraction activation.",
+    "knownLimits": [
+      "This does not implement the routed audit findings.",
+      "This does not convert scheduled audits into automatic backlog writers.",
+      "This does not run live extraction, auth-required or paid jobs, provider/model probes, external writes, Drive permission mutation, or Agent Feedback auto-send.",
+      "This does not launch parallel builders."
+    ]
+  },
+  {
+    "key": "foundation-raw-green-repair-and-lock-v1",
+    "backlogIds": [
+      "FOUNDATION-RAW-GREEN-REPAIR-AND-LOCK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-RAW-GREEN-REPAIR-AND-LOCK-001",
+        "foundation-raw-green-repair-and-lock-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CONNECTOR-UPTIME-MONITOR-001",
+      "BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001",
+      "EXTRACT-BACKFILL-001",
+      "FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001",
+      "FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001",
+      "FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001",
+      "FOUNDATION-HEALTH-GREEN-LOCK-001"
+    ],
+    "systemArea": "Foundation raw health repair",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Repaired the current repeated connector failure and meeting transcript latest-state failure, then made false-green health exits fail closed.",
+    "whatItDoes": "Requires governed later-success job proof for connector uptime, exposes repeated-failure blockers in JSON, blocks workflow failures from being called green by classification, and rejects operating reliability green exits when failed jobs or down connectors remain.",
+    "whyItMatters": "Foundation Builder must repair the machine before normal sprint/value work. Repeated failures and raw workflow red/yellow rows are repair triggers, not report artifacts.",
+    "whereItLives": [
+      "lib/build-lane-failure-telemetry.js short-lived in-flight ship proof support",
+      "lib/foundation-system-health.js blocking workflow status rollup",
+      "scripts/process-system-health-nightly-audit-check.mjs false-green exit guard",
+      "scripts/process-foundation-ship.mjs fanout/final-verify bootstrap sequencing",
+      "scripts/process-foundation-operating-reliability-check.mjs failed-job/down-connector exit guard",
+      "scripts/process-build-lane-repeated-failure-action-gate-check.mjs blocking item JSON output",
+      "scripts/process-current-sprint-dynamic-truth-check.mjs historical sprint rollover proof",
+      "scripts/process-foundation-raw-green-repair-and-lock-check.mjs focused proof and live card scaffold",
+      "docs/process/foundation-raw-green-repair-and-lock-001-plan.md",
+      "docs/process/approvals/FOUNDATION-RAW-GREEN-REPAIR-AND-LOCK-001.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-raw-green-repair-and-lock-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/build-lane-failure-telemetry.js lib/foundation-system-health.js lib/foundation-health-watch-to-green.js scripts/process-foundation-ship.mjs scripts/process-system-health-nightly-audit-check.mjs scripts/process-foundation-operating-reliability-check.mjs scripts/process-build-lane-repeated-failure-action-gate-check.mjs scripts/process-current-sprint-dynamic-truth-check.mjs scripts/process-foundation-raw-green-repair-and-lock-check.mjs",
+      "npm run process:foundation-operating-reliability-check -- --json --no-api",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:foundation-raw-green-repair-and-lock-check -- --apply --close-card --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-RAW-GREEN-REPAIR-AND-LOCK-001 --planApprovalRef=docs/process/approvals/FOUNDATION-RAW-GREEN-REPAIR-AND-LOCK-001.json --closeoutKey=foundation-raw-green-repair-and-lock-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-RAW-GREEN-REPAIR-AND-LOCK-001 --closeoutKey=foundation-raw-green-repair-and-lock-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-RAW-GREEN-REPAIR-AND-LOCK-001 --planApprovalRef=docs/process/approvals/FOUNDATION-RAW-GREEN-REPAIR-AND-LOCK-001.json --closeoutKey=foundation-raw-green-repair-and-lock-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, governed connector later-success run, meeting transcript latest-state repair, repeated-failure gate health and blocker output, false-green process guards, historical Current Sprint rollover proof, package script, closeout registry, verifier coverage, and no external-write path.",
+    "reviewNext": "Resume FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001, then handoff cleanup, file-size classifier, and final health green lock.",
+    "knownLimits": [
+      "This does not implement endpoint metrics, handoff cleanup, or file-size splits.",
+      "This does not approve broad live private/auth extraction.",
+      "This does not mutate Drive permissions, send email, send Agent Feedback, or perform external writes.",
+      "This does not launch parallel builders."
+    ]
+  },
+  {
+    "key": "foundation-endpoint-metrics-freshness-v1",
+    "backlogIds": [
+      "FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001",
+        "foundation-endpoint-metrics-freshness-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-ENDPOINT-BUDGETS-001",
+      "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
+      "FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001",
+      "FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001",
+      "FOUNDATION-HEALTH-GREEN-LOCK-001"
+    ],
+    "systemArea": "Foundation endpoint health",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Refreshed the latest nightly deep audit endpoint metrics and repaired the stale endpoint-budget proof path after verifier delegation.",
+    "whatItDoes": "Ensures the latest System Health endpoint budget rows come from current measured endpoint metrics instead of stale/missing audit artifacts, and proves the existing endpoint-budget gate still covers the focused verifier module.",
+    "whyItMatters": "Endpoint health must disappear from the cleanup queue only when measured route truth is current, not because missing rows were classified away.",
+    "whereItLives": [
+      "docs/handoffs/nightly-deep-audit-2026-05-19.json current endpointMetrics artifact",
+      "docs/_archive/handoffs/nightly-deep-audit-2026-05-19.md human-readable endpoint metrics report",
+      "scripts/process-foundation-endpoint-budgets-check.mjs delegated verifier proof repair",
+      "scripts/process-foundation-endpoint-metrics-freshness-check.mjs focused proof and live card scaffold",
+      "docs/process/foundation-endpoint-metrics-freshness-001-plan.md",
+      "docs/process/approvals/FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-endpoint-metrics-freshness-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check scripts/process-foundation-endpoint-metrics-freshness-check.mjs scripts/process-foundation-endpoint-budgets-check.mjs",
+      "npm run process:foundation-endpoint-metrics-freshness-check -- --apply --close-card --json",
+      "npm run process:foundation-endpoint-budgets-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001 --planApprovalRef=docs/process/approvals/FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001.json --closeoutKey=foundation-endpoint-metrics-freshness-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001 --closeoutKey=foundation-endpoint-metrics-freshness-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001 --planApprovalRef=docs/process/approvals/FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001.json --closeoutKey=foundation-endpoint-metrics-freshness-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, May 19 endpoint metrics artifact, latest endpoint budget snapshot, endpoint System Health row removal, existing endpoint-budget proof, package script, closeout registry, verifier coverage, and no external-write path.",
+    "reviewNext": "Continue Foundation-only cleanup with FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001.",
+    "knownLimits": [
+      "This does not implement handoff cleanup, file-size splits, or the final health green lock.",
+      "This does not rewrite endpoint thresholds, route lazy-loading, or endpoint implementations.",
+      "This does not start source/value/agent feature work.",
+      "This does not mutate Drive permissions, send email, send Agent Feedback, or perform external writes.",
+      "This does not launch parallel builders."
+    ]
+  },
+  {
+    "key": "foundation-handoff-hot-doc-cleanup-v1",
+    "backlogIds": [
+      "FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001",
+        "foundation-handoff-hot-doc-cleanup-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DOC-ARTIFACT-BLOAT-GUARD-001",
+      "NIGHTLY-AUDIT-OUTPUT-BLOAT-GUARD-001",
+      "FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001",
+      "FOUNDATION-HEALTH-GREEN-LOCK-001"
+    ],
+    "systemArea": "Foundation doc artifact health",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Archived cold handoff artifacts through May 17, preserved moved-path history in a manifest, and updated exact references so current handoffs stay hot without deleting closeout history. May 26 maintenance refreshed the archive with 10 additional cold May 20 closeouts after System Health reported the hot-doc monthly file budget as yellow. May 29 maintenance archived 12 cold May 18 source-maturity routing closeouts after new source-browser handoffs pushed the monthly hot-file count back to the warning line.",
+    "whatItDoes": "Keeps the hot docs/handoffs surface focused on current work while older Foundation reports and closeouts remain recoverable under docs/_archive/handoffs.",
+    "whyItMatters": "Doc artifact health should get cleaner by removing old hot files, not by classifying bloat rows away or asking builders to search hundreds of stale handoffs.",
+    "whereItLives": [
+      "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/MANIFEST.md archive manifest",
+      "docs/_archive/handoffs/2026-05-26-hot-doc-refresh/MANIFEST.md maintenance archive manifest",
+      "docs/_archive/handoffs/2026-05-29-hot-doc-refresh/MANIFEST.md maintenance archive manifest",
+      "scripts/process-foundation-handoff-hot-doc-cleanup-check.mjs focused proof and live card scaffold",
+      "docs/process/foundation-handoff-hot-doc-cleanup-001-plan.md",
+      "docs/process/approvals/FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-handoff-hot-doc-cleanup-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check scripts/process-foundation-handoff-hot-doc-cleanup-check.mjs",
+      "npm run process:foundation-handoff-hot-doc-cleanup-check -- --apply --close-card --json",
+      "npm run process:doc-artifact-bloat-guard-check -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001.json --closeoutKey=foundation-handoff-hot-doc-cleanup-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001 --closeoutKey=foundation-handoff-hot-doc-cleanup-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001.json --closeoutKey=foundation-handoff-hot-doc-cleanup-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, archive manifest integrity, old hot paths moved, current May 19 handoffs still hot, direct doc artifact guard health, System Health doc artifact row removal, package script, closeout registry, verifier coverage, and no external-write path.",
+    "reviewNext": "Continue Foundation-only cleanup with FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001.",
+    "knownLimits": [
+      "This does not implement file-size splits, file-size classification, or the final health green lock.",
+      "This does not delete closeout history.",
+      "This does not start source/value/agent feature work.",
+      "This does not mutate Drive permissions, send email, send Agent Feedback, or perform external writes.",
+      "This does not launch parallel builders."
+    ]
+  },
+  {
+    "key": "foundation-health-green-lock-v1",
+    "backlogIds": [
+      "FOUNDATION-HEALTH-GREEN-LOCK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-HEALTH-GREEN-LOCK-001",
+        "foundation-health-green-lock-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FOUNDATION-LESSONS-LEARNED-LOOP-001",
+      "FOUNDATION-BACKLOG-P0-REALITY-CLEANUP-001",
+      "SYSTEM-010",
+      "SOURCE-012",
+      "SOURCE-018",
+      "EXTRACT-CURRENT-001",
+      "EXTRACT-BACKFILL-001",
+      "DRIVE-CONTENT-001",
+      "EMAIL-ATTACHMENTS-001",
+      "FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001"
+    ],
+    "systemArea": "Foundation system health",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Locked System Health so raw red/yellow rows cannot report green by classification alone, and stale embedded sprint health summaries fail proof.",
+    "whatItDoes": "Adds reusable green-lock evaluation, Steve-approved exception validation, hidden raw-count fail-closed behavior, stale sprint-health rejection, and live sprint progression to the approved Foundation-only run order.",
+    "whyItMatters": "Green needs to mean the machine is actually green. Classification remains useful for owner and next action, but it no longer hides broken workflows or stale health truth.",
+    "whereItLives": [
+      "lib/foundation-health-green-lock.js reusable green-lock evaluator and dogfood",
+      "lib/foundation-system-health.js green-lock rollup wiring",
+      "lib/foundation-current-sprint.js sprint metadata exposure for exception proof",
+      "scripts/process-foundation-health-green-lock-check.mjs focused proof and live card scaffold",
+      "docs/process/foundation-health-green-lock-001-plan.md",
+      "docs/process/approvals/FOUNDATION-HEALTH-GREEN-LOCK-001.json",
+      "docs/_archive/handoffs/2026-05-19-foundation-health-green-lock-closeout.md",
+      "lib/foundation-verify-coverage-card-ids.js done-card coverage"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-health-green-lock.js lib/foundation-system-health.js lib/foundation-current-sprint.js scripts/process-foundation-health-green-lock-check.mjs",
+      "npm run process:foundation-health-green-lock-check -- --apply --close-card --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run process:current-sprint-dynamic-truth-check -- --json",
+      "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=FOUNDATION-HEALTH-GREEN-LOCK-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HEALTH-GREEN-LOCK-001.json --closeoutKey=foundation-health-green-lock-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=FOUNDATION-HEALTH-GREEN-LOCK-001 --closeoutKey=foundation-health-green-lock-v1",
+      "npm run process:foundation-ship -- --card=FOUNDATION-HEALTH-GREEN-LOCK-001 --planApprovalRef=docs/process/approvals/FOUNDATION-HEALTH-GREEN-LOCK-001.json --closeoutKey=foundation-health-green-lock-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, Plan Critic, raw green live health, false-green dogfood, thresholdless exception rejection, hidden raw-count rejection, stale sprint-health rejection, package script, closeout registry, verifier coverage, live backlog closeout, Current Sprint advancement, and no external-write path.",
+    "reviewNext": "Continue Foundation-only with FOUNDATION-LESSONS-LEARNED-LOOP-001.",
+    "knownLimits": [
+      "This does not build the lessons-learned loop.",
+      "This does not clean P0 backlog reality.",
+      "This does not start source/value/agent work outside the approved Foundation-only sequence.",
+      "This does not mutate Drive permissions, send email, send Agent Feedback, rotate provider keys, or perform external writes.",
+      "This does not launch parallel builders."
+    ]
+  }
+]

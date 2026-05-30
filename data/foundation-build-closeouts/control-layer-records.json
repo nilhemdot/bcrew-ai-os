@@ -1,0 +1,1023 @@
+[
+  {
+    "key": "wave-cleanup-b-doc-categories-doctrine-hooks-v1",
+    "backlogIds": [
+      "DOC-CATEGORIZATION-001",
+      "DOCTRINE-PROPAGATION-002",
+      "PROCESS-HOOKS-002"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Wave Cleanup B doc categories doctrine hooks"
+      ]
+    },
+    "systemArea": "Foundation cleanup",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Completed Wave Cleanup B: System Inventory uses real doc categories, doctrine propagation watches private-memory freshness by metadata only, and Foundation ships have one canonical gate wrapper.",
+    "whatItDoes": "System Inventory classifies markdown docs into the approved 12 categories instead of a vague Other bucket; doctrine propagation detects root private files and `memory/*.md` without copying content; `npm run process:foundation-ship` runs the existing ship gates in order and refuses missing required arguments.",
+    "whyItMatters": "Steve should not have to translate Other, notice private-memory doctrine drift manually, or remember every process command. Cleanup B turns those into visible categories, metadata-only freshness signals, and a repeatable gate path.",
+    "whereItLives": [
+      "Foundation > System Inventory > Docs",
+      "Foundation > Runtime Health > Doctrine Propagation",
+      "lib/doc-categorization.js",
+      "lib/doctrine-propagation.js",
+      "scripts/process-foundation-ship.mjs",
+      "docs/process/foundation-ship-gate.md",
+      "docs/process/doctrine-propagation.md",
+      "docs/process/approvals/DOC-CATEGORIZATION-001.json",
+      "docs/process/approvals/DOCTRINE-PROPAGATION-002.json",
+      "docs/process/approvals/PROCESS-HOOKS-002.json",
+      "Foundation > Backlog, DOC-CATEGORIZATION-001",
+      "Foundation > Backlog, DOCTRINE-PROPAGATION-002",
+      "Foundation > Backlog, PROCESS-HOOKS-002",
+      "scripts/foundation-verify.mjs",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md"
+    ],
+    "proofCommands": [
+      "npm run process:ship-check -- --card=DOC-CATEGORIZATION-001 --planApprovalRef=docs/process/approvals/DOC-CATEGORIZATION-001.json --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1",
+      "npm run process:ship-check -- --card=DOCTRINE-PROPAGATION-002 --planApprovalRef=docs/process/approvals/DOCTRINE-PROPAGATION-002.json --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1",
+      "npm run process:ship-check -- --card=PROCESS-HOOKS-002 --planApprovalRef=docs/process/approvals/PROCESS-HOOKS-002.json --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1",
+      "npm run process:fanout-check -- --card=DOC-CATEGORIZATION-001 --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1",
+      "npm run process:fanout-check -- --card=DOCTRINE-PROPAGATION-002 --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1",
+      "npm run process:fanout-check -- --card=PROCESS-HOOKS-002 --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1",
+      "npm run process:post-ship-fanout -- --card=DOC-CATEGORIZATION-001 --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1 --commitRef=HEAD",
+      "npm run process:post-ship-fanout -- --card=DOCTRINE-PROPAGATION-002 --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1 --commitRef=HEAD",
+      "npm run process:post-ship-fanout -- --card=PROCESS-HOOKS-002 --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=PROCESS-HOOKS-002 --planApprovalRef=docs/process/approvals/PROCESS-HOOKS-002.json --closeoutKey=wave-cleanup-b-doc-categories-doctrine-hooks-v1 --commitRef=HEAD",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Verifier guards the 12-category doc inventory, metadata-only private memory signals, process wrapper missing-argument refusal, approval files, closeout schema, and Phase G boundary.",
+    "reviewNext": "Open Phase G planning only: PLAIN-ENGLISH-SWEEP-001, CHANGE-LOG-COMPREHENSIVE-001, RECENT-BUILDS-BILLION-DOLLAR-UI-001, DAILY-EXEC-SUMMARY-001, SOURCE-LIFECYCLE-EXPANSION-001, and UI-MENU-LAYOUT-POLISH-001. Do not build Phase G inside Cleanup B.",
+    "knownLimits": [
+      "No docs are moved or deleted in this slice.",
+      "Doc categorization is v1 rule-based from the triage report and path rules, not semantic content classification.",
+      "Doctrine propagation reports private-memory freshness metadata only; it does not copy private content.",
+      "Process hooks v2 orchestrates existing gates; it does not replace human 9.8 scoring or build review."
+    ]
+  },
+  {
+    "key": "gate-performance-v1",
+    "backlogIds": [
+      "GATE-PERFORMANCE-001"
+    ],
+    "mentionedBacklogIds": [
+      "PROCESS-HOOKS-002"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "GATE-PERFORMANCE-001 speed up foundation ship gate"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Optimized the canonical Foundation ship wrapper so it no longer runs the same live verifier twice during a normal ship.",
+    "whatItDoes": "`npm run process:foundation-ship` now lets `process:ship-check` skip its embedded live verifier with an explicit reason, runs fanout and post-ship fanout checks in parallel, retries one transient gate failure, then runs one authoritative `foundation:verify` at the end. The wrapper prints per-step timing and total runtime.",
+    "whyItMatters": "The process gate needs to stay strict without becoming so slow that builders avoid it. This keeps the same proof chain while removing duplicate work and making slow steps visible.",
+    "whereItLives": [
+      "scripts/process-foundation-ship.mjs",
+      "docs/process/foundation-ship-gate.md",
+      "docs/process/approvals/GATE-PERFORMANCE-001.json",
+      "Foundation > Backlog, GATE-PERFORMANCE-001",
+      "scripts/foundation-verify.mjs",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md"
+    ],
+    "proofCommands": [
+      "npm run process:ship-check -- --card=GATE-PERFORMANCE-001 --planApprovalRef=docs/process/approvals/GATE-PERFORMANCE-001.json --closeoutKey=gate-performance-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:fanout-check -- --card=GATE-PERFORMANCE-001 --closeoutKey=gate-performance-v1",
+      "npm run process:post-ship-fanout -- --card=GATE-PERFORMANCE-001 --closeoutKey=gate-performance-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=GATE-PERFORMANCE-001 --planApprovalRef=docs/process/approvals/GATE-PERFORMANCE-001.json --closeoutKey=gate-performance-v1 --commitRef=HEAD",
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Wrapper output shows process:ship-check skipping the duplicate live verifier with an explicit reason, fanout gates running before the final verifier, per-step timing, and foundation:verify passing.",
+    "reviewNext": "Continue Phase G planning/builds: Recent Work executive surface, daily exec summary, comprehensive changelog, plain-English sweep, UI/menu/layout polish, and source lifecycle expansion. Do not treat GATE-PERFORMANCE-001 as approval for the rest of Phase G.",
+    "knownLimits": [
+      "V1 optimizes the wrapper path only. It does not make foundation:verify itself differential.",
+      "The five-minute target is tracked in wrapper timing output, not enforced as a hard failure, because external source checks can be slow while still valid.",
+      "Strict duplicate-verifier mode remains available with `--strictShipCheckVerify=true` for one-off investigations.",
+      "Transient retries are limited to one retry for known temporary failures such as DB deadlocks, timeouts, and quota/429 responses. Permanent gate failures still fail the ship."
+    ]
+  },
+  {
+    "key": "foundation-plan-reconcile-backlog-depth-v1",
+    "backlogIds": [
+      "FOUNDATION-PLAN-RECONCILE-001",
+      "PERSONAL-WORKSPACE-BOUNDARY-001",
+      "CEO-DASHBOARD-PATTERN-001",
+      "APPROVAL-FILE-INTEGRITY-001",
+      "DOCTRINE-PROPAGATION-003",
+      "DECISION-AUTO-EMIT-002",
+      "BUILD-LOG-BACKLOG-ID-FIX-001",
+      "PRE-COMMIT-HOOK-INSTALL-001",
+      "CLOSEOUT-BACKFILL-001",
+      "GATE-PERFORMANCE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "FOUNDATION-PLAN-RECONCILE-001 add hard checkpoint backlog cards"
+      ]
+    },
+    "operatorCloseout": true,
+    "systemArea": "Foundation planning",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Promoted the hard-checkpoint sprint plan from chat into backlog, rebuild-plan, current-state, Recent Work, and verifier truth.",
+    "whatItDoes": "Creates the missing Tier 0 Foundation repair cards with enough context to plan/build them later, records `FOUNDATION-PLAN-RECONCILE-001` as the immediate next planning slice, and keeps Phase G Track 2 blocked until the sprint order is explicit.",
+    "whyItMatters": "Steve should not have to rely on chat memory to keep critical Foundation work alive. If a review exposes required work, the backlog must carry the context before another builder starts coding.",
+    "whereItLives": [
+      "Foundation > Backlog",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "lib/foundation-db.js",
+      "lib/foundation-build-log.js",
+      "scripts/foundation-verify.mjs"
+    ],
+    "proofCommands": [
+      "npm run foundation:verify"
+    ],
+    "proofStatus": "Verifier checks the hard-checkpoint card set, the immediate next-slice boundary, and the Recent Work closeout.",
+    "reviewNext": "Plan and build FOUNDATION-PLAN-RECONCILE-001 first, then move to Tier 0 enforcement. Do not start Phase G UI work, Strategy, Scoper, Agent Factory, corpus expansion, or retry/backoff by default.",
+    "knownLimits": [
+      "This slice creates and protects the backlog/plan truth. It does not build the Tier 0 cards.",
+      "GATE-PERFORMANCE-001 remains v1 only: differential verifier checks, true tiered hook enforcement, and deeper caching are still not done.",
+      "Phase G operator UI work remains scoped and blocked behind the next approved Foundation plan."
+    ]
+  },
+  {
+    "key": "phase-1-enforcement-v1",
+    "backlogIds": [
+      "APPROVAL-FILE-INTEGRITY-001",
+      "BUILD-LOG-BACKLOG-ID-FIX-001",
+      "CLOSEOUT-BACKFILL-001",
+      "PRE-COMMIT-HOOK-INSTALL-001"
+    ],
+    "mentionedBacklogIds": [
+      "FOUNDATION-PLAN-RECONCILE-001",
+      "PROCESS-HOOKS-002",
+      "GATE-PERFORMANCE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Phase 1 enforcement gates"
+      ]
+    },
+    "systemArea": "Foundation process",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Shipped Phase 1 enforcement: tamper-evident approval files, exact build-log backlog ownership, bounded closeout backfill, and repo-managed Git hooks.",
+    "whatItDoes": "Approval files now link to hashed approved-plan snapshots, Recent Work separates closeout-owned backlog IDs from mentioned context IDs, the 13 snapshotted done-without-proof cards have explicit proof or exception notes, and local Git hooks protect Foundation paths without running the full verifier on every tiny commit.",
+    "whyItMatters": "The process gate now has fewer manual gaps. Steve should not need to remember whether a plan was really approved, whether Recent Work smeared card ownership, whether historical done cards are ambiguous, or whether a protected Foundation push skipped the ship gate.",
+    "whereItLives": [
+      "lib/approval-integrity.js",
+      "docs/process/approval-integrity.md",
+      "docs/process/approved-plans/phase-1-enforcement-v1.md",
+      "docs/process/approval-legacy-exceptions.json",
+      "docs/process/approvals/APPROVAL-FILE-INTEGRITY-001.json",
+      "docs/process/approvals/BUILD-LOG-BACKLOG-ID-FIX-001.json",
+      "docs/process/approvals/CLOSEOUT-BACKFILL-001.json",
+      "docs/process/approvals/PRE-COMMIT-HOOK-INSTALL-001.json",
+      "lib/foundation-build-log.js",
+      "docs/process/closeout-backfill-phase-1.md",
+      "lib/process-git-hooks.js",
+      "scripts/install-git-hooks.mjs",
+      "scripts/process-git-hook-check.mjs",
+      ".githooks/pre-commit",
+      ".githooks/pre-push",
+      "docs/process/git-hooks.md",
+      "scripts/process-ship-check.mjs",
+      "scripts/process-foundation-ship.mjs",
+      "scripts/foundation-verify.mjs",
+      "package.json",
+      "Foundation > Recent Work",
+      "Foundation > Runtime Health",
+      "Foundation > Backlog"
+    ],
+    "proofCommands": [
+      "npm run process:approval-integrity-check -- --synthetic=true",
+      "npm run process:install-hooks",
+      "npm run process:git-hook-check -- --mode=pre-commit",
+      "npm run backlog:hygiene",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=APPROVAL-FILE-INTEGRITY-001 --planApprovalRef=docs/process/approvals/APPROVAL-FILE-INTEGRITY-001.json --closeoutKey=phase-1-enforcement-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=BUILD-LOG-BACKLOG-ID-FIX-001 --planApprovalRef=docs/process/approvals/BUILD-LOG-BACKLOG-ID-FIX-001.json --closeoutKey=phase-1-enforcement-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=CLOSEOUT-BACKFILL-001 --planApprovalRef=docs/process/approvals/CLOSEOUT-BACKFILL-001.json --closeoutKey=phase-1-enforcement-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=PRE-COMMIT-HOOK-INSTALL-001 --planApprovalRef=docs/process/approvals/PRE-COMMIT-HOOK-INSTALL-001.json --closeoutKey=phase-1-enforcement-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:fanout-check -- --card=APPROVAL-FILE-INTEGRITY-001 --closeoutKey=phase-1-enforcement-v1",
+      "npm run process:fanout-check -- --card=BUILD-LOG-BACKLOG-ID-FIX-001 --closeoutKey=phase-1-enforcement-v1",
+      "npm run process:fanout-check -- --card=CLOSEOUT-BACKFILL-001 --closeoutKey=phase-1-enforcement-v1",
+      "npm run process:fanout-check -- --card=PRE-COMMIT-HOOK-INSTALL-001 --closeoutKey=phase-1-enforcement-v1",
+      "npm run process:foundation-ship -- --card=APPROVAL-FILE-INTEGRITY-001 --planApprovalRef=docs/process/approvals/APPROVAL-FILE-INTEGRITY-001.json --closeoutKey=phase-1-enforcement-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=BUILD-LOG-BACKLOG-ID-FIX-001 --planApprovalRef=docs/process/approvals/BUILD-LOG-BACKLOG-ID-FIX-001.json --closeoutKey=phase-1-enforcement-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=CLOSEOUT-BACKFILL-001 --planApprovalRef=docs/process/approvals/CLOSEOUT-BACKFILL-001.json --closeoutKey=phase-1-enforcement-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=PRE-COMMIT-HOOK-INSTALL-001 --planApprovalRef=docs/process/approvals/PRE-COMMIT-HOOK-INSTALL-001.json --closeoutKey=phase-1-enforcement-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Approval-integrity synthetic proof rejects a tampered plan, hook install proves core.hooksPath=.githooks, build-log synthetic/live API proof keeps closeout ownership exact, backlog hygiene no longer reports the 13 snapshotted done-without-proof targets, and the canonical ship wrapper passes once per card.",
+    "reviewNext": "Next is review-only: decide whether Phase G Track 2 should open now that Phase 1 enforcement is in place. Do not start UI polish, Strategy, Scoper, Agent Factory, or corpus expansion without the next approved plan.",
+    "knownLimits": [
+      "Approval integrity v2 is tamper-evident, not a full cryptographic signing platform.",
+      "Local Git hooks cannot prevent deliberate `git commit --no-verify` or `git push --no-verify`; bypasses must be called out with a reason and follow-up card.",
+      "Pre-push checks require a local ship-proof record for protected Foundation changes; they do not rerun the full verifier automatically.",
+      "Closeout backfill preserves historical uncertainty where proof is incomplete instead of rewriting old history."
+    ]
+  },
+  {
+    "key": "foundation-control-layer-v1",
+    "backlogIds": [
+      "GATE-RELIABILITY-001",
+      "PERSONAL-WORKSPACE-BOUNDARY-001",
+      "DOCTRINE-PROPAGATION-003",
+      "DECISION-AUTO-EMIT-002",
+      "CEO-DASHBOARD-PATTERN-001"
+    ],
+    "mentionedBacklogIds": [
+      "FOUNDATION-PLAN-RECONCILE-001",
+      "GATE-PERFORMANCE-001",
+      "APPROVAL-FILE-INTEGRITY-001",
+      "PRE-COMMIT-HOOK-INSTALL-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Complete Foundation control layer"
+      ]
+    },
+    "systemArea": "Foundation control",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Closed the remaining Foundation control layer and moved the five owned cards to done in live Backlog: gate reliability, personal workspace privacy boundary, doctrine propagation gaps, decision auto-emit v2 safety, and the CEO dashboard pattern contract.",
+    "whatItDoes": "Raw foundation:verify now has bounded transient gate retry with deterministic injected proof, real private workspace files are proofed by metadata only with synthetic sentinel leak tests, generated doctrine carries the missing control rules, decision auto-emit scans approved tracked source surfaces while staying proposed-only, and the CEO dashboard pattern defines operator answers before any Phase G UI work.",
+    "whyItMatters": "This removes the last control-layer gaps before Steve chooses review-queue cleanup or Phase G Track 2. The system can now tell whether gates are reliable, private workspace state stayed private, decisions are proposed safely, and future operator surfaces have a durable pattern.",
+    "whereItLives": [
+      "lib/foundation-gate-reliability.js",
+      "scripts/process-gate-reliability-check.mjs",
+      "lib/foundation-personal-workspace-boundary.js",
+      "scripts/process-personal-workspace-boundary-check.mjs",
+      "docs/process/personal-workspace-boundary.md",
+      "lib/doctrine-propagation.js",
+      "docs/process/doctrine-propagation.md",
+      "lib/decision-auto-emit.js",
+      "docs/process/decision-auto-emit.md",
+      "lib/foundation-ceo-dashboard-pattern.js",
+      "docs/process/ceo-dashboard-pattern.md",
+      "server.js",
+      "scripts/foundation-verify.mjs",
+      "docs/process/approved-plans/foundation-control-layer-v1.md",
+      "docs/process/approvals/GATE-RELIABILITY-001.json",
+      "docs/process/approvals/PERSONAL-WORKSPACE-BOUNDARY-001.json",
+      "docs/process/approvals/DOCTRINE-PROPAGATION-003.json",
+      "docs/process/approvals/DECISION-AUTO-EMIT-002.json",
+      "docs/process/approvals/CEO-DASHBOARD-PATTERN-001.json",
+      "Foundation > Backlog",
+      "/api/foundation-hub > gateReliability",
+      "/api/foundation-hub > personalWorkspaceBoundary",
+      "/api/foundation-hub > ceoDashboardPattern",
+      "/api/foundation-hub > decisionAutoEmit",
+      "/api/foundation/build-log"
+    ],
+    "proofCommands": [
+      "npm run process:gate-reliability-check",
+      "npm run process:personal-workspace-boundary-check",
+      "npm run doctrine:propagation-check",
+      "npm run decision:auto-emit -- --synthetic=true",
+      "npm run decision:auto-emit -- --foundationSources=true",
+      "npm run process:approval-integrity-check -- --synthetic=true",
+      "npm run process:git-hook-check",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s http://localhost:3000/api/foundation/build-log",
+      "npm run process:ship-check -- --card=GATE-RELIABILITY-001 --planApprovalRef=docs/process/approvals/GATE-RELIABILITY-001.json --closeoutKey=foundation-control-layer-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=PERSONAL-WORKSPACE-BOUNDARY-001 --planApprovalRef=docs/process/approvals/PERSONAL-WORKSPACE-BOUNDARY-001.json --closeoutKey=foundation-control-layer-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=DOCTRINE-PROPAGATION-003 --planApprovalRef=docs/process/approvals/DOCTRINE-PROPAGATION-003.json --closeoutKey=foundation-control-layer-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=DECISION-AUTO-EMIT-002 --planApprovalRef=docs/process/approvals/DECISION-AUTO-EMIT-002.json --closeoutKey=foundation-control-layer-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=CEO-DASHBOARD-PATTERN-001 --planApprovalRef=docs/process/approvals/CEO-DASHBOARD-PATTERN-001.json --closeoutKey=foundation-control-layer-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:fanout-check -- --card=GATE-RELIABILITY-001 --closeoutKey=foundation-control-layer-v1",
+      "npm run process:fanout-check -- --card=PERSONAL-WORKSPACE-BOUNDARY-001 --closeoutKey=foundation-control-layer-v1",
+      "npm run process:fanout-check -- --card=DOCTRINE-PROPAGATION-003 --closeoutKey=foundation-control-layer-v1",
+      "npm run process:fanout-check -- --card=DECISION-AUTO-EMIT-002 --closeoutKey=foundation-control-layer-v1",
+      "npm run process:fanout-check -- --card=CEO-DASHBOARD-PATTERN-001 --closeoutKey=foundation-control-layer-v1",
+      "npm run process:foundation-ship -- --card=GATE-RELIABILITY-001 --planApprovalRef=docs/process/approvals/GATE-RELIABILITY-001.json --closeoutKey=foundation-control-layer-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=PERSONAL-WORKSPACE-BOUNDARY-001 --planApprovalRef=docs/process/approvals/PERSONAL-WORKSPACE-BOUNDARY-001.json --closeoutKey=foundation-control-layer-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=DOCTRINE-PROPAGATION-003 --planApprovalRef=docs/process/approvals/DOCTRINE-PROPAGATION-003.json --closeoutKey=foundation-control-layer-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=DECISION-AUTO-EMIT-002 --planApprovalRef=docs/process/approvals/DECISION-AUTO-EMIT-002.json --closeoutKey=foundation-control-layer-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=CEO-DASHBOARD-PATTERN-001 --planApprovalRef=docs/process/approvals/CEO-DASHBOARD-PATTERN-001.json --closeoutKey=foundation-control-layer-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Deterministic gate reliability proof retries an injected transient deadlock, verifies retry after DB pool cleanup/reset, and fails closed on permanent schema/verifier errors; personal workspace proof stays metadata-only for real private files and uses synthetic sentinel fixtures; doctrine propagation is current; decision auto-emit remains explicit-source and proposed-only; live Foundation Hub and Recent Work expose the exact five-card closeout.",
+    "reviewNext": "Next is review-only: Steve chooses the next plan gate, either review-queue cleanup or Phase G Track 2. Do not start Phase G Track 2, UI polish, Strategy, Scoper, Agent Factory, or corpus expansion from this closeout.",
+    "knownLimits": [
+      "Gate reliability proves deterministic transient handling, not that every future DB deadlock is impossible.",
+      "Privacy protection relies on metadata-only real-file handling plus synthetic sentinel tests; it does not semantically classify every possible secret.",
+      "Decision auto-emit remains explicit-language-only and proposed-only.",
+      "CEO dashboard work is pattern definition, not UI implementation."
+    ]
+  },
+  {
+    "key": "gate-reliability-retry-pool-reset-v1",
+    "backlogIds": [
+      "GATE-RELIABILITY-001"
+    ],
+    "mentionedBacklogIds": [
+      "PERSONAL-WORKSPACE-BOUNDARY-001",
+      "DOCTRINE-PROPAGATION-003",
+      "DECISION-AUTO-EMIT-002",
+      "CEO-DASHBOARD-PATTERN-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "GATE-RELIABILITY-001 fix verifier retry pool reset"
+      ]
+    },
+    "systemArea": "Foundation control",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Patched the GATE-RELIABILITY-001 retry path found during review so a transient foundation:verify retry no longer reuses a closed Foundation DB pool.",
+    "whatItDoes": "Foundation DB cleanup now has an explicit reset path that closes the old pool and creates a fresh one before the retry. The gate reliability proof now performs a real DB metadata query, closes/resets the pool during deterministic transient cleanup, and proves the second attempt can query cleanly. Permanent failures still fail closed.",
+    "whyItMatters": "Direct npm run foundation:verify should be a trustworthy gate, not rerun roulette. A transient retry must start from valid DB state instead of inheriting a poisoned pool from cleanup.",
+    "whereItLives": [
+      "lib/foundation-db.js",
+      "lib/foundation-gate-reliability.js",
+      "scripts/process-gate-reliability-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "lib/foundation-build-log.js",
+      "Foundation > Backlog, GATE-RELIABILITY-001",
+      "/api/foundation/build-log"
+    ],
+    "proofCommands": [
+      "npm run process:gate-reliability-check",
+      "npm run foundation:verify",
+      "npm run process:ship-check -- --card=GATE-RELIABILITY-001 --planApprovalRef=docs/process/approvals/GATE-RELIABILITY-001.json --closeoutKey=gate-reliability-retry-pool-reset-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:fanout-check -- --card=GATE-RELIABILITY-001 --closeoutKey=gate-reliability-retry-pool-reset-v1",
+      "npm run process:post-ship-fanout -- --card=GATE-RELIABILITY-001 --closeoutKey=gate-reliability-retry-pool-reset-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=GATE-RELIABILITY-001 --planApprovalRef=docs/process/approvals/GATE-RELIABILITY-001.json --closeoutKey=gate-reliability-retry-pool-reset-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof covers injected transient retry, transient-after-DB-cleanup retry with pool reset, and permanent fail-closed behavior. Full foundation:verify passes with the same cleanup/reset proof inside the verifier.",
+    "reviewNext": "Return this targeted patch to review. Do not start review-queue cleanup, Phase G Track 2, UI polish, Strategy, Scoper, Agent Factory, or corpus expansion from this patch.",
+    "knownLimits": [
+      "This fixes the closed-pool retry bug; it does not claim every future database deadlock is impossible.",
+      "Transient retries remain bounded to one retry for known temporary gate errors.",
+      "Permanent DB, schema, and verifier failures still fail closed."
+    ]
+  },
+  {
+    "key": "gate-reliability-recurring-transient-v1",
+    "backlogIds": [
+      "GATE-RELIABILITY-002"
+    ],
+    "mentionedBacklogIds": [
+      "GATE-RELIABILITY-001",
+      "PLAIN-ENGLISH-SWEEP-001",
+      "UI-MENU-LAYOUT-POLISH-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "GATE-RELIABILITY-002 recurring transient retry"
+      ]
+    },
+    "systemArea": "Foundation control",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added the GATE-RELIABILITY-002 follow-up, made recurring Foundation gate retries name their transient class and subsystem, and changed the ship wrapper to run fanout gates sequentially by default to avoid local Postgres deadlock contention.",
+    "whatItDoes": "The gate reliability helper now classifies retryable failures as postgres-deadlock, foundation-db-pool-closed, network-timeout, or external-quota. foundation:verify and process:foundation-ship print that diagnostic during the bounded retry, process:gate-reliability-check proves the recurring deadlock diagnostic, retry-after-DB-cleanup behavior, and permanent fail-closed behavior, and process:foundation-ship keeps parallel fanout as an explicit opt-in profiling mode instead of the default.",
+    "whyItMatters": "The retry pool reset fixed the old closed-pool bug, but recurring retry output still needed enough signal to stop rerun roulette. A future retry now points at the subsystem that failed instead of forcing the reviewer to infer it from generic output.",
+    "whereItLives": [
+      "lib/foundation-gate-reliability.js",
+      "scripts/process-gate-reliability-check.mjs",
+      "scripts/process-foundation-ship.mjs",
+      "scripts/foundation-verify.mjs",
+      "docs/process/foundation-ship-gate.md",
+      "docs/_archive/audits/2026-04-30-gate-reliability-002-diagnostics.md",
+      "docs/process/approved-plans/gate-reliability-recurring-transient-v1.md",
+      "docs/process/approvals/GATE-RELIABILITY-002.json",
+      "lib/foundation-db.js",
+      "lib/foundation-build-log.js",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "Foundation > Backlog, GATE-RELIABILITY-002",
+      "/api/foundation-hub > gateReliability.recurringDeadlockDiagnostic",
+      "/api/foundation/build-log > gate-reliability-recurring-transient-v1"
+    ],
+    "proofCommands": [
+      "npm run process:gate-reliability-check",
+      "npm run foundation:verify",
+      "npm run foundation:verify",
+      "npm run foundation:verify",
+      "npm run backlog:hygiene -- --json",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s http://localhost:3000/api/foundation/build-log",
+      "npm run process:ship-check -- --card=GATE-RELIABILITY-002 --planApprovalRef=docs/process/approvals/GATE-RELIABILITY-002.json --closeoutKey=gate-reliability-recurring-transient-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:fanout-check -- --card=GATE-RELIABILITY-002 --closeoutKey=gate-reliability-recurring-transient-v1",
+      "npm run process:post-ship-fanout -- --card=GATE-RELIABILITY-002 --closeoutKey=gate-reliability-recurring-transient-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=GATE-RELIABILITY-002 --planApprovalRef=docs/process/approvals/GATE-RELIABILITY-002.json --closeoutKey=gate-reliability-recurring-transient-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof classifies synthetic recurring deadlock retries as class=postgres-deadlock and subsystem=postgres, keeps the DB-cleanup retry green, and keeps permanent verifier failures fail-closed. Repeated foundation:verify runs under normal conditions pass without recurring retry. The wrapper now avoids the observed local fanout/post-ship deadlock by running those gates sequentially unless parallelFanout is explicitly requested.",
+    "reviewNext": "Stop for review. Next expected Phase G card remains UI-MENU-LAYOUT-POLISH-001 after Steve accepts this reliability patch.",
+    "knownLimits": [
+      "This patch classifies and proves the observed recurring transient class; it does not claim Postgres can never deadlock under future explicitly parallel gate changes.",
+      "The normal gate still gets only one bounded retry for known transient classes.",
+      "External quota or network failures are diagnosed, not treated as local code fixes.",
+      "No UI/menu/layout polish, Recent Work redesign, source expansion, Strategy, Scoper, Agent Factory, corpus, research, or action-review work is included."
+    ]
+  },
+  {
+    "key": "foundation-1100-review-v1",
+    "backlogIds": [
+      "BACKLOG-HYGIENE-PASS-002",
+      "ACTION-REVIEW-CLEANUP-001",
+      "RESEARCH-CURATION-002",
+      "PHASE-G-READINESS-001"
+    ],
+    "mentionedBacklogIds": [
+      "PLAIN-ENGLISH-SWEEP-001",
+      "UI-MENU-LAYOUT-POLISH-001",
+      "RECENT-BUILDS-BILLION-DOLLAR-UI-001",
+      "CHANGE-LOG-COMPREHENSIVE-001",
+      "DAILY-EXEC-SUMMARY-001",
+      "SOURCE-LIFECYCLE-EXPANSION-001",
+      "SECURITY-002",
+      "SYSTEM-010",
+      "EXTRACT-RETRY-001",
+      "GATE-RELIABILITY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Foundation 1100 Review Sprint"
+      ]
+    },
+    "systemArea": "Foundation backlog control",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Created the four missing Foundation 1100 wrapper cards, froze the pre-cleanup baseline, cleaned the 20 Backlog Hygiene warnings, curated 18 pending Action Review routes without applying business routes, dispositioned 102 research/future-build cards, and recorded the final Phase G order.",
+    "whatItDoes": "Turns the cleanup sprint from chat plan into live backlog/API/verifier truth: the baseline count stays 289 before wrapper-card bootstrap, the review sprint proof records action-route curation metadata, Research Curation remains disposition-only, and Phase G remains scoped until the next plan gate.",
+    "whyItMatters": "Phase G should not start from clutter or hidden assumptions. This closeout makes the command order auditable before language/layout work starts.",
+    "whereItLives": [
+      "docs/process/foundation-1100-review-sprint.json",
+      "docs/process/approved-plans/foundation-1100-review-v1.md",
+      "docs/process/approvals/BACKLOG-HYGIENE-PASS-002.json",
+      "docs/process/approvals/ACTION-REVIEW-CLEANUP-001.json",
+      "docs/process/approvals/RESEARCH-CURATION-002.json",
+      "docs/process/approvals/PHASE-G-READINESS-001.json",
+      "lib/foundation-review-sprint.js",
+      "scripts/process-foundation-review-sprint-check.mjs",
+      "lib/phase-d-cleanup.js",
+      "server.js",
+      "scripts/foundation-verify.mjs",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "/api/foundation-hub > foundation1100Review",
+      "/api/foundation/action-review",
+      "/api/foundation/build-log"
+    ],
+    "proofCommands": [
+      "npm run process:foundation-review-sprint-check",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:gate-reliability-check",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s http://localhost:3000/api/foundation/action-review",
+      "curl -s http://localhost:3000/api/foundation/build-log",
+      "npm run process:ship-check -- --card=BACKLOG-HYGIENE-PASS-002 --planApprovalRef=docs/process/approvals/BACKLOG-HYGIENE-PASS-002.json --closeoutKey=foundation-1100-review-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=ACTION-REVIEW-CLEANUP-001 --planApprovalRef=docs/process/approvals/ACTION-REVIEW-CLEANUP-001.json --closeoutKey=foundation-1100-review-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=RESEARCH-CURATION-002 --planApprovalRef=docs/process/approvals/RESEARCH-CURATION-002.json --closeoutKey=foundation-1100-review-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:ship-check -- --card=PHASE-G-READINESS-001 --planApprovalRef=docs/process/approvals/PHASE-G-READINESS-001.json --closeoutKey=foundation-1100-review-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:fanout-check -- --card=BACKLOG-HYGIENE-PASS-002 --closeoutKey=foundation-1100-review-v1",
+      "npm run process:fanout-check -- --card=ACTION-REVIEW-CLEANUP-001 --closeoutKey=foundation-1100-review-v1",
+      "npm run process:fanout-check -- --card=RESEARCH-CURATION-002 --closeoutKey=foundation-1100-review-v1",
+      "npm run process:fanout-check -- --card=PHASE-G-READINESS-001 --closeoutKey=foundation-1100-review-v1",
+      "npm run process:foundation-ship -- --card=BACKLOG-HYGIENE-PASS-002 --planApprovalRef=docs/process/approvals/BACKLOG-HYGIENE-PASS-002.json --closeoutKey=foundation-1100-review-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=ACTION-REVIEW-CLEANUP-001 --planApprovalRef=docs/process/approvals/ACTION-REVIEW-CLEANUP-001.json --closeoutKey=foundation-1100-review-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=RESEARCH-CURATION-002 --planApprovalRef=docs/process/approvals/RESEARCH-CURATION-002.json --closeoutKey=foundation-1100-review-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=PHASE-G-READINESS-001 --planApprovalRef=docs/process/approvals/PHASE-G-READINESS-001.json --closeoutKey=foundation-1100-review-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Baseline snapshot captured 289 cards, 20 hygiene warnings, 18 pending action routes, and 102 research cards before wrapper-card bootstrap. Final proof shows 0 hygiene findings, 18/18 action routes curated with 0 applied by the sprint, 102/102 research cards disposition-only, and the six-card Phase G order recorded without starting Phase G UI work.",
+    "reviewNext": "Stop for review. Next submit a separate 9.8-ready plan for PLAIN-ENGLISH-SWEEP-001 unless review changes the Phase G order. Do not start Strategy, Scoper, Agent Factory, corpus expansion, or Phase G Track 2 from this closeout.",
+    "knownLimits": [
+      "Research curation is disposition-only and uses existing backlog/API metadata; it does not deep-research any of the 102 cards.",
+      "Business, owner-action, finance, sales, people, customer, invoice, and access-grant routes are classified/recommended only unless Steve approves a specific route.",
+      "Phase G readiness records order only; it does not implement UI polish or Phase G Track 2.",
+      "A prerequisite retry-store handle hardening is mentioned through GATE-RELIABILITY-001 context because the baseline gate exposed the closed-pool store-handle edge case again."
+    ]
+  },
+  {
+    "key": "plain-english-sweep-v1",
+    "backlogIds": [
+      "PLAIN-ENGLISH-SWEEP-001"
+    ],
+    "mentionedBacklogIds": [
+      "UI-MENU-LAYOUT-POLISH-001",
+      "RECENT-BUILDS-BILLION-DOLLAR-UI-001",
+      "CHANGE-LOG-COMPREHENSIVE-001",
+      "DAILY-EXEC-SUMMARY-001",
+      "SOURCE-LIFECYCLE-EXPANSION-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "PLAIN-ENGLISH-SWEEP-001"
+      ]
+    },
+    "systemArea": "Foundation operator language",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Completed the copy-only plain-English sweep for Foundation operator surfaces with 60 audited copy entries and pass/fail manual route review across desktop and mobile.",
+    "whatItDoes": "Tightens wording across Backlog and Action Review, Runtime Health, Recent Work, Data Sources, System Inventory, and shell/nav/error/empty states while preserving IDs, selectors, API shapes, route names, data contract keys, source IDs, card IDs, table names, proof commands, and source-contract strings.",
+    "whyItMatters": "Foundation should explain what is wrong, what it means, and what to do next without making Steve translate internal shorthand during a build review.",
+    "whereItLives": [
+      "public/foundation.html",
+      "public/foundation.js",
+      "docs/process/plain-english-sweep-v1.json",
+      "docs/_archive/audits/2026-04-30-plain-english-sweep-manual-review.md",
+      "docs/process/approved-plans/plain-english-sweep-v1.md",
+      "docs/process/approvals/PLAIN-ENGLISH-SWEEP-001.json",
+      "lib/foundation-plain-english.js",
+      "lib/foundation-review-sprint.js",
+      "scripts/process-plain-english-sweep-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "/api/foundation-hub > backlogItems[PLAIN-ENGLISH-SWEEP-001]",
+      "/api/foundation/build-log > plain-english-sweep-v1"
+    ],
+    "proofCommands": [
+      "npm run process:plain-english-sweep-check",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s http://localhost:3000/api/foundation/build-log",
+      "npm run process:ship-check -- --card=PLAIN-ENGLISH-SWEEP-001 --planApprovalRef=docs/process/approvals/PLAIN-ENGLISH-SWEEP-001.json --closeoutKey=plain-english-sweep-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:fanout-check -- --card=PLAIN-ENGLISH-SWEEP-001 --closeoutKey=plain-english-sweep-v1",
+      "npm run process:foundation-ship -- --card=PLAIN-ENGLISH-SWEEP-001 --planApprovalRef=docs/process/approvals/PLAIN-ENGLISH-SWEEP-001.json --closeoutKey=plain-english-sweep-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "process:plain-english-sweep-check validates 60/60 audited copy entries, 10 entries per required category, 24/24 manual route/viewport passes, zero protected identifier changes, and exact proof text in the changed Foundation files. foundation:verify and process:foundation-ship provide the canonical full gate.",
+    "reviewNext": "Stop for review. Next expected card is UI-MENU-LAYOUT-POLISH-001 unless Steve changes the Phase G order.",
+    "knownLimits": [
+      "This is copy-only. It does not redesign layout, rebuild Recent Work, start source expansion, or touch Strategy, Scoper, Agent Factory, corpus, research, or action-review workflows.",
+      "Manual review is recorded as pass/fail by route and viewport class; no new screenshot tooling was added in this slice."
+    ]
+  },
+  {
+    "key": "ui-menu-layout-polish-v1",
+    "backlogIds": [
+      "UI-MENU-LAYOUT-POLISH-001"
+    ],
+    "mentionedBacklogIds": [
+      "PLAIN-ENGLISH-SWEEP-001",
+      "RECENT-BUILDS-BILLION-DOLLAR-UI-001",
+      "CHANGE-LOG-COMPREHENSIVE-001",
+      "DAILY-EXEC-SUMMARY-001",
+      "SOURCE-LIFECYCLE-EXPANSION-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "UI-MENU-LAYOUT-POLISH-001",
+        "UI menu layout polish"
+      ]
+    },
+    "systemArea": "Foundation operator layout",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Polished the Foundation navigation and layout hierarchy, split System Inventory into Current Docs and Archive / History, and added focused proof for desktop/mobile route review.",
+    "whatItDoes": "Keeps current operator docs separate from preserved evidence, makes the Phase G current truth easier to find, improves narrow/mobile navigation, and preserves archive/history docs at /foundation#inventory-archive-history without changing the system-inventory API shape.",
+    "whyItMatters": "Foundation should behave like a command surface: current truth first, preserved history accessible, and the next card visible without making Steve dig through archive material or old plan state.",
+    "whereItLives": [
+      "public/foundation.html",
+      "public/foundation.js",
+      "public/styles.css",
+      "lib/foundation-ui-menu-layout-polish.js",
+      "scripts/process-ui-menu-layout-polish-check.mjs",
+      "lib/foundation-review-sprint.js",
+      "lib/foundation-surface-map.js",
+      "lib/foundation-db.js",
+      "scripts/foundation-verify.mjs",
+      "docs/process/approved-plans/ui-menu-layout-polish-v1.md",
+      "docs/process/approvals/UI-MENU-LAYOUT-POLISH-001.json",
+      "docs/_archive/audits/2026-04-30-ui-menu-layout-polish-baseline.md",
+      "docs/_archive/audits/2026-04-30-ui-menu-layout-polish-manual-review.md",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "/api/foundation-hub > foundation1100Review.phaseGReadiness",
+      "/api/system-inventory",
+      "/api/foundation/build-log > ui-menu-layout-polish-v1"
+    ],
+    "proofCommands": [
+      "npm run process:ui-menu-layout-polish-check",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s http://localhost:3000/api/system-inventory",
+      "curl -s \"http://localhost:3000/api/foundation/build-log?limit=5\"",
+      "npm run process:ship-check -- --card=UI-MENU-LAYOUT-POLISH-001 --planApprovalRef=docs/process/approvals/UI-MENU-LAYOUT-POLISH-001.json --closeoutKey=ui-menu-layout-polish-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:fanout-check -- --card=UI-MENU-LAYOUT-POLISH-001 --closeoutKey=ui-menu-layout-polish-v1",
+      "npm run process:foundation-ship -- --card=UI-MENU-LAYOUT-POLISH-001 --planApprovalRef=docs/process/approvals/UI-MENU-LAYOUT-POLISH-001.json --closeoutKey=ui-menu-layout-polish-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "process:ui-menu-layout-polish-check validates 15 required routes, 30 desktop/mobile manual pass rows, 79 current docs, 135 archive/history docs, 0 current/archive leaks, metadata-only private docs, the live next card advanced to RECENT-BUILDS-BILLION-DOLLAR-UI-001, and exact closeout ownership for UI-MENU-LAYOUT-POLISH-001 only. The baseline artifact preserves the before-build split at 78 current docs and 133 archive/history docs.",
+    "reviewNext": "Stop for review. Next expected card is RECENT-BUILDS-BILLION-DOLLAR-UI-001 unless Steve changes the Phase G order.",
+    "knownLimits": [
+      "This is nav/layout polish only. It does not redesign Recent Work, create a comprehensive changelog, add a daily executive summary, or expand source lifecycle.",
+      "The inventory current-vs-archive split is UI classification over existing /api/system-inventory metadata; no docs are deleted or moved.",
+      "Manual visual proof is recorded as route/viewport pass-fail review, not a full pixel-regression suite."
+    ]
+  },
+  {
+    "key": "gate-reliability-direct-verifier-deadlock-v1",
+    "backlogIds": [
+      "GATE-RELIABILITY-003"
+    ],
+    "mentionedBacklogIds": [
+      "GATE-RELIABILITY-001",
+      "GATE-RELIABILITY-002",
+      "UI-MENU-LAYOUT-POLISH-001",
+      "RECENT-BUILDS-BILLION-DOLLAR-UI-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "GATE-RELIABILITY-003 direct verifier deadlock",
+        "Build GATE-RELIABILITY-003"
+      ]
+    },
+    "systemArea": "Foundation control",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Removed write-heavy DB initialization from direct Foundation verifier and process gate read paths, added safe Postgres deadlock metadata diagnostics, and recorded the GATE-RELIABILITY-003 follow-up before the next Phase G card.",
+    "whatItDoes": "foundation:verify, process ship/fanout gates, post-ship fanout, and backlog hygiene now assert the Foundation DB is already initialized through read-only pg_class metadata before reading live state. Gate retry diagnostics now surface safe Postgres code, relation OIDs, process IDs, routine, gate label, and retry attempt for direct verifier deadlocks without logging row data or private/source content.",
+    "whyItMatters": "The UI/menu/layout ship was accepted, but direct verifier proof still hit Postgres deadlock retries. Review gates should not write schema/seed state while the dashboard and worker are live, because that makes proof depend on a lucky retry instead of stable read-only verification.",
+    "whereItLives": [
+      "lib/foundation-db.js",
+      "lib/foundation-gate-reliability.js",
+      "scripts/foundation-verify.mjs",
+      "scripts/process-gate-reliability-check.mjs",
+      "scripts/process-ship-check.mjs",
+      "scripts/process-fanout-check.mjs",
+      "scripts/process-post-ship-fanout.mjs",
+      "scripts/backlog-hygiene.mjs",
+      "docs/_archive/audits/2026-04-30-gate-reliability-003-direct-verifier-deadlock.md",
+      "docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md",
+      "docs/process/approvals/GATE-RELIABILITY-003.json",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "Foundation > Backlog, GATE-RELIABILITY-003",
+      "/api/foundation-hub > gateReliability.directVerifierDeadlockDiagnostic",
+      "/api/foundation/build-log > gate-reliability-direct-verifier-deadlock-v1"
+    ],
+    "proofCommands": [
+      "npm run process:gate-reliability-check",
+      "npm run foundation:verify",
+      "npm run foundation:verify",
+      "npm run foundation:verify",
+      "npm run backlog:hygiene -- --json",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s \"http://localhost:3000/api/foundation/build-log?limit=5\"",
+      "npm run process:ship-check -- --card=GATE-RELIABILITY-003 --planApprovalRef=docs/process/approvals/GATE-RELIABILITY-003.json --closeoutKey=gate-reliability-direct-verifier-deadlock-v1 --skipLiveVerify=true --skipLiveVerifyReason=\"process:foundation-ship runs final foundation:verify once after fanout gates\"",
+      "npm run process:fanout-check -- --card=GATE-RELIABILITY-003 --closeoutKey=gate-reliability-direct-verifier-deadlock-v1",
+      "npm run process:post-ship-fanout -- --card=GATE-RELIABILITY-003 --closeoutKey=gate-reliability-direct-verifier-deadlock-v1 --commitRef=HEAD",
+      "npm run process:foundation-ship -- --card=GATE-RELIABILITY-003 --planApprovalRef=docs/process/approvals/GATE-RELIABILITY-003.json --closeoutKey=gate-reliability-direct-verifier-deadlock-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof covers direct foundation:verify Postgres deadlock diagnostics with class=postgres-deadlock, subsystem=postgres, pgCode=40P01, safe relation OIDs, and safe process IDs; direct verifier and process gate read paths use read-only DB readiness checks instead of initFoundationDb; repeated foundation:verify runs under normal dashboard/worker conditions pass without recurring postgres-deadlock retry; permanent verifier failures still fail closed.",
+    "reviewNext": "Stop for review. Next expected card remains RECENT-BUILDS-BILLION-DOLLAR-UI-001 after Steve accepts this reliability patch.",
+    "knownLimits": [
+      "This patch removes write-heavy initialization from direct read-only gate checks. It does not claim future explicit migration, schema, or write-heavy job paths can never deadlock.",
+      "App and worker startup still use initFoundationDb as the approved initialization path.",
+      "Future schema-changing builds may need explicit initialization or migration proof before read-only gates pass against a fresh DB.",
+      "No Recent Work redesign, UI/menu/layout work, changelog, daily summary, source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus, research cleanup, or new feature lane is included."
+    ]
+  },
+  {
+    "key": "recent-builds-billion-dollar-ui-v1",
+    "backlogIds": [
+      "RECENT-BUILDS-BILLION-DOLLAR-UI-001"
+    ],
+    "mentionedBacklogIds": [
+      "BUILD-LOG-BACKLOG-ID-FIX-001",
+      "RECENT-BUILDS-MULTI-CLOSEOUT-001",
+      "CHANGE-LOG-COMPREHENSIVE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Build RECENT-BUILDS-BILLION-DOLLAR-UI-001"
+      ]
+    },
+    "systemArea": "Foundation Recent Work",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Redesigned Foundation Recent Work into an executive-grade build review surface with an executive summary, review-next queue, collapsed closeout cards, proof sections, owner/context card separation, and individually reviewable same-commit closeouts.",
+    "whatItDoes": "Steve can scan what shipped, what to review first, why it matters, where it lives, what proof exists, and what known limits remain without reading raw commit logs or expanding every closeout.",
+    "whyItMatters": "Recent Work is the trust surface for shipped Foundation work. It needs to show exact ownership and proof with enough hierarchy that review starts from command clarity instead of audit-feed archaeology.",
+    "whereItLives": [
+      "Foundation > Recent Work",
+      "/api/foundation/build-log",
+      "public/foundation.js",
+      "public/styles.css",
+      "lib/foundation-recent-builds-ui.js",
+      "scripts/process-recent-builds-billion-dollar-ui-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "docs/_archive/audits/2026-04-30-recent-builds-billion-dollar-ui-manual-review.md",
+      "docs/process/approved-plans/recent-builds-billion-dollar-ui-v1.md"
+    ],
+    "proofCommands": [
+      "npm run process:recent-builds-billion-dollar-ui-check",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=RECENT-BUILDS-BILLION-DOLLAR-UI-001 --planApprovalRef=docs/process/approvals/RECENT-BUILDS-BILLION-DOLLAR-UI-001.json --closeoutKey=recent-builds-billion-dollar-ui-v1",
+      "npm run process:fanout-check -- --card=RECENT-BUILDS-BILLION-DOLLAR-UI-001 --closeoutKey=recent-builds-billion-dollar-ui-v1",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s \"http://localhost:3000/api/foundation/build-log?limit=5\"",
+      "npm run process:foundation-ship -- --card=RECENT-BUILDS-BILLION-DOLLAR-UI-001 --planApprovalRef=docs/process/approvals/RECENT-BUILDS-BILLION-DOLLAR-UI-001.json --closeoutKey=recent-builds-billion-dollar-ui-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof checks the executive Recent Work structure, collapsed default cards, owner/context separation, same-commit groups, manual desktop/mobile review, and exact closeout ownership. Foundation verify and the canonical ship wrapper pass before push.",
+    "reviewNext": "Stop for review. Next expected Phase G card is CHANGE-LOG-COMPREHENSIVE-001 unless Steve changes the order.",
+    "knownLimits": [
+      "This is the Recent Work UI/readability pass, not the comprehensive changelog implementation.",
+      "The checker proves structure, ownership, route coverage, and manual pass/fail evidence; Steve still needs to eyeball whether the surface feels executive-grade.",
+      "Older commits without v2 closeout metadata still depend on derived summaries.",
+      "No daily executive summary, source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus, research cleanup, or new feature lane is included."
+    ]
+  },
+  {
+    "key": "change-log-comprehensive-v1",
+    "backlogIds": [
+      "CHANGE-LOG-COMPREHENSIVE-001"
+    ],
+    "mentionedBacklogIds": [
+      "RECENT-BUILDS-BILLION-DOLLAR-UI-001",
+      "FOUNDATION-CHANGELOG-002",
+      "DAILY-EXEC-SUMMARY-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Build CHANGE-LOG-COMPREHENSIVE-001"
+      ]
+    },
+    "systemArea": "Foundation System Activity",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a comprehensive Foundation changelog layer on System Activity that groups source-backed changes by highlight, surface, type, and raw evidence.",
+    "whatItDoes": "Steve can see not only shipped builds, but also broader Foundation changes from verified closeouts, DB trust events, and changed-file evidence without treating Recent Work as the only history surface.",
+    "whyItMatters": "Foundation needs to explain how the system changed by surface and type. This keeps build closeouts, plan/state updates, source/config changes, verifier/process changes, UI changes, runtime events, review flow, and extraction/intelligence changes auditable from one operator surface.",
+    "whereItLives": [
+      "Foundation > System Activity",
+      "/api/foundation/change-log",
+      "/api/foundation/changes",
+      "lib/foundation-change-log.js",
+      "server.js",
+      "public/foundation.js",
+      "public/styles.css",
+      "scripts/process-change-log-comprehensive-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "docs/_archive/audits/2026-04-30-change-log-comprehensive-manual-review.md",
+      "docs/process/approved-plans/change-log-comprehensive-v1.md"
+    ],
+    "proofCommands": [
+      "npm run process:change-log-comprehensive-check",
+      "npm run process:recent-builds-billion-dollar-ui-check",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=CHANGE-LOG-COMPREHENSIVE-001 --planApprovalRef=docs/process/approvals/CHANGE-LOG-COMPREHENSIVE-001.json --closeoutKey=change-log-comprehensive-v1",
+      "npm run process:fanout-check -- --card=CHANGE-LOG-COMPREHENSIVE-001 --closeoutKey=change-log-comprehensive-v1",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s \"http://localhost:3000/api/foundation/change-log?limit=100\"",
+      "curl -s \"http://localhost:3000/api/foundation/changes?limit=20\"",
+      "curl -s \"http://localhost:3000/api/foundation/build-log?limit=5\"",
+      "npm run process:foundation-ship -- --card=CHANGE-LOG-COMPREHENSIVE-001 --planApprovalRef=docs/process/approvals/CHANGE-LOG-COMPREHENSIVE-001.json --closeoutKey=change-log-comprehensive-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof checks 40+ entries, 20+ verified closeout-backed entries, at least 8/10 change types unless absence is proven, latest 5 Recent Builds, this closeout, zero owner/context smearing, backward-compatible /api/foundation/changes, additive /api/foundation/change-log, privacy boundaries, and desktop/mobile System Activity manual review.",
+    "reviewNext": "Stop for review. Next expected Phase G card is DAILY-EXEC-SUMMARY-001 unless Steve changes the order.",
+    "knownLimits": [
+      "This is the comprehensive changelog layer, not the Daily Exec Summary.",
+      "It backfills only from existing closeouts, DB change_events, commits, and changed-file evidence. It does not invent old history.",
+      "Older changes without closeout or DB evidence remain lower-confidence changed-file evidence.",
+      "No source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus, research cleanup, or new feature lane is included."
+    ]
+  },
+  {
+    "key": "daily-exec-summary-v1",
+    "backlogIds": [
+      "DAILY-EXEC-SUMMARY-001"
+    ],
+    "mentionedBacklogIds": [
+      "CHANGE-LOG-COMPREHENSIVE-001",
+      "RECENT-BUILDS-BILLION-DOLLAR-UI-001",
+      "SOURCE-LIFECYCLE-EXPANSION-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Build DAILY-EXEC-SUMMARY-001"
+      ]
+    },
+    "systemArea": "Foundation Daily Summary",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a date-scoped Foundation daily executive summary layer that shows where the day started, what changed, what shipped, what remains, what was learned, what is next, and proof refs.",
+    "whatItDoes": "Steve can open one daily readout and see the day from source-backed build-log, changelog, current plan/state, live backlog, action/research disposition, and recorded proof evidence without digging through chat.",
+    "whyItMatters": "Foundation should reduce daily context reconstruction. The daily summary makes command order, shipped work, open work, review items, lessons, and next build visible from evidence instead of memory.",
+    "whereItLives": [
+      "Foundation > Daily Summary",
+      "/api/foundation/daily-summary",
+      "/api/foundation/build-log",
+      "/api/foundation/change-log",
+      "lib/foundation-daily-exec-summary.js",
+      "server.js",
+      "public/foundation.html",
+      "public/foundation.js",
+      "public/styles.css",
+      "scripts/process-daily-exec-summary-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "docs/_archive/audits/2026-04-30-daily-exec-summary-manual-review.md",
+      "docs/process/approved-plans/daily-exec-summary-v1.md"
+    ],
+    "proofCommands": [
+      "npm run process:daily-exec-summary-check",
+      "npm run process:change-log-comprehensive-check",
+      "npm run process:recent-builds-billion-dollar-ui-check",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=DAILY-EXEC-SUMMARY-001 --planApprovalRef=docs/process/approvals/DAILY-EXEC-SUMMARY-001.json --closeoutKey=daily-exec-summary-v1",
+      "npm run process:fanout-check -- --card=DAILY-EXEC-SUMMARY-001 --closeoutKey=daily-exec-summary-v1",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s \"http://localhost:3000/api/foundation/daily-summary?date=2026-04-30&days=7\"",
+      "curl -s \"http://localhost:3000/api/foundation/change-log?limit=100\"",
+      "curl -s \"http://localhost:3000/api/foundation/build-log?limit=5\"",
+      "npm run process:foundation-ship -- --card=DAILY-EXEC-SUMMARY-001 --planApprovalRef=docs/process/approvals/DAILY-EXEC-SUMMARY-001.json --closeoutKey=daily-exec-summary-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof checks date-scoped daily summaries, evidence refs on every section, latest 5 Recent Builds, this closeout, shipped/still-open/needs-review/next-build separation, backward-compatible build-log/changelog/changes APIs, privacy boundaries, and desktop/mobile Daily Summary manual review.",
+    "reviewNext": "Stop for review. Next expected Phase G card is SOURCE-LIFECYCLE-EXPANSION-001 unless Steve changes the order.",
+    "knownLimits": [
+      "This is the daily executive summary layer, not source lifecycle expansion.",
+      "Historical days are only as complete as existing closeout, changelog, current plan/state, and live backlog evidence.",
+      "What we learned is copied only from closeout known limits and proof status; no unsupported narrative is generated.",
+      "No Strategy, Scoper, Agent Factory, corpus, research cleanup, Action Review applying, or new feature lane is included."
+    ]
+  },
+  {
+    "key": "source-lifecycle-expansion-v1",
+    "backlogIds": [
+      "SOURCE-LIFECYCLE-EXPANSION-001"
+    ],
+    "mentionedBacklogIds": [
+      "DRIVE-CONTENT-001",
+      "EMAIL-ATTACHMENTS-001",
+      "MULTIMODAL-EXTRACTOR-001",
+      "YOUTUBE-SCOUT-001",
+      "EXTRACT-CURRENT-001",
+      "EXTRACT-BACKFILL-001",
+      "EXTRACT-RETRY-001",
+      "SECURITY-002",
+      "SYSTEM-010"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Build SOURCE-LIFECYCLE-EXPANSION-001"
+      ]
+    },
+    "systemArea": "Foundation Source Lifecycle",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added an evidence-backed source lifecycle control layer that shows which source lanes are connected, verified, extracted, reviewed, retried, or parked without starting new ingestion.",
+    "whatItDoes": "Steve can open Source Lifecycle and see all source contracts, all governed extraction targets, active lanes, parked lanes, caps, statuses, and metadata-only evidence refs from the existing source layer.",
+    "whyItMatters": "Source coverage should improve from trusted command order, not random corpus expansion. This makes missing and underdeveloped lanes visible while keeping blocked, paused, planned, and gap sources from silently looking done.",
+    "whereItLives": [
+      "Foundation > Data Sources > Lifecycle",
+      "/foundation#source-lifecycle",
+      "/api/foundation/source-lifecycle",
+      "/api/source-of-truth",
+      "/api/foundation-hub > sourceLifecycle",
+      "lib/source-lifecycle.js",
+      "server.js",
+      "public/foundation.html",
+      "public/foundation.js",
+      "public/styles.css",
+      "scripts/process-source-lifecycle-expansion-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "docs/_archive/audits/2026-04-30-source-lifecycle-expansion-manual-review.md",
+      "docs/process/approved-plans/source-lifecycle-expansion-v1.md"
+    ],
+    "proofCommands": [
+      "npm run process:source-lifecycle-expansion-check",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=SOURCE-LIFECYCLE-EXPANSION-001 --planApprovalRef=docs/process/approvals/SOURCE-LIFECYCLE-EXPANSION-001.json --closeoutKey=source-lifecycle-expansion-v1",
+      "npm run process:fanout-check -- --card=SOURCE-LIFECYCLE-EXPANSION-001 --closeoutKey=source-lifecycle-expansion-v1",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s http://localhost:3000/api/source-of-truth",
+      "curl -s http://localhost:3000/api/foundation/source-lifecycle",
+      "curl -s \"http://localhost:3000/api/foundation/build-log?limit=5\"",
+      "npm run process:foundation-ship -- --card=SOURCE-LIFECYCLE-EXPANSION-001 --planApprovalRef=docs/process/approvals/SOURCE-LIFECYCLE-EXPANSION-001.json --closeoutKey=source-lifecycle-expansion-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof checks all 35 source contracts, all 12 extraction targets, included-lane lifecycle status/evidence, visible parked/blocked lanes, unchanged extraction caps/status/runtime baselines, backward-compatible /api/source-of-truth, metadata-only evidence refs, no raw private/source content, and desktop/mobile Source Lifecycle manual review.",
+    "reviewNext": "Stop for review. Do not start any new source build automatically; Steve decides the next Foundation gate or feature lane from the reviewed source lifecycle surface.",
+    "knownLimits": [
+      "This is source lifecycle visibility/control only; it does not create new extraction targets or raise quotas.",
+      "Drive Slides/Office/shortcut/media/OCR, Missive attachments, Loom, Skool, Mycro, rich video vision, and YouTube scout work remain explicit parked or future lanes.",
+      "Existing source contracts and extraction target ledgers are the evidence boundary. Missing metadata becomes a follow-up, not silent acceptance.",
+      "No Strategy Hub activation, Scoper, Agent Factory, broad corpus expansion, research cleanup, Action Review applying, or new feature lane is included."
+    ]
+  },
+  {
+    "key": "foundation-followup-card-capture-v1",
+    "backlogIds": [
+      "FOUNDATION-FOLLOWUP-CARD-CAPTURE-001"
+    ],
+    "mentionedBacklogIds": [
+      "FOUNDATION-SYSTEMS-SERVICE-GROUPING-001",
+      "AGENT-ONBOARDING-FEEDBACK-SYSTEM-001",
+      "AGENT-FEEDBACK-SEND-001",
+      "PEOPLE-006"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Build FOUNDATION-FOLLOWUP-CARD-CAPTURE-001"
+      ]
+    },
+    "systemArea": "Foundation Backlog Control",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Captured the three missing post-Phase-G follow-up cards as scoped backlog truth with deep context and recorded the next build order.",
+    "whatItDoes": "The live backlog now has scoped cards for Systems service-area grouping, Agent Onboarding Feedback system visibility, and the governed 30/60/90 feedback send path. PEOPLE-006 remains related context only.",
+    "whyItMatters": "The accepted source lifecycle review found no build blockers, but it did find planned work that was still chat-only. This closes that planning gap before any feature work starts.",
+    "whereItLives": [
+      "Foundation > Backlog",
+      "/api/foundation-hub > backlogItems",
+      "lib/foundation-db.js",
+      "lib/foundation-followup-card-capture.js",
+      "scripts/process-foundation-followup-card-capture-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "docs/_archive/audits/2026-04-30-foundation-followup-card-capture.md",
+      "docs/process/approved-plans/foundation-followup-card-capture-v1.md"
+    ],
+    "proofCommands": [
+      "npm run process:foundation-followup-card-capture-check",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FOUNDATION-FOLLOWUP-CARD-CAPTURE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-FOLLOWUP-CARD-CAPTURE-001.json --closeoutKey=foundation-followup-card-capture-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-FOLLOWUP-CARD-CAPTURE-001 --closeoutKey=foundation-followup-card-capture-v1",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s \"http://localhost:3000/api/foundation/build-log?limit=5\"",
+      "npm run process:foundation-ship -- --card=FOUNDATION-FOLLOWUP-CARD-CAPTURE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-FOLLOWUP-CARD-CAPTURE-001.json --closeoutKey=foundation-followup-card-capture-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof checks the owner card, the three scoped follow-up cards, required deep context, scoped-not-done state, exact build order, PEOPLE-006 as context only, and no Gmail send / no ClickUp Requested writeback / no Systems grouping implementation / no feature work.",
+    "reviewNext": "Stop for review. Next expected build order is FOUNDATION-SYSTEMS-SERVICE-GROUPING-001, then AGENT-ONBOARDING-FEEDBACK-SYSTEM-001, then AGENT-FEEDBACK-SEND-001.",
+    "knownLimits": [
+      "This is capture/scope only. It does not implement Systems grouping.",
+      "This does not send Gmail, write ClickUp Requested, or build the production feedback send path.",
+      "Real feedback email sends still require Steve route-specific approval.",
+      "No Strategy, Scoper, Agent Factory, corpus, source expansion, or research cleanup is included."
+    ]
+  },
+  {
+    "key": "foundation-systems-service-grouping-v1",
+    "backlogIds": [
+      "FOUNDATION-SYSTEMS-SERVICE-GROUPING-001"
+    ],
+    "mentionedBacklogIds": [
+      "FOUNDATION-FOLLOWUP-CARD-CAPTURE-001",
+      "AGENT-ONBOARDING-FEEDBACK-SYSTEM-001",
+      "AGENT-FEEDBACK-SEND-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Build FOUNDATION-SYSTEMS-SERVICE-GROUPING-001"
+      ]
+    },
+    "systemArea": "Foundation Systems",
+    "status": "shipped",
+    "acceptanceState": "Verified",
+    "whatChanged": "Grouped the Foundation Systems page by the approved business/service areas while keeping each existing system source-backed and technically inspectable.",
+    "whatItDoes": "The Systems surface now leads with service-area groups, assigns every existing grouped system one valid primary service area, exposes valid secondary service areas, labels partial/planned systems, and keeps empty approved groups visible as no mapped systems yet.",
+    "whyItMatters": "Steve can now scan Systems by how the business operates instead of parsing a flat technical list. Sales and Recruiting stay separate, and future onboarding/email work stays scoped instead of being bundled into this visual control slice.",
+    "whereItLives": [
+      "Foundation > Systems",
+      "/foundation#systems",
+      "/api/source-of-truth > groupedSystems",
+      "/api/source-of-truth > systemServiceAreas",
+      "lib/source-contracts.js",
+      "public/foundation.js",
+      "public/styles.css",
+      "lib/foundation-systems-service-grouping.js",
+      "scripts/process-foundation-systems-service-grouping-check.mjs",
+      "scripts/foundation-verify.mjs",
+      "docs/rebuild/current-plan.md",
+      "docs/rebuild/current-state.md",
+      "docs/_archive/audits/2026-04-30-foundation-systems-service-grouping-baseline.md",
+      "docs/_archive/audits/2026-04-30-foundation-systems-service-grouping-manual-review.md",
+      "docs/process/approved-plans/foundation-systems-service-grouping-v1.md"
+    ],
+    "proofCommands": [
+      "npm run process:foundation-systems-service-grouping-check",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:ship-check -- --card=FOUNDATION-SYSTEMS-SERVICE-GROUPING-001 --planApprovalRef=docs/process/approvals/FOUNDATION-SYSTEMS-SERVICE-GROUPING-001.json --closeoutKey=foundation-systems-service-grouping-v1",
+      "npm run process:fanout-check -- --card=FOUNDATION-SYSTEMS-SERVICE-GROUPING-001 --closeoutKey=foundation-systems-service-grouping-v1",
+      "npm run foundation:verify",
+      "curl -s http://localhost:3000/api/source-of-truth",
+      "curl -s http://localhost:3000/api/foundation-hub",
+      "curl -s \"http://localhost:3000/api/foundation/build-log?limit=5\"",
+      "npm run process:foundation-ship -- --card=FOUNDATION-SYSTEMS-SERVICE-GROUPING-001 --planApprovalRef=docs/process/approvals/FOUNDATION-SYSTEMS-SERVICE-GROUPING-001.json --closeoutKey=foundation-systems-service-grouping-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof checks all 12 existing grouped systems, all 14 approved service groups, valid primary and secondary service-area metadata, no combined Sales/Recruiting bucket, no unclassified systems, additive API shape, desktop/mobile Systems manual review, and exact closeout ownership.",
+    "reviewNext": "Stop for review. Next expected card is AGENT-ONBOARDING-FEEDBACK-SYSTEM-001.",
+    "knownLimits": [
+      "This classifies existing grouped systems only; it does not create or invent new systems.",
+      "This does not send Gmail, write ClickUp Requested, build Agent Onboarding Feedback, or build the production feedback send path.",
+      "No Strategy, Scoper, Agent Factory, corpus/source expansion, research cleanup, or new feature lane is included."
+    ]
+  }
+]

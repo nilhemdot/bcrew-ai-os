@@ -1,0 +1,374 @@
+[
+  {
+    "key": "source-session-broker-v1",
+    "backlogIds": [
+      "SOURCE-SESSION-BROKER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Add source session broker",
+        "SOURCE-SESSION-BROKER-001",
+        "source-session-broker-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001",
+      "SKOOL-LIVE-NAVIGATION-PROOF-002",
+      "MYICOR-LIVE-NAVIGATION-PROOF-002",
+      "HARLAN-AUTH-LIVE-DELIVERY-002",
+      "SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001",
+      "MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001"
+    ],
+    "systemArea": "Foundation source access / God Mode extractor sessions",
+    "status": "blocked-preflight",
+    "acceptanceState": "Verified V1 broker contract and local proof accepted as blocked-preflight; live Harlan delivery, MyICOR connector approval, and broad paid/private extraction are approval-bound continuation work and the full Source Session Broker capability is not done.",
+    "whatChanged": "Added the Source Session Broker V1 contract and proof so approved extractors have one closed-loop access layer for isolated profiles, macOS Keychain credential refs, source identities, login recipes, auth-needed escalation, wait/resume, and fail-closed behavior.",
+    "whatItDoes": "Defines the source-session gold standard: try the existing isolated browser profile first, prefer a native read-only connector/MCP when the source offers one and scope is approved, use broker-only Keychain credentials when a login recipe exists, emit auth_needed on missing creds/login recipe/MFA, wait for the human-agent DONE signal, silently reverify, then resume or fail closed. It also extends the credential vault CLI with generic source add/status/delete and wires paid-source local mapping to auth-needed artifacts.",
+    "whyItMatters": "Steve cannot be the login bottleneck for every Skool, MyICOR, newsletter, free community, or future team-agent source. God Mode extraction needs a reusable session layer that can safely access approved accounts while refusing purchases, trading, banking, posting, messaging, profile changes, unsafe downloads, and raw-secret leakage.",
+    "whereItLives": [
+      "lib/source-session-broker.js broker contract, source policies, MyICOR read-only MCP preference, request evaluator, and dogfood proof",
+      "scripts/process-source-session-broker-check.mjs focused proof and guarded live backlog upsert",
+      "lib/source-session-readiness-readback.js metadata-only readiness checks for parked source-session action groups",
+      "scripts/process-source-session-readiness-check.mjs focused live readiness proof",
+      "docs/process/source-session-broker-001-plan.md approved process plan",
+      "docs/process/approvals/SOURCE-SESSION-BROKER-001.json approval record",
+      "scripts/credentials-vault.mjs generic source credential add/status/delete commands",
+      "scripts/run-supervised-paid-source-map.mjs paid-source browser/profile mapper and auth-needed artifact writer",
+      "lib/credential-vault.js macOS Keychain secretRef and broker-only retrieval helpers",
+      "lib/harlan-auth-escalation-loop.js auth_needed wait/reverify/fail-closed event contract",
+      "lib/foundation-backlog-seed-chunks/chunk-005.js Source Session Broker seed card",
+      "live backlog_items row for SOURCE-SESSION-BROKER-001",
+      "package.json focused proof command"
+    ],
+    "proofCommands": [
+      "node --check lib/source-session-broker.js scripts/process-source-session-broker-check.mjs scripts/run-supervised-paid-source-map.mjs scripts/credentials-vault.mjs",
+      "npm run process:source-session-broker-check -- --apply --json",
+      "npm run process:source-session-broker-check -- --json",
+      "npm run process:source-session-readiness-check -- --json",
+      "npm run process:credential-vault-session-broker-check -- --json",
+      "node scripts/run-supervised-paid-source-map.mjs --source=myicor --unattended --maxPages=2 --maxDepth=1",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-broker-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-SESSION-BROKER-001 --closeoutKey=source-session-broker-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-broker-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the broker contract, live P0 backlog card, approval integrity, seed truth, closeout registry, generic source credential CLI, source-session readiness readback, paid-source mapper auth-needed behavior, broker-only Keychain retrieval, MyICOR native read-only connector/MCP preference with explicit scope approval, missing credential and MFA fail-closed auth_needed paths, standing free-source identity account creation policy, forbidden money/trading action blocking, and no raw secret printing. Live readiness currently shows the parked source-session queue waiting on missing Skool/source-newsletter/myICOR MCP credentials or sessions, which is honest blocked-preflight readback. A local unattended MyICOR run currently stops with auth-needed when no authorized session/credential clears login, which is the expected fail-closed posture. This is a blocked-preflight closeout, not accepted full implementation completion.",
+    "reviewNext": "Approve or configure the exact MyICOR read-only MCP/connector scope if available, then prove connector readback before browser fallback. Continue SKOOL-LIVE-NAVIGATION-PROOF-002 and MYICOR-LIVE-NAVIGATION-PROOF-002 for bounded source-specific extraction, and HARLAN-AUTH-LIVE-DELIVERY-002 for real auth notification delivery.",
+    "knownLimits": [
+      "V1 is the broker/access contract and local proof, not broad paid/private extraction and not done as the full source-session capability.",
+      "This does not send live Telegram, Gmail, Slack, or email notifications; Harlan live delivery remains HARLAN-AUTH-LIVE-DELIVERY-002.",
+      "This does not approve or use the MyICOR MCP/connector until Steve confirms the exact read-only scope and account boundary.",
+      "This does not create live external accounts, sign up for newsletters, join Skool communities, buy, trade, bank, post, comment, message, mutate profiles, mutate credentials, download unsafe files, or write externally from the proof.",
+      "This does not store paid/private source content in git or expose raw secrets in reports."
+    ]
+  },
+  {
+    "key": "source-session-broker-split-registry-proof-v1",
+    "backlogIds": [
+      "SOURCE-SESSION-BROKER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Repair source session broker split registry proof",
+        "SOURCE-SESSION-BROKER-001",
+        "source-session-broker-split-registry-proof-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-BROWSER-AGENTIC-RUNTIME-001",
+      "BUILD-CLOSEOUT-REGISTRY-EXTRACT-001"
+    ],
+    "systemArea": "Foundation source access / Source Session Broker proof",
+    "status": "blocked-preflight",
+    "acceptanceState": "Blocked-preflight / approval-bound proof repair only: not done, not accepted as full SOURCE-SESSION-BROKER-001 completion, and not marked done. Approval is pending for live auth delivery, newsletter signup, Skool/MyICOR live navigation, and paid/private extraction.",
+    "whatChanged": "Updated the Source Session Broker focused proof to read the full split closeout registry instead of only the old source-record root file, and made the closeout check match live card state.",
+    "whatItDoes": "Prevents a false red after the closeout registry split: executing Source Session Broker work may pass without requiring a final done-state closeout, while a done card still must prove its closeout key exists in the split registry.",
+    "whyItMatters": "The broker is the access layer for God Mode extractors. Its proof should catch real session/auth gaps, not fail because source closeout records moved into split modules.",
+    "whereItLives": [
+      "scripts/process-source-session-broker-check.mjs split-registry source read and live-lane closeout check",
+      "lib/foundation-build-log-source.js FOUNDATION_BUILD_LOG_REGISTRY_SOURCE_PATHS",
+      "lib/foundation-build-closeout-source-session-records.js this proof repair closeout"
+    ],
+    "proofCommands": [
+      "node --check scripts/process-source-session-broker-check.mjs lib/foundation-build-closeout-source-session-records.js",
+      "npm run process:source-session-broker-check -- --json",
+      "npm run process:source-session-readiness-check -- --json",
+      "npm run process:source-browser-agent-harness-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-broker-split-registry-proof-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-SESSION-BROKER-001 --closeoutKey=source-session-broker-split-registry-proof-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-broker-split-registry-proof-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof is green, reads split registry truth, preserves no-raw-secret/no-external-action posture, and keeps live readiness honestly waiting for credentials or sessions.",
+    "reviewNext": "Continue Source Session Broker live-delivery and source-specific unlock work: MyICOR MCP OAuth, Harlan auth delivery, free-community session proof, and newsletter signup confirmation lanes remain separate continuation work.",
+    "knownLimits": [
+      "This is not a live browser/login extraction proof.",
+      "This does not send Harlan/Telegram messages, submit forms, sign up for newsletters, join communities, buy, download, post, comment, message, mutate credentials, or use Browserbase.",
+      "This does not change Source Session Broker live card lane or claim full broker completion."
+    ]
+  },
+  {
+    "key": "source-session-profile-probe-v1",
+    "backlogIds": [
+      "SOURCE-SESSION-BROKER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Add source session profile probe",
+        "SOURCE-SESSION-BROKER-001",
+        "source-session-profile-probe-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-BROWSER-AGENTIC-RUNTIME-001",
+      "FREE-SKOOL-COMMUNITY-GOD-MODE-RUNNER-001",
+      "HARLAN-AUTH-LIVE-DELIVERY-002",
+      "MYICOR-LIVE-NAVIGATION-PROOF-002",
+      "SKOOL-LIVE-NAVIGATION-PROOF-002"
+    ],
+    "systemArea": "Foundation source access / source-session profile probe",
+    "status": "blocked-preflight",
+    "acceptanceState": "Blocked-preflight / approval-bound partial closeout: not done, not accepted as full SOURCE-SESSION-BROKER-001 completion, and not marked done. Approval is pending for live Harlan delivery, real Skool/MyICOR login completion, newsletter submit, paid/private extraction, and broad source-session runner execution. V1 proves only the local profile readiness/auth-needed/wrong-branch probe.",
+    "whatChanged": "Added a local source-session profile probe that opens an exact source URL in an isolated Playwright source profile, reads page/auth/browser state, calls the Source Session Broker, and writes a local report that says ready, auth_needed, wrong_signup_branch, or blocked without submitting credentials.",
+    "whatItDoes": "Gives the source system a concrete preflight between parked source rows and real source-specific extraction. It can prove an existing isolated profile is ready, detect a login wall, detect MyICOR Start Free/profile-creation drift, detect MyICOR Google SSO MFA/human verification, and prepare the existing auth-resume packet while sending no live Harlan message.",
+    "whyItMatters": "Steve needs the system to stop getting lost on login/signup screens and to know when it can run unattended versus when it must ask for MFA through the human-agent loop. This slice turns that state into machine-readable proof before the Skool/MyICOR runners are allowed to claim extraction.",
+    "whereItLives": [
+      "lib/source-session-profile-probe.js local profile probe, broker decision bridge, MyICOR auth-surface evaluation, auth-resume packet output, and report evaluator",
+      "scripts/run-source-session-profile-probe.mjs `source:session-probe` CLI",
+      "scripts/process-source-session-profile-probe-check.mjs fixture proof for ready session, login wall, MyICOR wrong signup branch, and MyICOR MFA",
+      "package.json `source:session-probe` and `process:source-session-profile-probe-check` scripts",
+      "lib/source-session-broker.js status note mentioning source-session profile probe readback",
+      "docs/source-notes/source-browser-agent-protocol-scope-2026-05-28.md protocol scope addendum",
+      "docs/_archive/handoffs/2026-05-29-source-session-profile-probe.md checkpoint"
+    ],
+    "proofCommands": [
+      "node --check lib/source-session-profile-probe.js scripts/run-source-session-profile-probe.mjs scripts/process-source-session-profile-probe-check.mjs lib/source-session-broker.js lib/foundation-build-closeout-source-records.js",
+      "npm run process:source-session-profile-probe-check -- --json",
+      "npm run process:source-session-broker-check -- --json",
+      "npm run process:source-session-auth-resume-packet-check -- --json",
+      "npm run process:source-session-readiness-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run process:system-health-nightly-audit-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-profile-probe-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-SESSION-BROKER-001 --closeoutKey=source-session-profile-probe-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-profile-probe-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof covers four dogfood states: a ready free-community fixture returns broker `session_ready` with no auth escalation, a login-wall fixture returns `auth_needed` and a dry-run Harlan resume packet, a MyICOR Start Free/profile fixture fails closed as wrong signup branch, and a MyICOR number-match fixture returns Google SSO MFA auth-needed. All paths avoid login submit, model calls, Browserbase, normal Chrome, raw secrets, external writes, downloads, purchases, posting, messaging, and credential/profile mutation.",
+    "reviewNext": "Use this probe before the first real Skool free-community and MyICOR source-session runs. If probe status is ready, run the bounded source-specific worker. If it is auth_needed, use the dry-run Harlan packet and reverify before resuming. If it is wrong_signup_branch or blocked, clear only the isolated source profile and retry the exact approved login path.",
+    "knownLimits": [
+      "This is a source-session readiness/auth-state probe, not full source extraction.",
+      "This does not complete Google login, solve MFA, send Telegram, join Skool, sign up for newsletters, create external accounts, buy, trade, bank, download files, post, comment, message, mutate profiles, mutate credentials, or promote Scoper cards.",
+      "This does not use Browserbase or a hosted browser; Browserbase remains a separate one-month bakeoff only if local proof exposes a real missing capability.",
+      "This does not store paid/private content or raw secrets in git."
+    ]
+  },
+  {
+    "key": "source-session-readiness-profile-probe-commands-v1",
+    "backlogIds": [
+      "SOURCE-SESSION-BROKER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Route source-session readiness through profile probes",
+        "SOURCE-SESSION-BROKER-001",
+        "source-session-readiness-profile-probe-commands-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "FREE-SKOOL-COMMUNITY-GOD-MODE-RUNNER-001",
+      "MYICOR-LIVE-NAVIGATION-PROOF-002",
+      "SKOOL-LIVE-NAVIGATION-PROOF-002",
+      "HARLAN-AUTH-LIVE-DELIVERY-002"
+    ],
+    "systemArea": "Foundation source access / source-session readiness commands",
+    "status": "blocked-preflight",
+    "acceptanceState": "Blocked-preflight / approval-bound partial closeout: not done, not accepted as full SOURCE-SESSION-BROKER-001 completion, and not marked done. Approval is pending for live Harlan delivery, live Skool/MyICOR login completion, newsletter submit, paid/private extraction, and broad source-session runner execution. This slice only routes readiness readback through profile probes before full extraction.",
+    "whatChanged": "Source-session readiness now exposes `source:session-probe` commands for Skool free-community and MyICOR parked rows before the full source runners are attempted.",
+    "whatItDoes": "Makes the source-session prep queue show the correct first move: probe the isolated source profile and broker decision, then run `skool:free-god-mode` or MyICOR extraction only after the probe returns ready. Skool probes use the exact community/about URL and `skool_free_community`; MyICOR probes use a myICOR URL, `paid_course_training_platforms`, and Steve existing Google SSO account.",
+    "whyItMatters": "The system should not jump from missing credentials directly into full extraction. Steve needs the queue and UI to show whether the source is ready, auth-needed, wrong-branch, or blocked so the extractor can self-diagnose instead of getting stuck or pretending God Mode is done.",
+    "whereItLives": [
+      "lib/source-session-readiness-readback.js readiness command builder and Skool/MyICOR profile-probe commands",
+      "scripts/process-source-session-readiness-check.mjs proof that fixture and live readiness expose `source:session-probe` commands with no secret/external side effects",
+      "docs/source-notes/source-browser-agent-protocol-scope-2026-05-28.md protocol scope update",
+      "docs/_archive/handoffs/2026-05-29-source-session-profile-probe.md checkpoint follow-up",
+      "lib/foundation-build-closeout-source-records.js closeout registry"
+    ],
+    "proofCommands": [
+      "node --check lib/source-session-readiness-readback.js scripts/process-source-session-readiness-check.mjs lib/foundation-build-closeout-source-records.js",
+      "npm run process:source-session-readiness-check -- --json",
+      "npm run process:source-session-profile-probe-check -- --json",
+      "npm run process:source-session-broker-check -- --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-readiness-profile-probe-commands-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-SESSION-BROKER-001 --closeoutKey=source-session-readiness-profile-probe-commands-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-readiness-profile-probe-commands-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused readiness proof passes: fixture readiness and live source-session prep both expose `source:session-probe` commands, Skool probe commands use `skool_free_community`, MyICOR probe commands use `paid_course_training_platforms`, Keychain checks remain metadata-only, and the proof opens no browser, submits no forms, reads no raw secrets, mutates no credentials, sends no Harlan message, and starts no external action.",
+    "reviewNext": "Use `source:session-probe` as the first runnable preflight when Steve is awake to configure or authorize Skool/MyICOR source sessions. Only after a ready probe should the bounded Skool 20-day runner or MyICOR read-only/paid-source extractor run.",
+    "knownLimits": [
+      "This changes readiness/readback commands only; it does not execute real Skool or MyICOR extraction.",
+      "This does not log in, solve MFA, send Telegram, submit forms, join communities, sign up for newsletters, buy, download, post, message, mutate profiles, mutate credentials, or promote Scoper cards.",
+      "This does not replace the need for live source-session authorization and first real source-specific run proof."
+    ]
+  },
+  {
+    "key": "source-session-myicor-credential-readback-v1",
+    "backlogIds": [
+      "SOURCE-SESSION-BROKER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Clarify MyICOR source session readiness",
+        "Separate MyICOR Google SSO and MCP token readiness",
+        "SOURCE-SESSION-BROKER-001",
+        "source-session-myicor-credential-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "MYICOR-LIVE-NAVIGATION-PROOF-002",
+      "HARLAN-AUTH-LIVE-DELIVERY-002",
+      "FREE-SKOOL-COMMUNITY-GOD-MODE-RUNNER-001"
+    ],
+    "systemArea": "Foundation source access / MyICOR source-session readiness",
+    "status": "blocked-preflight",
+    "acceptanceState": "Blocked-preflight / approval-bound partial closeout: not done, not accepted as full SOURCE-SESSION-BROKER-001 completion, and not marked done. Approval is pending for live Harlan delivery, live MyICOR OAuth/login completion, paid/private extraction, and broad source-session runner execution. This slice only fixes metadata readback and next-command guidance.",
+    "whatChanged": "Source-session readiness now separates the paid MyICOR Google SSO credential from the MyICOR MCP OAuth token, shows accidental free-account MyICOR SSO rows as optional/ignored, and routes missing MCP-token guidance to the agent-driven OAuth command first.",
+    "whatItDoes": "Makes the MyICOR readiness state plain: the existing paid Google SSO credential is checked as `myicor-google-sso / steve.zahnd@bensoncrew.ca`; the read-only connector token is checked as `myicor-mcp-oauth / myicor-authorized-member`; `myicor-google-sso / ai@bensoncrew.ca` is not a paid MyICOR route and never blocks readiness.",
+    "whyItMatters": "Steve needs the system to know that MyICOR is Sign in with Google on the paid account, not a new account and not a free-source identity. This prevents the queue from looking stuck on the wrong credential and keeps the next MyICOR action pointed at the source-session broker path.",
+    "whereItLives": [
+      "lib/source-session-readiness-readback.js MyICOR Google SSO, MCP token, and optional ignored-row readiness checks",
+      "scripts/myicor-mcp-oauth.mjs missing-token output with agent-driven OAuth command and Google SSO metadata",
+      "lib/source-session-auth-resume-packet.js MyICOR auth-resume setup command routed to the agent-driven OAuth helper",
+      "scripts/process-source-session-readiness-check.mjs dogfood proof for present/missing/ignored MyICOR credential rows",
+      "docs/_archive/handoffs/2026-05-29-source-session-myicor-credential-readback.md checkpoint",
+      "lib/foundation-build-closeout-source-records.js closeout registry"
+    ],
+    "proofCommands": [
+      "node --check lib/source-session-readiness-readback.js lib/source-session-auth-resume-packet.js scripts/myicor-mcp-oauth.mjs scripts/process-source-session-readiness-check.mjs lib/foundation-build-closeout-source-records.js",
+      "npm run process:source-session-readiness-check -- --json",
+      "npm run process:source-session-auth-resume-packet-check -- --json",
+      "npm run process:source-session-broker-check -- --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-myicor-credential-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-SESSION-BROKER-001 --closeoutKey=source-session-myicor-credential-readback-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=source-session-myicor-credential-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof must show metadata-only readiness distinguishes MyICOR Google SSO credential, MCP OAuth token, and optional ignored free-account row; MyICOR missing-token output points to `myicor:mcp-authorize-agent`; auth-resume packets use the agent-driven route; and all paths avoid raw secrets, browser launch, login submit, Harlan send, external writes, purchases, downloads, posting, messaging, profile mutation, and credential mutation.",
+    "reviewNext": "When Steve approves live auth work, run the agent-driven MyICOR MCP OAuth path, use Harlan auth-needed only for Google verification/MFA, reverify the token, then prove one read-only MyICOR connector extraction before any paid/private course extraction claim.",
+    "knownLimits": [
+      "This is credential/readiness truth only; it does not complete MyICOR OAuth or extraction.",
+      "This does not remove any Keychain item, including accidental optional rows.",
+      "This does not use Browserbase or hosted-browser fallback."
+    ]
+  },
+  {
+    "key": "newsletter-source-identity-readiness-v1",
+    "backlogIds": [
+      "SOURCE-SESSION-BROKER-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Treat newsletter source identity as delegated mailbox",
+        "SOURCE-SESSION-BROKER-001",
+        "newsletter-source-identity-readiness-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-BROWSER-AGENTIC-RUNTIME-001",
+      "HARLAN-AUTH-LIVE-DELIVERY-002",
+      "SOURCE-FAMILY-GOD-MODE-EXTRACTORS-001"
+    ],
+    "systemArea": "Foundation source access / creator newsletter source identity readiness",
+    "status": "blocked-preflight",
+    "acceptanceState": "Verified newsletter source identity readiness is accepted as blocked-preflight, not done as live newsletter signup, newsletter issue extraction, or full Source Session Broker completion. Live external newsletter submit, confirmation-mail monitoring, unsubscribe/park automation, Harlan live delivery, and broad source-session runner execution remain approval-bound continuation work.",
+    "whatChanged": "Source-session readiness now treats creator newsletter source identity as delegated mailbox metadata under `SRC-GMAIL-001` instead of a fake Keychain password for `creator-newsletters / ai@bensoncrew.ca`. The readiness primary next action now points at the actual remaining missing token when only myICOR MCP OAuth is missing.",
+    "whatItDoes": "Shows that the AIOS newsletter identity is the delegated `ai@bensoncrew.ca` mailbox and keeps newsletter intake as dry-run/form detection until the live signup/inbox lane exists. The live readiness count drops the bogus newsletter credential blocker while keeping MyICOR MCP OAuth and paid/auth packet boundaries visible.",
+    "whyItMatters": "Steve approved using `ai@bensoncrew.ca` for free newsletters. Asking for a separate newsletter password creates false operator work and makes the queue look more blocked than it is. This keeps the system honest: mailbox identity is available, live external signup still needs the newsletter signup lane.",
+    "whereItLives": [
+      "lib/source-session-readiness-readback.js newsletter delegated mailbox readiness and primary next-action copy",
+      "scripts/process-source-session-readiness-check.mjs fixture/live proof for mailbox metadata instead of fake credential",
+      "docs/_archive/handoffs/2026-05-29-newsletter-source-identity-readiness.md checkpoint",
+      "lib/foundation-build-closeout-source-records.js closeout registry"
+    ],
+    "proofCommands": [
+      "node --check lib/source-session-readiness-readback.js scripts/process-source-session-readiness-check.mjs lib/foundation-build-closeout-source-records.js",
+      "npm run process:source-session-readiness-check -- --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=newsletter-source-identity-readiness-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-SESSION-BROKER-001 --closeoutKey=newsletter-source-identity-readiness-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-SESSION-BROKER-001 --planApprovalRef=docs/process/approvals/SOURCE-SESSION-BROKER-001.json --closeoutKey=newsletter-source-identity-readiness-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof passes: fixture and live readiness show `newsletter-source-identity` as `source_identity_mailbox_metadata` with status `delegated_mailbox_ready`, source `creator-newsletters`, account `ai@bensoncrew.ca`, secret ref `SRC-GMAIL-001`, no setup command, and no readiness blocker. Live readiness still remains blocked-preflight because myICOR MCP OAuth is missing; no raw secret, browser launch, login, newsletter submit, Harlan send, external write, purchase, download, post/message, profile mutation, or credential mutation occurs.",
+    "reviewNext": "Build the live newsletter signup/inbox lane separately: standing-policy external submit, confirmation email readback, issue extraction, resource-link handling, creator source-stack scoring, and unsubscribe/park for low-value newsletters. Continue MyICOR MCP OAuth only when Steve can clear Google verification if needed.",
+    "knownLimits": [
+      "This is readiness/readback cleanup only; it does not submit live newsletter forms.",
+      "This does not monitor confirmation emails, extract newsletter issues, or score newsletter value.",
+      "This does not authorize MyICOR MCP OAuth, run paid/private extraction, send Telegram, create accounts, buy, download, post, message, mutate profiles, mutate credentials, or promote Scoper cards."
+    ]
+  },
+  {
+    "key": "youtube-skool-approval-boundary-v1",
+    "backlogIds": [
+      "SOURCE-BROWSER-AGENTIC-RUNTIME-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Route approval Skool links out of free queue",
+        "SOURCE-BROWSER-AGENTIC-RUNTIME-001",
+        "youtube-skool-approval-boundary-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SOURCE-SESSION-BROKER-001",
+      "FREE-SKOOL-COMMUNITY-GOD-MODE-RUNNER-001",
+      "SKOOL-LIVE-NAVIGATION-PROOF-002",
+      "MYICOR-LIVE-NAVIGATION-PROOF-002"
+    ],
+    "systemArea": "Foundation source browser / Skool approval boundary routing",
+    "status": "blocked-preflight",
+    "acceptanceState": "Blocked-preflight repair: not done, not accepted as full SOURCE-BROWSER-AGENTIC-RUNTIME-001 completion, and not a full God Mode source extraction claim. This slice only fixes the routing boundary so approval-required Skool/community links do not masquerade as free-community runner work.",
+    "whatChanged": "The YouTube handoff router now preserves approval/link-blocker metadata from watched-video evidence and lets that metadata beat generic community URL matching. A Skool/community URL that the extractor already marked approval-required now routes to paid/auth review instead of `free-communities`; explicit non-approval free-community evidence can still route to the free-community lane.",
+    "whatItDoes": "Prevents paid/private or approval-required Skool pages, such as Maker School links discovered from Nick Saraev videos, from getting `skool:free-god-mode` run-after-session commands. Source-session readiness and Dev Hub proofs now allow the honest live state where there may be zero confirmed-free Skool prep rows, while still requiring newsletter and paid/auth readiness checks and no raw-secret/external-action side effects.",
+    "whyItMatters": "Steve needs the system to move fast on free sources without lying about paid/private gates. The previous order let \"skool\" text override the approval-required evidence and made the dashboard look like a paid/private community was a free-community blocker. This repair keeps the source queue honest before any real Skool/MyICOR hands work runs.",
+    "whereItLives": [
+      "lib/dev-team-hub.js handoff link metadata preservation and approval-before-community routing",
+      "scripts/process-dev-team-hub-v0-check.mjs dogfood proof for approval-required Skool versus explicit free-community Skool routing",
+      "scripts/process-source-session-readiness-check.mjs readiness proof accepting zero confirmed-free prep rows without dropping paid/auth/newsletter checks",
+      "lib/foundation-build-closeout-source-records.js closeout registry"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs scripts/process-source-session-readiness-check.mjs lib/foundation-build-closeout-source-records.js",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:source-god-mode-youtube-handoff-check -- --json",
+      "npm run process:source-session-readiness-check -- --json",
+      "npm run backlog:hygiene -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SOURCE-BROWSER-AGENTIC-RUNTIME-001 --planApprovalRef=docs/process/approvals/SOURCE-BROWSER-AGENTIC-RUNTIME-001.json --closeoutKey=youtube-skool-approval-boundary-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SOURCE-BROWSER-AGENTIC-RUNTIME-001 --closeoutKey=youtube-skool-approval-boundary-v1",
+      "npm run process:foundation-ship -- --card=SOURCE-BROWSER-AGENTIC-RUNTIME-001 --planApprovalRef=docs/process/approvals/SOURCE-BROWSER-AGENTIC-RUNTIME-001.json --closeoutKey=youtube-skool-approval-boundary-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused Dev Hub proof passes: a synthetic watched-video report routes `https://skool.com/makerschool/about` with approval-required source-packet evidence into `paid-auth-gates`, routes explicit `https://www.skool.com/chase-ai-community/about` free-community evidence into `free-communities`, and proves Maker School is not in the free-community dogfood row. Source-session readiness proof passes with metadata-only checks, 0 live external/auth/form actions, and the current live queue honestly waiting on newsletter and paid/auth readiness.",
+    "reviewNext": "Continue SOURCE-SESSION-BROKER-001 and FREE-SKOOL-COMMUNITY-GOD-MODE-RUNNER-001 by proving exact free-community rows through source-session profile probes, then run the bounded 20-day Skool SOP only when a page is confirmed free and session-ready.",
+    "knownLimits": [
+      "This does not run real Skool, MyICOR, paid/private/member/community, or course extraction.",
+      "This does not log in, join communities, submit forms, sign up for newsletters, download files, buy, post, comment, message, mutate profiles, mutate credentials, write backlog, send Harlan messages, or promote Scoper cards.",
+      "Some real free Skool links may remain parked until the source-session/profile-probe layer confirms they are truly free and session-ready."
+    ]
+  }
+]

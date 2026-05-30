@@ -322,7 +322,6 @@ async function main() {
     packageJson,
     scriptSource,
     coverageSource,
-    sizeRecordsSource,
     foundationVerifySource,
     closeoutDocExists,
     cards,
@@ -333,7 +332,6 @@ async function main() {
     readRepoFile('package.json').then(JSON.parse),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
-    readRepoFile('lib/foundation-build-closeout-size-records.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     repoFileExists(CLOSEOUT_PATH),
     getBacklogItemsByIds([CARD_ID]),
@@ -369,7 +367,12 @@ async function main() {
   addCheck(checks, snapshot.validation.invalidCloseoutKeys.length === 0, 'closeout registry validation stays clean', snapshot.validation.invalidCloseoutKeys.join(', ') || 'clean')
   addCheck(checks, snapshot.validation.ownershipOverlapViolations.length === 0, 'closeout ownership overlap validation stays clean', snapshot.validation.ownershipOverlapViolations.map(row => row.key).join(', ') || 'clean')
   addCheck(checks, Boolean(closeout), 'closeout registry exposes extract closeout', closeout ? closeout.key : 'missing')
-  addCheck(checks, sizeRecordsSource.includes(CLOSEOUT_KEY) && sizeRecordsSource.includes(CARD_ID), 'size closeout records include this card', 'lib/foundation-build-closeout-size-records.js')
+  addCheck(
+    checks,
+    Boolean(closeout) && (closeout.backlogIds || []).includes(CARD_ID),
+    'closeout records include this card through registry data source',
+    closeout ? `${closeout.key} / ${(closeout.backlogIds || []).join(', ')}` : 'missing',
+  )
   addCheck(checks, coverageSource.includes(CARD_ID), 'verifier coverage source includes this card', 'lib/foundation-verify-coverage-card-ids.js')
   addCheck(
     checks,
