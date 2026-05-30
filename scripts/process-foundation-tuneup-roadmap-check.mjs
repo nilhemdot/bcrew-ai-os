@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
@@ -14,6 +15,12 @@ import {
   getActiveFoundationCurrentSprint,
   upsertFoundationCurrentSprintOverlay,
 } from '../lib/foundation-backlog-sprint-db.js'
+import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
+import {
+  PLAN_CRITIC_MIN_PASS_SCORE,
+  buildPlanCriticResultSummary,
+  evaluatePlanCriticPlan,
+} from '../lib/process-plan-critic.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,
@@ -24,6 +31,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-tuneup-roadmap-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-tuneup-roadmap-check'
+const PLAN_PATH = 'docs/process/foundation-tuneup-roadmap-001-plan.md'
 const ACTOR = 'codex-foundation-tuneup-roadmap'
 const SPRINT_ID = 'FOUNDATION-TUNEUP-2026-05-29'
 const EPIC_CARD_ID = 'FOUNDATION-TUNEUP-ROADMAP-001'
@@ -35,8 +43,36 @@ const STANDING_GUARDRAILS = [
   'Repoint gates before archiving any verifier/check file.',
   'Keep the foundation-db.js facade as a stable pass-through during import migration.',
   'Checkpoint with Steve before per-hub folder restructuring.',
+  'Do not work MEETING-VAULT-ACL-001 Phase B.',
+  'Do not mutate Drive permissions.',
   'Protect the real source/browser proof lane: MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001, source-session readiness, local-browser route policy, and Dev Hub System Truth are keep patterns.',
   'Protect the honest /api/foundation/dev-team-hub dashboard posture: show built/running/blocked, source-backed evidence, and zero hidden writes instead of polishing the readback.',
+]
+
+const SPRINT_EXIT_CRITERIA = [
+  'Foundation DB import ownership moves incrementally to domain import targets while lib/foundation-db.js remains a stable pass-through.',
+  'Focused proofs run green after every import cluster migration.',
+  'The live Current Sprint stays healthy from DB/API truth, not chat or markdown snapshots.',
+  'Future phases remain scoping until their plan and proof are reviewed; per-hub folders do not start before Steve checkpoints.',
+  'No verifier, approval, plan, or check file is archived until the gate is repointed in the same change.',
+  'The real source/browser proof lane and honest Dev Hub System Truth posture remain protected.',
+]
+
+const CHANGED_FILES = [
+  'AGENTS.md',
+  'CLAUDE.md',
+  'scripts/process-foundation-tuneup-roadmap-check.mjs',
+  'scripts/process-foundation-db-import-ownership-split-check.mjs',
+  'lib/foundation-db-session.js',
+  'lib/foundation-backlog-sprint-db.js',
+  'lib/foundation-source-crawl-db.js',
+  'lib/foundation-shared-comms-db.js',
+  'lib/foundation-intelligence-db.js',
+  'lib/foundation-runtime-jobs-db.js',
+  'lib/foundation-strategy-docs-db.js',
+  'lib/foundation-people-sales-db.js',
+  PLAN_PATH,
+  'package.json',
 ]
 
 const ROADMAP_CARDS = [
@@ -197,6 +233,10 @@ function addCheck(checks, ok, check, detail = '') {
   checks.push({ ok: Boolean(ok), check, detail })
 }
 
+function stableRunId(seed = '') {
+  return crypto.createHash('sha1').update(String(seed)).digest('hex').slice(0, 12)
+}
+
 function createPool() {
   return new Pool({
     host: process.env.BCREW_DB_HOST || '/tmp',
@@ -231,7 +271,7 @@ async function readRoadmapCards() {
   }
 }
 
-async function upsertRoadmapCards() {
+async function upsertRoadmapCards({ planReview } = {}) {
   assertProcessCheckWriteAllowed({
     argv: process.argv.slice(2),
     scriptPath: SCRIPT_PATH,
@@ -295,6 +335,46 @@ async function upsertRoadmapCards() {
         ],
       )
     }
+    if (planReview) {
+      await client.query(
+        `
+          INSERT INTO plan_critic_runs (
+            run_id, card_id, plan_ref, status, score, max_score, pass_threshold,
+            priority, gate_level, full_verify_required, changed_files, findings, result, requested_by
+          )
+          VALUES ($1,$2,$3,$4,$5,10,$6,'P0',$7,$8,$9::text[],$10::jsonb,$11::jsonb,$12)
+          ON CONFLICT (run_id) DO UPDATE
+          SET status = EXCLUDED.status,
+              score = EXCLUDED.score,
+              pass_threshold = EXCLUDED.pass_threshold,
+              gate_level = EXCLUDED.gate_level,
+              full_verify_required = EXCLUDED.full_verify_required,
+              changed_files = EXCLUDED.changed_files,
+              findings = EXCLUDED.findings,
+              result = EXCLUDED.result
+        `,
+        [
+          `foundation-db-import-ownership-split-${stableRunId(PLAN_PATH)}`,
+          ACTIVE_CARD_ID,
+          PLAN_PATH,
+          planReview.status,
+          planReview.score,
+          PLAN_CRITIC_MIN_PASS_SCORE,
+          planReview.gateDecision?.level || 'full',
+          planReview.gateDecision?.fullVerifyRequired !== false,
+          CHANGED_FILES,
+          JSON.stringify(planReview.findings || []),
+          JSON.stringify({
+            status: planReview.status,
+            score: planReview.score,
+            cardId: ACTIVE_CARD_ID,
+            sprintId: SPRINT_ID,
+            summary: buildPlanCriticResultSummary(planReview),
+          }),
+          ACTOR,
+        ],
+      )
+    }
     await client.query('COMMIT')
   } catch (error) {
     await client.query('ROLLBACK')
@@ -306,13 +386,14 @@ async function upsertRoadmapCards() {
 }
 
 function sprintItem(card, order) {
+  const activeCard = card.id === ACTIVE_CARD_ID
   return {
     cardId: card.id,
     order,
     sprintOrder: order,
-    stage: card.id === ACTIVE_CARD_ID ? 'building_now' : card.id === EPIC_CARD_ID ? 'scoping' : 'sprint_ready',
-    planRef: null,
-    definitionOfDone: card.id === ACTIVE_CARD_ID
+    stage: activeCard ? 'building_now' : 'scoping',
+    planRef: activeCard ? PLAN_PATH : null,
+    definitionOfDone: activeCard
       ? 'Foundation DB import ownership starts moving to domain modules while lib/foundation-db.js remains a stable pass-through and proof stays green.'
       : card.nextAction,
     proofCommands: [
@@ -324,6 +405,34 @@ function sprintItem(card, order) {
     nextAction: card.nextAction,
     notNextBoundaries: STANDING_GUARDRAILS,
     existingWorkCheck: {
+      existingCode: [
+        'lib/foundation-db.js facade remains pass-through',
+        'lib/foundation-db-session.js',
+        'lib/foundation-backlog-sprint-db.js',
+        'lib/foundation-source-crawl-db.js',
+        'lib/foundation-shared-comms-db.js',
+        'scripts/process-foundation-db-import-ownership-split-check.mjs',
+      ],
+      existingDocs: [
+        PLAN_PATH,
+        'AGENTS.md',
+        'CLAUDE.md',
+        'docs/rebuild/current-plan.md',
+        'docs/rebuild/current-state.md',
+      ],
+      existingScripts: [
+        'npm run builder:startup-packet',
+        'npm run process:foundation-tuneup-roadmap-check -- --json',
+        'npm run process:foundation-db-import-ownership-split-check -- --json',
+        'npm run backlog:hygiene -- --json',
+      ],
+      existingPolicy: [
+        'Live Backlog is task truth.',
+        'Current Sprint is an overlay on live backlog truth, not a second backlog.',
+        'Nothing manual stays trusted.',
+        'Do not bulk-delete verifier files before repointing gates.',
+        'Keep the Foundation DB facade stable while import ownership moves.',
+      ],
       reused: [
         'Claude + Codex audit consensus from 2026-05-29',
         'existing foundation-db split modules and proof patterns',
@@ -344,6 +453,7 @@ function sprintItem(card, order) {
       roadmapCardId: EPIC_CARD_ID,
       source: 'claude-codex-audit-consensus',
       guardrails: STANDING_GUARDRAILS,
+      planRef: activeCard ? PLAN_PATH : null,
     },
   }
 }
@@ -371,6 +481,9 @@ async function applyCurrentSprint() {
           source: 'claude-codex-audit-consensus',
           phaseOrder: ROADMAP_CARDS.map(card => card.id),
           checkpointBefore: 'FOUNDATION-HUB-FOLDER-ISOLATION-001',
+          executiveSummary: 'Foundation tune-up is active. The current building card is the incremental Foundation DB import-ownership split; future cleanup phases stay scoped until reviewed.',
+          nextAction: ROADMAP_CARDS.find(card => card.id === ACTIVE_CARD_ID)?.nextAction,
+          exitCriteria: SPRINT_EXIT_CRITERIA,
           guardrails: STANDING_GUARDRAILS,
           noVerifierBulkDelete: true,
           keepCodexStatus: true,
@@ -411,8 +524,16 @@ async function main() {
 
   await initFoundationDb()
   try {
+    const planSource = await readRepoFile(PLAN_PATH)
+    const planReview = evaluatePlanCriticPlan({
+      planText: planSource,
+      card: ROADMAP_CARDS.find(card => card.id === ACTIVE_CARD_ID),
+      changedFiles: CHANGED_FILES,
+      declaredRisk: 'Foundation DB facade/import ownership, package scripts, live Current Sprint, and verifier control plane.',
+    })
+
     if (args.apply) {
-      await upsertRoadmapCards()
+      await upsertRoadmapCards({ planReview })
       applied = true
     }
     if (args.mutateSprint) {
@@ -429,6 +550,11 @@ async function main() {
     ])
     const cardIds = new Set(cards.map(card => card.id))
     const sprintItemIds = new Set((currentSprint.items || []).map(item => item.cardId))
+    const currentSprintStatus = buildFoundationCurrentSprintStatus(currentSprint)
+    const activePlanCriticPass = (currentSprint.planCriticRuns || [])
+      .some(run => run.cardId === ACTIVE_CARD_ID &&
+        run.status === 'pass' &&
+        Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE)
 
     addCheck(
       checks,
@@ -451,13 +577,21 @@ async function main() {
     )
     addCheck(
       checks,
+      planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE,
+      'active import split plan passes Plan Critic',
+      buildPlanCriticResultSummary(planReview),
+    )
+    addCheck(
+      checks,
       STANDING_GUARDRAILS.some(item => item.includes('codex-status')) &&
         STANDING_GUARDRAILS.some(item => item.includes('bulk-delete verifier')) &&
         STANDING_GUARDRAILS.some(item => item.includes('Repoint gates')) &&
         STANDING_GUARDRAILS.some(item => item.includes('facade')) &&
+        STANDING_GUARDRAILS.some(item => item.includes('MEETING-VAULT-ACL-001 Phase B')) &&
+        STANDING_GUARDRAILS.some(item => item.includes('Drive permissions')) &&
         STANDING_GUARDRAILS.some(item => item.includes('MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001')) &&
         STANDING_GUARDRAILS.some(item => item.includes('/api/foundation/dev-team-hub')),
-      'standing guardrails preserve no-delete, facade, and keep-pattern rules',
+      'standing guardrails preserve no-delete, no-Drive, facade, and keep-pattern rules',
       STANDING_GUARDRAILS.join(' | '),
     )
     addCheck(
@@ -490,6 +624,18 @@ async function main() {
       ),
       'live Current Sprint points to Foundation tune-up roadmap when applied',
       `${currentSprint.sprint?.sprintId || 'missing'} / ${currentSprint.sprint?.activeBlockerCardId || 'missing'} / ${sprintItemIds.size} items`,
+    )
+    addCheck(
+      checks,
+      currentSprint.sprint?.sprintId !== SPRINT_ID || currentSprintStatus.status === 'healthy',
+      'live Current Sprint status is healthy for the tune-up roadmap',
+      currentSprintStatus.findings?.map(item => `${item.check}: ${item.detail}`).join(' | ') || 'healthy',
+    )
+    addCheck(
+      checks,
+      currentSprint.sprint?.sprintId !== SPRINT_ID || activePlanCriticPass,
+      'durable Plan Critic pass row exists for active import split card',
+      (currentSprint.planCriticRuns || []).map(run => `${run.cardId}:${run.status}/${run.score}`).join(', ') || 'missing',
     )
 
     const failed = checks.filter(check => !check.ok)
