@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 420
+const DIRECT_IMPORT_LIMIT = 389
 
 const DOMAIN_MODULES = [
   {
@@ -1013,6 +1013,276 @@ const MIGRATED_IMPORTERS = [
       '../lib/foundation-db-session.js',
       '../lib/foundation-source-crawl-db.js',
       '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-atom-flow-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-contract-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-evidence-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-finance-atom-flow-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-finance-monitoring-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-finance-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-freedom-bhag-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-freedom-community-atom-flow-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-freedom-sheet-evidence-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-freedom-sheet-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-freedom-team-monitoring-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-fub-atom-flow-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-fub-monitoring-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-fub-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-gap-followup-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-github-build-intel-monitoring-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-source-crawl-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-grid-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-missive-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-owners-atom-flow-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-owners-lists-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-owners-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-supabase-atom-flow-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-supabase-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-verified-atom-flow-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-verified-evidence-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-verified-monitoring-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-source-maturity-verified-routing-gap-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
     ],
   },
 ]
