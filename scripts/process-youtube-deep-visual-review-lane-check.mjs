@@ -8,13 +8,17 @@ import { Pool } from 'pg'
 
 import {
   closeFoundationDb,
-  getIntelligenceReportBundle,
-  getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getIntelligenceReportBundle,
   recordIntelligenceAtomHit,
   upsertIntelligenceAtom,
   upsertIntelligenceReportArtifact,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import {
+  getSharedCommunicationArchiveSnapshot,
+} from '../lib/foundation-shared-comms-db.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,

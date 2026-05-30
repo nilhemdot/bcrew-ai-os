@@ -8,10 +8,14 @@ import { Pool } from 'pg'
 
 import {
   closeFoundationDb,
-  getIntelligenceReportBundle,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   listSourceCrawlItems,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
+import {
+  getIntelligenceReportBundle,
+} from '../lib/foundation-intelligence-db.js'
 import {
   BUILD_INTEL_SOURCE_VALUE_GRADER_REPORT_ARTIFACT_ID,
 } from '../lib/build-intel-source-value-grader.js'

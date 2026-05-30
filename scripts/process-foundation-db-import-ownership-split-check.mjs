@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 247
+const DIRECT_IMPORT_LIMIT = 233
 
 const DOMAIN_MODULES = [
   {
@@ -2309,6 +2309,118 @@ const MIGRATED_IMPORTERS = [
       '../lib/foundation-db-session.js',
       '../lib/foundation-source-crawl-db.js',
       '../lib/foundation-intelligence-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-build-intel-batch-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-build-intel-link-resource-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-build-intel-runtime-proof-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-source-crawl-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+      '../lib/foundation-runtime-jobs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-creator-daily-watch-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-source-crawl-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-creator-god-mode-catchup-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-source-crawl-db.js',
+      '../lib/foundation-intelligence-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-deep-visual-review-lane-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-god-mode-autonomous-watch-scheduler-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-source-crawl-db.js',
+      '../lib/foundation-intelligence-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-latest-20-full-watch-runner-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-latest-20-intel-run-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-long-course-full-watch-lane-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-shared-comms-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-resource-link-resolver-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-intelligence-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-youtube-scout-latest-video-vision-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+      '../lib/foundation-strategy-docs-db.js',
     ],
   },
 ]

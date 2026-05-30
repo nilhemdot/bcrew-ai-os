@@ -43,19 +43,29 @@ import {
 } from '../lib/youtube-build-intel-runtime-proof.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationSnapshot,
-  getLlmRuntimeSnapshot,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
-  recordIntelligenceAtomHit,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  upsertSourceCrawlItem,
+} from '../lib/foundation-source-crawl-db.js'
+import {
+  recordIntelligenceAtomHit,
   upsertIntelligenceAtom,
   upsertIntelligenceReportArtifact,
-  upsertSourceCrawlItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
+import {
+  getLlmRuntimeSnapshot,
+} from '../lib/foundation-runtime-jobs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,

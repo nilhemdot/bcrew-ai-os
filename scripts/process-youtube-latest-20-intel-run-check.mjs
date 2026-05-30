@@ -9,7 +9,7 @@ import { Pool } from 'pg'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
 import {
   YOUTUBE_LATEST_20_INTEL_RUN_APPROVAL_PATH,
   YOUTUBE_LATEST_20_INTEL_RUN_CARD_ID,
