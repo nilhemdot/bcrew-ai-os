@@ -25,12 +25,12 @@ import {
   isThinBacklogCard,
 } from '../lib/backlog-scrum-master-grooming.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
-  getFoundationSnapshot,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')

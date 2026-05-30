@@ -15,13 +15,15 @@ import {
 import { buildSourceMaturityGridSnapshot } from '../lib/source-maturity-grid.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationSnapshot,
-  initFoundationDb,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import { buildSourceLifecycleStatus } from '../lib/source-lifecycle.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
 

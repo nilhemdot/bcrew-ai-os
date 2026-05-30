@@ -14,11 +14,11 @@ import {
 import {
   AUTO_DEPLOY_ROLLBACK_CARD_ID,
 } from '../lib/foundation-current-sprint.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  closeFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   AVATAR_IMPORT_APPROVAL_PATH,
   AVATAR_IMPORT_CARD_ID,

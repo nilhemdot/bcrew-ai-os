@@ -32,19 +32,23 @@ import {
 } from '../lib/claude-code-review-brain-route.js'
 import {
   closeFoundationDb,
-  createLlmCall,
-  finishLlmCall,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getLlmRuntimeSnapshot,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
-  recordLlmRouteProbe,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  createLlmCall,
+  finishLlmCall,
+  getLlmRuntimeSnapshot,
+  recordLlmRouteProbe,
   upsertLlmCredential,
   upsertLlmRoute,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-runtime-jobs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,

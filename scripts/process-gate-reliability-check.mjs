@@ -3,10 +3,10 @@
 import { buildSyntheticGateReliabilityProof } from '../lib/foundation-gate-reliability.js'
 import {
   closeFoundationDb,
-  getActionRouterSnapshot,
   getFoundationDbConstraintAudit,
   resetFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import { getActionRouterSnapshot } from '../lib/foundation-intelligence-db.js'
 
 async function main() {
   const proof = await buildSyntheticGateReliabilityProof({

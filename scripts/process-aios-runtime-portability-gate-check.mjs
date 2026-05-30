@@ -12,13 +12,13 @@ import {
   buildFoundationCurrentSprintStatus,
 } from '../lib/foundation-current-sprint.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   validateBuildLaneCardScaffold,
   validateBuildLaneSprintItemMetadata,

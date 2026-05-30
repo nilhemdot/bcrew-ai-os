@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url'
 
 import {
   closeFoundationDb,
-  getLlmRuntimeSnapshot,
   initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-db-session.js'
+import { getLlmRuntimeSnapshot } from '../lib/foundation-runtime-jobs-db.js'
 import {
   DEFAULT_GEMINI_WORKSPACE_ACCOUNT,
   GEMINI_WORKSPACE_CREDENTIAL_KEY,

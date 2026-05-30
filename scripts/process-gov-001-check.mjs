@@ -12,18 +12,24 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
-  getActionRouterSnapshot,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getBusinessAtomDashboardSnapshot,
-  getIntelligenceRetrievalSnapshot,
   getPlanCriticRunsByCardIds,
-  getStrategyGoalTruthSnapshot,
-  getStrategyOperatingTruthSnapshot,
-  initFoundationDb,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getActionRouterSnapshot,
+  getIntelligenceRetrievalSnapshot,
+} from '../lib/foundation-intelligence-db.js'
+import {
+  getBusinessAtomDashboardSnapshot,
+  getStrategyGoalTruthSnapshot,
+  getStrategyOperatingTruthSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   buildStrategyMeetingReadySnapshot,
 } from '../lib/strategy-hub-meeting-ready.js'

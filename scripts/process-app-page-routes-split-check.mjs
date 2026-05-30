@@ -6,12 +6,12 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   APP_PAGE_ROUTES_SPLIT_APPROVAL_PATH,
   APP_PAGE_ROUTES_SPLIT_BEFORE_SERVER_LINES,

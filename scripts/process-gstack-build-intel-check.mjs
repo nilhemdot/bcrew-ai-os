@@ -18,11 +18,9 @@ import {
 import {
   isBuildIntelSnapshotBaselineEvidence,
 } from '../lib/build-intel-snapshot-baseline.js'
-import {
-  closeFoundationDb,
-  getActiveFoundationCurrentSprint,
-  getFoundationSnapshot,
-} from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
+import { getActiveFoundationCurrentSprint } from '../lib/foundation-backlog-sprint-db.js'
+import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   isProcessReportWriteRequested,

@@ -13,17 +13,21 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getIntelligenceReportBundle,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
-  recordIntelligenceAtomHit,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getIntelligenceReportBundle,
+  recordIntelligenceAtomHit,
   upsertIntelligenceAtom,
   upsertIntelligenceReportArtifact,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 import {
   GEMINI_WORKSPACE_EYES_ROUTE_APPROVAL_PATH as APPROVAL_PATH,
   GEMINI_WORKSPACE_EYES_ROUTE_CARD_ID as CARD_ID,

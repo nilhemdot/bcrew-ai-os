@@ -9,13 +9,13 @@ import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { buildFoundationJobMutationAllowlistReport } from '../lib/foundation-job-mutation-allowlist.js'
 import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
-  getExtractionControlSnapshot,
-  getFoundationCoreSnapshot,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { getExtractionControlSnapshot } from '../lib/foundation-source-crawl-db.js'
+import { getFoundationCoreSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import { buildSourceLifecycleStatus } from '../lib/source-lifecycle.js'
 import { buildSourceLifecycleCompletionStatus } from '../lib/source-lifecycle-completion.js'
 import { getSourceConnectors, getSourceContracts } from '../lib/source-contracts.js'
