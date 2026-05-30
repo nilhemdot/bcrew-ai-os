@@ -95,6 +95,11 @@ const DOMAIN_MODULES = [
 ]
 
 const MIGRATED_IMPORTERS_MANIFEST_PATH = 'scripts/foundation-db-import-ownership-migrated-importers.json'
+const ARCHIVE_MOVE_MANIFEST_PATHS = [
+  'docs/process/foundation-doc-archive-move-001-manifest.json',
+  'data/source-maturity-repair-collapse-manifest.json',
+  'data/process-check-archive-manifest.json',
+]
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -112,6 +117,49 @@ async function readRepoFile(relativePath) {
 
 async function readRepoJson(relativePath) {
   return JSON.parse(await readRepoFile(relativePath))
+}
+
+function normalizePath(value = '') {
+  return String(value || '').trim().replace(/\\/g, '/').replace(/^\.\//, '')
+}
+
+async function loadArchiveMovePathMap() {
+  const archiveMap = new Map()
+  for (const manifestPath of ARCHIVE_MOVE_MANIFEST_PATHS) {
+    try {
+      const manifest = await readRepoJson(manifestPath)
+      const movedFiles = Array.isArray(manifest?.movedFiles) ? manifest.movedFiles : []
+      for (const move of movedFiles) {
+        const from = normalizePath(move?.from)
+        const to = normalizePath(move?.to)
+        if (!from || !to || from.includes('..') || to.includes('..') || !to.startsWith('docs/_archive/')) continue
+        archiveMap.set(from, to)
+      }
+    } catch {
+      continue
+    }
+  }
+  return archiveMap
+}
+
+async function readRepoFileFollowingArchive(relativePath, archiveMovePathMap) {
+  const normalized = normalizePath(relativePath)
+  try {
+    return {
+      path: normalized,
+      archived: false,
+      source: await readRepoFile(normalized),
+    }
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error
+    const archivedPath = archiveMovePathMap.get(normalized)
+    if (!archivedPath) throw error
+    return {
+      path: archivedPath,
+      archived: true,
+      source: await readRepoFile(archivedPath),
+    }
+  }
 }
 
 async function readMigratedImporters() {
@@ -187,10 +235,11 @@ async function main() {
   const exportedByModule = {}
 
   try {
-    const [packageJson, roadmapSource, migratedImporters] = await Promise.all([
+    const [packageJson, roadmapSource, migratedImporters, archiveMovePathMap] = await Promise.all([
       readRepoJson('package.json'),
       readRepoFile('scripts/process-foundation-tuneup-roadmap-check.mjs'),
       readMigratedImporters(),
+      loadArchiveMovePathMap(),
     ])
 
     addCheck(
@@ -235,18 +284,19 @@ async function main() {
     }
 
     for (const importer of migratedImporters) {
-      const source = await readRepoFile(importer.path)
+      const importerSource = await readRepoFileFollowingArchive(importer.path, archiveMovePathMap)
+      const source = importerSource.source
       addCheck(
         checks,
         !source.includes("../lib/foundation-db.js") && !source.includes('"../lib/foundation-db.js"'),
         `${importer.path} no longer imports the foundation-db facade directly`,
-        importer.expectedImports.join(', '),
+        importerSource.archived ? `archived at ${importerSource.path}` : importer.expectedImports.join(', '),
       )
       addCheck(
         checks,
         importer.expectedImports.every(importPath => source.includes(importPath)),
         `${importer.path} imports the new domain target(s)`,
-        importer.expectedImports.join(', '),
+        importerSource.archived ? `archived at ${importerSource.path}` : importer.expectedImports.join(', '),
       )
     }
 
