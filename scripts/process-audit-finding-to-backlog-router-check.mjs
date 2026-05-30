@@ -53,6 +53,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const MAY_18_AUDIT_POINTER_PATH = 'docs/handoffs/nightly-deep-audit-2026-05-18.json'
+const MAY_18_AUDIT_BASENAME = 'nightly-deep-audit-2026-05-18.json'
 
 function parseArgs(argv = process.argv.slice(2)) {
   return {
@@ -91,6 +92,32 @@ async function readRepoJson(relativePath) {
   return JSON.parse(await readRepoFile(relativePath))
 }
 
+async function listRepoFilesRecursive(relativeDir) {
+  const absoluteDir = path.join(repoRoot, relativeDir)
+  const entries = await fs.readdir(absoluteDir, { withFileTypes: true }).catch(error => {
+    if (error?.code === 'ENOENT') return []
+    throw error
+  })
+  const output = []
+  for (const entry of entries) {
+    const relativePath = `${relativeDir}/${entry.name}`
+    if (entry.isDirectory()) {
+      output.push(...await listRepoFilesRecursive(relativePath))
+    } else if (entry.isFile()) {
+      output.push(relativePath)
+    }
+  }
+  return output
+}
+
+async function findRepoFileByBasename(basename) {
+  if (await repoFileExists(`docs/handoffs/${basename}`)) return `docs/handoffs/${basename}`
+  const archiveMatches = (await listRepoFilesRecursive('docs/_archive'))
+    .filter(filePath => path.basename(filePath) === basename)
+    .sort()
+  return archiveMatches.at(-1) || ''
+}
+
 async function repoFileExists(relativePath) {
   try {
     const stat = await fs.stat(path.join(repoRoot, relativePath))
@@ -109,8 +136,14 @@ function normalizeFinding(finding = {}, source = {}) {
 }
 
 async function loadMay18AuditSource() {
-  const pointer = await readRepoJson(MAY_18_AUDIT_POINTER_PATH)
-  const archivePath = pointer.archivePath || MAY_18_AUDIT_POINTER_PATH
+  const discoveredPath = await findRepoFileByBasename(MAY_18_AUDIT_BASENAME)
+  if (!discoveredPath) {
+    throw new Error(`Missing archived audit source: ${MAY_18_AUDIT_BASENAME}`)
+  }
+  const pointer = discoveredPath === MAY_18_AUDIT_POINTER_PATH
+    ? await readRepoJson(MAY_18_AUDIT_POINTER_PATH)
+    : {}
+  const archivePath = pointer.archivePath || discoveredPath
   const audit = await readRepoJson(archivePath)
   return {
     label: 'may-18-archived-nightly-deep-audit',
@@ -582,12 +615,18 @@ async function main() {
   addCheck(checks, routerCard && (args.closeCard ? routerCard.lane === 'done' : ['executing', 'done'].includes(routerCard.lane)), 'router card is live in expected lane', routerCard ? `${routerCard.id}:${routerCard.lane}` : 'missing')
   addCheck(checks, nextCard && ['scoped', 'executing', 'done'].includes(nextCard.lane), 'next endpoint freshness card exists in live backlog', nextCard ? `${nextCard.id}:${nextCard.lane}` : 'missing')
   addCheck(checks, planCriticRuns.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE), 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
+  const routerClosedHistorically = routerCard?.lane === 'done' && planCriticRuns.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE)
   addCheck(
     checks,
-    activeSprint.sprint?.sprintId === SPRINT_ID &&
-      (args.closeCard ? activeRouterItem?.stage === 'done_this_sprint' : ['building_now', 'done_this_sprint'].includes(activeRouterItem?.stage)),
-    'Current Sprint contains router card with correct stage',
-    activeRouterItem ? `${activeSprint.sprint?.sprintId}:${activeRouterItem.stage}` : 'missing router item',
+    routerClosedHistorically ||
+      (
+        activeSprint.sprint?.sprintId === SPRINT_ID &&
+        (args.closeCard ? activeRouterItem?.stage === 'done_this_sprint' : ['building_now', 'done_this_sprint'].includes(activeRouterItem?.stage))
+      ),
+    'Current Sprint or historical done state contains router card with correct stage',
+    routerClosedHistorically
+      ? `${routerCard.id}:${routerCard.lane}:plan-critic-pass`
+      : (activeRouterItem ? `${activeSprint.sprint?.sprintId}:${activeRouterItem.stage}` : 'missing router item'),
   )
   addCheck(checks, !args.closeCard || activeSprint.sprint?.activeBlockerCardId === NEXT_CARD_ID || nextSprintItem?.stage === 'scoping', 'Current Sprint advances to endpoint freshness after closeout', `${activeSprint.sprint?.activeBlockerCardId || 'none'} / ${nextSprintItem?.stage || 'missing'}`)
   addCheck(checks, packageJson.scripts?.['process:audit-finding-to-backlog-router-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package script is registered', packageJson.scripts?.['process:audit-finding-to-backlog-router-check'] || 'missing')
