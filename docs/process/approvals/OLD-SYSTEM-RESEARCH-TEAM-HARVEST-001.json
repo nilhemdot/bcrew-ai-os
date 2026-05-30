@@ -1,7 +1,7 @@
 {
   "cardId": "OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001",
   "approvedPlanRef": "docs/process/old-system-research-team-harvest-001-plan.md",
-  "approvedPlanSha256": "b2447b9758aa12151fb96e07fe4c57ad99c2a0c60d61186db970f8a4d291f52c",
+  "approvedPlanSha256": "078d76a1a4e6dd605276a8fea9240f8557e2946cab530cbb55316dbe7080d4f4",
   "approvedRepoHead": "c15c25909def0d93348af39434c3006ecacc584b",
   "score": 10,
   "approvedBy": "Steve approved preserving the old research/scout intelligence gold before GOD-mode extraction work.",
@@ -13,5 +13,5 @@
     "No private crawl, paid/provider/browser-auth work, external sends, credential mutation, or Drive permission mutation."
   ],
   "approvalSchemaVersion": 2,
-  "approvalDigest": "98c28c6926b9774cddf41a66b206d656e7691e4e8a1af18a82c9f6f16300e3f7"
+  "approvalDigest": "84a956c2f8a7568a184066045ce2cd30223e01515e90cf6285e53c1f306ffb6b"
 }

@@ -106,7 +106,7 @@ Speed boundary: the focused gate is proportional and bounded to one exact public
 - `scripts/process-web-godmode-live-operator-check.mjs`
 - `docs/process/web-godmode-live-operator-002-plan.md`
 - `docs/process/approvals/WEB-GODMODE-LIVE-OPERATOR-002.json`
-- `docs/handoffs/2026-05-20-web-godmode-live-operator-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-web-godmode-live-operator-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `lib/foundation-build-closeout-intelligence-records.js`

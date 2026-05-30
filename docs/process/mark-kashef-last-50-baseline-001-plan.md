@@ -51,7 +51,7 @@ The full `MARK-KASHEF-LAST-50-BASELINE-001` card is done only after the remainin
 Existing work reused:
 
 - Existing code: `lib/god-mode-extractor-eyes-quality-loop.js`, `lib/gemini-video-brain-route.js`, `lib/web-godmode-live-operator.js`, `lib/youtube-creator-daily-watch.js`, and Foundation intelligence report/atom/hit stores.
-- Existing docs: `docs/source-notes/god-mode-extractor-eyes-quality-loop-2026-05-23.md`, `docs/handoffs/2026-05-23-god-mode-extractor-checkpoint.md`, and this sprint plan.
+- Existing docs: `docs/source-notes/god-mode-extractor-eyes-quality-loop-2026-05-23.md`, `docs/_archive/handoffs/2026-05-23-god-mode-extractor-checkpoint.md`, and this sprint plan.
 - Existing scripts: `scripts/process-god-mode-extractor-eyes-quality-loop-check.mjs` and `scripts/process-youtube-creator-daily-watch-check.mjs`.
 - Live truth: `SRC-YOUTUBE-INTEL-001`, `source_crawl_items` from `youtube-creator-daily-watch`, `shared_communication_artifacts` transcript rows, `intelligence_report_artifacts`, `intelligence_atoms`, and `intelligence_atom_hits`.
 

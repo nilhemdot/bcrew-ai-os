@@ -5,7 +5,7 @@
   "approvedAt": "2026-05-20T00:25:00-04:00",
   "score": 9.8,
   "approvedPlanRef": "docs/process/foundation-css-surface-decouple-001-plan.md",
-  "approvedPlanSha256": "9928c494faa85f5505b8003af5b8740cd85e0570a196ea5f94ae994644e84870",
+  "approvedPlanSha256": "ce74d4509ec073bf5e3c6a2c7b14d5eb668bd1b90c37b517d7550aca3201202e",
   "approvedRepoHead": "8c22b13f3ef5e18087ac918974996b26059802d4",
   "approvalSource": "Steve approved unattended overnight Foundation work and instructed Codex to keep going card-by-card unless a true unsafe system-wide blocker appears.",
   "constraints": [
@@ -26,5 +26,5 @@
     "npm run foundation:verify -- --json-summary",
     "npm run process:foundation-ship -- --card=FOUNDATION-CSS-SURFACE-DECOUPLE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-CSS-SURFACE-DECOUPLE-001.json --closeoutKey=foundation-css-surface-decouple-v1 --commitRef=HEAD"
   ],
-  "approvalDigest": "b151161e4f7675ac41483db76ef55564079b4c8d871867b4719b4bb8c092b26f"
+  "approvalDigest": "617ba4e334f46e6c04ff51ea89b3f8877c74c225301a6cd5eef579010717d9a1"
 }

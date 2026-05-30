@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "FOUNDATION-HEALTH-GREEN-LOCK-001",
   "approvedPlanRef": "docs/process/foundation-health-green-lock-001-plan.md",
-  "approvedPlanSha256": "ef276824b7d010e1b2425ba5771727dfded1ce313fe8331ba49f4ce2802b4439",
+  "approvedPlanSha256": "919ed4e40b6488a151c3979cf26fbef31afab778fc3565c51beae102d15d3ff5",
   "approvedRepoHead": "9b17647f9e373a90cac0f4fc815f3ac855427fa1",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-19T12:50:00.000-04:00",
@@ -16,5 +16,5 @@
     "No workflow red/yellow may be presented as green without explicit Steve-approved exception in sprint truth.",
     "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
   ],
-  "approvalDigest": "a9d85537cf3f17b411c91707e33127467b86ec844219f1736344ad17d8e8f371"
+  "approvalDigest": "7cabb7991bd71c2255c52aee1b3e4dc0d7c435b2696db6288d728d76b90a63bb"
 }

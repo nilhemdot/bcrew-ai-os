@@ -24,7 +24,7 @@ The research purge report made the pile visible, but a giant markdown table is n
 
 ## Existing Work To Reuse
 
-Reuse `docs/handoffs/research-purge-2026-05-13.md`, live backlog rows, backlog monitor counts, Research Inbox proposal-only doctrine, and foundation verifier patterns.
+Reuse `docs/_archive/handoffs/research-purge-2026-05-13.md`, live backlog rows, backlog monitor counts, Research Inbox proposal-only doctrine, and foundation verifier patterns.
 
 ## Details
 

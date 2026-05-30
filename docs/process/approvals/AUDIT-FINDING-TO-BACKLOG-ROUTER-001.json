@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "AUDIT-FINDING-TO-BACKLOG-ROUTER-001",
   "approvedPlanRef": "docs/process/audit-finding-to-backlog-router-001-plan.md",
-  "approvedPlanSha256": "a83af190295b2c03470830242e58fd2e13af661310dc742e2d27c36d53607f1b",
+  "approvedPlanSha256": "2e0eb122a052099a5fdab13e59c11ff0add98d714c622f9c64a44754eb8fb3ca",
   "approvedRepoHead": "262709c7967ca8367a045c207f5b95d9c9bae4cf",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-19T09:40:00.000-04:00",
@@ -16,5 +16,5 @@
     "Do not leave card-shaped red/yellow recommendations only in markdown or JSON reports.",
     "No live extraction, auth-required jobs, provider probes, model-spend, external writes, Drive mutation, Agent Feedback sends, or parallel builders."
   ],
-  "approvalDigest": "2b32efe91ff9de19f110bdd228179eb0c845c73d2514789f1b9bdc5620276a98"
+  "approvalDigest": "6f5b2c91fcd3a34c6a1c2566b9391f39e052fb03618c2da6999cd9b1acd400fd"
 }

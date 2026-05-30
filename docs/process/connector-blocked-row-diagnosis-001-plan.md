@@ -44,7 +44,7 @@ Existing code to reuse:
 
 Existing docs to reuse:
 
-- `docs/handoffs/system-health-2026-05-16.md`
+- `docs/_archive/handoffs/2026-05-30-doc-archive-move/system-health-2026-05-16.md`
 - `docs/handoffs/system-health-2026-05-16.json`
 
 Existing scripts to reuse:

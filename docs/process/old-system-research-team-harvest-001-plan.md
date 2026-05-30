@@ -27,7 +27,7 @@ The focused proof script is `scripts/process-old-system-research-team-harvest-ch
 
 The harvest artifacts are:
 
-- `docs/audits/2026-05-19-old-system-research-team-harvest.md`
+- `docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md`
 - `docs/audits/2026-05-19-old-system-research-team-harvest.json`
 
 The proof checks:

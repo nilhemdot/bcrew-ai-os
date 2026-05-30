@@ -54,4 +54,4 @@ Focused proof should create or simulate:
 - The default behavior is no-spend mark-only mode. `SYNTHESIS_FRESHNESS_TRIGGER_AUTORUN=true` is required before the runner can automatically invoke the synthesis/action-router follow-up jobs.
 - `scripts/process-synthesis-router-freshness-trigger-check.mjs` owns the deterministic dogfood proof for stale, blocked, refreshed, and action-router-due states, and also reads the live Foundation job ledger to prove runtime metadata is actually being patched.
 
-Closeout proof lives in `docs/handoffs/2026-05-26-synthesis-router-freshness-trigger-v1-closeout.md`. The live proof on 2026-05-26 reports `waiting_for_extractor`, not fake freshness, because source-family activity exists ahead of extractor/synthesis readiness.
+Closeout proof lives in `docs/_archive/handoffs/2026-05-26-synthesis-router-freshness-trigger-v1-closeout.md`. The live proof on 2026-05-26 reports `waiting_for_extractor`, not fake freshness, because source-family activity exists ahead of extractor/synthesis readiness.

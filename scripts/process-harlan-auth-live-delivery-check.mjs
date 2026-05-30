@@ -18,9 +18,14 @@ import {
   HARLAN_AUTH_LIVE_DELIVERY_PLAN_PATH as PLAN_PATH,
   HARLAN_AUTH_LIVE_DELIVERY_PROOF_COMMANDS as PROOF_COMMANDS,
   HARLAN_AUTH_LIVE_DELIVERY_SCRIPT_PATH as SCRIPT_PATH,
+  HARLAN_AUTH_LIVE_DELIVERY_APPROVED_MODE,
+  HARLAN_APPROVED_STEVE_CHAT_ID,
+  HARLAN_APPROVED_TELEGRAM_BOT_USERNAME,
+  HARLAN_OPENCLAW_TELEGRAM_BOT_TOKEN_REF,
   buildHarlanAuthLiveDeliveryContract,
   buildHarlanAuthLiveDeliveryDogfoodProof,
   evaluateHarlanAuthLiveDeliveryContract,
+  sendHarlanBuilderEventNotification,
 } from '../lib/harlan-auth-live-delivery.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
@@ -33,13 +38,14 @@ const repoRoot = path.resolve(__dirname, '..')
 
 const CHANGED_FILES = [
   'lib/harlan-auth-live-delivery.js',
+  'scripts/harlan-builder-event.mjs',
   SCRIPT_PATH,
   PLAN_PATH,
   APPROVAL_PATH,
   HANDOFF_PATH,
   'docs/rebuild/current-plan.md',
   'docs/rebuild/current-state.md',
-  'lib/foundation-build-closeout-agent-runtime-records.js',
+  'data/foundation-build-closeouts/agent-runtime-records.json',
   'package.json',
 ]
 
@@ -84,6 +90,7 @@ async function main() {
     moduleSource,
     scriptSource,
     closeoutRecordsSource,
+    builderEventScriptSource,
     handoffSource,
     currentPlanSource,
     currentStateSource,
@@ -94,7 +101,8 @@ async function main() {
     readRepoFile(PLAN_PATH),
     readRepoFile('lib/harlan-auth-live-delivery.js'),
     readRepoFile(SCRIPT_PATH),
-    readRepoFile('lib/foundation-build-closeout-agent-runtime-records.js'),
+    Promise.resolve(JSON.stringify(getFoundationBuildCloseouts())),
+    readRepoFile('scripts/harlan-builder-event.mjs'),
     readRepoFile(HANDOFF_PATH),
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/rebuild/current-state.md'),
@@ -107,6 +115,31 @@ async function main() {
   const closeout = getFoundationBuildCloseouts().find(record => record.key === CLOSEOUT_KEY) || null
   const contractStatus = evaluateHarlanAuthLiveDeliveryContract(buildHarlanAuthLiveDeliveryContract())
   const dogfood = buildHarlanAuthLiveDeliveryDogfoodProof()
+  const liveSendDogfood = await sendHarlanBuilderEventNotification({
+    env: {
+      HARLAN_AUTH_LIVE_DELIVERY_MODE: HARLAN_AUTH_LIVE_DELIVERY_APPROVED_MODE,
+      HARLAN_TELEGRAM_TARGET_OWNER: 'Steve',
+      HARLAN_TELEGRAM_BOT_USERNAME: HARLAN_APPROVED_TELEGRAM_BOT_USERNAME,
+      HARLAN_TELEGRAM_BOT_TOKEN_REF: HARLAN_OPENCLAW_TELEGRAM_BOT_TOKEN_REF,
+      HARLAN_TELEGRAM_STEVE_CHAT_ID_REF: HARLAN_APPROVED_STEVE_CHAT_ID,
+      HARLAN_TELEGRAM_LIVE_SEND_APPROVAL_REF: `${APPROVAL_PATH}#${HARLAN_AUTH_LIVE_DELIVERY_APPROVED_MODE}`,
+    },
+    event: {
+      eventType: 'foundation_ship_passed',
+      cardId: CARD_ID,
+      status: 'dogfood_sent',
+      summary: 'Synthetic Harlan live delivery dogfood through injected Telegram sender.',
+      runId: 'process-harlan-auth-live-delivery-check',
+    },
+    resolveSecrets: async config => ({
+      botToken: 'synthetic-openclaw-token',
+      chatId: HARLAN_APPROVED_STEVE_CHAT_ID,
+      botTokenRef: config.botTokenRef,
+      chatIdRef: config.steveChatIdRef,
+    }),
+    telegramSender: async () => ({ ok: true, messageId: 4242 }),
+    dedupeLedgerPath: false,
+  })
   const planReview = evaluatePlanCriticPlan({
     planText: planSource,
     card: {
@@ -121,7 +154,7 @@ async function main() {
     declaredRisk: 'Harlan Telegram operator delivery can accidentally become a live sender or leak raw messaging secrets if not gate-kept.',
     repoRoot,
   })
-  const combinedSource = `${moduleSource}\n${scriptSource}`
+  const proofSource = `${scriptSource}\n${builderEventScriptSource}`
   const forbiddenNetworkPatterns = [
     /\bawait\s+fetch\s*\(/,
     /\breturn\s+fetch\s*\(/,
@@ -136,26 +169,29 @@ async function main() {
   addCheck(checks, planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'plan passes Plan Critic', buildPlanCriticResultSummary(planReview))
   addCheck(checks, card?.priority === 'P0' && ['scoped', 'executing', 'done'].includes(card?.lane), 'live Harlan delivery continuation card exists', card ? `${card.lane}/${card.priority}` : 'missing')
   addCheck(checks, continuation && continuation.lane !== 'done', 'open Harlan runtime continuation remains available', continuation ? `${continuation.id}/${continuation.lane}` : 'missing')
-  addCheck(checks, contractStatus.ok && contractStatus.status === 'ready_preflight', 'Harlan Telegram live-delivery contract passes', `${contractStatus.status}/${contractStatus.summary.violationCount} violations`)
-  addCheck(checks, dogfood.ok, 'dogfood proves preflight, ready-config, dedupe, DONE/resume, timeout, and fail-closed behavior', dogfood.invariant)
+  addCheck(checks, contractStatus.ok && contractStatus.status === 'ready_live', 'Harlan Telegram live-delivery contract passes', `${contractStatus.status}/${contractStatus.summary.violationCount} violations`)
+  addCheck(checks, dogfood.ok, 'dogfood proves live-approved config, dedupe, DONE/resume, timeout, and fail-closed behavior', dogfood.invariant)
+  addCheck(checks, liveSendDogfood.ok && liveSendDogfood.status === 'sent' && liveSendDogfood.sendsMessageNow === true, 'live runner dogfood sends only through injected Telegram sender', `${liveSendDogfood.status}/${liveSendDogfood.messageId}`)
   addCheck(checks, dogfood.missingConfigBlocksLiveSend, 'missing Telegram config blocks live send', 'blocked-preflight')
-  addCheck(checks, dogfood.approvedConfigPreparesButDoesNotSend, 'approved config prepares request preview without sending', 'sendsMessageNow=false')
+  addCheck(checks, dogfood.approvedConfigPreparesButDoesNotSend, 'approved config prepares request preview without proof-path sending', 'sendsMessageNow=false')
   addCheck(checks, dogfood.rawSecretRejected, 'raw Telegram secret env is rejected and not printed', 'metadata keys only')
   addCheck(checks, dogfood.duplicateNoSpam, 'duplicate auth issue is deduped', 'one packet per issue')
   addCheck(checks, dogfood.doneReverifyResume && dogfood.timeoutFailClosed, 'DONE/reverify/resume and timeout/fail-closed branches work', JSON.stringify({ done: dogfood.doneReverifyResume, timeout: dogfood.timeoutFailClosed }))
   addCheck(checks, dogfood.unsafeSendRejected && dogfood.wrongTargetRejected && dogfood.weakContractRejected, 'unsafe live send, wrong target, and weak contract are rejected', JSON.stringify({ send: dogfood.unsafeSendRejected, target: dogfood.wrongTargetRejected, weak: dogfood.weakContractRejected }))
   addCheck(checks, packageJson.scripts?.['process:harlan-auth-live-delivery-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused proof', packageJson.scripts?.['process:harlan-auth-live-delivery-check'] || 'missing')
-  addCheck(checks, !forbiddenNetworkPatterns.some(pattern => pattern.test(combinedSource)), 'focused proof has no Telegram network sender', forbiddenNetworkPatterns.filter(pattern => pattern.test(combinedSource)).map(pattern => pattern.source).join(', ') || 'no network sender tokens')
-  addCheck(checks, !containsRawTelegramToken(combinedSource), 'module/script contain no raw Telegram token-looking secret', 'raw token regex absent')
+  addCheck(checks, packageJson.scripts?.['harlan:builder-event'] === 'node --env-file-if-exists=.env scripts/harlan-builder-event.mjs', 'package exposes reusable Harlan builder-event sender', packageJson.scripts?.['harlan:builder-event'] || 'missing')
+  addCheck(checks, !forbiddenNetworkPatterns.some(pattern => pattern.test(proofSource)), 'focused proof scripts do not open Telegram network sends directly', forbiddenNetworkPatterns.filter(pattern => pattern.test(proofSource)).map(pattern => pattern.source).join(', ') || 'no proof-script network sender tokens')
+  addCheck(checks, moduleSource.includes('https.request') && moduleSource.includes('sendHarlanBuilderEventNotification'), 'module owns the approved live Telegram sender path', 'sender is centralized in lib/harlan-auth-live-delivery.js')
+  addCheck(checks, !containsRawTelegramToken(`${moduleSource}\n${proofSource}`), 'module/scripts contain no raw Telegram token-looking secret', 'raw token regex absent')
   addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(CARD_ID), 'closeout registry record is registered', closeout?.key || 'missing')
-  addCheck(checks, closeout?.status === 'blocked-preflight' && String(closeout.acceptanceState || '').includes('not done'), 'closeout is honest blocked-preflight, not done', closeout?.acceptanceState || 'missing')
+  addCheck(checks, closeout?.status === 'accepted' && /live/i.test(String(closeout.acceptanceState || '')), 'closeout is honest live-accepted delivery, not preflight-only', closeout?.acceptanceState || 'missing')
   addCheck(checks, (closeout?.mentionedBacklogIds || []).includes(CONTINUATION_CARD_ID), 'closeout points at open Harlan runtime continuation', (closeout?.mentionedBacklogIds || []).join(', ') || 'missing')
   addCheck(checks, PROOF_COMMANDS.every(command => (closeout?.proofCommands || []).includes(command)), 'closeout includes canonical proof commands', `${(closeout?.proofCommands || []).length} commands`)
   addCheck(checks, closeoutRecordsSource.includes(CLOSEOUT_KEY) && closeoutRecordsSource.includes(CARD_ID), 'closeout source contains key and card', CLOSEOUT_KEY)
   addCheck(checks, await fileExists(HANDOFF_PATH), 'handoff file exists', HANDOFF_PATH)
-  addCheck(checks, handoffSource.includes('sendsMessageNow=false') && handoffSource.includes('not live Telegram delivery'), 'handoff captures no-send boundary', HANDOFF_PATH)
-  addCheck(checks, currentPlanSource.includes(CLOSEOUT_KEY) && currentPlanSource.includes(CARD_ID), 'current plan mentions Harlan live delivery preflight', CLOSEOUT_KEY)
-  addCheck(checks, currentStateSource.includes(CLOSEOUT_KEY) && currentStateSource.includes(CARD_ID), 'current state mentions Harlan live delivery preflight', CLOSEOUT_KEY)
+  addCheck(checks, handoffSource.includes(HARLAN_APPROVED_TELEGRAM_BOT_USERNAME) && handoffSource.includes(HARLAN_APPROVED_STEVE_CHAT_ID) && handoffSource.includes('notifications only'), 'handoff captures live Steve-only notification boundary', HANDOFF_PATH)
+  addCheck(checks, currentPlanSource.includes(CLOSEOUT_KEY) && currentPlanSource.includes(CARD_ID), 'current plan mentions Harlan live delivery', CLOSEOUT_KEY)
+  addCheck(checks, currentStateSource.includes(CLOSEOUT_KEY) && currentStateSource.includes(CARD_ID), 'current state mentions Harlan live delivery', CLOSEOUT_KEY)
   addCheck(checks, moduleSource.split('\n').length < 900, 'new module stays under preferred module budget', `${moduleSource.split('\n').length} lines`)
   addCheck(checks, scriptSource.split('\n').length < 500, 'focused proof script stays under preferred module budget', `${scriptSource.split('\n').length} lines`)
 

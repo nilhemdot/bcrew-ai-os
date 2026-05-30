@@ -5,7 +5,7 @@
   "approvedAt": "2026-05-20T00:50:00-04:00",
   "score": 9.8,
   "approvedPlanRef": "docs/process/intel-scoper-001-plan.md",
-  "approvedPlanSha256": "f95333195e65b458c4fd3f5eea64e2f42decc81553108207b06503818db386a9",
+  "approvedPlanSha256": "46d814d7718261a2781a6c619c4c6a268e3b8b1266f824b91496a99e09bc17ae",
   "approvedRepoHead": "416da5b0b487ed24f7f48df833a1e7552c089ebf",
   "approvalSource": "Steve approved unattended continuation and asked that discussed gold become durable/carded before being lost; INTEL-SCOPER-001 is the active blocker after DECISION-008.",
   "constraints": [
@@ -15,5 +15,5 @@
     "include a five-row human sample with source/proof refs, owner, smallest next steps, and blocked auto-actions",
     "advance Current Sprint to DATA-003 after clean closeout"
   ],
-  "approvalDigest": "b40c21d52e09741286f78c3b01ec62e421047dbe1f043e583921a5d6d63d21e7"
+  "approvalDigest": "96d9ec23fa08a843001674cbc7ce1688d8f3fd2d4518fade31362592f112905e"
 }

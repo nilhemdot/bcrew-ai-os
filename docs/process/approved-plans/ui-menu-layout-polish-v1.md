@@ -80,8 +80,8 @@ The archive/current split is UI-only. `/api/system-inventory` remains the source
 
 - `docs/process/approved-plans/ui-menu-layout-polish-v1.md`
 - `docs/process/approvals/UI-MENU-LAYOUT-POLISH-001.json`
-- `docs/audits/2026-04-30-ui-menu-layout-polish-baseline.md`
-- `docs/audits/2026-04-30-ui-menu-layout-polish-manual-review.md`
+- `docs/_archive/audits/2026-04-30-ui-menu-layout-polish-baseline.md`
+- `docs/_archive/audits/2026-04-30-ui-menu-layout-polish-manual-review.md`
 - `lib/foundation-ui-menu-layout-polish.js`
 - `scripts/process-ui-menu-layout-polish-check.mjs`
 

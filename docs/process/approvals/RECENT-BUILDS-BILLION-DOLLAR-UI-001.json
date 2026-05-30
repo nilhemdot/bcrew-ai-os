@@ -7,7 +7,7 @@
   "notes": "Approval covers only the Recent Work / Recent Builds UI redesign, collapsed-by-default executive review surface, owner/context card separation, same-commit group reviewability, focused process check, manual review proof, and Foundation ship proof. It does not approve comprehensive changelog, daily executive summary, source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus work, research cleanup, or a new feature lane.",
   "approvalSchemaVersion": 2,
   "approvedPlanRef": "docs/process/approved-plans/recent-builds-billion-dollar-ui-v1.md",
-  "approvedPlanSha256": "7e4c513e9c57537a58a4a4d014444f36b66a4345c54d266e15786bbde1921bd8",
+  "approvedPlanSha256": "e9132ff862ddc5d24e94949b4c45dd004ce6f5390b2d305e585e2bad1f688d07",
   "approvedRepoHead": "99a0100df60a43229282a198c708f44e506c3f9a",
-  "approvalDigest": "2ba623bcf5661d55aa756a68aca1be0e2b7633cee48037d1620093d4bea92dac"
+  "approvalDigest": "797d995b7b86b8083a8ddd639adcb618df1d55a98bb15cb7f2d67c4693285dea"
 }

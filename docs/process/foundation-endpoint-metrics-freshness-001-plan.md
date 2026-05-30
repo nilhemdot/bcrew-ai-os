@@ -50,7 +50,7 @@ Existing scripts reused:
 Existing docs reused:
 
 - `docs/handoffs/nightly-deep-audit-2026-05-19.json`
-- `docs/handoffs/nightly-deep-audit-2026-05-19.md`
+- `docs/_archive/handoffs/nightly-deep-audit-2026-05-19.md`
 - `docs/process/foundation-endpoint-budgets-001-plan.md`
 
 Live backlog and Current Sprint truth reused:

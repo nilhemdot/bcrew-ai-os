@@ -58,7 +58,7 @@ The card adds:
 - `scripts/process-build-intel-daily-extraction-review-check.mjs` for focused proof, backlog/Current Sprint updates, and closeout validation.
 - `docs/process/build-intel-daily-extraction-review-001-plan.md`
 - `docs/process/approvals/BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001.json`
-- `docs/handoffs/2026-05-19-build-intel-daily-extraction-review-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-build-intel-daily-extraction-review-closeout.md`
 
 ## Reuse Existing Work
 
@@ -75,9 +75,9 @@ Existing code to reuse:
 Existing docs to reuse:
 
 - `docs/process/build-intel-extraction-implementation-2026-05-13-plan.md`
-- `docs/handoffs/2026-05-19-drive-worker-governed-closeout.md`
-- `docs/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md`
-- `docs/audits/2026-05-19-old-system-research-team-harvest.md`
+- `docs/_archive/handoffs/2026-05-19-drive-worker-governed-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md`
+- `docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md`
 
 Existing scripts to reuse:
 

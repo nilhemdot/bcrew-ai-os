@@ -3,7 +3,7 @@
   "approvedBy": "Steve",
   "approvedAt": "2026-05-20T07:50:30-04:00",
   "approvedPlanRef": "docs/process/decision-007-plan.md",
-  "approvedPlanSha256": "9d13b3040712d8ff264c0179f1f1af27e50818b69eec313dce3641b649ab7981",
+  "approvedPlanSha256": "875ce54f1ab7edd90b99760951fc34c160d4afdc22397086fc377e0548536a54",
   "approvedRepoHead": "86b2e1a8bcc30c99c1eb0be5c1d3408ca03bd4fd",
   "score": 9.8,
   "notes": "Approved as part of unattended Foundation sprint. Scope is decision/open-question reconciliation only; stale old-system runtime/provider claims are classified, not imported as active locked truth.",
@@ -17,5 +17,5 @@
     "bulk importing stale OpenClaw/subscription/provider runtime claims as locked truth"
   ],
   "approvalSchemaVersion": 2,
-  "approvalDigest": "52957af61b27dc2e0fba1304688660a9adb3ad28e9749ab207fa6b944e786643"
+  "approvalDigest": "b3354d308dc449b3c6ea5e68655a8b08f43e108fb42baa6211b972a80aafcaa7"
 }

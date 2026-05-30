@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-21T16:05:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/youtube-current-sprint-workspace-cleanup-001-plan.md",
-  "approvedPlanSha256": "83d233849c0bf6dda5d0a03cd07fe2742d903c53f9ce73df08e9df275e27d348",
+  "approvedPlanSha256": "13b77230a4f10fad7edbc4a3934a64b9cb612f4984e9c044693391dde02d4e54",
   "approvedRepoHead": "e47ef77c58e5f9b73ed8c35c6a4eedd99c7c7835",
   "approvalSource": "Steve direct May 21 correction: this is a new sprint; old done cards must leave Done This Sprint and the sprint plan must be visible in the Recent Work Current Sprint area.",
-  "approvalDigest": "64d96f1e5a81e17cbb6abaf3f3d85ece9f6508ea4fe38adbc0038b9c567afbc5"
+  "approvalDigest": "e84e63de830095d571bad3cc6d2e025bd507774a441b98886d93460080c1e6a5"
 }

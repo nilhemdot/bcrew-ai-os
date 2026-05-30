@@ -29,7 +29,7 @@ The focused proof script is `scripts/process-foundation-deep-merge-audit-check.m
 
 The audit artifacts are:
 
-- `docs/audits/2026-05-19-foundation-deep-merge-audit.md`
+- `docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md`
 - `docs/audits/2026-05-19-foundation-deep-merge-audit.json`
 
 The script validates:

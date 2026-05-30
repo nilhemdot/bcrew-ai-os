@@ -13,6 +13,7 @@ import {
   recordBuildLaneFailureEventsFromError,
 } from '../lib/build-lane-failure-telemetry.js'
 import { recordFoundationShipProof } from '../lib/process-git-hooks.js'
+import { sendHarlanBuilderEventNotification } from '../lib/harlan-auth-live-delivery.js'
 import {
   SHIP_GATE_WORKER_LIVE_JOB_PAUSE_DEFAULT_TTL_MS,
   clearFoundationWorkerShipPause,
@@ -66,6 +67,18 @@ function printStepResult(result) {
   if (result.attempts > 1) console.log(`Attempts: ${result.attempts}`)
   if (result.stdout) process.stdout.write(result.stdout)
   if (result.stderr) process.stderr.write(result.stderr)
+}
+
+async function notifyHarlanBuilderEvent(event) {
+  const result = await sendHarlanBuilderEventNotification({ event })
+  if (result.status === 'sent') {
+    console.log(`Harlan notification sent for ${event.cardId || 'unknown-card'}.`)
+  } else if (result.status === 'deduped') {
+    console.log(`Harlan notification deduped for ${event.cardId || 'unknown-card'}.`)
+  } else if (result.status === 'fail_closed') {
+    console.log(`Harlan notification skipped fail-closed: ${result.reason || 'not ready'}.`)
+  }
+  return result
 }
 
 async function runStep(label, npmArgs, options = {}) {
@@ -417,6 +430,15 @@ async function main() {
 
     console.log('')
     console.log('Foundation ship gate passed.')
+    await notifyHarlanBuilderEvent({
+      eventType: 'foundation_ship_passed',
+      cardId: normalize(args.card),
+      status: 'passed',
+      summary: `Foundation ship gate passed for ${normalize(args.closeoutKey)} at ${commitRef}.`,
+      runId: commitRef,
+    }).catch(error => {
+      console.log(`Harlan notification failed closed: ${error instanceof Error ? error.message : String(error)}`)
+    })
   } finally {
     if (workerShipPause) {
       const cleanup = await clearFoundationWorkerShipPause({
@@ -439,6 +461,15 @@ main().catch(async error => {
       cardId: normalize(args.card),
       sprintId: normalize(args.sprintId),
       closeoutKey: normalize(args.closeoutKey),
+    })
+  } catch {}
+  try {
+    await notifyHarlanBuilderEvent({
+      eventType: 'foundation_ship_failed',
+      cardId: normalize(args.card),
+      status: 'failed',
+      summary: error instanceof Error ? error.message : String(error),
+      runId: normalize(args.commitRef || 'HEAD'),
     })
   } catch {}
   console.error('')

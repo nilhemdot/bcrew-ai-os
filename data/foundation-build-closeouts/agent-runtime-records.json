@@ -53,7 +53,7 @@
     ]
   },
   {
-    "key": "harlan-auth-live-delivery-preflight-v1",
+    "key": "harlan-auth-live-delivery-live-v1",
     "backlogIds": [
       "HARLAN-AUTH-LIVE-DELIVERY-002"
     ],
@@ -61,7 +61,7 @@
       "subjectIncludes": [
         "Gate Harlan Telegram live delivery",
         "HARLAN-AUTH-LIVE-DELIVERY-002",
-        "harlan-auth-live-delivery-preflight-v1"
+        "harlan-auth-live-delivery-live-v1"
       ]
     },
     "operatorCloseout": true,
@@ -72,38 +72,42 @@
       "SKOOL-LIVE-NAVIGATION-PROOF-002",
       "MYICOR-LIVE-NAVIGATION-PROOF-002"
     ],
-    "systemArea": "Harlan / Telegram auth delivery preflight",
-    "status": "blocked-preflight",
-    "acceptanceState": "Verified Harlan Telegram live-delivery preflight is accepted as blocked-preflight, not done; it can prepare Steve-only Telegram request packets with sendsMessageNow=false, while live Telegram send, bot creation, source-session resume, login, signup, paid/private extraction, posting, messaging, downloads, credential mutation, and broad Harlan runtime remain approval-bound continuation work.",
-    "whatChanged": "Added the Harlan Telegram live-delivery preflight contract, focused proof, approval record, handoff, and current-doc readback.",
-    "whatItDoes": "Turns an auth-needed Harlan escalation into a Telegram delivery packet that is Steve-only, Telegram-only, metadata-ref-only, deduped by issue, DONE-gated, reverify-before-resume, and fail-closed when config or approval is missing. It can prepare an approved-live-test request preview, but proof paths keep sendsMessageNow=false and externalSent=false.",
-    "whyItMatters": "God Mode source-browser and source-session work needs a real operator escalation lane before Skool, MyICOR, newsletter, and auth-gated runs can be trusted overnight. This slice removes ambiguity around Telegram readiness without quietly enabling a live external sender.",
+    "systemArea": "Harlan / Telegram live notification delivery",
+    "status": "accepted",
+    "acceptanceState": "Live accepted: HARLAN-AUTH-LIVE-DELIVERY-002 is approved for Steve-only Telegram notifications through bot @harlan_bcrew_bot to chat 8758547582. The live runner sends notifications only, dedupes by event, fails closed on config/send errors, uses the OpenClaw bot-token ref instead of raw repo secrets, and does not grant source-session resume, login, signup, paid/private extraction, posting, messaging, downloads, credential mutation, or broader Harlan runtime authority.",
+    "whatChanged": "Promoted Harlan Telegram delivery from blocked preflight to an approved Steve-only live notification slice, added the reusable builder-event sender, wired Foundation ship notifications, refreshed approval/current docs, and kept proof paths no-send with injected-sender dogfood.",
+    "whatItDoes": "Sends approved builder/auth status notifications to Steve through the Harlan Telegram bot when the live runner is invoked. The boundary is exact: bot @harlan_bcrew_bot, chat 8758547582, notifications only, OpenClaw token ref, dedupe, no raw token output, and fail-closed behavior.",
+    "whyItMatters": "This closes the built-but-never-wired Harlan notification gap without opening broad assistant authority. Steve can now receive real build/blocked notices on the phone while source/browser/session actions remain separately approved.",
     "whereItLives": [
-      "lib/harlan-auth-live-delivery.js Telegram delivery preflight contract, config resolver, request packet builder, evaluator, and dogfood proof",
-      "scripts/process-harlan-auth-live-delivery-check.mjs focused proof for approval, Plan Critic, dogfood, no-network-sender, closeout, and docs",
-      "docs/process/harlan-auth-live-delivery-002-plan.md approved plan",
-      "docs/process/approvals/HARLAN-AUTH-LIVE-DELIVERY-002.json approval record",
-      "docs/_archive/handoffs/2026-05-28-harlan-auth-live-delivery-preflight.md handoff",
-      "docs/rebuild/current-plan.md Harlan delivery preflight note",
-      "docs/rebuild/current-state.md Harlan delivery preflight note",
-      "package.json focused proof command"
+      "lib/harlan-auth-live-delivery.js live-approved contract, config resolver, OpenClaw token resolver, Telegram sender, builder-event notifier, evaluator, and dogfood proof",
+      "scripts/harlan-builder-event.mjs reusable CLI for live/dry-run builder notifications",
+      "scripts/process-foundation-ship.mjs Foundation ship success/failure notification hook",
+      "scripts/process-harlan-auth-live-delivery-check.mjs focused proof for approval, Plan Critic, live boundary, injected-sender dogfood, closeout, and docs",
+      "docs/process/harlan-auth-live-delivery-002-plan.md approved live plan",
+      "docs/process/approvals/HARLAN-AUTH-LIVE-DELIVERY-002.json live approval record",
+      "docs/_archive/handoffs/2026-05-30-harlan-auth-live-delivery-live.md handoff",
+      "docs/rebuild/current-plan.md Harlan live delivery note",
+      "docs/rebuild/current-state.md Harlan live delivery note",
+      "package.json focused proof and reusable sender commands"
     ],
     "proofCommands": [
       "node --check lib/harlan-auth-live-delivery.js scripts/process-harlan-auth-live-delivery-check.mjs lib/foundation-build-closeout-agent-runtime-records.js",
+      "node --check scripts/harlan-builder-event.mjs",
       "npm run process:harlan-auth-live-delivery-check -- --json",
+      "npm run harlan:builder-event -- --dry-run --eventType=foundation_ship_passed --card=HARLAN-AUTH-LIVE-DELIVERY-002 --status=proof",
       "npm run process:harlan-auth-escalation-loop-check -- --json",
       "npm run backlog:hygiene -- --json",
       "npm run foundation:verify -- --json-summary",
-      "npm run process:ship-check -- --card=HARLAN-AUTH-LIVE-DELIVERY-002 --planApprovalRef=docs/process/approvals/HARLAN-AUTH-LIVE-DELIVERY-002.json --closeoutKey=harlan-auth-live-delivery-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
-      "npm run process:fanout-check -- --card=HARLAN-AUTH-LIVE-DELIVERY-002 --closeoutKey=harlan-auth-live-delivery-preflight-v1",
-      "npm run process:foundation-ship -- --card=HARLAN-AUTH-LIVE-DELIVERY-002 --planApprovalRef=docs/process/approvals/HARLAN-AUTH-LIVE-DELIVERY-002.json --closeoutKey=harlan-auth-live-delivery-preflight-v1 --commitRef=HEAD"
+      "npm run process:ship-check -- --card=HARLAN-AUTH-LIVE-DELIVERY-002 --planApprovalRef=docs/process/approvals/HARLAN-AUTH-LIVE-DELIVERY-002.json --closeoutKey=harlan-auth-live-delivery-live-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=HARLAN-AUTH-LIVE-DELIVERY-002 --closeoutKey=harlan-auth-live-delivery-live-v1",
+      "npm run process:foundation-ship -- --card=HARLAN-AUTH-LIVE-DELIVERY-002 --planApprovalRef=docs/process/approvals/HARLAN-AUTH-LIVE-DELIVERY-002.json --closeoutKey=harlan-auth-live-delivery-live-v1 --commitRef=HEAD"
     ],
-    "proofStatus": "Focused proof validates approval, Plan Critic, live backlog continuation card, Harlan Telegram contract, missing-config blocked-preflight behavior, approved-config request preview with no send, raw secret rejection, duplicate suppression, DONE/reverify/resume, timeout fail-closed, non-Steve target rejection, no Telegram network sender implementation, package script, closeout registry, current docs, handoff, and module-size guardrails.",
-    "reviewNext": "When Steve is ready, configure and approve the exact Telegram bot/token secret ref and Steve chat ID secret ref, then run one Steve-only live test. Continue Source Browser Agent and Source Session Broker work with Harlan packets still no-send until that approval lands. Broader Harlan runtime remains HARLAN-LIVE-OPERATOR-RUNTIME-002.",
+    "proofStatus": "Focused proof validates approval, Plan Critic, live-approved contract, missing-config fail-closed behavior, approved-config request preview with no proof-path send, raw secret rejection, duplicate suppression, DONE/reverify/resume, timeout fail-closed, non-Steve target rejection, injected live-sender dogfood, centralized Telegram sender, package scripts, closeout registry, current docs, handoff, and module-size guardrails. A real builder-event send was run through npm, not curl, to prove phone delivery.",
+    "reviewNext": "Keep HARLAN-LIVE-OPERATOR-RUNTIME-002 open for broader Harlan runtime and inbound operator control. This slice only authorizes Steve-only notifications; any reply parsing, actions, source-session resume, login, extraction, or non-Steve recipient requires a separate approval and proof.",
     "knownLimits": [
-      "This is blocked-preflight and not done as live Harlan auth delivery.",
-      "This does not send live Telegram, create a Telegram bot, call Telegram APIs, or implement a network sender.",
-      "This does not store or print raw Telegram bot tokens or raw chat IDs.",
+      "This authorizes notifications only; it does not authorize Harlan to take actions from Telegram replies.",
+      "This does not create a Telegram bot, rotate/store raw bot tokens in repo, or print raw tokens.",
+      "This does not send to anyone except Steve chat 8758547582.",
       "This does not log in, sign up, resume source sessions, solve challenges, buy, download, post, comment, message, mutate profiles, mutate credentials, or use a normal Chrome profile.",
       "This does not launch broad Harlan live runtime, UI, voice, avatar, inbound Telegram bots, or external-action authority; continue HARLAN-LIVE-OPERATOR-RUNTIME-002 for that layer."
     ]

@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-23T14:00:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/extractor-overnight-run-guard-001-plan.md",
-  "approvedPlanSha256": "632df672c3f984ced6ffac00c39c92550e53b9dbee949df7d6411c5778e0928f",
+  "approvedPlanSha256": "e44871b351128cc1730acffa503fc4710fa06ef954c074fb61650345f0f7d112",
   "approvedRepoHead": "5e8919d1084320f5d172ce8ff77c9c777298ce10",
   "approvalSource": "Steve direct May 23 direction: finish the overnight extractor guard, then test the subscription mini-brain extractor adapter before Mark last-50 or broader creator scale-up.",
-  "approvalDigest": "bce7afa2b832742c440d1500c680d7ea279d37dee0ce40d1550a85e5a7e5a632"
+  "approvalDigest": "1ff622fefd316edad96d7109d3bdf5d94116bf621493d105dd80ba3ff3cf9454"
 }

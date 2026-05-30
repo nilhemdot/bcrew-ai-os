@@ -75,7 +75,7 @@ Speed budget:
 File/artifact budgets:
 
 - `docs/process/approvals/WEB-GODMODE-001.json` is a bounded approval data record under 120 lines.
-- `docs/handoffs/2026-05-19-web-godmode-closeout.md` is a bounded closeout artifact under 150 lines.
+- `docs/_archive/handoffs/2026-05-19-web-godmode-closeout.md` is a bounded closeout artifact under 150 lines.
 - No screenshots, transcripts, video downloads, model outputs, or extracted content reports are written by this card.
 
 ## Reuse Existing Work

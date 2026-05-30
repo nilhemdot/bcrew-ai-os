@@ -7,7 +7,7 @@
   "approvalSource": "Steve instructed the Foundation builder to keep moving from repo truth while respecting approval-bound side effects; the builder selected the P0 provider-rotation proof blocker for safe no-secret preflight only.",
   "scopeSummary": "Create a no-secret provider-side rotation/retirement proof ledger from FUBZahnd App.config metadata, prove no raw values or hashes are stored, mark provider-side proof blocked/pending, and do not rotate, revoke, validate, or call providers.",
   "approvedPlanRef": "docs/process/security-provider-rotation-proof-preflight-001-plan.md",
-  "approvedPlanSha256": "10c940e1fc325d83e993e660548b299a8ee4bd0dc0bfd405823d81d472e1fcc6",
+  "approvedPlanSha256": "2952b34c9a297262ed2ddea46b677d733ee22357201480802c4af6610c8650d2",
   "approvedRepoHead": "d9d2b1e5e909cd37939ca0b3a2d1794cd057361b",
   "notApproved": [
     "Do not rotate, revoke, retire, or validate provider credentials.",
@@ -17,5 +17,5 @@
     "Do not run live extraction, source crawls, model/provider calls, paid runs, hidden subagents, or parallel builders.",
     "Do not mark SECURITY-PROVIDER-ROTATION-PROOF-001 or SECURITY-006 done."
   ],
-  "approvalDigest": "eea5ae482bfc01043f029ea2ce70452b691eaf22425c5f1c5e895df8a5eb4a19"
+  "approvalDigest": "07ad598fc62544e75dad14877bbcba4d2f7d1843a79ce8269b57b9c360f1db9c"
 }

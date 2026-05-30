@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-20T17:00:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/gemini-video-brain-route-001-plan.md",
-  "approvedPlanSha256": "aac4ebfa21ac2dd9140cb91322190d90f61bb1251666f1a460a3def1c89c3d80",
+  "approvedPlanSha256": "100fa6e87a953cac6ad75da1943367bf82ffda09a943f3ba77b509c9a7f3d7f1",
   "approvedRepoHead": "f8523ee3e81ab91c649c4b298bcc4a24e52e188c",
   "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build GEMINI-VIDEO-BRAIN-ROUTE-001 immediately after direct Codex route and before Claude, OpenClaw adapter boundary, or extractor proof.",
-  "approvalDigest": "0ad5680e24f4c20c4c30fb5888783a0f8adff761f3dddfa563c9357ae0076fa4"
+  "approvalDigest": "a5d269ddd9504e1106db0e274d8105b42404bf1960e5b30dd6faf4fdd2ceb181"
 }

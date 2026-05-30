@@ -50,7 +50,7 @@ Reuse the existing system-health machinery:
 
 - existing code: `lib/foundation-system-health.js` owns the snapshot, report markdown, and red/yellow rollup.
 - existing code: `lib/connector-uptime-monitor.js` supplies connector and runtime reliability rows.
-- existing docs: `docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md` and the current closeout docs define the sprint order and health/audit/source boundaries.
+- existing docs: `docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md` and the current closeout docs define the sprint order and health/audit/source boundaries.
 - existing scripts: `scripts/process-system-health-nightly-audit-check.mjs`, `backlog:hygiene`, `foundation:verify`, and `process:foundation-ship` remain the proof path.
 - live backlog and Current Sprint truth: the active card, next audit-router card, and follow-up endpoint/doc/file-size/extraction cards stay in DB-backed backlog and Current Sprint state.
 - `CONNECTOR-UPTIME-MONITOR-001` owns recurring safe connector uptime checks.

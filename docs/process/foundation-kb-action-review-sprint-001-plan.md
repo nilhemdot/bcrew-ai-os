@@ -68,7 +68,7 @@ No-new-responsibility and split plan:
 - Main session owns this shared-file closeout. Requested shared files are declared in the changed-file list, and this is main-session approved Foundation process work rather than side work from a hub chat or hidden worker.
 - `docs/rebuild/current-plan.md` is above the 1,500-line preferred review threshold, so this card changes one existing sprint paragraph only and adds no new section family or long-form doctrine there.
 - New behavior lives in `lib/foundation-kb-action-review-sprint.js`; the process script owns proof/write posture; the closeout registry receives one focused record in the action-route record module; verifier coverage changes only the existing coverage-ID list, not the root verifier.
-- `docs/process/approvals/FOUNDATION-KB-ACTION-REVIEW-SPRINT-001.json` is capped under 5 KB as a data record, and `docs/handoffs/2026-05-18-foundation-kb-action-review-sprint-closeout.md` is capped under 12 KB as the report artifact.
+- `docs/process/approvals/FOUNDATION-KB-ACTION-REVIEW-SPRINT-001.json` is capped under 5 KB as a data record, and `docs/_archive/handoffs/2026-05-18-foundation-kb-action-review-sprint-closeout.md` is capped under 12 KB as the report artifact.
 - No existing root file over 3,000 lines receives new responsibility.
 
 ## Risks

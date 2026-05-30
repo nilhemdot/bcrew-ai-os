@@ -90,8 +90,8 @@ Existing code to reuse:
 Existing docs to reuse:
 
 - `docs/specs/2026-04-28-strategic-intelligence-loop.md`
-- `docs/audits/2026-05-19-legacy-system-audit.md`
-- `docs/audits/2026-05-19-old-system-research-team-harvest.md`
+- `docs/_archive/audits/2026-05-19-legacy-system-audit.md`
+- `docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 

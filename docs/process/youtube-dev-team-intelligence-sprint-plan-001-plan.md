@@ -32,8 +32,8 @@ Done means `YOUTUBE-DEV-TEAM-SPRINT-PLAN-001` is closed under `youtube-dev-team-
 
 Existing docs and live truth reused:
 
-- `docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md`
-- `docs/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - live backlog rows for `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`, `EXTRACTOR-OVERNIGHT-RUN-GUARD-001`, and `BUILD-INTEL-EXTRACTION-IMPLEMENTATION`
@@ -94,7 +94,7 @@ Repair path: if live sprint/order/card proof fails, repair the sprint-plan write
 - `scripts/process-youtube-dev-team-intelligence-sprint-plan-check.mjs`
 - `docs/process/youtube-dev-team-intelligence-sprint-plan-001-plan.md`
 - `docs/process/approvals/YOUTUBE-DEV-TEAM-SPRINT-PLAN-001.json`
-- `docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-plan-closeout.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-plan-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `lib/foundation-build-closeout-process-gate-records.js`

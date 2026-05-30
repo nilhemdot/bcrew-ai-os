@@ -82,7 +82,7 @@ Existing docs to reuse:
 
 - `docs/process/current-sprint-dynamic-truth-001-plan.md`
 - `docs/process/sprint-stage-gate-001-plan.md`
-- `docs/audits/2026-05-19-foundation-deep-merge-audit.md`
+- `docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md`
 
 Existing cards to reuse:
 

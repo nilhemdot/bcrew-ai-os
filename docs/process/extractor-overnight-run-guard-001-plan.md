@@ -85,7 +85,7 @@ Repair path: if the guard fails because stale runs exist, repair or reap the sta
 - `scripts/process-extractor-overnight-run-guard-check.mjs`
 - `docs/process/extractor-overnight-run-guard-001-plan.md`
 - `docs/process/approvals/EXTRACTOR-OVERNIGHT-RUN-GUARD-001.json`
-- `docs/handoffs/2026-05-23-extractor-overnight-run-guard-closeout.md`
+- `docs/_archive/handoffs/2026-05-23-extractor-overnight-run-guard-closeout.md`
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `lib/foundation-verify-coverage-card-ids.js`
 - `docs/rebuild/current-plan.md`

@@ -5,7 +5,7 @@
   "approvedAt": "2026-05-19T21:58:00-04:00",
   "score": 9.8,
   "approvedPlanRef": "docs/process/current-sprint-active-card-gate-001-plan.md",
-  "approvedPlanSha256": "e556d4981148217c59010444b34c2bcfe59e0f247727e5df5e0af68da3ea22c8",
+  "approvedPlanSha256": "4082b71dcbd3da5caec69866381b3f0311537b8301bede17ff4d89683d3d9ae6",
   "approvedRepoHead": "a23924a041edd23442b31e2d559032d73205268e",
   "approvalSource": "Steve approved the unattended overnight sprint and asked the builder to keep going, create the next sprint if the first finishes, and not stop unless unsafe.",
   "constraints": [
@@ -15,5 +15,5 @@
     "green means raw green; repeated failures or raw workflow failures repair first",
     "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
   ],
-  "approvalDigest": "51bd7fac9afd0370dbe0cf24882cf3da676481433f4d1951dc8870a82259166f"
+  "approvalDigest": "b992222616502a1630a12f4ae2b4f435e72f0ba7b27c26ecc5451aee31e3db8d"
 }

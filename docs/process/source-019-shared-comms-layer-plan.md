@@ -59,7 +59,7 @@ The card adds:
 - `scripts/process-source-019-check.mjs`
 - `docs/process/source-019-shared-comms-layer-plan.md`
 - `docs/process/approvals/SOURCE-019.json`
-- `docs/handoffs/2026-05-19-source-019-shared-comms-layer-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-source-019-shared-comms-layer-closeout.md`
 
 The focused proof reads bounded DB summaries from:
 
@@ -86,8 +86,8 @@ Existing code to reuse:
 Existing docs to reuse:
 
 - `docs/source-notes/shared-communications.md`
-- `docs/handoffs/2026-05-19-build-intel-daily-extraction-review-closeout.md`
-- `docs/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-build-intel-daily-extraction-review-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-old-system-research-team-harvest-closeout.md`
 
 Existing backlog to reuse:
 

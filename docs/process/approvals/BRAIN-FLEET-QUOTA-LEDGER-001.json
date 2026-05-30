@@ -5,7 +5,7 @@
   "approvedAt": "2026-05-20T16:00:00-04:00",
   "score": 9.8,
   "approvedPlanRef": "docs/process/brain-fleet-quota-ledger-001-plan.md",
-  "approvedPlanSha256": "f38e32d65d52dec4a67bc494fdb29489060d080e34e577b026d20480fcafdda0",
+  "approvedPlanSha256": "1e09255867165250432aec80d22be8a018e71a895990832cf264154d8c9bd689",
   "approvedRepoHead": "10d73b0fe2ac40c698fbefc7d15505d98ca16c16",
   "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build BRAIN-FLEET-QUOTA-LEDGER-001 immediately after Harlan auth escalation and before model capability registry, live provider probes, or extractor proof.",
   "constraints": [
@@ -17,5 +17,5 @@
     "Do not mutate credentials, provider config, source systems, llm_credentials, or llm_routes",
     "Keep Strategy and People parked"
   ],
-  "approvalDigest": "c0e40303f5e3adc70d99c57b4e98b53ad03c472c52badc3fcbf71ce4afb4f736"
+  "approvalDigest": "0c8aa1bfa25c41f791fce31588eacc77f869c52eef4ca98024d4361e85ae6d43"
 }

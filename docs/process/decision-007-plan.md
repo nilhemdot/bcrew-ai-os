@@ -56,7 +56,7 @@ Implementation shape:
 Existing work reused:
 
 - Existing code: `lib/foundation-decision-store.js`, `lib/foundation-db.js`, `lib/decision-004-pending-review.js`, `lib/decision-005-provenance-model.js`, `lib/source-contracts.js`, and `lib/foundation-current-sprint.js`.
-- Existing docs: `docs/rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md`, `docs/audits/2026-04-26-foundation-menu-and-systems-audit.md`, `docs/rebuild/current-runtime-map.md`, `docs/rebuild/current-state.md`, and `docs/source-registry.md`.
+- Existing docs: `docs/rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md`, `docs/_archive/audits/2026-04-26-foundation-menu-and-systems-audit.md`, `docs/rebuild/current-runtime-map.md`, `docs/rebuild/current-state.md`, and `docs/source-registry.md`.
 - Existing scripts: `scripts/process-decision-004-check.mjs`, `scripts/process-decision-005-check.mjs`, `process:system-health-nightly-audit-check`, `process:build-lane-repeated-failure-action-gate-check`, `backlog:hygiene`, `foundation:verify`, and `process:foundation-ship`.
 - Current Sprint and live backlog truth: `DECISION-007` stays the active card until this focused proof closes it, then `REPLY-WATCHING-LOOP-001` remains scoping until its own plan and proof pass.
 

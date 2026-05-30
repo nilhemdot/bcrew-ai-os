@@ -5,7 +5,7 @@
   "approvedAt": "2026-05-19T21:15:00-04:00",
   "score": 9.8,
   "approvedPlanRef": "docs/process/legacy-system-audit-001-plan.md",
-  "approvedPlanSha256": "62b5e798f1a82f6d0b867bd95da8ebfdbf1508b45e94c24d015da587e84b5eb2",
+  "approvedPlanSha256": "91679280f87d1a55b486f296384a4aac6044173b69575d0fa04f0612c981ddf0",
   "approvedRepoHead": "de5caaa43d2b0b456a7db3268432e4fb1b9a1656",
   "approvalSource": "Steve approved starting the Foundation gold-capture sprint after asking that every valuable item from the old-system/deep-audit conversation be carded first so it is not lost.",
   "constraints": [
@@ -16,5 +16,5 @@
     "reject stale report piles and agent sprawl instead of carrying them forward",
     "advance Current Sprint to STRATEGIC-INTEL-001 after clean closeout"
   ],
-  "approvalDigest": "7a0ca51b0b0ee605c9f33c2cc3c36e6d0ee96a0c6774ce580c834cd4f155ce95"
+  "approvalDigest": "1825b597797d9e61736380f7924206ee306fc5100f45000afc820f558c26f88a"
 }

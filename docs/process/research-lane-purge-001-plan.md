@@ -19,7 +19,7 @@ The research lane is a parking-lot risk. The system needs a reviewable map of ol
 
 ## Definition Of Done
 
-- `docs/handoffs/research-purge-2026-05-13.md` exists and covers the current research lane.
+- `docs/_archive/handoffs/research-purge-2026-05-13.md` exists and covers the current research lane.
 - The focused process check proves proposed-only behavior and no automatic mutation.
 - The backlog card and sprint item close only after proof passes.
 

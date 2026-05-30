@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "FOUNDATION-MAIN-INTEGRATION-LOCK-001",
   "approvedPlanRef": "docs/process/foundation-main-integration-lock-001-plan.md",
-  "approvedPlanSha256": "78e4cbde9c2d0010a92787aa8c27d0084728dde53f9e59157f2135dc19935cd9",
+  "approvedPlanSha256": "025e12dcc67ebb39a69d86d2d108a88108e6c5135585da8afa944af3be2f12a6",
   "approvedRepoHead": "ba78e4e1c890f8958ee4a3a2537bfaa4b66f21c6",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-19T08:33:00.000-04:00",
@@ -16,5 +16,5 @@
     "Do not silently mix preserved side commits into Foundation main.",
     "Do not run live extraction, provider probes, credential repair, Drive mutation, sends, or external writes."
   ],
-  "approvalDigest": "6aa4a8f0105e20ee86d33cd547686f09f675ffffed15c2f9e53148e631ce3dfa"
+  "approvalDigest": "96ba225d360f590022baf64c31f9c14e16929d71ace50cd53749dfa510863d22"
 }

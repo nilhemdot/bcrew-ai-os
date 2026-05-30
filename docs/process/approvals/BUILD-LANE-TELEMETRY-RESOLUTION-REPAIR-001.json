@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001",
   "approvedPlanRef": "docs/process/build-lane-telemetry-resolution-repair-001-plan.md",
-  "approvedPlanSha256": "1307413e4aa55a3cf818631e092948c8539d6d448f014796dbbbc91165a9f5e4",
+  "approvedPlanSha256": "85049af183260ea927700a7f66ed89351b0bcd4e065b94852c008ce392dd7919",
   "approvedRepoHead": "6276161420fc8f05c5e4211dbb4ce273d86fce23",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-18T12:15:00.000-04:00",
@@ -21,5 +21,5 @@
     "No live Agent Feedback auto-send.",
     "No Harlan/Fal/voice/Canva/OpenHuman feature work."
   ],
-  "approvalDigest": "124ac3ccda206f22ed18c5ff412058c86754d2ff3454dde44772ca82f7a284de"
+  "approvalDigest": "09695f63de10a1318007dd5d69ce1e7392959690fc2250f9203ef4e57b2101ad"
 }

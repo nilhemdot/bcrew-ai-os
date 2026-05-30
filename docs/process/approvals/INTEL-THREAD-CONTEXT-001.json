@@ -7,7 +7,7 @@
   "notes": "Approved as the next safe card after KPI-LEAD-VALIDATION-001. Scope is read-only Strategic Intelligence proof enrichment: expose thread completeness, reply-backed context, direction, latest activity, source account, evidence use, corroboration, and weak-proof flags. Not approved: new extraction/sync/crawl/browser/OCR/transcription/provider work, source-system writes, action-route apply changes, Drive permission mutation, credential/key rotation, paid/provider access, browser-auth, or broad private extraction.",
   "approvalSchemaVersion": 2,
   "approvedPlanRef": "docs/process/intel-thread-context-001-plan.md",
-  "approvedPlanSha256": "994aa9e9f8552715371ab81b92543c556d92a22625fceca8d240e7a27521e607",
+  "approvedPlanSha256": "dcf8e99549bc07afc96950c28556b586a04e590d7397d700bf5c3c9cf37347f0",
   "approvedRepoHead": "5d793ae93b544c00bf368dad7f47ef55b32a0c21",
   "changedFiles": [
     "lib/intel-thread-context.js",
@@ -22,5 +22,5 @@
     "lib/foundation-build-closeout-intelligence-records.js",
     "lib/foundation-verify-coverage-card-ids.js"
   ],
-  "approvalDigest": "a7df2c5848dab5786a3d31505c701e5c94d8eba66dd7d5c84e80507a3ef42130"
+  "approvalDigest": "9f2dffc5ed31953c91d5b6e588f95bfe3882213d0b36af7a10f13a5de1f1c643"
 }

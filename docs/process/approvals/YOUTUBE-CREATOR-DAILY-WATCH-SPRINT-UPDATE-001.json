@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-21T15:55:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/youtube-creator-daily-watch-sprint-update-001-plan.md",
-  "approvedPlanSha256": "0d5f8b00b3b940c29d994a0a2353c4f40ea44a0e330bce32dd4aa8e511533ec6",
+  "approvedPlanSha256": "8ab9dac9b6d075993d9939d38ae74dab7e06ca95aff4086a8f2d6b3db0d68c3d",
   "approvedRepoHead": "558a51a0806347371eb933a92586f2460d312bb8",
   "approvalSource": "Steve direct May 21 correction: Build Intel does not work until approved public creators are checked daily for new videos; Mark starts with last 50 public videos and other approved public creators start with last 20.",
-  "approvalDigest": "a90fbf29f40b99026f1ff34e52ec5306b4396e69d9a1189fd86966cbaa6b9c3d"
+  "approvalDigest": "a2dd51213aca8dff656221f2ff3ec2874bd2b24785c62b85b2f8fcd1d1e25f24"
 }

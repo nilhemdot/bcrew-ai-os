@@ -36,7 +36,7 @@ Done means `GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001` is closed under `god-mode-ext
 
 Existing docs and source notes reused:
 
-- `docs/handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md`
+- `docs/_archive/handoffs/2026-05-23-youtube-dev-hub-intel-proof-checkpoint.md`
 - `docs/source-notes/mark-claudeclaw-build-intel.md`
 - `docs/source-notes/kia-ai-automations-build-intel.md`
 - `docs/source-notes/github-build-intel.md`
@@ -94,7 +94,7 @@ Repair path: if the brief lacks sources, fails to reject weak scale-up, omits sa
 - `docs/process/god-mode-extractor-research-swarm-001-plan.md`
 - `docs/process/approvals/GOD-MODE-EXTRACTOR-RESEARCH-SWARM-001.json`
 - `docs/source-notes/god-mode-extractor-research-swarm-2026-05-23.md`
-- `docs/handoffs/2026-05-23-god-mode-extractor-research-swarm-closeout.md`
+- `docs/_archive/handoffs/2026-05-23-god-mode-extractor-research-swarm-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `lib/foundation-build-closeout-intelligence-records.js`

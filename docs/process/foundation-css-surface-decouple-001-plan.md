@@ -31,7 +31,7 @@ Existing code:
 
 Existing docs:
 
-- `docs/audits/2026-05-19-foundation-deep-merge-audit.md`
+- `docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md`
 - `docs/process/stylesheet-monolith-split-001-plan.md`
 - `docs/process/deep-audit-findings-closure-gate-001-plan.md`
 

@@ -70,7 +70,7 @@ Reuse existing docs:
 
 - `docs/process/foundation-raw-green-repair-and-lock-001-plan.md`
 - `docs/process/foundation-file-size-watch-classifier-001-plan.md`
-- `docs/handoffs/2026-05-19-foundation-file-size-watch-classifier-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-foundation-file-size-watch-classifier-closeout.md`
 - live Current Sprint truth
 - live backlog truth
 

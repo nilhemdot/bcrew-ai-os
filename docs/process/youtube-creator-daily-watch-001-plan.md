@@ -139,7 +139,7 @@ Repair path: if YouTube discovery, DB persistence, scheduled job status, report/
 - `scripts/process-youtube-creator-daily-watch-check.mjs`
 - `docs/process/youtube-creator-daily-watch-001-plan.md`
 - `docs/process/approvals/YOUTUBE-CREATOR-DAILY-WATCH-001.json`
-- `docs/handoffs/2026-05-21-youtube-creator-daily-watch-closeout.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-creator-daily-watch-closeout.md`
 - `lib/foundation-job-mutation-allowlist.js`
 - `lib/foundation-jobs.js`
 - `lib/foundation-build-intel-routes.js`

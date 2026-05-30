@@ -27,7 +27,7 @@ The root invariant is: `MEMORY-002` can only move from scoped/preflight into run
 - `scripts/process-memory-002-openclaw-native-memory-preflight-check.mjs` is the focused proof script and remains read-only by default.
 - `scripts/process-fanout-check.mjs` and `scripts/process-post-ship-fanout.mjs` validate `blocked-preflight` closeouts without requiring the target card to be marked done.
 - `docs/process/approvals/MEMORY-002.json` approves only the metadata preflight/return scope.
-- `docs/handoffs/2026-05-18-memory-002-openclaw-native-memory-preflight.md` records no config mutation, no gateway restart, no private recall probe, no provider/model call, and no external-system mutation.
+- `docs/_archive/handoffs/2026-05-18-memory-002-openclaw-native-memory-preflight.md` records no config mutation, no gateway restart, no private recall probe, no provider/model call, and no external-system mutation.
 - `MEMORY-002` is not marked done as native memory enablement.
 
 ## Details

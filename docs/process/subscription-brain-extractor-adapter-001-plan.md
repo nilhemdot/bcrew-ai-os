@@ -87,7 +87,7 @@ Repair path: if Claude auth, quota, output parsing, credential fingerprint, ledg
 - `scripts/process-subscription-brain-extractor-adapter-check.mjs`
 - `docs/process/subscription-brain-extractor-adapter-001-plan.md`
 - `docs/process/approvals/SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001.json`
-- `docs/handoffs/2026-05-23-subscription-brain-extractor-adapter-closeout.md`
+- `docs/_archive/handoffs/2026-05-23-subscription-brain-extractor-adapter-closeout.md`
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `lib/foundation-verify-coverage-card-ids.js`
 - `docs/rebuild/current-plan.md`

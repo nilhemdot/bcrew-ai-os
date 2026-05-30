@@ -25,7 +25,7 @@ The old system had an Implementation Scoper that enriched thin cards before buil
 
 ## Existing Work To Reuse
 
-Reuse live backlog helpers, Research Inbox proposal conventions, build-log proof records, `docs/handoffs/research-purge-2026-05-13.md`, `docs/rebuild/current-plan.md`, `docs/rebuild/current-state.md`, and the Plan Critic 7-section scoring doctrine.
+Reuse live backlog helpers, Research Inbox proposal conventions, build-log proof records, `docs/_archive/handoffs/research-purge-2026-05-13.md`, `docs/rebuild/current-plan.md`, `docs/rebuild/current-state.md`, and the Plan Critic 7-section scoring doctrine.
 
 ## Details
 

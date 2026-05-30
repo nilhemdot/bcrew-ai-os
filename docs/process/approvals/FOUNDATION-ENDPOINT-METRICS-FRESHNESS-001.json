@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001",
   "approvedPlanRef": "docs/process/foundation-endpoint-metrics-freshness-001-plan.md",
-  "approvedPlanSha256": "56767542643419354e8efc91f491a1ade7354af3a549cded66c9f5991f17141c",
+  "approvedPlanSha256": "e664b44221cf29801d6fbf760aa834585f140e4066900311d50e3c07028d23fa",
   "approvedRepoHead": "dece427f4d1d5a4f4776279335d1143aaf5a07f2",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-19T11:18:00.000-04:00",
@@ -17,5 +17,5 @@
     "Do not rewrite endpoint thresholds, route implementations, or lazy-loading behavior unless the focused proof shows a measured route is over budget.",
     "No Drive permission mutation, email sends, Agent Feedback sends, external writes, broad extraction, or provider probes."
   ],
-  "approvalDigest": "58de057d78954dbb997840167907333da5b955eac2ac1e78ae595c26ca0f4ec7"
+  "approvalDigest": "b2bcdc634f5d66dc58eb6a864f6ed0a9da08cea94419b22e145596f9fe7c3500"
 }

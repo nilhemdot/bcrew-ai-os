@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-29
-Status: `HUMAN-WEB-AGENT-V1-2026-05-29` is the active sprint, and `SOURCE-BROWSER-AGENTIC-RUNTIME-001` is the active blocker. The sprint is the evidence-backed answer to the Dev Director top three: Browser Agent That Can Work, Memory System That Keeps Agents Sharp, and Extractor That Can Go Anywhere. `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001` remains the parent contract, but the live Building Now slice is the source-browser agent that should take exact source packets, use local isolated browser hands or safer connectors, preserve session boundaries, extract value, remember run state, show proof, and stop/escalate at real boundaries. Browser-hands auth must support a visible isolated Chrome/Playwright mode that Steve can watch, with headless mode explicit and local live-state/screenshot artifacts for review. MyICOR, Skool, source-state ledger, daily Director source review, Dev page System Truth, and builder startup memory now have V1 proof slices. The builder memory startup packet is `builder-memory:startup-packet:v1`. The old YouTube sprint remains upstream evidence/context; `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` is not the active blocker. Browserbase is killed/parked outside this sprint; no bakeoff or hosted-browser/model-call loop is active. Skool/MyICOR/private/auth extraction remains blocked until exact source-session approval.
+Last updated: 2026-05-30
+Status: `FOUNDATION-TUNEUP-2026-05-29` is the active sprint, and `FOUNDATION-HUB-FOLDER-ISOLATION-001` is the active blocker in `scoping`. The clean-foundation tune-up is closed through the bounded remap proof: stale doc/proof lanes were repointed, the last closeout-data migration was finished, Reduction Mode stayed active, the approved Steve-only Harlan notification path is live, hot oversized files and static import cycles are visible/proved, and Current Sprint is parked at the per-hub checkpoint. Runtime health is green from the startup packet and `foundation:verify`. The next action is a true from-scratch `/understand` wipe-and-rebuild remap in the plugin chat, then Steve's per-hub go/no-go. Human Web Agent V1 and YouTube/Dev intelligence remain upstream context, not the current command order.
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -25,11 +25,15 @@ Current Mark closeout truth: `MARK-KASHEF-LAST-50-API-EVIDENCE-GAP-001` blocks f
 
 ## Short Version
 
-The Foundation is real, the YouTube/Dev intelligence work produced the evidence, and the current sprint is now Human Web Agent V1. The next useful build is not another video-only run or any Browserbase experiment. It is the local-first source-browser agent loop:
+The Foundation is runtime-safe and parked at the clean-remap checkpoint, but it is not yet the clean professional box. The dead weight, duplicate/inline data, stale proof lanes, and Harlan dormant notification path were cleaned up; per-hub folders are still deferred until Steve reviews the fresh remap.
 
-`source mission packet -> route policy -> browser/session/connector tool -> observe -> plan -> act -> extract -> remember -> prove -> continue/stop/escalate`
+Current Sprint API owns the active blocker. The live sprint is `FOUNDATION-TUNEUP-2026-05-29`, with `FOUNDATION-HUB-FOLDER-ISOLATION-001` in `scoping`.
 
-Current Sprint API owns the active blocker. The live sprint is `HUMAN-WEB-AGENT-V1-2026-05-29`.
+The closeout order is:
+
+`done: doc/proof repoints -> remaining closeout data migration -> reusable real-done/dormant audit -> Harlan Steve-only live notification -> oversized/static-cycle risk park-or-split -> bounded remap proof -> now: true from-scratch /understand remap and per-hub checkpoint`
+
+The Human Web Agent loop remains the next product direction after this foundation cleanup, not the active sprint during the tune-up.
 
 MyICOR next step: `MYICOR-SOURCE-SYSTEM-MAP-001` treats MyICOR as a connector-first source-system map, not a blind scrape. `MYICOR-MCP-CATALOG-SNAPSHOT-001` now persists that map into `source_crawl_items` and `intelligence_report_artifacts`: 15 courses, 265 lesson metadata rows, 16 learning-resource metadata rows, 296 source-state rows, and report artifact `source-system:myicor:mcp-catalog-snapshot:v1`. Content status remains not extracted. This is the first concrete source-state ledger proof, and actual lesson extraction remains approval-bound through exact packets such as `MYICOR-APPROVED-LESSON-EXTRACT-PROOF-001`.
 
@@ -59,7 +63,7 @@ May 28 source-browser fallback recovery policy: fallback rows now carry bounded 
 
 May 28 source-browser Harlan escalation bridge: fallback/auth-needed plans now prepare the existing Harlan auth-escalation dry-run packet instead of leaving the stuck state as a note. The packet has Harlan card context, Telegram notification metadata, `waitsForDoneToken: DONE`, and `sendsMessageNow=false`. Real Telegram delivery, source-session resume, login, signup, challenge solving, purchases, downloads, posting, messaging, and credential mutation remain blocked until the approved runner exists. Hosted Browserbase fallback is parked outside this sprint.
 
-May 28 Harlan live-delivery preflight: `HARLAN-AUTH-LIVE-DELIVERY-002` is covered by `harlan-auth-live-delivery-preflight-v1` as blocked-preflight, not done. It proves Steve-only Telegram request packet readiness, metadata-only config refs, raw secret rejection, duplicate suppression, `DONE`/reverify/resume, timeout fail-closed, and `sendsMessageNow=false`. It does not send Telegram, create a bot, store raw bot/chat secrets, resume source sessions, log in, sign up, or extract paid/private content. One approved Steve-only live Telegram test remains the next approval-bound step.
+May 30 Harlan live delivery: `HARLAN-AUTH-LIVE-DELIVERY-002` is live for Steve-only notifications under `harlan-auth-live-delivery-live-v1`. Steve approved bot `@harlan_bcrew_bot`, chat `8758547582`, notifications only, OpenClaw token ref, dedupe, and fail-closed behavior. `npm run harlan:builder-event` is the reusable runner, and `process:foundation-ship` calls Harlan on ship success/failure. Proof paths do not call Telegram except through injected sender dogfood. This does not create a bot, store raw tokens in repo truth, parse replies as actions, resume source sessions, log in, sign up, extract paid/private content, send to anyone else, or grant broader Harlan runtime authority.
 
 May 23 checkpoint: the Dev Hub should stay narrow until the YouTube intel pipe is proven. It needs an Overview/YOU page and an Incoming Data Intelligence view; Foundation Sprint and Backlog remain the workflow owners. Current YouTube watch rows are metadata, not full watched/analyzed videos. Steve corrected the sprint so Mark last-50 and other creator latest-20 do not scale until the extractor proves the real source package. Research is closed, the Eyes Quality Loop proved Gemini video-understanding EYES V0 adds value on 3 exact approved public videos, the overnight guard blocks unsafe scale-up, and the subscription adapter proves Claude subscription is useful for bounded evidence reasoning after evidence capture. Gemini Workspace browser output is now scout/reasoning only for YouTube URLs after strict retest; Mark uses Gemini API full-watch route `gemini_api_youtube_url_video_understanding`, transcript/page/resource evidence, and `gemini-3.5-flash` as the chosen quality/value default.
 
@@ -132,9 +136,20 @@ Closed setup:
 - `SUBSCRIPTION-BRAIN-EXTRACTOR-ADAPTER-001` shipped the bounded subscription mini-brain adapter under `subscription-brain-extractor-adapter-v1`; it proves the already-authenticated local Claude Code subscription route can reason over exact approved extractor evidence with Brain Fleet ledger proof and unchanged credential fingerprints. It does not replace Gemini/API video eyes or prove logged-in Gemini browser/subscription extraction.
 - `GEMINI-WORKSPACE-EYES-ROUTE-PROOF-001` shipped the logged-in Gemini Workspace browser proof under `gemini-workspace-eyes-route-proof-v1`; it proves the Gemini web app can return structured scout/reasoning output for one exact approved public video without the Gemini API key. It is not accepted as full YouTube video watching from URL after the May 23 strict retest.
 
-Active card: `SOURCE-BROWSER-AGENTIC-RUNTIME-001` for the first Human Web Agent V1 Building Now slice. `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001` is the parent contract. `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` remains backlog/upstream source context, not the active sprint blocker. `MARK-KASHEF-LAST-50-BASELINE-001` is still parked by `MARK-KASHEF-LAST-50-API-EVIDENCE-GAP-001`.
+Active card: `FOUNDATION-HUB-FOLDER-ISOLATION-001` for the per-hub checkpoint. This is a clean-foundation decision point, not approval to restructure files yet. `SOURCE-BROWSER-AGENTIC-RUNTIME-001` and `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001` remain the next product/source-agent context after Steve decides the per-hub direction. `YOUTUBE-CREATOR-GOD-MODE-CATCHUP-001` remains backlog/upstream source context, not the active sprint blocker. `MARK-KASHEF-LAST-50-BASELINE-001` is still parked by `MARK-KASHEF-LAST-50-API-EVIDENCE-GAP-001`.
 
-Human Web Agent V1 sprint order:
+Foundation Tuneup sprint order:
+
+1. `FOUNDATION-TUNEUP-ROADMAP-001` - done roadmap/governor.
+2. `REDUCTION-MODE-001` - active discipline for this sprint; net smaller active code, reusable mechanisms over per-card file growth.
+3. `FOUNDATION-CLOSEOUT-RECORDS-DATA-STORE-001` - done; the overnight closeout wrapper now loads from JSON data.
+4. `FOUNDATION-DOC-ARCHIVE-MOVE-001` - done; stale doc/proof lanes now point at the new truth.
+5. `FOUNDATION-DONE-SEMANTICS-REPAIR-001` - done; reusable real-done/dormant guard classifies built capabilities as wired, wire-now, blocked-preflight, parked, or retired.
+6. `FOUNDATION-ORPHAN-SCRIPT-REVIEW-001` - done; proof scripts test live loaders and real controls, not old wrapper text.
+7. `FOUNDATION-TUNEUP-REMAP-PROOF-001` - done; the repo is ready for a wipe-and-rebuild `/understand` remap.
+8. `FOUNDATION-HUB-FOLDER-ISOLATION-001` - active checkpoint; do not start per-hub folders until Steve reviews the clean remap and approves.
+
+Historical Human Web Agent V1 sprint order:
 
 1. `EXTRACTOR-EYES-HANDS-BRAIN-RUNTIME-001` - parent source/extractor contract
 2. `SOURCE-BROWSER-AGENTIC-RUNTIME-001` - Building Now active blocker

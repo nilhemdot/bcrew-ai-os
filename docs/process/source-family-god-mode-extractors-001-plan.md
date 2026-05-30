@@ -81,4 +81,4 @@ npm run process:god-mode-extractor-parity-gate-check -- --json
 - Do not mutate external systems.
 - Do not turn extractor maturity into fake UI grades; it must come from real proof.
 
-Closeout proof lives in `docs/handoffs/2026-05-26-source-family-god-mode-extractors-v1-closeout.md`.
+Closeout proof lives in `docs/_archive/handoffs/2026-05-26-source-family-god-mode-extractors-v1-closeout.md`.

@@ -94,7 +94,7 @@ Repair path: if Gemini auth/quota fails, stop and report the exact stop conditio
 - `docs/source-notes/god-mode-extractor-eyes-quality-loop-2026-05-23.md`
 - `docs/process/god-mode-extractor-eyes-quality-loop-001-plan.md`
 - `docs/process/approvals/GOD-MODE-EXTRACTOR-EYES-QUALITY-LOOP-001.json`
-- `docs/handoffs/2026-05-23-god-mode-extractor-eyes-quality-loop-closeout.md`
+- `docs/_archive/handoffs/2026-05-23-god-mode-extractor-eyes-quality-loop-closeout.md`
 - `lib/dev-team-hub.js`
 - `lib/foundation-build-intel-routes.js`
 - `lib/foundation-build-closeout-intelligence-records.js`

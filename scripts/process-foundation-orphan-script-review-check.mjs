@@ -331,7 +331,7 @@ async function main() {
     ] = await Promise.all([
       readRepoJson('package.json'),
       readRepoFile(FOUNDATION_ORPHAN_SCRIPT_REVIEW_PLAN_PATH),
-      readRepoFile('lib/foundation-build-closeout-process-gate-operations-records.js'),
+      Promise.resolve(JSON.stringify(getFoundationBuildCloseouts())),
       readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
       readRepoFile('scripts/process-foundation-tuneup-roadmap-check.mjs'),
       buildCandidateFileRecords(),

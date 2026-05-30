@@ -2,19 +2,22 @@
   "approvalSchemaVersion": 2,
   "cardId": "HARLAN-AUTH-LIVE-DELIVERY-002",
   "approvedBy": "Steve via Codex main session",
-  "approvedAt": "2026-05-28T10:00:00-04:00",
+  "approvedAt": "2026-05-30T00:00:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/harlan-auth-live-delivery-002-plan.md",
-  "approvedPlanSha256": "677ce8b4e63f21dd3a5a0f0b4a218aea5bce33d59d2103fac216f9e477d9905a",
+  "approvedPlanSha256": "b45918704b01e1fbcd72ca3556955448aabf271442e0db21ff742f82e294dd37",
   "approvedRepoHead": "07fee618ec1e88e197283caf68866196a21d2c28",
-  "approvalSource": "Steve confirmed Harlan agent communications should live on Telegram, then told Codex to keep going without stopping unless blocked. Approval is for blocked-preflight delivery gating only: no live Telegram send until Steve approves exact bot/chat boundary and one Steve-only live test.",
+  "approvalSource": "Steve explicitly approved HARLAN-AUTH-LIVE-DELIVERY-002 as a live slice, not preflight: bot @harlan_bcrew_bot, Steve-only chat 8758547582, notifications only, dedupe, fail-closed, and no other recipients or actions.",
   "constraints": [
-    "Build Harlan Telegram live-delivery preflight for auth-needed operator help",
-    "Keep proof paths no-send with sendsMessageNow=false and externalSent=false",
+    "Enable Harlan Telegram live delivery for Steve-only notifications",
+    "Use bot @harlan_bcrew_bot and recipient chat 8758547582 only",
+    "Point HARLAN_TELEGRAM_BOT_TOKEN_REF at Harlan's OpenClaw Telegram bot token ref",
+    "Set HARLAN_TELEGRAM_STEVE_CHAT_ID_REF=8758547582",
+    "Keep proof paths no-send with sendsMessageNow=false and externalSent=false unless using injected sender dogfood",
     "Reject raw Telegram bot tokens and raw chat IDs from repo/proof output",
-    "Allow only Steve as the target recipient",
-    "Prepare request preview only when bot/chat secret refs and live-test approval ref are present",
-    "Do not send Telegram, create a bot, sign up, log in, resume source sessions, buy, download, post, comment, message, mutate credentials, or extract paid/private content from this slice"
+    "Dedupe notifications and fail closed on missing config or send errors",
+    "Wire builder ship/failure events to Harlan delivery",
+    "Do not create a bot, sign up, log in, resume source sessions, buy, download, post, comment, message, mutate credentials, parse replies as actions, or extract paid/private content from this slice"
   ],
-  "approvalDigest": "5db773756056e6a98a5dcb4ac4c6a847968c96b7b110e07edd3ea3998fec27e7"
+  "approvalDigest": "eb64e4e4a912ee138774a51e1655a50434f1ab51009c749bf66b2459a4a06068"
 }

@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001",
   "approvedPlanRef": "docs/process/build-intel-daily-extraction-review-001-plan.md",
-  "approvedPlanSha256": "e7ed00b6125e227a79476bac706ed2d602c669cc37e13a5a1c001c4c7dc67d76",
+  "approvedPlanSha256": "e44c9129882a0330d6ffad7ac9feec8bc0c88777cd557a98b8efe5bed064c2c3",
   "approvedRepoHead": "52341b7e93185a110603b2e7caebe9ae71700f09",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-19T18:55:00-04:00",
@@ -22,5 +22,5 @@
     "raw transcript/content body storage in the review queue",
     "credential/key mutation, Drive permission mutation, external sends, or public exposure"
   ],
-  "approvalDigest": "d330d5ba8850cd7889af0fb208d2e5200aae8f89d9cf3f0d76035ce8dd1cb631"
+  "approvalDigest": "f5e38df9f81b5d7af78094f8adc7879aaac3909e3583ce0069de32952aaf0684"
 }

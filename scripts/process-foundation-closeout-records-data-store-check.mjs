@@ -265,12 +265,14 @@ async function main() {
       packageJson,
       planSource,
       wrapperSource,
+      overnightWrapperSource,
       buildLogSourceHelperSource,
       registryExtractSource,
     ] = await Promise.all([
       readRepoJson('package.json'),
       readRepoFile(FOUNDATION_CLOSEOUT_RECORDS_DATA_STORE_PLAN_PATH),
       readRepoFile('lib/foundation-build-closeout-source-newsletter-records.js'),
+      readRepoFile('lib/foundation-build-closeout-overnight-records.js'),
       readRepoFile('lib/foundation-build-log-source.js'),
       readRepoFile('lib/build-closeout-registry-extract.js'),
     ])
@@ -286,6 +288,7 @@ async function main() {
     })
     const snapshot = buildFoundationCloseoutRecordsDataStoreSnapshot({
       wrapperSource,
+      overnightWrapperSource,
       buildLogSourceHelperSource,
       registryExtractSource,
     })
@@ -375,7 +378,14 @@ async function main() {
           recordCount: snapshot.migratedArtifact.recordCount,
           ok: snapshot.migratedArtifact.validation?.ok,
         } : null,
+        migratedArtifacts: snapshot.migratedArtifacts.map(artifact => ({
+          artifactId: artifact.artifactId,
+          relativePath: artifact.relativePath,
+          recordCount: artifact.recordCount,
+          ok: artifact.validation?.ok,
+        })),
         wrapperLines: snapshot.wrapperLines,
+        wrapperLineCounts: snapshot.wrapperLineCounts,
       },
       currentSprint: {
         status: currentSprintStatus.status,

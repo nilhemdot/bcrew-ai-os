@@ -48,7 +48,7 @@ Existing docs and truth to reuse:
 - `docs/process/dev-team-hub-v0-001-plan.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
-- `docs/handoffs/2026-05-22-dev-team-hub-v0-closeout.md`
+- `docs/_archive/handoffs/2026-05-22-dev-team-hub-v0-closeout.md`
 - live backlog and Current Sprint truth for `YOUTUBE-BUILD-INTEL-LINK-RESOURCE-002`
 
 Behavior proof must use real function/API/process paths. It should build a focused classifier/check module, run dogfood fixtures for safe, risky, duplicate, and missing-source links, write or read Foundation review records through the approved store path, and verify that `/api/foundation/dev-team-hub` can surface approval-required link data. The proof command is `npm run process:youtube-build-intel-link-resource-check -- --json`. It must reject weak proof, substring-only proof, and static markdown-only evidence.

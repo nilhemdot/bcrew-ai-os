@@ -92,7 +92,7 @@ Repair path: if the live sprint still shows old done rows, the card fails closed
 - `scripts/process-youtube-current-sprint-workspace-cleanup-check.mjs`
 - `docs/process/youtube-current-sprint-workspace-cleanup-001-plan.md`
 - `docs/process/approvals/YOUTUBE-CURRENT-SPRINT-WORKSPACE-CLEANUP-001.json`
-- `docs/handoffs/2026-05-21-youtube-current-sprint-workspace-cleanup-closeout.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-current-sprint-workspace-cleanup-closeout.md`
 - `scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs`
 - `public/foundation-operations-renderers.js`
 - `docs/rebuild/current-plan.md`

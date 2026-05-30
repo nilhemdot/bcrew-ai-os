@@ -40,7 +40,7 @@ This card closes that trust gap without running new extraction. It enriches exis
 This card reuses existing Strategic Intelligence and shared-communications surfaces instead of building a new extraction lane.
 
 - Existing code reused: `lib/intelligence-action-router.js`, `public/strategic-execution.js`, `lib/strategic-intel-loop.js`, and `lib/intel-scoper.js`.
-- Existing docs reused: `docs/specs/2026-04-28-strategic-intelligence-loop.md`, `docs/handoffs/2026-05-19-strategic-intel-loop-closeout.md`, and `docs/process/intel-scoper-001-plan.md`.
+- Existing docs reused: `docs/specs/2026-04-28-strategic-intelligence-loop.md`, `docs/_archive/handoffs/2026-05-19-strategic-intel-loop-closeout.md`, and `docs/process/intel-scoper-001-plan.md`.
 - Existing data reused: `shared_communication_artifacts`, `shared_communication_candidates`, `intelligence_atoms`, `intelligence_synthesis_facts`, and `intelligence_action_routes`.
 - Existing scripts reused: `process:strategic-intel-check`, `process:intel-scoper-check`, `process:strategy-004-check`, `process:strategy-009-check`, `process:system-health-nightly-audit-check`, `process:build-lane-repeated-failure-action-gate-check`, `backlog:hygiene`, `foundation:verify`, and `process:foundation-ship`.
 

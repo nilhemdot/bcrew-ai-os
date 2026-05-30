@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-13T14:25:00Z",
   "score": 10,
   "approvedPlanRef": "docs/process/internal-scoper-001-plan.md",
-  "approvedPlanSha256": "9608af2cc47e1f04fbbc6c9a3e575e62ab248f0fba9b49df2f76365cc7ffa9be",
+  "approvedPlanSha256": "4d66dbee83f49485819b2376dd15f4a5d08356187895823d02095792fe1c12fe",
   "approvedRepoHead": "8f336ff1e67be19269bd5ad46821de5203ec8b39",
   "notes": "Approved as part of Implementation Intelligence Sprint. Scope: proposal-only backlog/card enrichment, research disposition, builder lesson linking, and public YouTube preflight. No paid auth, extraction, atom creation, or automatic backlog mutation.",
-  "approvalDigest": "3c61f05014f455540c2715a798917833677b04ad0a0fa429d16a179ce87c02bd"
+  "approvalDigest": "0d508f7c8d59810b890c0906cc66ab60de1cb65e3e25cee68392bf2335374ac0"
 }

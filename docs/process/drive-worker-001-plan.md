@@ -54,7 +54,7 @@ The card adds:
 - `scripts/process-drive-worker-check.mjs` for live proof, backlog/Current Sprint updates, and closeout validation.
 - `docs/process/drive-worker-001-plan.md`
 - `docs/process/approvals/DRIVE-WORKER-001.json`
-- `docs/handoffs/2026-05-19-drive-worker-governed-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-drive-worker-governed-closeout.md`
 
 ## Reuse Existing Work
 
@@ -71,7 +71,7 @@ Existing code to reuse:
 Existing docs to reuse:
 
 - `docs/process/drive-content-001-plan.md`
-- `docs/handoffs/2026-05-19-drive-content-next-bite-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-drive-content-next-bite-closeout.md`
 - `docs/source-notes/google-drive-corpus.md`
 
 Existing scripts to reuse:

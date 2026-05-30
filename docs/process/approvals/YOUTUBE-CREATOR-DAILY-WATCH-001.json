@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-25T17:00:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/youtube-creator-daily-watch-001-plan.md",
-  "approvedPlanSha256": "8210b7f4b28c97c6df5a59e6dbceff5d7055a166d2c45bf4dd2ac02ddbd9cf3a",
+  "approvedPlanSha256": "99bd14c198d9a53f5c335d62d7a89d530f42527a0ca23d4bf09175bbbb5d37bc",
   "approvedRepoHead": "9821faddeb493489ceedecbf4b4ab2431d1ea583",
   "approvalSource": "Steve direct May 25 instruction: after Mark is done, prioritize ICOR with Tom/myICOR and watch the last 50 public YouTube videos as catch-up only; keep watching anything new they release today, tomorrow, or later through daily public no-auth deltas.",
-  "approvalDigest": "9803936dff2835ae32231fe955ed4ecd76be0c01e495b3411a25c490202cb6e6"
+  "approvalDigest": "61db5b85b8e2bd1977932d3dd887812249771accf0256e63cc1f634c049f1cc7"
 }

@@ -37,7 +37,7 @@ Operator value: Steve gets an audit surface he can trust as an execution queue. 
 - `lib/audit-finding-to-backlog-router.js` owns the routing rules and dogfood proof.
 - `scripts/process-audit-finding-to-backlog-router-check.mjs` is registered in `package.json`.
 - The explicit apply proof creates/scopes missing audit cards and closes this card.
-- The closeout handoff exists at `docs/handoffs/2026-05-19-audit-finding-to-backlog-router-closeout.md`.
+- The closeout handoff exists at `docs/_archive/handoffs/2026-05-19-audit-finding-to-backlog-router-closeout.md`.
 - Verifier coverage and build closeout registry know this closeout.
 - `backlog:hygiene`, `foundation:verify`, and `process:foundation-ship` pass before push.
 

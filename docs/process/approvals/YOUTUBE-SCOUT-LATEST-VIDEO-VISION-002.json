@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-21T14:30:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/youtube-scout-latest-video-vision-002-plan.md",
-  "approvedPlanSha256": "f9ec1d6aca4b2a1506eb1455d69dbbfd28b2529461e8f0049d78857374f2805f",
+  "approvedPlanSha256": "3fa8f8134e2f55bf0f5698de382c0615a5c4c82ca66c8d890718d28463a876cf",
   "approvedRepoHead": "3158079db8e4afc512ee8378d52828f33e993978",
   "approvalSource": "Steve direct May 21 request: build the bounded Mark Kashef public YouTube scout from the channel videos page and exact seed video before any Skool/MyICOR/private/paid extraction.",
-  "approvalDigest": "faeeaf8901251afcbf3319a9f3941828f78fdb3af79c8f06fdb794a818b1729e"
+  "approvalDigest": "a720bb03148c96038fbe80b5dc74df823102b796cd64ff95e7cdc881697796ee"
 }

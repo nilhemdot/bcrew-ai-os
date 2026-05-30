@@ -7,7 +7,7 @@
   "approvalSource": "Steve interrupted the Foundation builder with a merge-to-main process correction requiring a merge queue before more long-branch card stacking.",
   "scopeSummary": "Create the Foundation merge queue protocol, focused fail-closed proof, backlog card, approval, closeout, package script, and closeout registry coverage without merging main or launching parallel builders.",
   "approvedPlanRef": "docs/process/foundation-merge-queue-001-plan.md",
-  "approvedPlanSha256": "56ef27263fc0530ccdb04cb297c740918f31be5940d0a78c30219f1afeeff116",
+  "approvedPlanSha256": "d9eed4124c4cdfd6ab27f9fbc243a3e914a58c7b676bb18063136f8ba73b31b6",
   "approvedRepoHead": "8a95a355ed542ce177a01842a6e959b6e7ece6d3",
   "notApproved": [
     "Do not merge main in this card.",
@@ -16,5 +16,5 @@
     "Do not mark approval-bound provider or extraction work done.",
     "Do not keep stacking completed cards on a long-lived branch without entering the integration queue."
   ],
-  "approvalDigest": "a5962ca5366149f0360bd2b21e57313fa2e092fce79b91a85b7db52d12e84b99"
+  "approvalDigest": "ecb026af0aa06f6eb9d03aadb41ef4b0c3661aff364fc483c3880d4fa3664a9f"
 }

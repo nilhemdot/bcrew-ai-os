@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "FOUNDATION-HEALTH-WATCH-TO-GREEN-001",
   "approvedPlanRef": "docs/process/foundation-health-watch-to-green-001-plan.md",
-  "approvedPlanSha256": "ce6b1384c9c74089ef116f50f1aa6cb1b18d4ba844c590779ab6ad217b112c7e",
+  "approvedPlanSha256": "75744d910e1194d4987490cb6452590017409b7af7f4bf73c5a13a9e569e4a44",
   "approvedRepoHead": "ffa16308979a5a8e7bca3e4b31d3f50143be6460",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-19T09:20:00.000-04:00",
@@ -17,5 +17,5 @@
     "Do not start source/extraction activation before health and audit cleanup are complete.",
     "Do not launch parallel builders from this card."
   ],
-  "approvalDigest": "69cfcfe4da6885db8a3e79a78ce332a827236a8aaf85f03264fd81bf6a99bb42"
+  "approvalDigest": "993553c0ed1f9a3a55d44a29b7eef066082cff5e6286e7e1bcb16ed82088531b"
 }

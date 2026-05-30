@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "SOURCE-019",
   "approvedPlanRef": "docs/process/source-019-shared-comms-layer-plan.md",
-  "approvedPlanSha256": "bd9274876591bfecd4b56544ffb8321220dd89cc79b6c38f87da91670ff4d6bc",
+  "approvedPlanSha256": "64e0db078fa12f65ddb7884f47438ee0066622914d98b2cbed2e12a9eff6cb98",
   "approvedRepoHead": "770b72e3cb74c14a6e1ab9e182da1ac968e5d27b",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-19T19:03:00-04:00",
@@ -22,5 +22,5 @@
     "raw email, Slack, Missive, transcript, message, participant-sensitive, or body text in proof output",
     "MEETING-VAULT-ACL-001 Phase B, broad meeting-vault cleanup, credential/key mutation, Drive permissions mutation, public exposure, or external sends"
   ],
-  "approvalDigest": "ebbf5907e35d4ab4add8ce8f8571aff6247f5b656a98a18b8e7d7c678f59f6a9"
+  "approvalDigest": "e28cee4c9e0f619707fa54a1f5328ad9260b216894473534a4e01390e6acb2fd"
 }

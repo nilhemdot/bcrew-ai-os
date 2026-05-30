@@ -65,7 +65,7 @@ Implementation files:
 - `scripts/process-extractor-brain-fleet-proof-check.mjs`
 - `docs/process/extractor-brain-fleet-proof-001-plan.md`
 - `docs/process/approvals/EXTRACTOR-BRAIN-FLEET-PROOF-001.json`
-- `docs/handoffs/2026-05-20-extractor-brain-fleet-proof-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-extractor-brain-fleet-proof-closeout.md`
 - `lib/foundation-build-closeout-model-records.js`
 - `lib/foundation-verify-coverage-card-ids.js`
 - `scripts/foundation-verify.mjs`

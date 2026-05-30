@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-13T14:25:00Z",
   "score": 10,
   "approvedPlanRef": "docs/process/research-disposition-queue-001-plan.md",
-  "approvedPlanSha256": "733e6f1cd2d200bb77dc53b5f4f780c7553576862a5c0095225e0b038bc38c81",
+  "approvedPlanSha256": "ffdd1a85ad6081d9a62fa1f77ea96998888ecf1647aaf750e34a3ec4e7eb4146",
   "approvedRepoHead": "8f336ff1e67be19269bd5ad46821de5203ec8b39",
   "notes": "Approved as part of Implementation Intelligence Sprint. Scope: proposal-only backlog/card enrichment, research disposition, builder lesson linking, and public YouTube preflight. No paid auth, extraction, atom creation, or automatic backlog mutation.",
-  "approvalDigest": "c7fbb817b09b5f730dc6de7d6fa7666ad7eaf413aa5ca7db356a1c5e195ef5b5"
+  "approvalDigest": "719e9f829a06fad2aafb334248ebd30efa60976f76c7eddc89f4d470fea77f90"
 }

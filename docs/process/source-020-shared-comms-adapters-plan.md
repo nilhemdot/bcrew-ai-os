@@ -66,7 +66,7 @@ The card adds:
 - `scripts/process-source-020-check.mjs`
 - `docs/process/source-020-shared-comms-adapters-plan.md`
 - `docs/process/approvals/SOURCE-020.json`
-- `docs/handoffs/2026-05-19-source-020-shared-comms-adapters-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-source-020-shared-comms-adapters-closeout.md`
 
 The focused proof reads local code and bounded DB summaries from:
 
@@ -98,7 +98,7 @@ Existing docs to reuse:
 
 - `docs/source-notes/shared-communications.md`
 - `docs/process/source-019-shared-comms-layer-plan.md`
-- `docs/handoffs/2026-05-19-source-019-shared-comms-layer-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-source-019-shared-comms-layer-closeout.md`
 
 Existing backlog to reuse:
 

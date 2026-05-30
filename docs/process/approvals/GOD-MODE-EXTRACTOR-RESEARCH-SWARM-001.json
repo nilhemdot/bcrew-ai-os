@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-23T10:00:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/god-mode-extractor-research-swarm-001-plan.md",
-  "approvedPlanSha256": "48d2e83c2f466fa7e55363df68d97e38e40247a1db4f5333bdca073767ca0ca7",
+  "approvedPlanSha256": "a9d4c561810f97d4f4d811572e22935a806490be59f8e2e46328a318c6d1b668",
   "approvedRepoHead": "249b91e1d0997ca527093b26c957cdf89c120cbb",
   "approvalSource": "Steve direct May 23 continuous-run instruction: research best God Mode EYES/HANDS/BRAIN extractor before scaling Mark last-50 or broader creator extraction.",
-  "approvalDigest": "746187338fdcdd08b5224344cddb4c897e320087c2ec2a7ad95a5371fa2acd13"
+  "approvalDigest": "b331de395bc1c24882b178526be7c69c7a61f24f8d69130f81164562ffaeabd5"
 }

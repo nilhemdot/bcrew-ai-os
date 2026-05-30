@@ -7,7 +7,7 @@
   "approvalSource": "Steve prioritized COURSE-SOURCE-AUTH-BOUNDARY-001 after Build Intel creator watchlist expansion, with explicit instruction to avoid live extraction, private auth, paid access, external writes, Drive mutation, Gmail/ClickUp sends, and Agent Feedback auto-send unless separately approved.",
   "scopeSummary": "Define the private/course source-auth approval boundary, metadata-only preflight rules, required approval packet fields, focused dogfood, verifier coverage, and no auth/extraction/model/output side effects.",
   "approvedPlanRef": "docs/process/course-source-auth-boundary-001-plan.md",
-  "approvedPlanSha256": "02a5abd8ab8734f5cb1359b374f258c8ccec72d0c3ddd171b0eae210597d0554",
+  "approvedPlanSha256": "a7370ad7c6a7060bc48af20321d705d2dee546a25db296e1e3bbde59901651ec",
   "approvedRepoHead": "29b0db36d967ec4edd131c9bf58510de97b321fc",
   "notApproved": [
     "Do not run live extraction.",
@@ -18,5 +18,5 @@
     "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, or external systems.",
     "Do not launch hidden subagents or parallel builders."
   ],
-  "approvalDigest": "1fbf70fda847374573122071501ecf689e4de7a78d28d6646c203380beda10cb"
+  "approvalDigest": "e6a03118677c6d43bee3f7fc2f3dc0ed3c2c83e204ac0de4212f1f56a646fc7f"
 }

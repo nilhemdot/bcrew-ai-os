@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-13T02:20:00Z",
   "score": 10,
   "approvedPlanRef": "docs/process/research-lane-purge-001-plan.md",
-  "approvedPlanSha256": "e746a3e6df1a11efc8531742c9f1acb457dab423c700fef944bcc235e690fac1",
+  "approvedPlanSha256": "f743958ab29919815b7621262a27c61287be6c5cc3a11ca41d902569659eb345",
   "approvedRepoHead": "fce7e08aaa5403baee1845b12aa974e8ff68e3eb",
   "notes": "Approved as part of Source Truth Guardrails Sprint. Scope: research-lane-purge-v1. Backend-only guardrail proof; no product work, external extraction, credential repair, Drive permission mutation, or request-access emails.",
-  "approvalDigest": "3b90bbb5698488aa1ed15c4c9c28d50f3400325bc1b29cb38676b822cc15884d"
+  "approvalDigest": "9fb09253aecf6990e812c159c6bccca2db24e676cef451c2154cfe0df90b56eb"
 }

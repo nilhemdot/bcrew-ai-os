@@ -102,7 +102,7 @@ Reuse existing code, existing docs, existing scripts, live backlog truth, and Cu
 - Existing docs:
   - `docs/process/current-sprint-active-card-gate-001-plan.md`
   - `docs/process/foundation-sprint-closeout-and-continuous-work-ready-001-plan.md`
-  - `docs/audits/2026-05-19-foundation-deep-merge-audit.md`
+  - `docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md`
 - Existing scripts:
   - `process:system-health-nightly-audit-check`
   - `process:build-lane-repeated-failure-action-gate-check`

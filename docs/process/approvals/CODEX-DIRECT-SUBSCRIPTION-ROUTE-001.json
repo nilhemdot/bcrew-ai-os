@@ -5,7 +5,7 @@
   "approvedAt": "2026-05-20T16:00:00-04:00",
   "score": 9.8,
   "approvedPlanRef": "docs/process/codex-direct-subscription-route-001-plan.md",
-  "approvedPlanSha256": "8e2f3f536f3ebdf2db8ee0b87a8d27b0b6246c5b14cbd2c002322017275d9067",
+  "approvedPlanSha256": "fb30a4de5e27407ab68b649a6e47868f1938f687dbb0c9de2b3f159c7ae82f5c",
   "approvedRepoHead": "a6472a877f33daab487c8024cb57f6f2e2f90b78",
   "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build CODEX-DIRECT-SUBSCRIPTION-ROUTE-001 immediately after Brain Fleet model capability registry and before Gemini, Claude, OpenClaw adapter boundary, or extractor proof.",
   "constraints": [
@@ -17,5 +17,5 @@
     "Do not mutate credentials, OAuth tokens, browser profiles, Codex auth files, provider config, source systems, or public systems",
     "Do not send external writes or start extractor, Strategy, or People work"
   ],
-  "approvalDigest": "5ada053190e58152449c789e62f582b8c40547230029c9f7966ee6e43496ed8d"
+  "approvalDigest": "cf75deda7dcf8f00c1da45ca99b1c52f8d5022e32cff0d65ff79b7c917f0f635"
 }

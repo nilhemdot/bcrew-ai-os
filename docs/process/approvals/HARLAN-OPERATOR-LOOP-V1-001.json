@@ -7,7 +7,7 @@
   "approvalSource": "Steve priority queue continued into HARLAN-OPERATOR-LOOP-V1-001 after HARLAN-PROJECT-REGISTRY-001 shipped.",
   "scopeSummary": "Build the read-only Harlan Foundation operator loop contract/proof over Current Sprint, build log, system health, nightly audit, build-lane telemetry, backlog, and source/action route truth. No Harlan UI, voice/avatar, runtime launch, live extraction, provider/model calls, external writes, sends, Drive mutation, home creation/move, new authority, secrets, raw private values, or hidden subagents.",
   "approvedPlanRef": "docs/process/harlan-operator-loop-v1-001-plan.md",
-  "approvedPlanSha256": "9b70855f2467e5712960f1d433ba98608d133b57f6bf18a100cdda7e047ef2d8",
+  "approvedPlanSha256": "c1995a23a609ad8463419f050edda4c3d1dc072262938f1deed0e15faf5fd5ae",
   "approvedRepoHead": "a6643340b7a6dfe11c99d0cfdb81fff440b449ae",
   "notApproved": [
     "Do not build Harlan UI or voice/avatar work.",
@@ -22,5 +22,5 @@
     "Do not copy secrets, tokens, raw private profile values, or private transcripts into repo truth.",
     "Do not launch hidden subagents or parallel builders."
   ],
-  "approvalDigest": "b8341b2aaf9f58f96a74742b141338ac838de5729812e14b00bfa82e5370e38a"
+  "approvalDigest": "1283854a75687c3c7050ed8693a7f0a97292db5654fe30628279d640f2016551"
 }

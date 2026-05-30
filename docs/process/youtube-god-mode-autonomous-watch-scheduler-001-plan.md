@@ -187,4 +187,4 @@ npm run process:youtube-god-mode-autonomous-watch-scheduler-check -- --json
 - Do not run unbounded long courses in the standard lane.
 - Do not remove budget caps, retry caps, source boundaries, or kill-switch posture after live-bounded proofs are green.
 
-Closeout proof lives in `docs/handoffs/2026-05-26-youtube-god-mode-autonomous-watch-scheduler-v1-closeout.md`. V1 is approval/budget-gated: dry-run is safe by default, and the scheduled row now runs live-bounded public YouTube batches after Steve approved the operating posture on 2026-05-26.
+Closeout proof lives in `docs/_archive/handoffs/2026-05-26-youtube-god-mode-autonomous-watch-scheduler-v1-closeout.md`. V1 is approval/budget-gated: dry-run is safe by default, and the scheduled row now runs live-bounded public YouTube batches after Steve approved the operating posture on 2026-05-26.

@@ -23,7 +23,7 @@ This card captures the useful patterns while blocking the old failure modes: age
 
 ## Acceptance Criteria
 
-- `docs/audits/2026-05-19-legacy-system-audit.md` exists and includes root summaries, evidence metadata, salvage disposition, promoted live cards, and senior call.
+- `docs/_archive/audits/2026-05-19-legacy-system-audit.md` exists and includes root summaries, evidence metadata, salvage disposition, promoted live cards, and senior call.
 - `docs/audits/2026-05-19-legacy-system-audit.json` exists and contains the same sanitized snapshot.
 - The snapshot has at least 5 present legacy roots, at least 20 targeted evidence hits, at least 15 classified findings, and at least 18 promoted live destinations.
 - Dogfood proof rejects missing roots, unclassified findings, and any old-code/runtime import side effect.
@@ -69,7 +69,7 @@ Existing code to reuse:
 
 Existing docs to reuse:
 
-- `docs/audits/2026-05-19-old-system-research-team-harvest.md`
+- `docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md`
 - `docs/audits/2026-05-19-old-system-research-team-harvest.json`
 - `docs/conversation-archive/MANIFEST.json`
 - `docs/system-capabilities.generated.json`

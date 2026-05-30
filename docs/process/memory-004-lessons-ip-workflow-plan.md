@@ -75,7 +75,7 @@ The quote/clip lane is deliberately conservative:
 Reuse:
 
 - Existing code: `lib/memory-003-conversation-archive.js`, `lib/foundation-lessons-learned-loop.js`, `lib/approval-integrity.js`, `lib/process-plan-critic.js`, `lib/process-write-guard.js`, live backlog helpers, and Current Sprint helpers.
-- Existing docs: `docs/conversation-archive/MANIFEST.json`, `docs/conversation-archive/README.md`, `docs/handoffs/2026-05-19-memory-003-conversation-archive-closeout.md`, and `docs/process/foundation-lessons-learned-loop-001-plan.md`.
+- Existing docs: `docs/conversation-archive/MANIFEST.json`, `docs/conversation-archive/README.md`, `docs/_archive/handoffs/2026-05-19-memory-003-conversation-archive-closeout.md`, and `docs/process/foundation-lessons-learned-loop-001-plan.md`.
 - Existing scripts: `scripts/process-memory-003-conversation-archive-check.mjs`, `scripts/process-foundation-lessons-learned-loop-check.mjs`, `process:system-health-nightly-audit-check`, `process:build-lane-repeated-failure-action-gate-check`, `backlog:hygiene`, and `process:foundation-ship`.
 - Existing backlog truth: live `MEMORY-004`, `PILLAR-4-SYSTEM-CAPABILITIES-001`, and Current Sprint `FOUNDATION-GOLD-CAPTURE-AND-CAPABILITY-2026-05-19`.
 - Existing downstream spine: intelligence atom/synthesis/retrieval/action-router records are downstream consumers, not rebuilt here.

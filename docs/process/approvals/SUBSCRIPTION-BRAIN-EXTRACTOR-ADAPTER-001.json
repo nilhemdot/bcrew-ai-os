@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-23T15:30:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/subscription-brain-extractor-adapter-001-plan.md",
-  "approvedPlanSha256": "6333712cc2f8f2b202479cbc678fc0edcdeccaeed00ce6700ecad677283369d5",
+  "approvedPlanSha256": "7f5e149d931eb08fa0d467754036c17c3b02147395373da7ed5641745b7da451",
   "approvedRepoHead": "5459e612272e9a9693e854fb2d05e02df9795a14",
   "approvalSource": "Steve direct May 23 direction: Ok lets go; test the subscription mini-brain extractor adapter before Mark last-50 or broader creator extraction.",
-  "approvalDigest": "8d79a90adad35f86346c8372367b543f2e92b25047bf73110351e82a6e3d2c98"
+  "approvalDigest": "321560b05bad79b7aa30bb08508524f06f290e97e8a767fe8fcb4183feae211e"
 }

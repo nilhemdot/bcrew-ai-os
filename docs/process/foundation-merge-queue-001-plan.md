@@ -30,7 +30,7 @@ Operator value: Steve can see when a branch is ready to merge, when a branch is 
 - `lib/foundation-merge-queue.js` owns the pure evaluator and dogfood behavior proof.
 - `scripts/process-foundation-merge-queue-check.mjs` is read-only by default and requires `--apply` or `--close-card` for live Backlog/Plan Critic writes.
 - `docs/process/foundation-merge-queue-protocol.md` is the operator protocol.
-- `docs/handoffs/2026-05-19-foundation-merge-queue-closeout.md` records the current branch application and merge boundary.
+- `docs/_archive/handoffs/2026-05-19-foundation-merge-queue-closeout.md` records the current branch application and merge boundary.
 
 ## Details
 Pre-merge requirements:

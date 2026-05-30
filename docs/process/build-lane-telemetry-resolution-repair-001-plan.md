@@ -35,7 +35,7 @@ For Steve, the build lane needs to learn from failures without trapping the oper
 - `lib/foundation-system-health.js` reads telemetry through the resolution-aware path.
 - `scripts/process-build-lane-failure-telemetry-check.mjs` validates the original telemetry card from active or historical sprint proof.
 - `scripts/process-build-lane-telemetry-resolution-repair-check.mjs` validates approval, Plan Critic, live card/current sprint truth, dogfood, package script, closeout registry, verifier coverage, and no hidden worker tooling.
-- `docs/handoffs/2026-05-18-build-lane-telemetry-resolution-repair-closeout.md` records the closeout.
+- `docs/_archive/handoffs/2026-05-18-build-lane-telemetry-resolution-repair-closeout.md` records the closeout.
 - Focused proof, backlog hygiene, `foundation:verify`, and `process:foundation-ship` pass before push.
 
 ## Details

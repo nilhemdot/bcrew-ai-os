@@ -32,7 +32,7 @@ Existing code to reuse: live backlog helpers, Current Sprint overlay helpers, Pl
 
 Existing database truth to reuse: `backlog_items`, `foundation_sprints`, `foundation_sprint_items`, `plan_critic_runs`, live Research Inbox contract, creator watchlist rows, source contracts, and build closeout records.
 
-Existing docs to reuse: `docs/handoffs/research-purge-2026-05-13.md`, `docs/handoffs/2026-05-13-build-intel-direction-capture.md`, `docs/rebuild/current-plan.md`, `docs/rebuild/current-state.md`, and previous Build Intel intake plans.
+Existing docs to reuse: `docs/_archive/handoffs/research-purge-2026-05-13.md`, `docs/handoffs/2026-05-13-build-intel-direction-capture.md`, `docs/rebuild/current-plan.md`, `docs/rebuild/current-state.md`, and previous Build Intel intake plans.
 
 ## Root Invariant
 

@@ -36,7 +36,7 @@ Operator value: Steve gets a real workflow for speed with quality. A builder can
 - `lib/foundation-main-integration-lock.js` owns the pure lock evaluator and dogfood proof.
 - `scripts/process-foundation-main-integration-lock-check.mjs` is read-only by default and requires `--apply` or `--close-card` for live Backlog/Plan Critic/Current Sprint writes.
 - `docs/process/foundation-main-integration-side-branches.json` records side-branch routing.
-- `docs/handoffs/2026-05-19-foundation-main-integration-lock-closeout.md` records current state and next card.
+- `docs/_archive/handoffs/2026-05-19-foundation-main-integration-lock-closeout.md` records current state and next card.
 - Closeout registry includes `foundation-main-integration-lock-v1`.
 - Focused proof, backlog hygiene, `foundation:verify`, and `process:foundation-ship` pass.
 - Commit is pushed to `main`.

@@ -7,6 +7,6 @@
   "approvedPlanRef": "docs/process/connector-blocked-row-diagnosis-001-plan.md",
   "approvedRepoHead": "450fd4781162b1c4004c18d93233ba6f73adda51",
   "notes": "Approved as the direct follow-up to verification-runs-readonly-split-v1. Scope: name the remaining blocked connector row, distinguish non-blocking Calendar readiness from true credential blockers, keep future blocked rows explicit, and do not mutate credentials, OAuth, external source systems, hub features, or paid-source auth.",
-  "approvedPlanSha256": "6d31eb6dc85bd91454c6251da0364d7a4042471a96345268a523ee08868f47a8",
-  "approvalDigest": "9eaa2a1b6195cb19427b1caef7b85aa173f2aea36c861d5a74a6b7a2a655bc82"
+  "approvedPlanSha256": "0cf6971905ab1b842397e75e7184337dc374f86dd15d491e26e9da43e2a7c3c7",
+  "approvalDigest": "2cdcdd0b812e42223e6095f28ba1f70054b768ebe84fe2b620031aed14d7853b"
 }

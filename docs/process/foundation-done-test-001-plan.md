@@ -58,7 +58,7 @@ Read before implementation:
 - `scripts/intelligence-retrieval-eval.mjs` and `docs/specs/2026-04-27-intelligence-retrieval-eval-baseline.json`: current retrieval recall gate.
 - `scripts/process-source-lifecycle-expansion-check.mjs`: existing source lifecycle process-check pattern.
 - `scripts/backlog-hygiene.mjs`: healthy backlog proof and synthetic stale-card pattern.
-- `docs/audits/2026-05-02-missing-card-capture-audit.md`: captured blocker-card rationale.
+- `docs/_archive/audits/2026-05-02-missing-card-capture-audit.md`: captured blocker-card rationale.
 - `docs/rebuild/current-plan.md` and `docs/rebuild/current-state.md`: active Foundation doctrine and current open/closed truth.
 - `package.json`: proof command registration.
 

@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "DRIVE-WORKER-001",
   "approvedPlanRef": "docs/process/drive-worker-001-plan.md",
-  "approvedPlanSha256": "08ad82a6b2f2bdfaa0544bd376531b79dfe817a43a3947b78890e1b8130476f9",
+  "approvedPlanSha256": "e3a1532ee506d3be52d938833eaba519831cf50d390a23edb49dbc6ad22345da",
   "approvedRepoHead": "f213d3ba446bd897b891135a29f1242785dbdc8a",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-19T18:35:00-04:00",
@@ -24,5 +24,5 @@
     "external writes",
     "downstream atom/KB/action-route/vector writes from Drive content in this card"
   ],
-  "approvalDigest": "9f7a073e380c6556ba0626e7e54514cc813cb393282e7ec84fed711cb72047c8"
+  "approvalDigest": "5682c89c610d466fe3b69f818d5e15a6bd95007f34bd78df0f3e82099001ccfc"
 }

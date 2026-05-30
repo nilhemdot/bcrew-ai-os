@@ -75,7 +75,7 @@ Existing code:
 
 Existing docs:
 
-- `docs/audits/2026-05-19-foundation-deep-merge-audit.md`
+- `docs/_archive/audits/2026-05-19-foundation-deep-merge-audit.md`
 - `docs/audits/2026-05-19-foundation-deep-merge-audit.json`
 - `docs/process/audit-finding-to-backlog-router-001-plan.md`
 - `docs/process/current-sprint-active-card-gate-001-plan.md`

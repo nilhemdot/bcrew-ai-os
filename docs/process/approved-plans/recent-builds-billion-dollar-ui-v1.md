@@ -62,8 +62,8 @@ The build-log API contract remains v2. This slice should not require an API resp
 
 - `docs/process/approved-plans/recent-builds-billion-dollar-ui-v1.md`
 - `docs/process/approvals/RECENT-BUILDS-BILLION-DOLLAR-UI-001.json`
-- `docs/audits/2026-04-30-recent-builds-billion-dollar-ui-baseline.md`
-- `docs/audits/2026-04-30-recent-builds-billion-dollar-ui-manual-review.md`
+- `docs/_archive/audits/2026-04-30-recent-builds-billion-dollar-ui-baseline.md`
+- `docs/_archive/audits/2026-04-30-recent-builds-billion-dollar-ui-manual-review.md`
 - `lib/foundation-recent-builds-ui.js`
 - `scripts/process-recent-builds-billion-dollar-ui-check.mjs`
 

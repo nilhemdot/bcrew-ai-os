@@ -22,7 +22,7 @@ Summary:
 
 | File | Date | Category | Status | Promoted To | Words | Value |
 |------|------|----------|--------|-------------|-------|-------|
-| [2026-04-26-foundation-menu-and-systems-audit.md](2026-04-26-foundation-menu-and-systems-audit.md) | 2026-04-26 | foundation | evidence | - | 817 | Foundation Menu And Systems Audit |
-| [2026-04-28-dev-process-audit.md](2026-04-28-dev-process-audit.md) | 2026-04-28 | general | evidence | - | 783 | DEV-PROCESS-AUDIT-001 · Dev Loop Failure Map |
-| [2026-04-28-extraction-lane-item-shape.md](2026-04-28-extraction-lane-item-shape.md) | 2026-04-28 | general | evidence | - | 361 | Extraction Lane Item Shape Inspection - 2026-04-28 |
-| [2026-04-29-full-system-re-audit.md](2026-04-29-full-system-re-audit.md) | 2026-04-29 | general | evidence | - | 1393 | FULL-SYSTEM-RE-AUDIT-001 · Phase E Re-Audit |
+| [../_archive/audits/2026-04-26-foundation-menu-and-systems-audit.md](../_archive/audits/2026-04-26-foundation-menu-and-systems-audit.md) | 2026-04-26 | foundation | evidence | - | 817 | Foundation Menu And Systems Audit |
+| [../_archive/audits/2026-04-28-dev-process-audit.md](../_archive/audits/2026-04-28-dev-process-audit.md) | 2026-04-28 | general | evidence | - | 783 | DEV-PROCESS-AUDIT-001 · Dev Loop Failure Map |
+| [../_archive/audits/2026-04-28-extraction-lane-item-shape.md](../_archive/audits/2026-04-28-extraction-lane-item-shape.md) | 2026-04-28 | general | evidence | - | 361 | Extraction Lane Item Shape Inspection - 2026-04-28 |
+| [../_archive/audits/2026-04-29-full-system-re-audit.md](../_archive/audits/2026-04-29-full-system-re-audit.md) | 2026-04-29 | general | evidence | - | 1393 | FULL-SYSTEM-RE-AUDIT-001 · Phase E Re-Audit |

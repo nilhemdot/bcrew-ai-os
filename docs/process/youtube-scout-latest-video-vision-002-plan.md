@@ -96,7 +96,7 @@ Repair path: if YouTube layout, browser capture, transcript readback, report per
 - `scripts/process-youtube-scout-latest-video-vision-check.mjs`
 - `docs/process/youtube-scout-latest-video-vision-002-plan.md`
 - `docs/process/approvals/YOUTUBE-SCOUT-LATEST-VIDEO-VISION-002.json`
-- `docs/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md`
 - `lib/foundation-build-closeout-intelligence-records.js`
 - `lib/foundation-verify-coverage-card-ids.js`
 - `package.json`

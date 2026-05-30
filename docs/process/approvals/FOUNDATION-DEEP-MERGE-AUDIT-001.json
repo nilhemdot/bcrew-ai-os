@@ -1,7 +1,7 @@
 {
   "cardId": "FOUNDATION-DEEP-MERGE-AUDIT-001",
   "approvedPlanRef": "docs/process/foundation-deep-merge-audit-001-plan.md",
-  "approvedPlanSha256": "cbb52ce71761433ef6767cf80703581c806bec81db1f7e26bb5efc5d3d3a4c16",
+  "approvedPlanSha256": "2767cf32e183457db39f50690b8124c59959118fd60ca02ce4124a06330d7aad",
   "approvedRepoHead": "0f1cc85ed1116e46720292d60a1f571a912e8ea2",
   "score": 10,
   "approvedBy": "Steve approved the May 19 next-sprint execution and explicitly required the real deep audit work not be lost.",
@@ -12,6 +12,6 @@
     "Route P0/P1 findings into live backlog truth instead of leaving report noise.",
     "No auto-fixes, no external sends, no credential mutation, no Drive permission mutation."
   ],
-  "approvalDigest": "55fee402f217ab5f5eb8f7cc7275043d7eb2edbe61083c0293623431c6fa3e19",
+  "approvalDigest": "c9771aa0b83e2f714c8d3d479ba892390eaf168d4950011bbe8d69032bb22182",
   "approvalSchemaVersion": 2
 }

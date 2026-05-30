@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "FOUNDATION-KB-ACTION-REVIEW-SPRINT-001",
   "approvedPlanRef": "docs/process/foundation-kb-action-review-sprint-001-plan.md",
-  "approvedPlanSha256": "9b4972420f6916cb496eb8314ea736cb1c2a17fda8619097dafd220d19c73a5b",
+  "approvedPlanSha256": "9af220b6394e11e1a30a81200120529c78b6a88cb54580e3fa60b17c94af8fb7",
   "approvedRepoHead": "e1a137b7e86c965b08437241d8bf3dc89c55a1fc",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-18T20:50:00.000-04:00",
@@ -28,5 +28,5 @@
     "backlog hygiene, foundation:verify, and process:foundation-ship pass"
   ],
   "notes": "This is an umbrella closeout only. It removes ambiguous parent-sprint state without changing child behavior or starting approval-bound runtime work.",
-  "approvalDigest": "98f5561fd0b385c71485c78497c23ca1d3863957baa7f72d63a8fcfef082e057"
+  "approvalDigest": "0210d141a7f2a7161791555803b3d1c8ef7ea66665f5fc20ed7326a2dda9fff6"
 }

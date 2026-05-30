@@ -5,7 +5,7 @@
   "approvedAt": "2026-05-19T22:50:00-04:00",
   "score": 9.8,
   "approvedPlanRef": "docs/process/foundation-client-current-state-extract-001-plan.md",
-  "approvedPlanSha256": "5488d35defd751461ab4ca9797b69023099023fcbbadf7eb289b80db6c3a5b16",
+  "approvedPlanSha256": "2e9b29e03476f6e3921c9ce5a22d1f18a0189036bcdd8d578cf4d3effd2d8cba",
   "approvedRepoHead": "49cd71cce7b1b22668f135009c359fd8dcac7fcb",
   "approvalSource": "Steve approved unattended overnight Foundation audit-control sprint and required audit findings to become fixes, live cards, gates, or proof instead of report noise.",
   "constraints": [
@@ -15,5 +15,5 @@
     "green means raw green; repeated failures repair first",
     "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
   ],
-  "approvalDigest": "57dfb810ad8c298d25066ef3769a03984236de8d933361c250ca74fed6e5d00c"
+  "approvalDigest": "792e140c3a402b34db2d1726e3a144322a33e8759180d094eed16062d089df42"
 }

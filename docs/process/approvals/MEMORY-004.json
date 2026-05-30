@@ -7,7 +7,7 @@
   "approvalSource": "Steve approved continuing the Foundation gold-capture sprint after MEMORY-003 shipped and asked to keep going without losing the conversation gold.",
   "notes": "Approved to build the metadata-only lessons/IP workflow from the committed conversation archive. Do not produce polished content, upload private conversations, store raw quotes, or use external model/provider review.",
   "approvedPlanRef": "docs/process/memory-004-lessons-ip-workflow-plan.md",
-  "approvedPlanSha256": "cd633f26de1f27137b56576efc12a2c5ee67e2cd7dfe16d04da6c732000d49b7",
+  "approvedPlanSha256": "1f9688c9059f54ca3dad2a4b85bf05361bffac6f7f7bd77f4d0ff990d3ddeac2",
   "approvedRepoHead": "b6c4da5f402737b77efabc328aba645c3d2cbebf",
   "approvedChanges": [
     "Add reusable MEMORY-004 lessons/IP workflow module.",
@@ -22,5 +22,5 @@
     "No source-system, Drive permission, credential, provider config, external-send, or public-exposure mutation.",
     "No Value Builder split."
   ],
-  "approvalDigest": "5aad4ca1e5fec0ce7f792ef71d6918831f9adbd447091af0b903cabaaa9a48af"
+  "approvalDigest": "fa0591b7a616b76dced7b142eae3265a3b3c60fc29781a634b4499d62e19b2e1"
 }

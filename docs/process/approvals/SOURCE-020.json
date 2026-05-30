@@ -2,7 +2,7 @@
   "approvalSchemaVersion": 2,
   "cardId": "SOURCE-020",
   "approvedPlanRef": "docs/process/source-020-shared-comms-adapters-plan.md",
-  "approvedPlanSha256": "1359966e3a1f77e5edb83ebb64cf8a1dcaf432ce8b9601bac86a98871c45a2ae",
+  "approvedPlanSha256": "52f597e54415fb88768d8d6ce4b1ae100b60031df10421267d41ba03f359ef60",
   "approvedRepoHead": "01a8b0f11d24423db70e70855a12d89acf62931d",
   "approvedBy": "Steve",
   "approvedAt": "2026-05-19T19:10:00-04:00",
@@ -22,5 +22,5 @@
     "raw email, Slack, Missive, meeting note, meeting transcript, participant-sensitive, attachment, or body text in proof output",
     "MEETING-VAULT-ACL-001 Phase B, broad meeting-vault cleanup, credential/key mutation, Drive permissions mutation, public exposure, or external sends"
   ],
-  "approvalDigest": "35038f415ab10ea4a6497d8054b6c8dee67796a1ff78f212e2ef0fa42f69a626"
+  "approvalDigest": "443acc9b6bbf0bae9d78a8f2e713792b7ae6b9e31973395b9027872b0fe44c7b"
 }

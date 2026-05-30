@@ -78,9 +78,9 @@ Existing docs to reuse:
 - `docs/process/decision-008-plan.md`
 - `docs/process/internal-scoper-001-plan.md`
 - `docs/specs/2026-04-28-strategic-intelligence-loop.md`
-- `docs/audits/2026-05-19-old-system-research-team-harvest.md`
-- `docs/handoffs/2026-05-19-strategic-intel-loop-closeout.md`
-- `docs/handoffs/2026-05-19-decision-008-accountability-doctrine-closeout.md`
+- `docs/_archive/audits/2026-05-19-old-system-research-team-harvest.md`
+- `docs/_archive/handoffs/2026-05-19-strategic-intel-loop-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-decision-008-accountability-doctrine-closeout.md`
 
 Existing tables to reuse:
 

@@ -5,7 +5,7 @@
   "approvedAt": "2026-05-19T23:35:00-04:00",
   "score": 9.8,
   "approvedPlanRef": "docs/process/decision-008-plan.md",
-  "approvedPlanSha256": "e87626f4d68b0ffb8229645727af7ffd82649d3c8fce34c8bc4a62d87de8df85",
+  "approvedPlanSha256": "64df86db0c9e3a046f0bc2791b7654a554549a7da4fd4abad89ceb8ec1ed3cae",
   "approvedRepoHead": "105c4f762af832c9e3418011cbb2bed64174293a",
   "approvalSource": "Steve approved continuing the overnight Foundation sprint without babysitting; DECISION-008 is the active blocker after CSS surface decouple.",
   "constraints": [
@@ -15,5 +15,5 @@
     "do not lock/apply decisions, build Scoper/UI, run extraction, call providers, or perform external writes",
     "advance Current Sprint to INTEL-SCOPER-001 after clean closeout"
   ],
-  "approvalDigest": "44f737994702d115cf24395c8dd98c11d5c0fbf7c5d22549212fc6237fb64894"
+  "approvalDigest": "ae0dd376c193ef06674b18595dc31c4c87ca47d9e61409c1f0fba273304e074c"
 }

@@ -7,7 +7,7 @@
   "notes": "Approval covers only UI/menu/layout polish, System Inventory current-vs-archive/history split, current-truth next-card correction, route/manual review proof, and verifier/process coverage. It does not approve Recent Work redesign, comprehensive changelog, daily summary, source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus, research cleanup, action-review cleanup, or a new feature lane.",
   "approvalSchemaVersion": 2,
   "approvedPlanRef": "docs/process/approved-plans/ui-menu-layout-polish-v1.md",
-  "approvedPlanSha256": "1b0f4033f8e09a996f051f15f98f7946c552cb9618c4345a6fb553edffd6a902",
+  "approvedPlanSha256": "252d7fde8ca1699ad424dcf36f149de844e9052a83ee0df6a53e51768e8b2a3f",
   "approvedRepoHead": "16cf8baad67f6f1c5c5dd782193b908bd1c4655a",
-  "approvalDigest": "b3fede3b0cc84fbecaa75e8c2ed63c43396b52724181f81629339d0eb63883a1"
+  "approvalDigest": "b2c4e6eb8525f830abb6dec4ad3660405efd2d4e5fe42fe9310443d9c562cfd5"
 }

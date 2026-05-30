@@ -33,7 +33,7 @@ Useful operator behavior: Steve can open one safe ledger, see which provider/acc
 - `lib/security-provider-rotation-proof-preflight.js` owns the function-path parser, ledger builder, no-secret validator, ledger evaluator, and dogfood proof.
 - `scripts/process-security-provider-rotation-proof-preflight-check.mjs` is read-only by default; live backlog/sprint update requires `--apply`.
 - `docs/process/approvals/SECURITY-PROVIDER-ROTATION-PROOF-001.json` approves only this no-secret preflight/return scope.
-- `docs/handoffs/2026-05-18-security-provider-rotation-proof-preflight.md` records that no provider calls, rotations, revocations, secret hashes, auth repair, or external writes occurred.
+- `docs/_archive/handoffs/2026-05-18-security-provider-rotation-proof-preflight.md` records that no provider calls, rotations, revocations, secret hashes, auth repair, or external writes occurred.
 
 ## Details
 Scope is tight and V1 only:

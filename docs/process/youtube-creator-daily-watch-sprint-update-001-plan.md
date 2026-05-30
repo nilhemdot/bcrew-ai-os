@@ -41,8 +41,8 @@ Existing truth reused:
 - `SRC-YOUTUBE-INTEL-001`
 - `lib/build-intel-watchlist.js`
 - `lib/youtube-build-intel-batch.js`
-- `docs/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md`
-- `docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-plan-closeout.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-plan-closeout.md`
 - live Current Sprint `YOUTUBE-TO-DEV-TEAM-INTELLIGENCE-V1-2026-05-21`
 
 New focused proof:
@@ -101,7 +101,7 @@ Repair path: if sprint proof fails, fix the sprint writer and rerun the focused 
 - `scripts/process-youtube-creator-daily-watch-sprint-update-check.mjs`
 - `docs/process/youtube-creator-daily-watch-sprint-update-001-plan.md`
 - `docs/process/approvals/YOUTUBE-CREATOR-DAILY-WATCH-SPRINT-UPDATE-001.json`
-- `docs/handoffs/2026-05-21-youtube-creator-daily-watch-sprint-update-closeout.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-creator-daily-watch-sprint-update-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `lib/foundation-build-closeout-process-gate-records.js`

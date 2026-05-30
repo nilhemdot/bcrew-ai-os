@@ -286,7 +286,7 @@ async function main() {
       readRepoFile(FOUNDATION_DONE_SEMANTICS_REPAIR_PLAN_PATH),
       readRepoFile('lib/foundation-backlog-detail.js'),
       readRepoFile('public/foundation.js'),
-      readRepoFile('lib/foundation-build-closeout-process-gate-operations-records.js'),
+      Promise.resolve(JSON.stringify(getFoundationBuildCloseouts())),
       readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
       readLiveBacklogItems(),
     ])

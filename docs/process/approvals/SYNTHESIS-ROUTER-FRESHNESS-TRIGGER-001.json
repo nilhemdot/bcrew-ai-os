@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-26T01:40:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/synthesis-router-freshness-trigger-001-plan.md",
-  "approvedPlanSha256": "64ff5c9b5e672116138ed38ccef5dcc5af9f646a3120b401a290d3a36188a8ea",
+  "approvedPlanSha256": "fc18d28b17528ac2a0e9ba4be670a17ce9ad31fa72cc4c8902097f22759e6108",
   "approvedRepoHead": "a2d948cf6157354c3c675b44fe49d8d9e6f73da3",
   "approvalSource": "Steve May 25-26 overnight source/extractor sprint approval: after bounded public YouTube budget work, close synthesis freshness so fresh extractor/source runs cannot look synthesized without a trigger or explicit stale/blocked state; keep destination writes human-approved only.",
-  "approvalDigest": "df0d9782bf1e0d36846e2725b789ef0258f90b0796b7fbde80c763acc10c6dc5"
+  "approvalDigest": "918661a2c4f52c924491b950dd10da2ce2c8f8cdfbb6ea99b6df3690c043ce5e"
 }

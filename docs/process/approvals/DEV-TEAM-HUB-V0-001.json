@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-22T22:45:04-0400",
   "score": 10,
   "approvedPlanRef": "docs/process/dev-team-hub-v0-001-plan.md",
-  "approvedPlanSha256": "720b70c552d77f9bff22d199da42b9f8eabc97404eba89979d8ddf8f492c8a54",
+  "approvedPlanSha256": "f29a3c4b04053ce92a01fd05d24148dba505a5af17ff60c0e046b93cbb27d41a",
   "approvedRepoHead": "c42e7a0abf5d42dfe7625595dc9d534661179c32",
   "approvalSource": "Steve direct May 22 instruction: proceed with the Dev Team Hub V0 as the sprint proof that Foundation Build Intel data reaches a real Dev Hub, keeping the hub read-only, source-backed, and no-extraction/no-auto-backlog.",
-  "approvalDigest": "6b54e84be5245c1e7f4caf1b329dfbbdd4efb6926f8b45fce4cc0968563e9f02"
+  "approvalDigest": "e5642d2b860f2d36fd0ba45a83e5345fad2af5c0af8373d8e40ecda6bf2d031c"
 }

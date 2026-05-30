@@ -42,6 +42,9 @@ import {
   closeFoundationDb,
 } from '../lib/foundation-db-session.js'
 import {
+  getFoundationBuildCloseouts,
+} from '../lib/foundation-build-log.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
@@ -329,7 +332,6 @@ async function main() {
     routerSource,
     foundationHtmlSource,
     coverageSource,
-    closeoutRecordsSource,
     closeoutDoc,
     foundationVerifySource,
     defaultBacklogRoute,
@@ -355,7 +357,6 @@ async function main() {
     readRepoFile('public/foundation-router.js'),
     readRepoFile('public/foundation.html'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
-    readRepoFile('lib/foundation-build-closeout-cleanup-records.js'),
     readRepoFile(FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CLOSEOUT_PATH, { optional: true }),
     readRepoFile('scripts/foundation-verify.mjs'),
     fetchMeasured(args.baseUrl, '/api/foundation/backlog'),
@@ -405,7 +406,12 @@ async function main() {
   addCheck(checks, foundationHtmlSource.includes('/foundation-backlog-renderers.js'), 'Foundation page loads backlog renderer module', 'public/foundation.html')
   addCheck(checks, coverageSource.includes(FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CARD_ID), 'verifier coverage card IDs include done archive lazy-load', 'coverage constant')
   addCheck(checks, foundationVerifySource.includes('foundationBacklogDoneArchiveApi') && foundationVerifySource.includes('doneArchive: foundationBacklogDoneArchiveApi'), 'foundation:verify receives done archive route payload', 'foundationBacklogDoneArchiveApi')
-  addCheck(checks, closeoutRecordsSource.includes(FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CLOSEOUT_KEY), 'closeout registry includes done archive closeout', FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CLOSEOUT_KEY)
+  addCheck(
+    checks,
+    getFoundationBuildCloseouts().some(record => record.key === FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CLOSEOUT_KEY),
+    'closeout registry includes done archive closeout',
+    FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CLOSEOUT_KEY,
+  )
   addCheck(checks, closeoutDoc.includes(FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CARD_ID) && closeoutDoc.includes(FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CLOSEOUT_KEY), 'closeout handoff exists and names card/closeout', FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CLOSEOUT_PATH)
   addCheck(checks, await repoFileExists(FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CLOSEOUT_PATH), 'closeout handoff file exists', FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_CLOSEOUT_PATH)
   addCheck(checks, lineCount(moduleSource) <= 1500, 'done archive module remains under preferred module budget', `${lineCount(moduleSource)} lines`)

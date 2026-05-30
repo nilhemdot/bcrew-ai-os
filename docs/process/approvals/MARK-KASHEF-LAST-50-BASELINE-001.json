@@ -5,9 +5,9 @@
   "approvedAt": "2026-05-25T04:15:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/mark-kashef-last-50-baseline-001-plan.md",
-  "approvedPlanSha256": "f837d0ff69934bb8192f0bbab368c601d5e9940b9f117032f9ee654038ec18f7",
+  "approvedPlanSha256": "f61d5466a77c507efd7d93f93b013a22de7ad62db0e78b17021e4b8e0f8f96f9",
   "approvedRepoHead": "eeaf8c92441843131f00a635331fe033b605e72a",
   "approvalSource": "Steve direct May 25 overnight correction: complete Mark last-50 through the Gemini API full-watch route, keep subscription scout output out of full-watch truth, persist proposal-only candidates with evidence, and keep broader creator latest-20 work blocked until Mark quality/review and guards are proven.",
   "notes": "Re-approves the expanded Mark baseline plan after the small-batch/final-tail path was added. Not approved: Skool/MyICOR/private/auth/community crawling, downloads, purchases, opt-ins, form submissions, external writes, or automatic backlog promotion.",
-  "approvalDigest": "20e38ef9f52fdff03c4d226bc0439e7424a2f1f14b25381760fc9b2a188e9e4c"
+  "approvalDigest": "e22ed5deecc574c2fb9eff589277481ba8d5af660f41d909eaa5c62d59188c01"
 }

@@ -47,8 +47,8 @@ Existing docs reused:
 - `docs/process/youtube-dev-team-intelligence-sprint-plan-001-plan.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
-- `docs/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md`
-- `docs/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-dev-team-intelligence-sprint-checkpoint.md`
+- `docs/_archive/handoffs/2026-05-21-youtube-scout-latest-video-vision-closeout.md`
 
 Behavior proof uses the actual route/API/process path: `/api/foundation/dev-team-hub`, the Dev Hub module, the focused process check, and Playwright page render checks. It rejects weak dogfood where the route is missing required Build Intel buckets, where approval items are not surfaced, or where data is not sourced from Foundation truth.
 

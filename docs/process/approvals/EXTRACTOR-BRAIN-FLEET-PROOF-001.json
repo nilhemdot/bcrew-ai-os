@@ -5,8 +5,8 @@
   "approvedAt": "2026-05-20T18:30:00-04:00",
   "score": 10,
   "approvedPlanRef": "docs/process/extractor-brain-fleet-proof-001-plan.md",
-  "approvedPlanSha256": "3c48a734595d765b1ccaa3851020d1edabcbfe22278b18c37cb0bb6752809ab0",
+  "approvedPlanSha256": "c95ce35746070b6fdcc18e67a6d078c91e0e6e386a187d0688b125de31eb9110",
   "approvedRepoHead": "307352494cfdecb210f8188d8aa4e77e53cd4502",
   "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build EXTRACTOR-BRAIN-FLEET-PROOF-001 immediately after OPENCLAW-ADAPTER-BOUNDARY-001 and before YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001.",
-  "approvalDigest": "51b21b51c8b756373a707fcb03f242e7ff5256376c18ddf84044a567bd25b773"
+  "approvalDigest": "8bd3453db6b5907c71665618eb859618d2ee0ba1dacd91e62f7afd5358791a29"
 }

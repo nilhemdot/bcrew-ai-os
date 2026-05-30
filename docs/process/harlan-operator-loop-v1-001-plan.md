@@ -45,7 +45,7 @@ This reuses existing code, existing docs, existing scripts, and live backlog / C
 - `scripts/foundation-verify.mjs`
 - `lib/foundation-build-closeout-agent-runtime-records.js`
 - `docs/process/approvals/HARLAN-OPERATOR-LOOP-V1-001.json`
-- `docs/handoffs/2026-05-18-harlan-operator-loop-closeout.md`
+- `docs/_archive/handoffs/2026-05-18-harlan-operator-loop-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - `package.json`

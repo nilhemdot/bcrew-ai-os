@@ -50,7 +50,7 @@ Reuse existing code and truth:
 - `lib/llm-router.js`
 - `lib/brain-fleet-model-capability-registry.js`
 - `lib/foundation-llm-runtime-store.js`
-- `docs/handoffs/2026-05-20-orchestrator-brain-fleet-extractor-checkpoint.md`
+- `docs/_archive/handoffs/2026-05-20-orchestrator-brain-fleet-extractor-checkpoint.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 

@@ -35,7 +35,7 @@ The Build Intel watchlist now names sources that mix public, paid, private, comm
 
 Existing code to reuse: `lib/source-contracts.js`, `lib/connector-credential-registry.js`, `lib/build-intel-watchlist.js`, `lib/extractor-queue-karpathy-kb-video-pack.js`, `lib/build-intel-creator-watchlist-expansion.js`, Current Sprint helpers, Plan Critic helpers, and process write guards.
 
-Existing docs to reuse: `docs/source-registry.md`, `docs/rebuild/current-plan.md`, `docs/rebuild/current-state.md`, and `docs/handoffs/2026-05-18-build-intel-creator-watchlist-expansion-closeout.md`.
+Existing docs to reuse: `docs/source-registry.md`, `docs/rebuild/current-plan.md`, `docs/rebuild/current-state.md`, and `docs/_archive/handoffs/2026-05-18-build-intel-creator-watchlist-expansion-closeout.md`.
 
 Existing scripts to reuse: `process:build-intel-creator-watchlist-expansion-check`, `process:extractor-queue-karpathy-kb-video-pack-check`, `backlog:hygiene`, `foundation:verify`, `process:ship-check`, `process:fanout-check`, and `process:foundation-ship`.
 

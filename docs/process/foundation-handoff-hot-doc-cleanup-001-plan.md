@@ -61,7 +61,7 @@ The behavioral proof path is an actual function path plus process/API route proo
 
 - Existing code reused: `lib/doc-artifact-bloat-guard.js`
 - Existing scripts reused: `scripts/process-doc-artifact-bloat-guard-check.mjs` and `scripts/process-system-health-nightly-audit-check.mjs`
-- Existing docs reused: `docs/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md`, current May 19 handoffs, and the existing archive surface under `docs/_archive/handoffs/`
+- Existing docs reused: `docs/_archive/handoffs/2026-05-19-foundation-green-main-audit-source-activation-sprint.md`, current May 19 handoffs, and the existing archive surface under `docs/_archive/handoffs/`
 - Live backlog truth reused: live Backlog row for `FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001`
 - Current Sprint truth reused: active blocker and next-card progression in the live Current Sprint overlay
 

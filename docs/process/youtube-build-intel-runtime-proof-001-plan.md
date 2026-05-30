@@ -46,8 +46,8 @@ Existing code reused:
 Existing docs and backlog truth reused:
 
 - `docs/source-notes/video-link-inventory.md`
-- `docs/handoffs/2026-05-18-youtube-build-intel-batch-closeout.md`
-- `docs/handoffs/2026-05-20-extractor-brain-fleet-proof-closeout.md`
+- `docs/_archive/handoffs/2026-05-18-youtube-build-intel-batch-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-extractor-brain-fleet-proof-closeout.md`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
 - Live Backlog and Current Sprint truth for `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001`, `EXTRACTOR-BRAIN-FLEET-PROOF-001`, `BRAIN-FLEET-QUOTA-LEDGER-001`, and `SKOOL-APPROVED-LESSON-EXTRACT-PROOF-001`
@@ -113,7 +113,7 @@ The focused gate stays fast enough to run by default because it selects one exac
 - `scripts/run-extraction-target.mjs`
 - `docs/process/youtube-build-intel-runtime-proof-001-plan.md`
 - `docs/process/approvals/YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001.json`
-- `docs/handoffs/2026-05-20-youtube-build-intel-runtime-proof-closeout.md`
+- `docs/_archive/handoffs/2026-05-20-youtube-build-intel-runtime-proof-closeout.md`
 - `lib/foundation-build-closeout-model-records.js`
 - `lib/foundation-verify-coverage-card-ids.js`
 - `docs/rebuild/current-plan.md`
