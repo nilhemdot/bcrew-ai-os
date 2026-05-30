@@ -7,10 +7,12 @@ import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_BEFORE_LINES,

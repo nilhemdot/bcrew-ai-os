@@ -8,11 +8,15 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
   getSourceContractRegistrySnapshot,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
 import {
   VERIFIER_SOURCE_CONTRACT_ORCHESTRATION_SPLIT_APPROVAL_PATH,
   VERIFIER_SOURCE_CONTRACT_ORCHESTRATION_SPLIT_BEFORE_LINES,

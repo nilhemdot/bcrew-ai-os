@@ -9,11 +9,15 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getFoundationCoreSnapshot,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getFoundationCoreSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import {
   VERIFIER_HUB_SAFETY_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_HUB_SAFETY_SPLIT_MODULE_BEFORE_LINES,

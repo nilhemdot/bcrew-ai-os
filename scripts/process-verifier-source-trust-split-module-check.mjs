@@ -7,10 +7,12 @@ import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   PHASE_C_VISIBILITY_CARD_IDS,
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_APPROVAL_PATH,

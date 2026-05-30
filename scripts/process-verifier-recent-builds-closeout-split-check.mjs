@@ -18,9 +18,11 @@ import {
 } from '../lib/foundation-recent-builds-verifier.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 
 const __filename = fileURLToPath(import.meta.url)

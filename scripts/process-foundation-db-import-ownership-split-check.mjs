@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 389
+const DIRECT_IMPORT_LIMIT = 346
 
 const DOMAIN_MODULES = [
   {
@@ -1283,6 +1283,313 @@ const MIGRATED_IMPORTERS = [
       '../lib/foundation-backlog-sprint-db.js',
       '../lib/foundation-intelligence-db.js',
       '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-agent-feedback-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-backend-split-assurance-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-behavior-sweep-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-build-log-registry-assurance-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-canva-client-orchestration-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-canva-client-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-cleanup-control-assurance-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-core-governance-orchestration-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-extraction-runtime-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-shared-comms-db.js',
+      '../lib/foundation-runtime-jobs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-followup-backlog-assurance-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-frontend-split-assurance-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-frontend-split-checks-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-frontend-structural-assurance-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-guardrail-closeout-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-health-live-summary-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-historical-split-closeouts-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-hub-safety-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-intelligence-audit-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-intelligence-spine-orchestration-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-intelligence-spine-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-intelligence-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-module-assurance-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-operator-live-surface-assurance-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-phase-g-operator-closeout-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-process-control-governance-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-process-control-orchestration-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-process-governance-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-process-hardening-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-process-trust-orchestration-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-process-trust-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-readiness-blocker-closeout-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-readiness-followup-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-recent-builds-closeout-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-recent-builds-orchestration-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-route-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-server-route-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-source-contract-orchestration-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-source-crawl-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-source-contracts-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+      '../lib/foundation-source-crawl-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-source-once-over-progression-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-source-trust-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-sprint-gate-progression-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-structural-assurance-core-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-surface-trust-orchestration-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-verifier-surface-trust-split-module-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
     ],
   },
 ]

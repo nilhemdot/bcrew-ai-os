@@ -28,11 +28,15 @@ import {
 } from '../lib/source-id-array-provenance-design.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
   getSourceContractRegistrySnapshot,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-source-crawl-db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)

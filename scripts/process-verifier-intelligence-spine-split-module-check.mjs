@@ -7,16 +7,20 @@ import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
-  getActionRouterSnapshot,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
+  getPlanCriticRunsByCardIds,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getActionRouterSnapshot,
   getIntelligenceAtomSpineSnapshot,
   getIntelligenceJobLedgerSnapshot,
   getIntelligenceRetrievalSnapshot,
-  getPlanCriticRunsByCardIds,
   getSynthesisEngineSnapshot,
   getSynthesisFactsSnapshot,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-intelligence-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_APPROVAL_PATH,
