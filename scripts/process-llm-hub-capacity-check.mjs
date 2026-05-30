@@ -15,13 +15,13 @@ import {
   LLM_HUB_CAPACITY_SPRINT_ID,
   buildLlmHubCapacityDogfoodProof,
 } from '../lib/llm-hub-capacity.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getLlmRuntimeSnapshot,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { getLlmRuntimeSnapshot } from '../lib/foundation-runtime-jobs-db.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')

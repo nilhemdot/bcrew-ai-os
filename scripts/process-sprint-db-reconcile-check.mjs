@@ -6,12 +6,14 @@ import {
 } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  initFoundationDb,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 
 const args = new Set(process.argv.slice(2))
 const jsonMode = args.has('--json') || args.has('--json=true')

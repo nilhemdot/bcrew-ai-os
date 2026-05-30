@@ -2856,5 +2856,222 @@
       "../lib/foundation-db-session.js",
       "../lib/foundation-backlog-sprint-db.js"
     ]
+  },
+  {
+    "path": "scripts/process-brain-fleet-foundation-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-brain-fleet-model-capability-registry-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-brain-fleet-quota-ledger-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-connector-blocked-row-diagnosis-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-connector-completion-prep-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-connector-credential-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-drive-content-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-drive-worker-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-god-mode-extractor-eyes-quality-loop-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-intelligence-db.js",
+      "../lib/foundation-shared-comms-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-god-mode-extractor-research-swarm-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-intelligence-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-god-mode-extractor-system-contract-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-harlan-auth-escalation-loop-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-harlan-auth-live-delivery-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-harlan-project-registry-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-kpi-appt-quality-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-kpi-health-api-cache-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-kpi-health-dynamic-year-contract-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-llm-auth-audit-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-llm-hub-capacity-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-llm-router-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-runtime-jobs-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-parallel-builder-merge-lane-enforcement-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-parallel-builder-operating-system-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-parallel-builder-worktree-protocol-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-sprint-check-historical-mode-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-sprint-db-reconcile-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-sprint-stage-gate-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-system-004-capabilities-surface-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-system-010-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-system-health-nightly-audit-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js",
+      "../lib/foundation-runtime-jobs-db.js",
+      "../lib/foundation-strategy-docs-db.js"
+    ]
   }
 ]

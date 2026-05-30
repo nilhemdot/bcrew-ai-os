@@ -7,12 +7,12 @@ import { fileURLToPath } from 'node:url'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { buildConnectorCredentialRegistrySnapshot } from '../lib/connector-credential-registry.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
-  getFoundationSnapshot,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
+import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
 import { getSourceConnectors, getSourceContracts } from '../lib/source-contracts.js'
 

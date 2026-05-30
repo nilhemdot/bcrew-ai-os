@@ -7,12 +7,12 @@ import { fileURLToPath } from 'node:url'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { detectHardcodedLiveTruthInText } from '../lib/code-quality-nightly-audit.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_APPROVAL_PATH,
   KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID,

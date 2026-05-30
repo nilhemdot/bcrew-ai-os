@@ -17,10 +17,12 @@ import {
 } from '../lib/god-mode-extractor-system-contract.js'
 import {
   closeFoundationDb,
-  getBacklogItemsByIds,
   initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getBacklogItemsByIds,
   updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   isProcessCheckWriteRequested,

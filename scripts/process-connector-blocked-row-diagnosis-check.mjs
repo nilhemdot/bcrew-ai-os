@@ -16,11 +16,11 @@ import {
 import {
   buildFoundationSystemHealthSnapshot,
 } from '../lib/foundation-system-health.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
 import {
-  closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import { getSourceConnectors, getSourceContracts } from '../lib/source-contracts.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

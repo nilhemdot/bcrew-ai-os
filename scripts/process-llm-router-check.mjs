@@ -11,16 +11,20 @@ import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
-  getLlmRuntimeSnapshot,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
+} from '../lib/foundation-backlog-sprint-db.js'
+import {
+  getLlmRuntimeSnapshot,
   upsertLlmCredential,
   upsertLlmRoute,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-runtime-jobs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { DEFAULT_LLM_ROUTES, LLM_WORKLOADS, callLlm, planLlmRoute } from '../lib/llm-router.js'
 import {

@@ -15,11 +15,13 @@ import {
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-  initFoundationDb,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 
 // liveTruthPosture: historical_closeout_only - this proof replays the closed control-plane sprint to validate stage gates.
 const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12'

@@ -7,10 +7,8 @@ import { fileURLToPath } from 'node:url'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
-import {
-  closeFoundationDb,
-  getBacklogItemsByIds,
-} from '../lib/foundation-db.js'
+import { closeFoundationDb } from '../lib/foundation-db-session.js'
+import { getBacklogItemsByIds } from '../lib/foundation-backlog-sprint-db.js'
 import {
   HARLAN_AUTH_LIVE_DELIVERY_APPROVAL_PATH as APPROVAL_PATH,
   HARLAN_AUTH_LIVE_DELIVERY_CARD_ID as CARD_ID,

@@ -14,11 +14,13 @@ import {
 } from '../lib/llm-auth-audit-proof.js'
 import {
   closeFoundationDb,
+  initFoundationDb,
+} from '../lib/foundation-db-session.js'
+import { updateBacklogItem } from '../lib/foundation-backlog-sprint-db.js'
+import {
   getFoundationJobRunSnapshot,
   getLlmRuntimeSnapshot,
-  initFoundationDb,
-  updateBacklogItem,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-runtime-jobs-db.js'
 import {
   assertProcessCheckWriteAllowed,
   isProcessCheckWriteRequested,
