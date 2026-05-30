@@ -7,7 +7,13 @@ import {
   buildAgentFeedbackRealUserSubmitRepairStatus,
 } from '../lib/agent-feedback-real-user-submit-repair.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
-import { assertFoundationDbReadyForReadOnlyGate, closeFoundationDb, getFoundationSnapshot } from '../lib/foundation-db.js'
+import {
+  assertFoundationDbReadyForReadOnlyGate,
+  closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 
 function hasArg(name) {
   return process.argv.includes(`--${name}`) || process.argv.includes(`--${name}=true`)

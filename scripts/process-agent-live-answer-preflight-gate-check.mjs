@@ -16,11 +16,13 @@ import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { buildFoundationCurrentSprintStatus } from '../lib/foundation-current-sprint.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
   upsertFoundationCurrentSprintOverlay,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   AGENT_LIVE_ANSWER_PREFLIGHT_GATE_APPROVAL_PATH as APPROVAL_PATH,
   AGENT_LIVE_ANSWER_PREFLIGHT_GATE_CARD_ID as CARD_ID,

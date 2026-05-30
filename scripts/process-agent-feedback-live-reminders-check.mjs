@@ -9,8 +9,10 @@ import {
 } from '../lib/agent-feedback-reminders.js'
 import {
   assertFoundationDbReadyForReadOnlyGate,
+} from '../lib/foundation-db-session.js'
+import {
   listAgentFeedbackSendAttemptsForMilestone,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-people-sales-db.js'
 import { getClickUpListSnapshot } from '../lib/clickup.js'
 import { CLICKUP_AGENT_ROSTER_LIST_ID } from '../lib/agent-roster-review.js'
 

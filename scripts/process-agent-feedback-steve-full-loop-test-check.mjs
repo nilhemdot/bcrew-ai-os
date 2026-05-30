@@ -4,7 +4,13 @@ import process from 'node:process'
 import {
   buildAgentFeedbackSteveFullLoopTestStatus,
 } from '../lib/agent-feedback-steve-full-loop-test.js'
-import { assertFoundationDbReadyForReadOnlyGate, closeFoundationDb, getFoundationSnapshot } from '../lib/foundation-db.js'
+import {
+  assertFoundationDbReadyForReadOnlyGate,
+  closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
+  getFoundationSnapshot,
+} from '../lib/foundation-strategy-docs-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 
 async function main() {

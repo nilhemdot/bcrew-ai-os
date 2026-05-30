@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-foundation-db-import-ownership-split-check.mjs'
 const PACKAGE_SCRIPT = 'process:foundation-db-import-ownership-split-check'
-const DIRECT_IMPORT_LIMIT = 233
+const DIRECT_IMPORT_LIMIT = 224
 
 const DOMAIN_MODULES = [
   {
@@ -2421,6 +2421,68 @@ const MIGRATED_IMPORTERS = [
       '../lib/foundation-backlog-sprint-db.js',
       '../lib/foundation-intelligence-db.js',
       '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-agent-010-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-agent-capability-registry-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-agent-feedback-company-email-policy-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+    ],
+  },
+  {
+    path: 'scripts/process-agent-feedback-live-reminders-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-people-sales-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-agent-feedback-real-user-submit-repair-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-agent-feedback-routes-split-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-agent-feedback-steve-full-loop-test-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-strategy-docs-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-agent-live-answer-preflight-gate-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
+    ],
+  },
+  {
+    path: 'scripts/process-agent-status-freshness-gate-check.mjs',
+    expectedImports: [
+      '../lib/foundation-db-session.js',
+      '../lib/foundation-backlog-sprint-db.js',
     ],
   },
 ]

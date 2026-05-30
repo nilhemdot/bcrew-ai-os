@@ -10,10 +10,12 @@ import { createAgentFeedbackToken } from '../lib/agent-feedback.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
+} from '../lib/foundation-db-session.js'
+import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
-} from '../lib/foundation-db.js'
+} from '../lib/foundation-backlog-sprint-db.js'
 import {
   AGENT_FEEDBACK_PUBLIC_ROUTE_MARKERS,
   AGENT_FEEDBACK_ROUTES_SPLIT_APPROVAL_PATH,
