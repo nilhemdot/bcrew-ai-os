@@ -74,6 +74,15 @@ async function getWorkingTreeDiffsByFile(repoRoot, files = []) {
   return diffsByFile
 }
 
+async function getCommitDiffsByFile(repoRoot, files = [], commitRef = 'HEAD') {
+  const diffsByFile = {}
+  await Promise.all(files.map(async file => {
+    const diff = await git(repoRoot, ['show', '--format=', '--unified=0', commitRef, '--', file]).catch(() => '')
+    if (diff) diffsByFile[file] = diff
+  }))
+  return diffsByFile
+}
+
 async function runNodeCheck(repoRoot, filePath) {
   await execFile('node', ['--check', filePath], {
     cwd: repoRoot,
@@ -229,6 +238,7 @@ async function main() {
       'isFoundationDbBacklogCaptureOnlyDiff',
       'additive Foundation DB backlog-card capture uses focused proof',
       'Foundation DB schema or function changes require full Foundation ship gate',
+      'deleted protected process checker requires full repoint gate',
     ],
   })
 
@@ -261,7 +271,9 @@ async function main() {
     ? await getHeadChangedFiles(repoRoot, commitRef)
     : await getWorkingTreeChangedFiles(repoRoot)
   const protectedFiles = getProtectedFoundationChangedFiles(changedFiles)
-  const diffsByFile = recordProof ? {} : await getWorkingTreeDiffsByFile(repoRoot, protectedFiles)
+  const diffsByFile = recordProof
+    ? await getCommitDiffsByFile(repoRoot, protectedFiles, commitRef)
+    : await getWorkingTreeDiffsByFile(repoRoot, protectedFiles)
   const gate = classifyVerificationGateForFiles(protectedFiles, { diffsByFile })
   const applyLiveState = args.apply === true ||
     args.apply === 'true' ||
