@@ -2447,5 +2447,54 @@
       "../lib/foundation-db-session.js",
       "../lib/foundation-backlog-sprint-db.js"
     ]
+  },
+  {
+    "path": "scripts/process-frontend-current-state-renderers-split-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-frontend-decision-question-renderers-split-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-frontend-fub-lead-source-renderers-split-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-frontend-operations-renderers-split-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-frontend-runtime-renderers-split-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-frontend-source-lifecycle-renderers-split-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "scripts/process-frontend-system-inventory-renderers-split-check.mjs",
+    "expectedImports": [
+      "../lib/foundation-db-session.js",
+      "../lib/foundation-backlog-sprint-db.js"
+    ]
   }
 ]
