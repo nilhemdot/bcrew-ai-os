@@ -3957,5 +3957,45 @@
       "../lib/foundation-shared-comms-db.js",
       "../lib/foundation-people-sales-db.js"
     ]
+  },
+  {
+    "path": "lib/agent-onboarding-feedback-system.js",
+    "expectedImports": [
+      "./foundation-backlog-sprint-db.js",
+      "./foundation-people-sales-db.js"
+    ]
+  },
+  {
+    "path": "lib/backlog-store-concurrency.js",
+    "expectedImports": [
+      "./foundation-db-session.js",
+      "./foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "lib/dev-build-opportunity-evidence-trace.js",
+    "expectedImports": [
+      "./foundation-intelligence-db.js"
+    ]
+  },
+  {
+    "path": "lib/foundation-source-contract-verifier.js",
+    "expectedImports": [
+      "./foundation-source-crawl-db.js"
+    ]
+  },
+  {
+    "path": "lib/foundation-verify-process-hardening-runner.js",
+    "expectedImports": [
+      "./foundation-db-session.js",
+      "./foundation-backlog-sprint-db.js"
+    ]
+  },
+  {
+    "path": "lib/owners-governance-routes.js",
+    "expectedImports": [
+      "./foundation-people-sales-db.js",
+      "./foundation-strategy-docs-db.js"
+    ]
   }
 ]
