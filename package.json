@@ -238,6 +238,7 @@
     "process:foundation-closeout-records-data-store-check": "node --env-file-if-exists=.env scripts/process-foundation-closeout-records-data-store-check.mjs",
     "process:foundation-oversized-file-split-wave-check": "node --env-file-if-exists=.env scripts/process-foundation-oversized-file-split-wave-check.mjs",
     "process:foundation-done-semantics-repair-check": "node --env-file-if-exists=.env scripts/process-foundation-done-semantics-repair-check.mjs",
+    "process:foundation-orphan-script-review-check": "node --env-file-if-exists=.env scripts/process-foundation-orphan-script-review-check.mjs",
     "process:llm-auth-audit-budget-label-clarity-check": "node --env-file-if-exists=.env scripts/process-llm-auth-audit-budget-label-clarity-check.mjs",
     "process:foundation-knowledge-base-compiler-design-check": "node --env-file-if-exists=.env scripts/process-foundation-knowledge-base-compiler-design-check.mjs",
     "process:knowledge-base-quality-gate-check": "node --env-file-if-exists=.env scripts/process-knowledge-base-quality-gate-check.mjs",

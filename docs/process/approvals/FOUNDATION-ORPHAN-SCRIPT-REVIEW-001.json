@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-ORPHAN-SCRIPT-REVIEW-001",
+  "approvedPlanRef": "docs/process/foundation-orphan-script-review-001-plan.md",
+  "approvedPlanSha256": "00be7d5cfb68d6bc35d2c9a1725f315eca92b03ab4cb94f8ad85a9117d75a8a8",
+  "approvedRepoHead": "cf6c8eca2b900b25c787274a0146d38ae06654a0",
+  "approvedBy": "Steve overnight Foundation tune-up approval + Claude/Codex audit consensus",
+  "approvedAt": "2026-05-30T08:22:00.000Z",
+  "score": 10,
+  "notes": "Approved bounded orphan-script review V1. Scope is review and proof only: record owner-backed keep/retire/repoint decisions for the named orphan-script candidates without deleting, moving, archiving, or repointing any script. Preserve codex-status, the source/browser proof lane, Dev Hub System Truth, and no per-hub restructure.",
+  "approvalDigest": "a97e1eba74e51cd6b9bfdfb89df9d41bf28fa65c7d6fe3a5218cfb365f869fd4"
+}
