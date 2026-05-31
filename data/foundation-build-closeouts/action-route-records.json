@@ -435,5 +435,61 @@
       "This does not launch hidden workers or delegated subagents.",
       "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work."
     ]
+  },
+  {
+    "key": "dev-hub-route-review-operator-packet-v1",
+    "backlogIds": [
+      "DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub route review operator packet",
+        "DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001",
+        "dev-hub-route-review-operator-packet-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-ROUTE-REVIEW-TRIAGE-001",
+      "DEV-HUB-ACTION-ROUTE-READBACK-001"
+    ],
+    "systemArea": "Dev Hub route review operator packet",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Route Review Operator Packet to Dev Hub that groups exact route IDs by suggested operator decision.",
+    "whatItDoes": "The Dev Hub now prepares owner-required, sensitive, duplicate/stale, ready-confirmed-apply, and oldest-review route rows without approving, applying, rejecting, snoozing, rerouting, sending Harlan, or writing destinations.",
+    "whyItMatters": "Steve can review real route IDs instead of a raw count, while every live route action remains behind explicit route-ID confirmation and separate approval.",
+    "whereItLives": [
+      "lib/dev-hub-route-review-operator-packet.js compact review-only packet projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js routeReviewOperatorPacket payload wiring from Route Review Triage and Action Route Readback",
+      "public/dev.html Route Review Operator Packet panel",
+      "public/dev-route-review-operator-packet.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-route-review-operator-packet.css standalone route packet panel styles",
+      "scripts/process-dev-hub-route-review-operator-packet-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-route-review-operator-packet-001-plan.md",
+      "docs/process/approvals/DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001.json",
+      "package.json process:dev-hub-route-review-operator-packet-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-route-review-operator-packet.js scripts/process-dev-hub-route-review-operator-packet-check.mjs public/dev-route-review-operator-packet.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-route-review-operator-packet-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001 --planApprovalRef=docs/process/approvals/DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001.json --closeoutKey=dev-hub-route-review-operator-packet-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001 --closeoutKey=dev-hub-route-review-operator-packet-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001 --planApprovalRef=docs/process/approvals/DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001.json --closeoutKey=dev-hub-route-review-operator-packet-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: packet rows must keep exact route IDs, stay review-only, and fail if any route mutation, destination write, Harlan send, model call, extraction run, external write, or missing route ID appears.",
+    "reviewNext": "Real route mutation still requires exact route IDs and a separate approved apply/review path. Do not approve, apply, reject, snooze, reroute, auto-clear, send Harlan, or write destinations from this packet.",
+    "knownLimits": [
+      "This is a read-only route-review packet; it does not perform route review actions.",
+      "This does not approve, apply, reject, snooze, reroute, auto-clear, or mutate action routes.",
+      "This does not create backlog, decision, open-question, Scoper, Portfolio, Current Sprint, or approval records.",
+      "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, connector probes, or external writes."
+    ]
   }
 ]

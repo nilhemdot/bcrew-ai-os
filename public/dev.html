@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/dev-auditor-flow.css?v=20260531-auditor-flow-v1" />
   <link rel="stylesheet" href="/dev-synthesis-scope.css?v=20260531-synthesis-scope-v1" />
   <link rel="stylesheet" href="/dev-route-review-triage.css?v=20260531-route-triage-v1" />
+  <link rel="stylesheet" href="/dev-route-review-operator-packet.css?v=20260531-route-packet-v1" />
   <link rel="stylesheet" href="/dev-scoper-runtime-readback.css?v=20260531-scoper-runtime-v1" />
   <link rel="stylesheet" href="/dev-business-source-pipeline-triage.css?v=20260531-business-source-v1" />
   <link rel="stylesheet" href="/dev-next-repair-queue.css?v=20260531-next-repair-v1" />
@@ -270,6 +271,20 @@
         </section>
 
         <section class="page-band">
+          <section class="section-head route-packet-head">
+            <div>
+              <span>ROUTE PACKET</span>
+              <h2>Exact IDs, Review Only</h2>
+            </div>
+            <div class="route-review-operator-packet-head-stats" id="route-review-operator-packet-head-stats" aria-live="polite"></div>
+          </section>
+
+          <section class="route-review-operator-packet" id="route-review-operator-packet" aria-label="Dev route review operator packet">
+            <article class="loading-card">Loading route review operator packet from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band">
           <section class="section-head action-route-head">
             <div>
               <span>ACTION ROUTES</span>
@@ -418,6 +433,7 @@
   <script src="/dev-auditor-flow.js?v=20260531-auditor-flow-v1"></script>
   <script src="/dev-synthesis-scope.js?v=20260531-synthesis-scope-v1"></script>
   <script src="/dev-route-review-triage.js?v=20260531-route-triage-v1"></script>
+  <script src="/dev-route-review-operator-packet.js?v=20260531-route-packet-v1"></script>
   <script src="/dev-scoper-runtime-readback.js?v=20260531-scoper-runtime-v1"></script>
   <script src="/dev-business-source-pipeline-triage.js?v=20260531-business-source-v1"></script>
   <script src="/dev-next-repair-queue.js?v=20260531-next-repair-v1"></script>

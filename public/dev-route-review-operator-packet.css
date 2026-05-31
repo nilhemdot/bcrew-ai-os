@@ -1,0 +1,158 @@
+.route-review-operator-packet {
+  display: grid;
+  gap: 16px;
+}
+
+.route-review-operator-packet article {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.route-review-operator-packet p,
+.route-review-operator-packet h3 {
+  margin: 0;
+}
+
+.route-review-operator-packet span,
+.route-review-operator-packet small {
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.route-packet-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.route-packet-summary article {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.route-packet-summary strong {
+  color: #0f172a;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.route-packet-boundary {
+  display: grid;
+}
+
+.route-packet-boundary > div {
+  border: 1px solid rgba(79, 70, 229, 0.22);
+  border-radius: 8px;
+  background: #eef2ff;
+  padding: 16px;
+}
+
+.route-packet-boundary p {
+  color: #334155;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.route-packet-groups {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.route-packet-group {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.route-packet-group strong {
+  color: #0f172a;
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.route-packet-list {
+  display: grid;
+  gap: 10px;
+}
+
+.route-packet-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px;
+}
+
+.route-packet-rank {
+  align-items: center;
+  align-self: start;
+  background: #0f172a;
+  border-radius: 8px;
+  color: #fff;
+  display: inline-flex;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.83rem;
+  font-weight: 800;
+  height: 34px;
+  justify-content: center;
+  width: 44px;
+}
+
+.route-packet-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.route-packet-copy strong {
+  color: #0f172a;
+  font-size: 1rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.route-packet-copy p {
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.route-packet-copy small {
+  color: #475569;
+  line-height: 1.4;
+  text-transform: none;
+}
+
+.route-packet-empty {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.route-packet-empty.blocked {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: #fef2f2;
+}
+
+@media (max-width: 980px) {
+  .route-packet-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .route-packet-groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .route-packet-summary,
+  .route-packet-groups,
+  .route-packet-row {
+    grid-template-columns: 1fr;
+  }
+}

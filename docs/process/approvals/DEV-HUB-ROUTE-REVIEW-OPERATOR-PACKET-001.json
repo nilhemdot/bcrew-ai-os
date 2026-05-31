@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-ROUTE-REVIEW-OPERATOR-PACKET-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T03:14:06.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-route-review-operator-packet-001-plan.md",
+  "approvedPlanSha256": "5dc5ba44caf27c056341a805ac241f2ae7c5465a01a529d11b8219ad4d106448",
+  "approvedRepoHead": "86c457ed1625ed5595952ba575414059d853fef7",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub Route Review Operator Packet that prepares exact route-ID review rows without mutating routes or destinations.",
+  "constraints": [
+    "Do not approve, apply, reject, snooze, reroute, auto-clear, or mutate live action routes.",
+    "Do not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, destination records, Harlan messages, model calls, extraction runs, connector probes, or external writes.",
+    "Do not auto-promote Director recommendations, route rows, repair proposals, or review packets into backlog or Scoper.",
+    "Keep real route mutation behind exact route IDs and separate Steve approval.",
+    "Fail proof if any row is marked mutated, applied, auto-cleared, or no longer review-only."
+  ],
+  "approvalDigest": "82eb350b1ace0623b7f8595071ea37fa5fa81217c247a6a6a8d823d88e4e611d"
+}

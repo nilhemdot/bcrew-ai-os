@@ -106,6 +106,7 @@ const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
 const DEV_ROUTE_REVIEW_TRIAGE_JS_PATH = 'public/dev-route-review-triage.js'
+const DEV_ROUTE_REVIEW_OPERATOR_PACKET_JS_PATH = 'public/dev-route-review-operator-packet.js'
 const DEV_SCOPER_RUNTIME_JS_PATH = 'public/dev-scoper-runtime-readback.js'
 const DEV_BUSINESS_SOURCE_JS_PATH = 'public/dev-business-source-pipeline-triage.js'
 const DEV_NEXT_REPAIR_JS_PATH = 'public/dev-next-repair-queue.js'
@@ -119,6 +120,7 @@ const DEV_CSS_PATHS = [
   'public/dev-auditor-flow.css',
   'public/dev-synthesis-scope.css',
   'public/dev-route-review-triage.css',
+  'public/dev-route-review-operator-packet.css',
   'public/dev-scoper-runtime-readback.css',
   'public/dev-business-source-pipeline-triage.css',
   'public/dev-next-repair-queue.css',
@@ -440,6 +442,7 @@ async function main() {
     auditorFlowJsSource,
     synthesisScopeJsSource,
     routeReviewTriageJsSource,
+    routeReviewOperatorPacketJsSource,
     scoperRuntimeJsSource,
     businessSourceJsSource,
     nextRepairJsSource,
@@ -464,6 +467,7 @@ async function main() {
     readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
     readRepoFile(DEV_ROUTE_REVIEW_TRIAGE_JS_PATH),
+    readRepoFile(DEV_ROUTE_REVIEW_OPERATOR_PACKET_JS_PATH),
     readRepoFile(DEV_SCOPER_RUNTIME_JS_PATH),
     readRepoFile(DEV_BUSINESS_SOURCE_JS_PATH),
     readRepoFile(DEV_NEXT_REPAIR_JS_PATH),
@@ -483,7 +487,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -894,6 +898,49 @@ async function main() {
       cssSource.includes('.route-triage-bucket'),
     'Dev Hub exposes Route Review Triage buckets without approving, applying, auto-clearing, or sending',
     `waiting=${payload?.routeReviewTriage?.summary?.needsReviewItems || 0}; owner=${payload?.routeReviewTriage?.summary?.ownerRequiredItems || 0}; sensitive=${payload?.routeReviewTriage?.summary?.sensitiveReviewItems || 0}; duplicateStale=${payload?.routeReviewTriage?.summary?.duplicateOrStaleReviewItems || 0}; ready=${payload?.routeReviewTriage?.summary?.readyForConfirmedApplyItems || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubRouteReviewOperatorPacket') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'routeReviewOperatorPacket') &&
+      payload?.routeReviewOperatorPacket?.contractVersion === 'dev-hub-route-review-operator-packet.v1' &&
+      payload?.routeReviewOperatorPacket?.source?.noSecondTruthLayer === true &&
+      list(payload?.routeReviewOperatorPacket?.source?.reusedTruthLayers).includes('routeReviewTriage') &&
+      list(payload?.routeReviewOperatorPacket?.source?.reusedTruthLayers).includes('actionRouteReadback') &&
+      payload?.routeReviewOperatorPacket?.boundaries?.reviewOnly === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noRouteApprove === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noRouteApply === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noRouteReject === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noRouteSnooze === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noRouteReroute === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noRouteMutation === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noDestinationMutation === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noBacklogMutation === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noHarlanSend === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noExternalWrites === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noAutoApply === true &&
+      payload?.routeReviewOperatorPacket?.boundaries?.noAutoClear === true &&
+      Number(payload?.routeReviewOperatorPacket?.summary?.missingRouteIdCount || 0) === 0 &&
+      Number(payload?.routeReviewOperatorPacket?.summary?.exactRouteIdCount || 0) === Number(payload?.routeReviewOperatorPacket?.summary?.packetItemCount || 0) &&
+      Number(payload?.routeReviewOperatorPacket?.summary?.routesMutatedByReadback || 0) === 0 &&
+      Number(payload?.routeReviewOperatorPacket?.summary?.destinationsMutatedByReadback || 0) === 0 &&
+      Number(payload?.routeReviewOperatorPacket?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.routeReviewOperatorPacket?.summary?.harlanSendsByReadback || 0) === 0 &&
+      Number(payload?.routeReviewOperatorPacket?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.routeReviewOperatorPacket?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.routeReviewOperatorPacket?.packetRows).length <= 12 &&
+      list(payload?.routeReviewOperatorPacket?.groups).length <= 5 &&
+      list(payload?.routeReviewOperatorPacket?.packetRows).every(item => item.status === 'review_only' && item.routeMutatedNow === false && item.destinationMutatedNow === false && item.appliedNow === false) &&
+      htmlSource.includes('id="route-review-operator-packet"') &&
+      htmlSource.includes('/dev-route-review-operator-packet.css') &&
+      htmlSource.includes('/dev-route-review-operator-packet.js') &&
+      routeReviewOperatorPacketJsSource.includes('routeReviewOperatorPacket') &&
+      routeReviewOperatorPacketJsSource.includes('Review-only route packet') &&
+      cssSource.includes('.route-review-operator-packet') &&
+      cssSource.includes('.route-packet-summary') &&
+      cssSource.includes('.route-packet-row'),
+    'Dev Hub exposes Route Review Operator Packet with exact route IDs and zero approve/apply/reject/snooze/reroute writes',
+    `rows=${payload?.routeReviewOperatorPacket?.summary?.packetItemCount || 0}; exact=${payload?.routeReviewOperatorPacket?.summary?.exactRouteIdCount || 0}; mutated=${payload?.routeReviewOperatorPacket?.summary?.routesMutatedByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -1806,6 +1853,17 @@ async function main() {
           repairId: item.repairId,
           title: item.title,
           suggestedCardType: item.suggestedCardType,
+          status: item.status,
+        })),
+      } : null,
+      routeReviewOperatorPacket: payload.routeReviewOperatorPacket ? {
+        status: payload.routeReviewOperatorPacket.status,
+        summary: payload.routeReviewOperatorPacket.summary,
+        packetRows: list(payload.routeReviewOperatorPacket.packetRows).map(item => ({
+          rank: item.rank,
+          routeId: item.routeId,
+          groupId: item.groupId,
+          title: item.title,
           status: item.status,
         })),
       } : null,
