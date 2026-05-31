@@ -116,7 +116,10 @@ async function main() {
     readRepoFile('lib/foundation-current-sprint.js'),
     readFoundationBacklogSeedSourceBundle({ readRepoFile }),
     readRepoFile('lib/foundation-build-closeout-records.js'),
-    readRepoFile('lib/foundation-build-closeout-source-once-over-records.js'),
+    Promise.all([
+      readRepoFile('lib/foundation-build-closeout-source-once-over-records.js'),
+      readRepoFile('data/foundation-build-closeouts/source-once-over-records.json'),
+    ]).then(parts => parts.join('\n')),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('lib/foundation-jobs.js'),
     readRepoFile('lib/security-access.js'),

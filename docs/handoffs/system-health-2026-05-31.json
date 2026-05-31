@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T02:41:29.276Z",
+  "generatedAt": "2026-05-31T02:44:54.573Z",
   "status": "risk",
   "plainEnglish": "Foundation has red workflow/system-health findings that block green. Do not treat classified rows as fixed.",
   "summary": {
@@ -11,11 +11,11 @@
     "greenLockBlocksGreen": true,
     "greenLockApprovedExceptionCount": 0,
     "currentSprintHealthTruthLockStatus": "healthy",
-    "riskCount": 4,
+    "riskCount": 3,
     "watchCount": 3,
-    "rawRiskCount": 4,
+    "rawRiskCount": 3,
     "rawWatchCount": 4,
-    "visibleRiskCount": 4,
+    "visibleRiskCount": 3,
     "visibleWatchCount": 3,
     "hiddenRiskCount": 0,
     "hiddenWatchCount": 1,
@@ -24,7 +24,7 @@
     "blockingClassifiedRiskCount": 1,
     "blockingClassifiedWatchCount": 1,
     "classifiedFindingCount": 3,
-    "unclassifiedRiskCount": 3,
+    "unclassifiedRiskCount": 2,
     "unclassifiedWatchCount": 2,
     "blockingClassifiedFindingIds": [
       "scheduled_job_meeting-transcripts-extract-backlog",
@@ -33,10 +33,9 @@
     "unclassifiedFindingIds": [
       "scheduled_job_foundation-lessons-learned-loop",
       "scheduled_job_admin-deal-backlog-review",
-      "scheduled_job_verification-runs",
       "build_lane_failure_d6f2c7283f2c2d06815baf84"
     ],
-    "scheduledJobRiskCount": 4,
+    "scheduledJobRiskCount": 3,
     "scheduledJobWatchCount": 0,
     "auditFleetStatus": "healthy",
     "auditFleetLaneCount": 8,
@@ -65,9 +64,9 @@
     "status": "risk",
     "rawStatus": "risk",
     "blocksGreen": true,
-    "rawRiskCount": 4,
+    "rawRiskCount": 3,
     "rawWatchCount": 4,
-    "visibleNonGreenCount": 7,
+    "visibleNonGreenCount": 6,
     "hiddenRiskCount": 0,
     "hiddenWatchCount": 1,
     "hiddenNonGreenCount": 1,
@@ -76,7 +75,6 @@
       "scheduled_job_foundation-lessons-learned-loop",
       "scheduled_job_admin-deal-backlog-review",
       "scheduled_job_meeting-transcripts-extract-backlog",
-      "scheduled_job_verification-runs",
       "connector_degraded",
       "runtime_jobs_failed",
       "build_lane_failure_d6f2c7283f2c2d06815baf84"
@@ -101,14 +99,6 @@
       {
         "findingId": "scheduled_job_meeting-transcripts-extract-backlog",
         "repairCardId": "EXTRACT-BACKFILL-001",
-        "ok": false,
-        "missing": [
-          "approved exception"
-        ]
-      },
-      {
-        "findingId": "scheduled_job_verification-runs",
-        "repairCardId": null,
         "ok": false,
         "missing": [
           "approved exception"
@@ -151,9 +141,9 @@
     "status": "risk",
     "summary": {
       "jobCount": 45,
-      "riskCount": 4,
+      "riskCount": 3,
       "watchCount": 0,
-      "healthyCount": 28,
+      "healthyCount": 29,
       "manualCount": 13,
       "dueCount": 0
     },
@@ -184,15 +174,6 @@
         "detail": "Meeting Transcript Extraction Backlog latest run is failed.",
         "nextAction": "SRC-MEETINGS-001:meeting:ops stand up 2026 05 29 08 44 edt:meeting_transcript: extraction failed -> OpenAI router fallback returned no output text.",
         "jobKey": "meeting-transcripts-extract-backlog"
-      },
-      {
-        "id": "scheduled_job_verification-runs",
-        "severity": "P1",
-        "status": "risk",
-        "title": "Verification Runs is risk",
-        "detail": "Verification Runs latest run is failed.",
-        "nextAction": "Exited with code 1",
-        "jobKey": "verification-runs"
       }
     ],
     "rows": [
@@ -228,17 +209,6 @@
         "latestSuccessAt": null,
         "plainEnglish": "Meeting Transcript Extraction Backlog latest run is failed.",
         "nextAction": "SRC-MEETINGS-001:meeting:ops stand up 2026 05 29 08 44 edt:meeting_transcript: extraction failed -> OpenAI router fallback returned no output text."
-      },
-      {
-        "key": "verification-runs",
-        "title": "Verification Runs",
-        "priority": "P1",
-        "status": "risk",
-        "latestRunStatus": "failed",
-        "latestRunAt": "2026-05-31T02:38:46.365Z",
-        "latestSuccessAt": null,
-        "plainEnglish": "Verification Runs latest run is failed.",
-        "nextAction": "Exited with code 1"
       },
       {
         "key": "connector-uptime-monitor",
@@ -400,8 +370,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T02:41:29.269Z",
-        "latestSuccessAt": "2026-05-31T02:41:29.269Z",
+        "latestRunAt": "2026-05-31T02:44:54.566Z",
+        "latestSuccessAt": "2026-05-31T02:44:54.566Z",
         "plainEnglish": "System Health Nightly Audit has a fresh successful run and is not due.",
         "nextAction": "Review red/yellow system-health rows before treating Foundation as green."
       },
@@ -415,6 +385,17 @@
         "latestSuccessAt": "2026-05-30T10:33:16.720Z",
         "plainEnglish": "Public YouTube Creator Daily Watch has a fresh successful run and is not due.",
         "nextAction": "Review new source items in Dev Team Hub / Build Intel before approving extraction or backlog promotion."
+      },
+      {
+        "key": "youtube-god-mode-autonomous-watch-scheduler",
+        "title": "YouTube God Mode Autonomous Watch Scheduler",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T11:07:48.292Z",
+        "latestSuccessAt": "2026-05-30T11:07:48.292Z",
+        "plainEnglish": "YouTube God Mode Autonomous Watch Scheduler has a fresh successful run and is not due.",
+        "nextAction": "Watch the first scheduled live-bounded runs for provider failure and quality; tune daily cap/batch size from the morning report instead of returning to manual babysitting."
       }
     ]
   },
@@ -458,11 +439,11 @@
   "docArtifactBloat": {
     "status": "healthy",
     "summary": {
-      "artifactCount": 1250,
-      "handoffFileCount": 9,
-      "handoffLineTotal": 2645,
-      "recentHandoffFileCount": 7,
-      "nightlyArtifactCount": 7,
+      "artifactCount": 1252,
+      "handoffFileCount": 11,
+      "handoffLineTotal": 3421,
+      "recentHandoffFileCount": 9,
+      "nightlyArtifactCount": 9,
       "riskCount": 0,
       "reviewCount": 0
     },
@@ -644,16 +625,6 @@
       }
     },
     {
-      "id": "scheduled_job_verification-runs",
-      "severity": "P1",
-      "status": "risk",
-      "title": "Verification Runs is risk",
-      "detail": "Verification Runs latest run is failed.",
-      "nextAction": "Exited with code 1",
-      "jobKey": "verification-runs",
-      "rollupLevel": "risk"
-    },
-    {
       "id": "connector_degraded",
       "severity": "P1",
       "status": "review",
@@ -681,7 +652,7 @@
       "severity": "P1",
       "status": "review",
       "title": "Foundation jobs have recent failures",
-      "detail": "verification-runs, foundation-lessons-learned-loop, meeting-transcripts-extract-backlog, admin-deal-backlog-review",
+      "detail": "foundation-lessons-learned-loop, meeting-transcripts-extract-backlog, admin-deal-backlog-review",
       "nextAction": "Review latest run error before treating the system as green.",
       "source": "foundation_operating_reliability",
       "autoFix": false,
