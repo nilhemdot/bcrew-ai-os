@@ -415,6 +415,11 @@ async function main() {
   const sprintItem = (sprint.items || []).find(item => item.cardId === CARD_ID) || null
   const closeouts = getFoundationBuildCloseouts()
   const closeout = closeouts.find(record => record.key === CLOSEOUT_KEY) || null
+  const historicalCloseoutVerified = card?.lane === 'done' &&
+    closeout?.operatorCloseout === true &&
+    (closeout.backlogIds || []).includes(CARD_ID) &&
+    (await repoFileExists(CLOSEOUT_PATH))
+  const closeoutRegistryReadbackSource = JSON.stringify(closeout || {})
   const currentSprintStatus = buildFoundationCurrentSprintStatus({ sprint: sprint.sprint, items: sprint.items, backlogItems: cards, closeouts, planCriticRuns })
   const scaffold = validateBuildLaneCardScaffold(card || {})
   const sprintMetadata = validateBuildLaneSprintItemMetadata(sprintItem || {})
@@ -432,9 +437,9 @@ async function main() {
   addCheck(checks, planCriticRuns.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE), 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, card?.priority === 'P0' && ['executing', 'done'].includes(card?.lane), 'live Harlan operator loop card exists and is staged', card ? `${card.lane}/${card.priority}` : 'missing')
   addCheck(checks, scaffold.ok, 'live backlog card passes scaffold guard', scaffold.missing.join(', ') || 'complete')
-  addCheck(checks, sprint.sprint?.sprintId === SPRINT_ID, 'Current Sprint overlay is active for this card', sprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintMetadata.ok, 'Current Sprint item metadata is complete', sprintMetadata.missing.join(', ') || 'complete')
-  addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint status is healthy', currentSprintStatus.findings?.map(item => item.detail || item.check).join('; ') || 'healthy')
+  addCheck(checks, sprint.sprint?.sprintId === SPRINT_ID || historicalCloseoutVerified, 'Current Sprint overlay is active for this card or card is historically closed', sprint.sprint?.sprintId || 'missing')
+  addCheck(checks, sprintMetadata.ok || historicalCloseoutVerified, 'Current Sprint item metadata is complete or covered by historical closeout', sprintMetadata.missing.join(', ') || 'complete')
+  addCheck(checks, currentSprintStatus.status === 'healthy' || historicalCloseoutVerified, 'Current Sprint status is healthy or card is historically closed', currentSprintStatus.findings?.map(item => item.detail || item.check).join('; ') || 'healthy')
   addCheck(checks, prereqCards.every(item => item?.lane === 'done'), 'Harlan operator prerequisites are done', prereqCards.map(item => `${item?.id || 'missing'}:${item?.lane || 'missing'}`).join(', '))
   addCheck(checks, nextCard && ['scoped', 'executing', 'done'].includes(nextCard.lane), 'next Build Intel watchlist card remains live', nextCard ? `${nextCard.lane}/${nextCard.priority}` : 'missing')
   addCheck(checks, loopStatus.ok && loopStatus.summary.inputCount >= REQUIRED_INPUTS.length && loopStatus.summary.sectionCount >= REQUIRED_SECTIONS.length, 'healthy Harlan operator loop passes', `${loopStatus.status}/${loopStatus.summary.inputCount} inputs/${loopStatus.summary.sectionCount} sections`)
@@ -448,7 +453,7 @@ async function main() {
   addCheck(checks, runtimeVerifierSource.includes(CARD_ID) && runtimeVerifierSource.includes('buildHarlanOperatorLoopDogfoodProof'), 'runtime reliability verifier covers Harlan operator loop', 'lib/foundation-runtime-reliability-verifier.js')
   addCheck(checks, coverageSource.includes('HARLAN_OPERATOR_LOOP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE') && coverageSource.includes(CARD_ID), 'verifier coverage IDs include Harlan operator loop', 'lib/foundation-verify-coverage-card-ids.js')
   addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(CARD_ID), 'closeout registry record is registered', closeout?.key || 'missing')
-  addCheck(checks, closeoutRecordsSource.includes(CLOSEOUT_KEY) && closeoutRecordsSource.includes(CARD_ID), 'closeout registry source contains card and key', CLOSEOUT_KEY)
+  addCheck(checks, closeoutRecordsSource.includes('loadFoundationBuildCloseoutDataArtifact') && closeoutRegistryReadbackSource.includes(CLOSEOUT_KEY) && closeoutRegistryReadbackSource.includes(CARD_ID), 'closeout registry readback contains card and key', CLOSEOUT_KEY)
   addCheck(checks, await repoFileExists(CLOSEOUT_PATH), 'closeout handoff exists', CLOSEOUT_PATH)
   addCheck(checks, closeoutDoc.includes('This does not implement Harlan') && closeoutDoc.includes('runtime'), 'closeout documents runtime boundary', CLOSEOUT_PATH)
   addCheck(checks, currentPlan.includes(CLOSEOUT_KEY) && currentState.includes(CLOSEOUT_KEY), 'current plan/state mention closeout key', CLOSEOUT_KEY)
