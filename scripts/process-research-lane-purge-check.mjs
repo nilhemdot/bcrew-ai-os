@@ -62,8 +62,16 @@ async function writeReport(snapshot) {
   await fs.writeFile(RESEARCH_LANE_PURGE_REPORT_PATH, renderResearchLanePurgeReport(snapshot))
 }
 
-async function closeSprintCard(snapshot) {
+async function closeSprintCard(snapshot, { applyRequested = false } = {}) {
   const counts = snapshot.summary?.dispositionCounts || {}
+  const current = await getActiveFoundationCurrentSprint()
+  const sprint = current.sprint
+  const updateCurrentSprintOverlay = sprint?.sprintId === SPRINT_ID
+
+  if (updateCurrentSprintOverlay && !applyRequested) {
+    throw new Error('Closing the active Source Truth Guardrails sprint overlay requires explicit --apply=true.')
+  }
+
   await updateBacklogItem(RESEARCH_LANE_PURGE_CARD_ID, {
     lane: 'done',
     nextAction: 'Done for v1. Stop for Source Truth Guardrails sprint review/rollover; do not silently open another sprint or product work.',
@@ -76,8 +84,14 @@ async function closeSprintCard(snapshot) {
     ].join(' '),
   }, 'codex')
 
-  const current = await getActiveFoundationCurrentSprint()
-  const sprint = current.sprint
+  if (!updateCurrentSprintOverlay) {
+    return {
+      backlogUpdated: true,
+      sprintOverlayUpdated: false,
+      reason: `Skipped historical Source Truth Guardrails sprint overlay update because active sprint is ${sprint?.sprintId || 'missing'}.`,
+    }
+  }
+
   await upsertFoundationCurrentSprintOverlay({
     sprint: {
       sprintId: SPRINT_ID,
@@ -103,7 +117,19 @@ async function closeSprintCard(snapshot) {
       existingWorkCheck: item.existingWorkCheck,
       metadata: item.metadata,
     })),
+    mutation: {
+      apply: true,
+      expectedPreviousActiveSprintId: sprint.sprintId,
+      allowItemReplacement: true,
+      reason: `Close ${RESEARCH_LANE_PURGE_CARD_ID} after proposed-only report proof.`,
+    },
   }, 'codex')
+
+  return {
+    backlogUpdated: true,
+    sprintOverlayUpdated: true,
+    reason: 'Updated active Source Truth Guardrails sprint overlay.',
+  }
 }
 
 async function main() {
@@ -112,6 +138,10 @@ async function main() {
   const skipClose = boolArg(args.skipClose) || boolArg(args['skip-close'])
   const argv = process.argv.slice(2)
   const writeReportRequested = isProcessReportWriteRequested(argv)
+  const applyRequested = isProcessCheckWriteRequested({
+    argv,
+    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply],
+  })
   const closeCardRequested = isProcessCheckWriteRequested({
     argv,
     allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.closeCard],
@@ -207,6 +237,12 @@ async function main() {
         afterResearchSignatureLength: afterResearchSignature.length,
         unchanged: beforeResearchSignature === afterResearchSignature,
       },
+      closeout: {
+        requested: closeCardRequested,
+        applied: false,
+        sprintOverlayUpdated: false,
+        reason: '',
+      },
       findings,
     }
 
@@ -217,7 +253,13 @@ async function main() {
         operation: 'close research lane purge card and update Current Sprint overlay',
         allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.closeCard],
       })
-      await closeSprintCard(purgeSnapshot)
+      const closeout = await closeSprintCard(purgeSnapshot, { applyRequested })
+      summary.closeout = {
+        requested: true,
+        applied: true,
+        sprintOverlayUpdated: closeout.sprintOverlayUpdated === true,
+        reason: closeout.reason || '',
+      }
     }
 
     if (jsonMode) console.log(JSON.stringify(summary, null, 2))
