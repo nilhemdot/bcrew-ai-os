@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T04:30:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-route-blocker-preflight-001-plan.md",
+  "approvedPlanSha256": "3e2fd8444cd900c7deb16268a241f83971068df21a8783af61f772f7cfb68e57",
+  "approvedRepoHead": "1954ef43e1d8e39a58ed18d6f3d301b91fd68acc",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub Route Blocker Preflight that names exact owner/sensitive route blockers without assigning owners or mutating routes.",
+  "constraints": [
+    "Do not assign owners, complete sensitive review, approve, apply, reject, snooze, reroute, auto-clear, or mutate live action routes.",
+    "Do not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, destination records, Harlan messages, model calls, extraction runs, connector probes, or external writes.",
+    "Do not auto-promote Director recommendations, route rows, blocker rows, or preflight rows into backlog or Scoper.",
+    "Keep real route mutation and owner assignment behind exact route IDs and separate Steve approval.",
+    "Fail proof if any row is marked assigned, reviewed, mutated, externally sent, or no longer approval-required."
+  ],
+  "approvalDigest": "57b43b1b353d05fadab9ed73f3ccfd72464dd9c98b1b5969fc182d1837e529ea"
+}

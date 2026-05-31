@@ -548,5 +548,61 @@
       "This does not create backlog, decision, open-question, Scoper, Portfolio, Current Sprint, or approval records.",
       "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, connector probes, or external writes."
     ]
+  },
+  {
+    "key": "dev-hub-route-blocker-preflight-v1",
+    "backlogIds": [
+      "DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub route blocker preflight",
+        "DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001",
+        "dev-hub-route-blocker-preflight-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-ROUTE-AUTOCLEAR-PREFLIGHT-001",
+      "DEV-HUB-ROUTE-REVIEW-TRIAGE-001"
+    ],
+    "systemArea": "Dev Hub route blocker preflight",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Route Blocker Preflight to Dev Hub that turns auto-clear blockers into exact owner-required and sensitive-review rows.",
+    "whatItDoes": "The Dev Hub now explains why route cleanup is parked by showing exact route IDs, decision type, suggested human decision lane, source-proof counts, and mutation boundary without assigning owners or mutating routes.",
+    "whyItMatters": "The auto-clear preflight found duplicate/stale pressure but no safe automatic clears because the rows are blocked by owner and sensitive-review gates. This makes the next human decision explicit while keeping live route mutation parked.",
+    "whereItLives": [
+      "lib/dev-hub-route-blocker-preflight.js compact blocker projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js routeBlockerPreflight payload wiring from Route Auto-Clear Preflight and Route Review Triage",
+      "public/dev.html Route Blocker Preflight panel",
+      "public/dev-route-blocker-preflight.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-route-blocker-preflight.css standalone route blocker panel styles",
+      "scripts/process-dev-hub-route-blocker-preflight-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-route-blocker-preflight-001-plan.md",
+      "docs/process/approvals/DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001.json",
+      "package.json process:dev-hub-route-blocker-preflight-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-route-blocker-preflight.js scripts/process-dev-hub-route-blocker-preflight-check.mjs public/dev-route-blocker-preflight.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-route-blocker-preflight-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001.json --closeoutKey=dev-hub-route-blocker-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001 --closeoutKey=dev-hub-route-blocker-preflight-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-ROUTE-BLOCKER-PREFLIGHT-001.json --closeoutKey=dev-hub-route-blocker-preflight-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: blocker rows must keep exact route IDs, stay approval-required, and fail if any owner assignment, sensitive-review completion, route mutation, destination write, Harlan send, model call, extraction run, external write, or missing route ID appears.",
+    "reviewNext": "Actual owner assignment, sensitive-review completion, or route clearing still requires exact route IDs and a separate approved path. Do not assign owners, approve, apply, reject, snooze, reroute, auto-clear, send Harlan, or write destinations from this preflight.",
+    "knownLimits": [
+      "This is a read-only route blocker preflight; it does not perform route review actions.",
+      "This does not assign owners, complete sensitive review, approve, apply, reject, snooze, reroute, auto-clear, or mutate action routes.",
+      "This does not create backlog, decision, open-question, Scoper, Portfolio, Current Sprint, or approval records.",
+      "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, connector probes, or external writes."
+    ]
   }
 ]

@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/dev-route-review-triage.css?v=20260531-route-triage-v1" />
   <link rel="stylesheet" href="/dev-route-review-operator-packet.css?v=20260531-route-packet-v1" />
   <link rel="stylesheet" href="/dev-route-autoclear-preflight.css?v=20260531-route-autoclear-v1" />
+  <link rel="stylesheet" href="/dev-route-blocker-preflight.css?v=20260531-route-blocker-v1" />
   <link rel="stylesheet" href="/dev-scoper-runtime-readback.css?v=20260531-scoper-runtime-v1" />
   <link rel="stylesheet" href="/dev-business-source-pipeline-triage.css?v=20260531-business-source-v1" />
   <link rel="stylesheet" href="/dev-next-repair-queue.css?v=20260531-next-repair-v1" />
@@ -315,6 +316,20 @@
         </section>
 
         <section class="page-band">
+          <section class="section-head route-blocker-head">
+            <div>
+              <span>ROUTE BLOCKERS</span>
+              <h2>Owner, Sensitive, Parked</h2>
+            </div>
+            <div class="route-blocker-preflight-head-stats" id="route-blocker-preflight-head-stats" aria-live="polite"></div>
+          </section>
+
+          <section class="route-blocker-preflight" id="route-blocker-preflight" aria-label="Dev route blocker preflight">
+            <article class="loading-card">Loading route blocker preflight from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band">
           <section class="section-head action-route-head">
             <div>
               <span>ACTION ROUTES</span>
@@ -465,6 +480,7 @@
   <script src="/dev-route-review-triage.js?v=20260531-route-triage-v1"></script>
   <script src="/dev-route-review-operator-packet.js?v=20260531-route-packet-v1"></script>
   <script src="/dev-route-autoclear-preflight.js?v=20260531-route-autoclear-v1"></script>
+  <script src="/dev-route-blocker-preflight.js?v=20260531-route-blocker-v1"></script>
   <script src="/dev-scoper-runtime-readback.js?v=20260531-scoper-runtime-v1"></script>
   <script src="/dev-business-source-pipeline-triage.js?v=20260531-business-source-v1"></script>
   <script src="/dev-next-repair-queue.js?v=20260531-next-repair-v1"></script>

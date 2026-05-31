@@ -108,6 +108,7 @@ const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
 const DEV_ROUTE_REVIEW_TRIAGE_JS_PATH = 'public/dev-route-review-triage.js'
 const DEV_ROUTE_REVIEW_OPERATOR_PACKET_JS_PATH = 'public/dev-route-review-operator-packet.js'
 const DEV_ROUTE_AUTOCLEAR_PREFLIGHT_JS_PATH = 'public/dev-route-autoclear-preflight.js'
+const DEV_ROUTE_BLOCKER_PREFLIGHT_JS_PATH = 'public/dev-route-blocker-preflight.js'
 const DEV_SCOPER_RUNTIME_JS_PATH = 'public/dev-scoper-runtime-readback.js'
 const DEV_BUSINESS_SOURCE_JS_PATH = 'public/dev-business-source-pipeline-triage.js'
 const DEV_NEXT_REPAIR_JS_PATH = 'public/dev-next-repair-queue.js'
@@ -124,6 +125,7 @@ const DEV_CSS_PATHS = [
   'public/dev-route-review-triage.css',
   'public/dev-route-review-operator-packet.css',
   'public/dev-route-autoclear-preflight.css',
+  'public/dev-route-blocker-preflight.css',
   'public/dev-scoper-runtime-readback.css',
   'public/dev-business-source-pipeline-triage.css',
   'public/dev-next-repair-queue.css',
@@ -245,6 +247,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="synthesis-scope"',
 	    'id="route-review-triage"',
 	    'id="route-autoclear-preflight"',
+	    'id="route-blocker-preflight"',
 	    'id="scoper-runtime-readback"',
   ].every(marker => html.includes(marker))
 }
@@ -449,6 +452,7 @@ async function main() {
     routeReviewTriageJsSource,
     routeReviewOperatorPacketJsSource,
     routeAutoClearPreflightJsSource,
+    routeBlockerPreflightJsSource,
     scoperRuntimeJsSource,
     businessSourceJsSource,
     nextRepairJsSource,
@@ -476,6 +480,7 @@ async function main() {
     readRepoFile(DEV_ROUTE_REVIEW_TRIAGE_JS_PATH),
     readRepoFile(DEV_ROUTE_REVIEW_OPERATOR_PACKET_JS_PATH),
     readRepoFile(DEV_ROUTE_AUTOCLEAR_PREFLIGHT_JS_PATH),
+    readRepoFile(DEV_ROUTE_BLOCKER_PREFLIGHT_JS_PATH),
     readRepoFile(DEV_SCOPER_RUNTIME_JS_PATH),
     readRepoFile(DEV_BUSINESS_SOURCE_JS_PATH),
     readRepoFile(DEV_NEXT_REPAIR_JS_PATH),
@@ -496,7 +501,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -1049,6 +1054,54 @@ async function main() {
       cssSource.includes('.route-autoclear-row'),
     'Dev Hub exposes Route Auto-Clear Preflight with approval-bound exact IDs and zero reject/snooze/route writes',
     `rows=${payload?.routeAutoClearPreflight?.summary?.preflightItemCount || 0}; candidates=${payload?.routeAutoClearPreflight?.summary?.candidateAfterApprovalRows || 0}; safeNow=${payload?.routeAutoClearPreflight?.summary?.safeToAutoClearNowRows || 0}; mutated=${payload?.routeAutoClearPreflight?.summary?.routesMutatedByReadback || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubRouteBlockerPreflight') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'routeBlockerPreflight') &&
+      payload?.routeBlockerPreflight?.contractVersion === 'dev-hub-route-blocker-preflight.v1' &&
+      payload?.routeBlockerPreflight?.source?.noSecondTruthLayer === true &&
+      list(payload?.routeBlockerPreflight?.source?.reusedTruthLayers).includes('routeAutoClearPreflight') &&
+      list(payload?.routeBlockerPreflight?.source?.reusedTruthLayers).includes('routeReviewTriage') &&
+      payload?.routeBlockerPreflight?.boundaries?.preflightOnly === true &&
+      payload?.routeBlockerPreflight?.boundaries?.approvalRequired === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noOwnerAssignment === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noRouteApprove === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noRouteApply === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noRouteReject === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noRouteSnooze === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noRouteReroute === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noRouteMutation === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noDestinationMutation === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noBacklogMutation === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noHarlanSend === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noExternalWrites === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noAutoApply === true &&
+      payload?.routeBlockerPreflight?.boundaries?.noAutoClear === true &&
+      Number(payload?.routeBlockerPreflight?.summary?.missingRouteIdCount || 0) === 0 &&
+      Number(payload?.routeBlockerPreflight?.summary?.approvalRequiredRows || 0) === Number(payload?.routeBlockerPreflight?.summary?.blockerItemCount || 0) &&
+      Number(payload?.routeBlockerPreflight?.summary?.ownersAssignedByReadback || 0) === 0 &&
+      Number(payload?.routeBlockerPreflight?.summary?.sensitiveReviewsCompletedByReadback || 0) === 0 &&
+      Number(payload?.routeBlockerPreflight?.summary?.routesMutatedByReadback || 0) === 0 &&
+      Number(payload?.routeBlockerPreflight?.summary?.destinationsMutatedByReadback || 0) === 0 &&
+      Number(payload?.routeBlockerPreflight?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.routeBlockerPreflight?.summary?.harlanSendsByReadback || 0) === 0 &&
+      Number(payload?.routeBlockerPreflight?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.routeBlockerPreflight?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.routeBlockerPreflight?.blockerRows).length <= 16 &&
+      list(payload?.routeBlockerPreflight?.groups).length <= 4 &&
+      list(payload?.routeBlockerPreflight?.blockerRows).every(item => item.status === 'approval_required' && item.approvalRequired === true && item.ownerAssignedNow === false && item.sensitiveReviewedNow === false && item.routeMutatedNow === false && item.destinationMutatedNow === false) &&
+      htmlSource.includes('id="route-blocker-preflight"') &&
+      htmlSource.includes('/dev-route-blocker-preflight.css') &&
+      htmlSource.includes('/dev-route-blocker-preflight.js') &&
+      routeBlockerPreflightJsSource.includes('routeBlockerPreflight') &&
+      routeBlockerPreflightJsSource.includes('Route blocker preflight') &&
+      routeBlockerPreflightJsSource.includes('ownersAssignedByReadback') &&
+      cssSource.includes('.route-blocker-preflight') &&
+      cssSource.includes('.route-blocker-summary') &&
+      cssSource.includes('.route-blocker-row'),
+    'Dev Hub exposes Route Blocker Preflight with exact owner/sensitive blockers and zero owner assignment or route writes',
+    `rows=${payload?.routeBlockerPreflight?.summary?.blockerItemCount || 0}; owner=${payload?.routeBlockerPreflight?.summary?.ownerResolutionRows || 0}; sensitive=${payload?.routeBlockerPreflight?.summary?.sensitiveReviewRows || 0}; assigned=${payload?.routeBlockerPreflight?.summary?.ownersAssignedByReadback || 0}; mutated=${payload?.routeBlockerPreflight?.summary?.routesMutatedByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -1984,6 +2037,18 @@ async function main() {
           groupId: item.groupId,
           clearReadiness: item.clearReadiness,
           proposedDisposition: item.proposedDisposition,
+          status: item.status,
+        })),
+      } : null,
+      routeBlockerPreflight: payload.routeBlockerPreflight ? {
+        status: payload.routeBlockerPreflight.status,
+        summary: payload.routeBlockerPreflight.summary,
+        blockerRows: list(payload.routeBlockerPreflight.blockerRows).map(item => ({
+          rank: item.rank,
+          routeId: item.routeId,
+          groupId: item.groupId,
+          decisionType: item.decisionType,
+          suggestedDecisionLane: item.suggestedDecisionLane,
           status: item.status,
         })),
       } : null,
