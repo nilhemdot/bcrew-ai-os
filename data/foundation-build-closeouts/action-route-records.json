@@ -604,5 +604,62 @@
       "This does not create backlog, decision, open-question, Scoper, Portfolio, Current Sprint, or approval records.",
       "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, connector probes, or external writes."
     ]
+  },
+  {
+    "key": "dev-hub-build-portfolio-readback-v1",
+    "backlogIds": [
+      "DEV-HUB-BUILD-PORTFOLIO-READBACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub Build Portfolio readback",
+        "DEV-HUB-BUILD-PORTFOLIO-READBACK-001",
+        "dev-hub-build-portfolio-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "BUILD-PORTFOLIO-SCRUM-MASTER-001",
+      "DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001",
+      "DEV-BUILD-OPPORTUNITY-SCOPER-001"
+    ],
+    "systemArea": "Dev Hub Build Portfolio readback",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Build Portfolio Readback to Dev Hub that turns Scoper-ready source-traced recommendations into ranked, merged, proposal-only build groups.",
+    "whatItDoes": "The Dev Hub now shows the final pre-approval build recommendation layer: portfolio rank, score, decision, lane, merged candidate count, source-lineage count, raw atom/hit proof, and promotion boundary.",
+    "whyItMatters": "The system can already merge four source-backed scoped recommendations into stronger build opportunities. This makes that knowledge visible without auto-creating cards, opening sprint work, or treating Portfolio readiness as Steve approval.",
+    "whereItLives": [
+      "lib/dev-hub-build-portfolio-readback.js compact Portfolio projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js buildPortfolioReadback payload wiring from Scoper evidence trace",
+      "public/dev.html Build Portfolio Readback panel",
+      "public/dev-build-portfolio-readback.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-build-portfolio-readback.css standalone portfolio readback panel styles",
+      "scripts/process-dev-hub-build-portfolio-readback-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-build-portfolio-readback-001-plan.md",
+      "docs/process/approvals/DEV-HUB-BUILD-PORTFOLIO-READBACK-001.json",
+      "package.json process:dev-hub-build-portfolio-readback-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-BUILD-PORTFOLIO-READBACK-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-build-portfolio-readback.js scripts/process-dev-hub-build-portfolio-readback-check.mjs public/dev-build-portfolio-readback.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-build-portfolio-readback-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-BUILD-PORTFOLIO-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-BUILD-PORTFOLIO-READBACK-001.json --closeoutKey=dev-hub-build-portfolio-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-BUILD-PORTFOLIO-READBACK-001 --closeoutKey=dev-hub-build-portfolio-readback-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-BUILD-PORTFOLIO-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-BUILD-PORTFOLIO-READBACK-001.json --closeoutKey=dev-hub-build-portfolio-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: Portfolio groups must stay proposal-only, preserve source lineage, keep raw atom/hit candidate proof, stay bounded, and fail if any backlog, Scoper, Portfolio, sprint, approval, route, destination, Harlan, model, extraction, browser, connector, or external write appears.",
+    "reviewNext": "Actual build card promotion still requires Steve approval of an exact portfolio group. Do not create backlog cards, sprint work, Scoper records, Portfolio records, Harlan messages, route actions, extraction runs, model calls, or external writes from this readback.",
+    "knownLimits": [
+      "This is a read-only Build Portfolio readback; it does not create or mutate portfolio records.",
+      "This does not create backlog cards, open Current Sprint work, or authorize builds.",
+      "This does not mutate Scoper records, action routes, decisions, open questions, or destinations.",
+      "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, browser sessions, connector probes, or external writes."
+    ]
   }
 ]

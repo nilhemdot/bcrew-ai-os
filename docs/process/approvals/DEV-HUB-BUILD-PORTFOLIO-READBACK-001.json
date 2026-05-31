@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-BUILD-PORTFOLIO-READBACK-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T04:45:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-build-portfolio-readback-001-plan.md",
+  "approvedPlanSha256": "83feb89d934b054988e05ee5738e25c145de645cc49eda15e91f000d64bb5b52",
+  "approvedRepoHead": "c1939c5531fc5a500dd31eb46db325f9c536a0f8",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub Build Portfolio Readback that ranks and merges Scoper-ready source-traced build candidates without promotion or writes.",
+  "constraints": [
+    "Do not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, route records, destination records, Harlan messages, model calls, extraction runs, connector probes, browser sessions, or external writes.",
+    "Do not auto-promote Director, Scoper, or Portfolio recommendations into backlog, sprint, route action, Harlan, or build execution.",
+    "Only include candidates with Scoper-ready status, source-trace-ready status, raw atom proof, raw hit proof, and a complete portfolio candidate.",
+    "Keep every portfolio group proposal-only and behind Steve approval after portfolio review.",
+    "Fail proof if any group is auto-promoted, missing source lineage, unbounded, or claiming persisted portfolio/backlog/sprint writes."
+  ],
+  "approvalDigest": "b4f2a4348fd8d1228dc1bc61e66fac1cc77b1a560cf713ad87ef981a8571d513"
+}

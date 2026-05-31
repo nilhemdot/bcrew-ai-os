@@ -102,6 +102,7 @@ const SCRIPT_PATH = 'scripts/process-dev-team-hub-v0-check.mjs'
 const DEV_ACTION_ROUTE_READBACK_JS_PATH = 'public/dev-action-route-readback.js'
 const DEV_FOUNDATION_DONE_BAR_JS_PATH = 'public/dev-foundation-done-bar.js'
 const DEV_SCOPER_EVIDENCE_TRACE_JS_PATH = 'public/dev-scoper-evidence-trace.js'
+const DEV_BUILD_PORTFOLIO_READBACK_JS_PATH = 'public/dev-build-portfolio-readback.js'
 const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
@@ -119,6 +120,7 @@ const DEV_CSS_PATHS = [
   'public/dev-youtube-source.css',
   'public/dev-source-approval.css',
   'public/dev-scoper-evidence-trace.css',
+  'public/dev-build-portfolio-readback.css',
   'public/dev-intelligence-hygiene.css',
   'public/dev-auditor-flow.css',
   'public/dev-synthesis-scope.css',
@@ -248,6 +250,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="route-review-triage"',
 	    'id="route-autoclear-preflight"',
 	    'id="route-blocker-preflight"',
+	    'id="build-portfolio-readback"',
 	    'id="scoper-runtime-readback"',
   ].every(marker => html.includes(marker))
 }
@@ -446,6 +449,7 @@ async function main() {
     actionRouteReadbackJsSource,
     foundationDoneBarJsSource,
     scoperEvidenceTraceJsSource,
+    buildPortfolioReadbackJsSource,
     intelligenceHygieneJsSource,
     auditorFlowJsSource,
     synthesisScopeJsSource,
@@ -474,6 +478,7 @@ async function main() {
     readRepoFile(DEV_ACTION_ROUTE_READBACK_JS_PATH),
     readRepoFile(DEV_FOUNDATION_DONE_BAR_JS_PATH),
     readRepoFile(DEV_SCOPER_EVIDENCE_TRACE_JS_PATH),
+    readRepoFile(DEV_BUILD_PORTFOLIO_READBACK_JS_PATH),
     readRepoFile(DEV_INTELLIGENCE_HYGIENE_JS_PATH),
     readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
@@ -501,7 +506,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${buildPortfolioReadbackJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -828,6 +833,51 @@ async function main() {
       cssSource.includes('.scoper-evidence-trace'),
     'Dev Hub exposes Scoper evidence trace readback without promoting Director candidates',
     `reviewed=${payload?.scoperEvidenceTraceReadback?.summary?.reviewedCount || 0}; ready=${payload?.scoperEvidenceTraceReadback?.summary?.readyForPortfolioCount || 0}; parked=${payload?.scoperEvidenceTraceReadback?.summary?.parkedCount || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubBuildPortfolioReadback') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'buildPortfolioReadback') &&
+      payload?.buildPortfolioReadback?.contractVersion === 'dev-hub-build-portfolio-readback.v1' &&
+      payload?.buildPortfolioReadback?.source?.noSecondTruthLayer === true &&
+      list(payload?.buildPortfolioReadback?.source?.reusedTruthLayers).includes('scoperEvidenceTraceResult') &&
+      list(payload?.buildPortfolioReadback?.source?.reusedTruthLayers).includes('buildPortfolioReview') &&
+      payload?.buildPortfolioReadback?.source?.promotionPolicy === 'no_auto_promotion_without_steve_after_portfolio_review' &&
+      payload?.buildPortfolioReadback?.boundaries?.proposalOnly === true &&
+      payload?.buildPortfolioReadback?.boundaries?.approvalRequired === true &&
+      payload?.buildPortfolioReadback?.boundaries?.noBacklogMutation === true &&
+      payload?.buildPortfolioReadback?.boundaries?.noScoperMutation === true &&
+      payload?.buildPortfolioReadback?.boundaries?.noPortfolioPersistence === true &&
+      payload?.buildPortfolioReadback?.boundaries?.noCurrentSprintMutation === true &&
+      payload?.buildPortfolioReadback?.boundaries?.noHarlanSend === true &&
+      payload?.buildPortfolioReadback?.boundaries?.noExternalWrites === true &&
+      payload?.buildPortfolioReadback?.boundaries?.noAutoBuild === true &&
+      payload?.buildPortfolioReadback?.boundaries?.noAutoPromoteRecommendations === true &&
+      Number(payload?.buildPortfolioReadback?.summary?.readyScopedCandidateCount || 0) >= 1 &&
+      Number(payload?.buildPortfolioReadback?.summary?.portfolioGroupCount || 0) === list(payload?.buildPortfolioReadback?.groups).length &&
+      Number(payload?.buildPortfolioReadback?.summary?.proposalOnlyGroupCount || 0) === list(payload?.buildPortfolioReadback?.groups).length &&
+      Number(payload?.buildPortfolioReadback?.summary?.autoPromotedGroupCount || 0) === 0 &&
+      Number(payload?.buildPortfolioReadback?.summary?.sourceLineageRefCount || 0) >= 1 &&
+      Number(payload?.buildPortfolioReadback?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.buildPortfolioReadback?.summary?.scoperRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.buildPortfolioReadback?.summary?.portfolioRecordsPersistedByReadback || 0) === 0 &&
+      Number(payload?.buildPortfolioReadback?.summary?.currentSprintMutationsByReadback || 0) === 0 &&
+      Number(payload?.buildPortfolioReadback?.summary?.routeRecordsMutatedByReadback || 0) === 0 &&
+      Number(payload?.buildPortfolioReadback?.summary?.harlanSendsByReadback || 0) === 0 &&
+      Number(payload?.buildPortfolioReadback?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.buildPortfolioReadback?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.buildPortfolioReadback?.groups).length <= 8 &&
+      list(payload?.buildPortfolioReadback?.candidateRows).length <= 10 &&
+      list(payload?.buildPortfolioReadback?.groups).every(group => group.proposalOnly === true && group.approvalRequired === true && group.sourceLineageCount >= 1) &&
+      list(payload?.buildPortfolioReadback?.candidateRows).every(candidate => candidate.readyForPortfolio === true && candidate.rawAtomId && candidate.rawHitId && candidate.portfolioGroupId) &&
+      htmlSource.includes('id="build-portfolio-readback"') &&
+      htmlSource.includes('/dev-build-portfolio-readback.css') &&
+      htmlSource.includes('/dev-build-portfolio-readback.js') &&
+      buildPortfolioReadbackJsSource.includes('buildPortfolioReadback') &&
+      buildPortfolioReadbackJsSource.includes('Proposal-only portfolio') &&
+      cssSource.includes('.build-portfolio-readback'),
+    'Dev Hub exposes Build Portfolio ranked merge readback without promotion or writes',
+    `groups=${payload?.buildPortfolioReadback?.summary?.portfolioGroupCount || 0}; merged=${payload?.buildPortfolioReadback?.summary?.mergedGroupCount || 0}; ready=${payload?.buildPortfolioReadback?.summary?.readyScopedCandidateCount || 0}; writes=${payload?.buildPortfolioReadback?.summary?.backlogRecordsWrittenByReadback || 0}/${payload?.buildPortfolioReadback?.summary?.portfolioRecordsPersistedByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -2085,6 +2135,26 @@ async function main() {
           sourceTraceStatus: candidate.sourceTraceStatus,
           scoperStatus: candidate.scoperStatus,
           readyForPortfolio: candidate.readyForPortfolio,
+        })),
+      } : null,
+      buildPortfolioReadback: payload.buildPortfolioReadback ? {
+        status: payload.buildPortfolioReadback.status,
+        summary: payload.buildPortfolioReadback.summary,
+        groups: list(payload.buildPortfolioReadback.groups).map(group => ({
+          portfolioRank: group.portfolioRank,
+          portfolioScore: group.portfolioScore,
+          decision: group.decision,
+          lane: group.lane,
+          title: group.title,
+          candidateCount: group.candidateCount,
+          sourceLineageCount: group.sourceLineageCount,
+        })),
+        candidateRows: list(payload.buildPortfolioReadback.candidateRows).map(candidate => ({
+          rank: candidate.rank,
+          title: candidate.title,
+          sourceTraceStatus: candidate.sourceTraceStatus,
+          scoperStatus: candidate.scoperStatus,
+          portfolioGroupId: candidate.portfolioGroupId,
         })),
       } : null,
       intelligenceHygieneReadback: payload.intelligenceHygieneReadback ? {

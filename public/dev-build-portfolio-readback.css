@@ -1,0 +1,155 @@
+.build-portfolio-readback {
+  display: grid;
+  gap: 16px;
+}
+
+.build-portfolio-readback article {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+}
+
+.build-portfolio-readback p,
+.build-portfolio-readback h3 {
+  margin: 0;
+}
+
+.build-portfolio-readback span,
+.build-portfolio-readback small {
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.build-portfolio-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.build-portfolio-summary article {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.build-portfolio-summary strong {
+  color: #0f172a;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.build-portfolio-boundary {
+  display: grid;
+}
+
+.build-portfolio-boundary > div {
+  background: #ecfeff;
+  border: 1px solid rgba(8, 145, 178, 0.25);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.build-portfolio-boundary p {
+  color: #334155;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.build-portfolio-groups,
+.build-portfolio-candidates {
+  display: grid;
+  gap: 10px;
+}
+
+.build-portfolio-group {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  padding: 14px;
+}
+
+.build-portfolio-group.merged_enhanced_build_opportunity {
+  border-color: rgba(8, 145, 178, 0.34);
+}
+
+.build-portfolio-rank {
+  align-items: center;
+  align-self: start;
+  background: #0e7490;
+  border-radius: 8px;
+  color: #fff;
+  display: inline-flex;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.83rem;
+  font-weight: 800;
+  height: 34px;
+  justify-content: center;
+  width: 44px;
+}
+
+.build-portfolio-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.build-portfolio-copy strong,
+.build-portfolio-candidate strong {
+  color: #0f172a;
+  font-size: 1rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.build-portfolio-copy p {
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.build-portfolio-copy small,
+.build-portfolio-candidate small {
+  color: #475569;
+  line-height: 1.4;
+  text-transform: none;
+}
+
+.build-portfolio-candidates {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.build-portfolio-candidate {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  min-width: 0;
+}
+
+.build-portfolio-empty {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.build-portfolio-empty.blocked {
+  background: #fef2f2;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+@media (max-width: 980px) {
+  .build-portfolio-summary,
+  .build-portfolio-candidates {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .build-portfolio-summary,
+  .build-portfolio-candidates,
+  .build-portfolio-group {
+    grid-template-columns: 1fr;
+  }
+}
