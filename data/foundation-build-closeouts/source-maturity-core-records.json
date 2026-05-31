@@ -871,5 +871,65 @@
       "This does not create synthesized items, action routes, destination backlog cards, decisions, open questions, governed apply, or closed-loop feedback.",
       "This does not build Harlan/Fal/voice/Canva/OpenHuman feature work, Marketing Hub production, or broad UI redesign."
     ]
+  },
+  {
+    "key": "dev-hub-business-source-pipeline-triage-v1",
+    "backlogIds": [
+      "DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub business source pipeline triage",
+        "Expose Dev Hub business source triage",
+        "DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001",
+        "dev-hub-business-source-pipeline-triage-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-FOUNDATION-DONE-BAR-001",
+      "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+      "SOURCE-MATURITY-VERIFIED-ATOM-FLOW-REPAIR-001",
+      "SOURCE-MATURITY-SUPABASE-ATOM-FLOW-REPAIR-001",
+      "SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001"
+    ],
+    "systemArea": "Dev Hub business source pipeline visibility",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Business Sources triage to Dev Hub that groups FUB/CRM, KPI/Supabase, Sheets/Owners, ClickUp, and Drive/Docs by Foundation Done source maturity flow.",
+    "whatItDoes": "The Dev Hub now shows which business sources are extracted, atomized, synthesized, routed, and resolved, and which are merely connected, extracted-only, stale, or waiting in route review.",
+    "whyItMatters": "Steve wants one hub at a time with working data, not more dashboard-only wiring. This makes the money/CRM/Sheets/ClickUp/Drive source families visible before Director recommendations depend on them.",
+    "whereItLives": [
+      "lib/dev-hub-business-source-pipeline-triage.js compact business-source projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js businessSourcePipelineTriage payload wiring from the existing Foundation Done bar",
+      "public/dev.html Business Sources panel",
+      "public/dev-business-source-pipeline-triage.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-business-source-pipeline-triage.css standalone Business Sources panel styles",
+      "scripts/process-dev-hub-business-source-pipeline-triage-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-business-source-pipeline-triage-001-plan.md",
+      "docs/process/approvals/DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001.json",
+      "package.json process:dev-hub-business-source-pipeline-triage-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-business-source-pipeline-triage.js scripts/process-dev-hub-business-source-pipeline-triage-check.mjs public/dev-business-source-pipeline-triage.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-business-source-pipeline-triage-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001 --planApprovalRef=docs/process/approvals/DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001.json --closeoutKey=dev-hub-business-source-pipeline-triage-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001 --closeoutKey=dev-hub-business-source-pipeline-triage-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001 --planApprovalRef=docs/process/approvals/DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001.json --closeoutKey=dev-hub-business-source-pipeline-triage-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: stale/extracted-only business sources must not be counted complete, and any source runtime, intelligence row, route/destination, backlog/Scoper/Portfolio, Harlan, model, or external write fails validation. Live readback validates current business source flow with bounded rows and no FUB/KPI/Sheets/ClickUp/Drive sync or extraction.",
+    "reviewNext": "Use the Business Sources panel to pick one explicit stale family repair. Do not run connector sync, extraction, atom writes, routing, route apply, or Scoper/backlog promotion from this readback.",
+    "knownLimits": [
+      "This is a read-only visibility slice; it does not repair stale business-source flow.",
+      "This does not run FUB, KPI, Sheets, ClickUp, Drive, connector probes, live extraction, model calls, Harlan, or external writes.",
+      "This does not write atoms, facts, synthesis rows, action routes, backlog cards, Scoper cards, Portfolio records, Current Sprint overlays, or approval records.",
+      "Future business-source repairs must choose one family and dogfood the exact source-flow failure mode."
+    ]
   }
 ]

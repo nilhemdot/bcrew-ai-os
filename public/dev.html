@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/dev-synthesis-scope.css?v=20260531-synthesis-scope-v1" />
   <link rel="stylesheet" href="/dev-route-review-triage.css?v=20260531-route-triage-v1" />
   <link rel="stylesheet" href="/dev-scoper-runtime-readback.css?v=20260531-scoper-runtime-v1" />
+  <link rel="stylesheet" href="/dev-business-source-pipeline-triage.css?v=20260531-business-source-v1" />
 </head>
 <body>
   <header class="launcher-topbar">
@@ -123,6 +124,20 @@
 
           <section class="foundation-done-bar" id="foundation-done-bar" aria-label="Dev Foundation Done pipeline">
             <article class="loading-card">Loading source pipeline truth from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band">
+          <section class="section-head business-source-head">
+            <div>
+              <span>BUSINESS SOURCES</span>
+              <h2>Connected, Flowing, Stale</h2>
+            </div>
+            <div class="business-source-head-stats" id="business-source-head-stats" aria-live="polite"></div>
+          </section>
+
+          <section class="business-source-triage" id="business-source-triage" aria-label="Dev business source pipeline triage">
+            <article class="loading-card">Loading business source pipeline from Foundation...</article>
           </section>
         </section>
 
@@ -374,5 +389,6 @@
   <script src="/dev-synthesis-scope.js?v=20260531-synthesis-scope-v1"></script>
   <script src="/dev-route-review-triage.js?v=20260531-route-triage-v1"></script>
   <script src="/dev-scoper-runtime-readback.js?v=20260531-scoper-runtime-v1"></script>
+  <script src="/dev-business-source-pipeline-triage.js?v=20260531-business-source-v1"></script>
 </body>
 </html>

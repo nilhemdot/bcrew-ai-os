@@ -107,6 +107,7 @@ const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
 const DEV_ROUTE_REVIEW_TRIAGE_JS_PATH = 'public/dev-route-review-triage.js'
 const DEV_SCOPER_RUNTIME_JS_PATH = 'public/dev-scoper-runtime-readback.js'
+const DEV_BUSINESS_SOURCE_JS_PATH = 'public/dev-business-source-pipeline-triage.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
@@ -117,6 +118,7 @@ const DEV_CSS_PATHS = [
   'public/dev-synthesis-scope.css',
   'public/dev-route-review-triage.css',
   'public/dev-scoper-runtime-readback.css',
+  'public/dev-business-source-pipeline-triage.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -435,6 +437,7 @@ async function main() {
     synthesisScopeJsSource,
     routeReviewTriageJsSource,
     scoperRuntimeJsSource,
+    businessSourceJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -456,6 +459,7 @@ async function main() {
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
     readRepoFile(DEV_ROUTE_REVIEW_TRIAGE_JS_PATH),
     readRepoFile(DEV_SCOPER_RUNTIME_JS_PATH),
+    readRepoFile(DEV_BUSINESS_SOURCE_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -471,7 +475,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${scoperRuntimeJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -570,6 +574,47 @@ async function main() {
       cssSource.includes('.foundation-done-bar'),
     'Dev Hub exposes Foundation Done source pipeline bar without counting routed-only work as done',
     `sources=${payload?.foundationDoneBar?.summary?.sourceCount || 0}; routed=${payload?.foundationDoneBar?.summary?.stageCounts?.routed || 0}; resolved=${payload?.foundationDoneBar?.summary?.stageCounts?.resolved || 0}; waitingRoutes=${payload?.foundationDoneBar?.summary?.waitingRoutes || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubBusinessSourcePipelineTriage') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'businessSourcePipelineTriage') &&
+      payload?.businessSourcePipelineTriage?.contractVersion === 'dev-hub-business-source-pipeline-triage.v1' &&
+      payload?.businessSourcePipelineTriage?.source?.reusedTruthLayer === 'foundationDoneBar' &&
+      payload?.businessSourcePipelineTriage?.source?.noSecondTruthLayer === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noConnectorProbe === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noSourceSync === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noLiveExtraction === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noAtomWrites === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noFactWrites === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noSynthesisWrite === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noRouteMutation === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noBacklogMutation === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noScoperMutation === true &&
+      payload?.businessSourcePipelineTriage?.boundaries?.noExternalWrites === true &&
+      Number(payload?.businessSourcePipelineTriage?.summary?.extractionRunsStarted || 0) === 0 &&
+      Number(payload?.businessSourcePipelineTriage?.summary?.connectorProbesStarted || 0) === 0 &&
+      Number(payload?.businessSourcePipelineTriage?.summary?.atomRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.businessSourcePipelineTriage?.summary?.factRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.businessSourcePipelineTriage?.summary?.synthesisRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.businessSourcePipelineTriage?.summary?.routeMutationsByReadback || 0) === 0 &&
+      Number(payload?.businessSourcePipelineTriage?.summary?.destinationWritesByReadback || 0) === 0 &&
+      Number(payload?.businessSourcePipelineTriage?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.businessSourcePipelineTriage?.rows).length <= 16 &&
+      list(payload?.businessSourcePipelineTriage?.familyBuckets).length <= 6 &&
+      list(payload?.businessSourcePipelineTriage?.queues?.staleAtomFlow).length <= 8 &&
+      list(payload?.businessSourcePipelineTriage?.queues?.extractedNotAtomized).length <= 6 &&
+      list(payload?.businessSourcePipelineTriage?.queues?.waitingRoutes).length <= 8 &&
+      htmlSource.includes('id="business-source-triage"') &&
+      htmlSource.includes('/dev-business-source-pipeline-triage.css') &&
+      htmlSource.includes('/dev-business-source-pipeline-triage.js') &&
+      businessSourceJsSource.includes('businessSourcePipelineTriage') &&
+      businessSourceJsSource.includes('Read-only business source triage') &&
+      cssSource.includes('.business-source-triage') &&
+      cssSource.includes('.business-source-summary') &&
+      cssSource.includes('.business-source-family'),
+    'Dev Hub exposes Business Source Pipeline triage without syncing, extracting, writing, or false-green source completion',
+    `sources=${payload?.businessSourcePipelineTriage?.summary?.businessSourceCount || 0}; stale=${payload?.businessSourcePipelineTriage?.summary?.staleAtomFlowCount || 0}; extractedOnly=${payload?.businessSourcePipelineTriage?.summary?.extractedNotAtomizedCount || 0}; waitingRoutes=${payload?.businessSourcePipelineTriage?.summary?.waitingRoutes || 0}; resolved=${payload?.businessSourcePipelineTriage?.summary?.resolvedCount || 0}`,
   )
   addCheck(
     checks,
@@ -1652,6 +1697,13 @@ async function main() {
         status: payload.foundationDoneBar.status,
         summary: payload.foundationDoneBar.summary,
         topGaps: list(payload.foundationDoneBar.topGaps).slice(0, 5),
+      } : null,
+      businessSourcePipelineTriage: payload.businessSourcePipelineTriage ? {
+        status: payload.businessSourcePipelineTriage.status,
+        summary: payload.businessSourcePipelineTriage.summary,
+        familyBuckets: payload.businessSourcePipelineTriage.familyBuckets,
+        queueCounts: Object.fromEntries(Object.entries(payload.businessSourcePipelineTriage.queues || {})
+          .map(([key, value]) => [key, list(value).length])),
       } : null,
       scoperEvidenceTraceReadback: payload.scoperEvidenceTraceReadback ? {
         status: payload.scoperEvidenceTraceReadback.status,

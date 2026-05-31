@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T06:42:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-business-source-pipeline-triage-001-plan.md",
+  "approvedPlanSha256": "e66ef19f7470aabbc697071b71d1835aae22569553f227d516f494d66dc660b4",
+  "approvedRepoHead": "b3f73f77b8021a438f3225b6760bdf591b696a90",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub business-source pipeline triage for FUB, KPI/Supabase, Sheets, Owners/Freedom, Finance, ClickUp, and Drive.",
+  "constraints": [
+    "Do not run FUB, KPI, Sheets, ClickUp, Drive, source sync, extraction, connector probes, login, Browserbase, paid/private source work, or external writes.",
+    "Do not write atoms, facts, chunks, synthesis rows, action routes, destination records, backlog cards, Scoper cards, Portfolio records, Current Sprint overlays, or approval records.",
+    "Do not auto-promote Director recommendations, source gaps, or business-source findings into backlog or Scoper.",
+    "Do not send Telegram, email, Slack, Agent Feedback, public messages, or Harlan notifications outside the governed ship gate.",
+    "Fail proof if a stale business source is counted complete or if the readback performs any source/intelligence/destination mutation."
+  ],
+  "approvalDigest": "89630e3cde283a74d432b2aae93c0abe16a7a76de3c4b06e0b734aea66d9b2ee"
+}
