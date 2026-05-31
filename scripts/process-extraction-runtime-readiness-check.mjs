@@ -372,10 +372,12 @@ async function main() {
   ])
   const readiness = buildExtractionRuntimeReadinessSnapshot({ extractionControlSnapshot: liveControlSnapshot })
   const dogfood = buildExtractionRuntimeReadinessDogfoodProof()
+  const closeouts = getFoundationBuildCloseouts()
+  const closeout = closeouts.find(record => record.key === EXTRACTION_RUNTIME_READINESS_CLOSEOUT_KEY) || null
   const currentSprintStatus = buildFoundationCurrentSprintStatus({
     sprint: sprint.sprint,
     items: sprint.items,
-    closeouts: getFoundationBuildCloseouts(),
+    closeouts,
     planCriticRuns: currentSprintPlanCriticRuns,
   })
 
@@ -396,7 +398,15 @@ async function main() {
   addCheck(checks, securityAccessSource.includes("route('GET', '/api/foundation/extraction-runtime-readiness'"), 'security access registers readiness API', EXTRACTION_RUNTIME_READINESS_API_PATH)
   addCheck(checks, coverageSource.includes(EXTRACTION_RUNTIME_READINESS_CARD_ID), 'verifier coverage card IDs include extraction readiness', 'coverage constant')
   addCheck(checks, foundationVerifySource.includes('foundationExtractionRuntimeReadinessApi') && foundationVerifySource.includes('extractionRuntimeReadinessSource'), 'foundation:verify receives readiness route/source payload', 'foundation verify wiring')
-  addCheck(checks, closeoutRecordsSource.includes(EXTRACTION_RUNTIME_READINESS_CLOSEOUT_KEY), 'closeout registry includes extraction readiness closeout', EXTRACTION_RUNTIME_READINESS_CLOSEOUT_KEY)
+  addCheck(
+    checks,
+    closeoutRecordsSource.includes('loadFoundationBuildCloseoutDataArtifact') &&
+      closeoutRecordsSource.includes("'cleanup-records'") &&
+      closeout?.operatorCloseout === true &&
+      (closeout.backlogIds || []).includes(EXTRACTION_RUNTIME_READINESS_CARD_ID),
+    'closeout registry resolves extraction readiness closeout',
+    closeout?.key || 'missing',
+  )
   addCheck(checks, closeoutDoc.includes(EXTRACTION_RUNTIME_READINESS_CARD_ID) && closeoutDoc.includes(EXTRACTION_RUNTIME_READINESS_CLOSEOUT_KEY), 'closeout handoff exists and names card/closeout', EXTRACTION_RUNTIME_READINESS_CLOSEOUT_PATH)
   addCheck(checks, packageJson.scripts?.['process:extraction-runtime-readiness-check'] === `node --env-file-if-exists=.env ${EXTRACTION_RUNTIME_READINESS_SCRIPT_PATH}`, 'package registers focused proof script', 'process:extraction-runtime-readiness-check')
   addCheck(checks, lineCount(moduleSource) <= 1500, 'readiness module remains under preferred module budget', `${lineCount(moduleSource)} lines`)

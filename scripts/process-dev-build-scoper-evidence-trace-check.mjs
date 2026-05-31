@@ -38,6 +38,8 @@ async function main() {
   const reviewedCandidates = traceResult.reviewedCandidates
   const apiFullWatchCandidates = reviewedCandidates.filter(candidate => candidate.sourceTrustLabel === 'api_full_watch')
   const readyCandidates = reviewedCandidates.filter(candidate => candidate.scoperStatus === DEV_BUILD_SCOPER_STATUS.readyForPortfolio)
+  const readyApiFullWatchCandidates = apiFullWatchCandidates.filter(candidate => candidate.scoperStatus === DEV_BUILD_SCOPER_STATUS.readyForPortfolio)
+  const parkedApiFullWatchCandidates = apiFullWatchCandidates.filter(candidate => !candidate.rawAtomId || !candidate.rawHitId)
 
   addCheck(
     checks,
@@ -56,12 +58,20 @@ async function main() {
   )
   addCheck(
     checks,
-    apiFullWatchCandidates.length > 0 && apiFullWatchCandidates.every(candidate => candidate.rawAtomId && candidate.rawHitId),
-    'API full-watch top candidates trace to raw source atom and hit',
-    apiFullWatchCandidates
+    apiFullWatchCandidates.length > 0 && readyApiFullWatchCandidates.every(candidate => candidate.rawAtomId && candidate.rawHitId),
+    'API full-watch ready candidates trace to raw source atom and hit',
+    readyApiFullWatchCandidates
       .filter(candidate => !candidate.rawAtomId || !candidate.rawHitId)
       .map(candidate => `${candidate.rank}:${candidate.title}`)
-      .join(', ') || `${apiFullWatchCandidates.length} candidates`
+      .join(', ') || `${readyApiFullWatchCandidates.length}/${apiFullWatchCandidates.length} ready candidates`
+  )
+  addCheck(
+    checks,
+    parkedApiFullWatchCandidates.every(candidate => candidate.scoperStatus !== DEV_BUILD_SCOPER_STATUS.readyForPortfolio),
+    'API full-watch candidates without raw atom/hit are parked instead of scoped',
+    parkedApiFullWatchCandidates
+      .map(candidate => `${candidate.rank}:${candidate.title}:${candidate.sourceTraceStatus}`)
+      .join(', ') || 'none parked'
   )
   addCheck(
     checks,
