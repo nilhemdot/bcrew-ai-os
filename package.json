@@ -253,6 +253,7 @@
     "process:action-route-apply-safety-preflight-check": "node --env-file-if-exists=.env scripts/process-action-route-apply-safety-preflight-check.mjs",
     "process:action-route-apply-resolution-proof-check": "node --env-file-if-exists=.env scripts/process-action-route-apply-resolution-proof-check.mjs",
     "process:dev-hub-action-route-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-action-route-readback-check.mjs",
+    "process:dev-hub-foundation-done-bar-check": "node --env-file-if-exists=.env scripts/process-dev-hub-foundation-done-bar-check.mjs",
     "process:foundation-kb-action-review-sprint-check": "node --env-file-if-exists=.env scripts/process-foundation-kb-action-review-sprint-check.mjs",
     "process:aios-runtime-portability-gate-check": "node --env-file-if-exists=.env scripts/process-aios-runtime-portability-gate-check.mjs",
     "process:agent-status-freshness-gate-check": "node --env-file-if-exists=.env scripts/process-agent-status-freshness-gate-check.mjs",

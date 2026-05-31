@@ -97,6 +97,7 @@ const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-dev-team-hub-v0-check.mjs'
 const DEV_ACTION_ROUTE_READBACK_JS_PATH = 'public/dev-action-route-readback.js'
+const DEV_FOUNDATION_DONE_BAR_JS_PATH = 'public/dev-foundation-done-bar.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
@@ -211,6 +212,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="target-panel"',
 	    'id="director-panel"',
 	    'id="action-route-readback"',
+	    'id="foundation-done-bar"',
   ].every(marker => html.includes(marker))
 }
 
@@ -403,6 +405,7 @@ async function main() {
     htmlSource,
     jsSource,
     actionRouteReadbackJsSource,
+    foundationDoneBarJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -417,6 +420,7 @@ async function main() {
     readRepoFile('public/dev.html'),
     readRepoFile('public/dev.js'),
     readRepoFile(DEV_ACTION_ROUTE_READBACK_JS_PATH),
+    readRepoFile(DEV_FOUNDATION_DONE_BAR_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -432,7 +436,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -514,6 +518,23 @@ async function main() {
 	      htmlSource.includes('/dev-source-approval.css?v=20260530-oversized-v1'),
     'Dev page automatically refetches source-backed dashboard data after extraction writes',
     '30s no-store polling + focus refresh + in-flight guard',
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubFoundationDoneBarFromInputs') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'foundationDoneBar') &&
+      payload?.foundationDoneBar?.contractVersion === 'dev-hub-foundation-done-bar.v1' &&
+      payload?.foundationDoneBar?.source?.reusedTruthLayer === 'buildSourceMaturityGridSnapshot' &&
+      payload?.foundationDoneBar?.boundaries?.noRouteMutation === true &&
+      Number(payload?.foundationDoneBar?.summary?.stageCounts?.resolved || 0) <= Number(payload?.foundationDoneBar?.summary?.stageCounts?.routed || 0) &&
+      htmlSource.includes('id="foundation-done-bar"') &&
+      htmlSource.includes('/dev-foundation-done-bar.js') &&
+      jsSource.includes("new CustomEvent('devhub:snapshot'") &&
+      foundationDoneBarJsSource.includes('foundationDoneBar') &&
+      foundationDoneBarJsSource.includes('Route pending is open') &&
+      cssSource.includes('.foundation-done-bar'),
+    'Dev Hub exposes Foundation Done source pipeline bar without counting routed-only work as done',
+    `sources=${payload?.foundationDoneBar?.summary?.sourceCount || 0}; routed=${payload?.foundationDoneBar?.summary?.stageCounts?.routed || 0}; resolved=${payload?.foundationDoneBar?.summary?.stageCounts?.resolved || 0}; waitingRoutes=${payload?.foundationDoneBar?.summary?.waitingRoutes || 0}`,
   )
   addCheck(
     checks,
@@ -1405,6 +1426,11 @@ async function main() {
           autoApplyAllowed: payload.actionRouteReadback.applySafety?.autoApplyAllowed,
           itemCount: list(payload.actionRouteReadback.applySafety?.items).length,
         },
+      } : null,
+      foundationDoneBar: payload.foundationDoneBar ? {
+        status: payload.foundationDoneBar.status,
+        summary: payload.foundationDoneBar.summary,
+        topGaps: list(payload.foundationDoneBar.topGaps).slice(0, 5),
       } : null,
       approvalReviewQueue: list(payload.approvalReviewQueue).slice(0, 5),
       approvalReviewTriage: payload.approvalReviewTriage ? {
