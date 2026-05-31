@@ -108,6 +108,59 @@
     ]
   },
   {
+    "key": "action-route-harlan-digest-dry-run-v1",
+    "backlogIds": [
+      "ACTION-ROUTE-HARLAN-DIGEST-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "ACTION-ROUTE-HARLAN-DIGEST-001",
+        "Add action route Harlan digest packet",
+        "action-route-harlan-digest-dry-run-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "HARLAN-LIVE-OPERATOR-RUNTIME-002"
+    ],
+    "systemArea": "Foundation action-route review workflow",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a no-send Harlan-ready digest packet for the live Action Route Review Inbox.",
+    "whatItDoes": "Packages live action-route review counts, aged/stale/duplicate signals, and the top bounded review items into a dry-run Harlan message preview with sendsMessageNow=false, externalSent=false, and mutatedRoutes=false.",
+    "whyItMatters": "The action router already builds owner/reason routes, but route work can still stay invisible. This proves the pending queue can become a clear operator prompt without auto-promoting or sending anything.",
+    "whereItLives": [
+      "lib/action-route-harlan-digest.js digest packet builder, validator, boundaries, and dogfood proof",
+      "scripts/process-action-route-harlan-digest-check.mjs focused live-inbox proof and guarded close-card writer",
+      "docs/process/action-route-harlan-digest-001-plan.md",
+      "docs/process/approvals/ACTION-ROUTE-HARLAN-DIGEST-001.json",
+      "package.json script process:action-route-harlan-digest-check"
+    ],
+    "proofCommands": [
+      "node --check lib/action-route-harlan-digest.js scripts/process-action-route-harlan-digest-check.mjs",
+      "npm run process:action-route-harlan-digest-check -- --close-card --json",
+      "npm run process:action-route-review-inbox-check -- --json",
+      "npm run process:action-route-promotion-workflow-check -- --json",
+      "npm run process:action-route-dedup-staleness-guard-check -- --json",
+      "npm run process:harlan-operator-loop-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=ACTION-ROUTE-HARLAN-DIGEST-001 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-HARLAN-DIGEST-001.json --closeoutKey=action-route-harlan-digest-dry-run-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=ACTION-ROUTE-HARLAN-DIGEST-001 --closeoutKey=action-route-harlan-digest-dry-run-v1",
+      "npm run process:foundation-ship -- --card=ACTION-ROUTE-HARLAN-DIGEST-001 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-HARLAN-DIGEST-001.json --closeoutKey=action-route-harlan-digest-dry-run-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live digest card state, open parent route-resolution card, synthetic ready/empty/unsafe packet dogfood, live Action Route Review Inbox source, no-send/no-mutation boundaries, and absence of Telegram/send implementation imports.",
+    "reviewNext": "Continue ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002 for one approved internal pending-to-applied route proof. Continue HARLAN-LIVE-OPERATOR-RUNTIME-002 only if Steve approves broader live Harlan runtime or route-notification delivery.",
+    "knownLimits": [
+      "This is a dry-run packet only; it does not send Telegram, email, Slack, Agent Feedback, or public messages.",
+      "This does not approve, apply, reject, snooze, or mutate action routes.",
+      "This does not create backlog cards from Director or route recommendations.",
+      "This does not start Harlan runtime, reply parsing, login, source-session resume, extraction, provider/model calls, or external-action authority.",
+      "The parent ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002 remains open for the actual route approval/apply proof."
+    ]
+  },
+  {
     "key": "foundation-kb-action-review-sprint-v1",
     "backlogIds": [
       "FOUNDATION-KB-ACTION-REVIEW-SPRINT-001"

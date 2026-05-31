@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ACTION-ROUTE-HARLAN-DIGEST-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-30T23:10:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/action-route-harlan-digest-001-plan.md",
+  "approvedPlanSha256": "34eec63e170888ad4fafcd599f72ab586580da535c1f5b0431d0d8ba409b3f5f",
+  "approvedRepoHead": "acca7fc4e17c3a04177fb8b66386effb015e9093",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and specifically instructed Codex to keep going, park blocked/unsafe work, and avoid waking him for safe internal slices. This approval covers a no-send Action Route Review Inbox digest packet only.",
+  "scopeSummary": "Build a bounded Harlan-ready digest packet from the live Action Route Review Inbox with sendsMessageNow=false, externalSent=false, and no route/backlog mutation.",
+  "constraints": [
+    "Use the live Action Route Review Inbox as the source-backed input.",
+    "Generate a bounded local packet and message preview only.",
+    "Keep sendsMessageNow=false and externalSent=false.",
+    "Do not approve, apply, reject, snooze, or mutate action routes.",
+    "Do not create backlog cards from Director or route recommendations.",
+    "Do not start Harlan runtime, reply parsing, login, source-session resume, extraction, provider/model calls, or external-action authority.",
+    "Do not send Telegram, email, Slack, Agent Feedback, or public messages."
+  ],
+  "approvalDigest": "7456a50b2ca68477e17be7a147d27c79bba842a61645b58de6b8a1f29b736188"
+}
