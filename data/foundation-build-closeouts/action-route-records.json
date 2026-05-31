@@ -322,6 +322,65 @@
     ]
   },
   {
+    "key": "dev-hub-route-review-triage-v1",
+    "backlogIds": [
+      "DEV-HUB-ROUTE-REVIEW-TRIAGE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "DEV-HUB-ROUTE-REVIEW-TRIAGE-001",
+        "Expose Dev Hub route review triage",
+        "Route Review Triage",
+        "dev-hub-route-review-triage-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-ACTION-ROUTE-READBACK-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001",
+      "ACTION-ROUTE-DEDUP-STALENESS-GUARD-001"
+    ],
+    "systemArea": "Dev Hub route review triage",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only route review triage payload and /dev panel over the existing Action Route Review Inbox and Apply Safety Preflight.",
+    "whatItDoes": "Groups waiting action routes into ready-for-confirmed-apply, owner-required, sensitive-review, duplicate/stale, and oldest queues while keeping every queue bounded and applyAllowedNow=false.",
+    "whyItMatters": "Steve needs the 100-plus pending route pile organized into review pressure without unsafe auto-apply, auto-clear, or hidden route mutation.",
+    "whereItLives": [
+      "lib/dev-hub-route-review-triage.js readback builder, validator, and dogfood proof",
+      "lib/dev-team-hub.js routeReviewTriage payload integration",
+      "public/dev.html Route Triage panel mount",
+      "public/dev-route-review-triage.js standalone renderer",
+      "public/dev-route-review-triage.css standalone panel styles",
+      "scripts/process-dev-hub-route-review-triage-check.mjs focused proof and guarded close-card writer",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-route-review-triage-001-plan.md",
+      "docs/process/approvals/DEV-HUB-ROUTE-REVIEW-TRIAGE-001.json",
+      "package.json script process:dev-hub-route-review-triage-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage entry"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-route-review-triage.js scripts/process-dev-hub-route-review-triage-check.mjs public/dev-route-review-triage.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-route-review-triage-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-ROUTE-REVIEW-TRIAGE-001 --planApprovalRef=docs/process/approvals/DEV-HUB-ROUTE-REVIEW-TRIAGE-001.json --closeoutKey=dev-hub-route-review-triage-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-ROUTE-REVIEW-TRIAGE-001 --closeoutKey=dev-hub-route-review-triage-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-ROUTE-REVIEW-TRIAGE-001 --planApprovalRef=docs/process/approvals/DEV-HUB-ROUTE-REVIEW-TRIAGE-001.json --closeoutKey=dev-hub-route-review-triage-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live backlog card, dogfood bounded buckets, live readback validation, auto-apply disabled state, zero route/destination/Harlan/external write counters, bounded queues, Dev Hub payload integration, UI wiring, no mutation/source/model/external-write path, closeout registry, and verifier coverage.",
+    "reviewNext": "Next safe slice is still operator-selected route review. Do not approve, apply, reject, snooze, reroute, or create destination records without exact route ID confirmation from Steve.",
+    "knownLimits": [
+      "This is a read-only Dev Hub triage readback only; it does not approve, apply, reject, snooze, reroute, or mutate routes.",
+      "This does not create backlog, decision, open-question, Scoper, Portfolio, Current Sprint, or approval records from Director or action-route recommendations.",
+      "This does not send Telegram, email, Slack, Agent Feedback, public messages, or Harlan runtime actions.",
+      "This does not run extraction, source sync, login, Browserbase, provider/model calls, synthesis refresh, or external writes.",
+      "Real route mutation still requires exact route ID confirmation and a separate approved apply/review path."
+    ]
+  },
+  {
     "key": "foundation-kb-action-review-sprint-v1",
     "backlogIds": [
       "FOUNDATION-KB-ACTION-REVIEW-SPRINT-001"

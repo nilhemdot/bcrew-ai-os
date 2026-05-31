@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-ROUTE-REVIEW-TRIAGE-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T03:14:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-route-review-triage-001-plan.md",
+  "approvedPlanSha256": "12acd8683160f761e22972aa7514578c5c15731a9768e5ff31417611e231c750",
+  "approvedRepoHead": "98458bfc5897ddd5827d2186a4ef4841a076a197",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and reduce intelligence-pipe overload without unsafe automation.",
+  "scopeSummary": "Expose a read-only Dev Hub Route Review Triage readback that groups action-route review pressure into safe operator buckets.",
+  "constraints": [
+    "Do not approve, apply, reject, snooze, reroute, or mutate live action routes.",
+    "Do not write destination records, backlog cards, Scoper cards, Portfolio records, Current Sprint overlays, or approval records from this readback.",
+    "Do not auto-clear, auto-apply, or auto-promote Director/action-route recommendations.",
+    "Do not run extraction, source sync, provider/model calls, login, Browserbase, paid/private source work, or external writes.",
+    "Do not send Telegram, email, Slack, Agent Feedback, public messages, or Harlan notifications outside the governed ship gate.",
+    "Fail proof if any route can be auto-applied or if the readback performs a route/destination/external mutation."
+  ],
+  "approvalDigest": "e0cff6f62fd95ba5485e7dea9ef31cc3f55b78845d29366763ecccc4415a075f"
+}

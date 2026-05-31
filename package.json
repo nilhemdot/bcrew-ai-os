@@ -258,6 +258,7 @@
     "process:dev-hub-intelligence-hygiene-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-intelligence-hygiene-readback-check.mjs",
     "process:dev-hub-auditor-flow-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-auditor-flow-readback-check.mjs",
     "process:dev-hub-synthesis-scope-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-synthesis-scope-readback-check.mjs",
+    "process:dev-hub-route-review-triage-check": "node --env-file-if-exists=.env scripts/process-dev-hub-route-review-triage-check.mjs",
     "process:foundation-kb-action-review-sprint-check": "node --env-file-if-exists=.env scripts/process-foundation-kb-action-review-sprint-check.mjs",
     "process:aios-runtime-portability-gate-check": "node --env-file-if-exists=.env scripts/process-aios-runtime-portability-gate-check.mjs",
     "process:agent-status-freshness-gate-check": "node --env-file-if-exists=.env scripts/process-agent-status-freshness-gate-check.mjs",

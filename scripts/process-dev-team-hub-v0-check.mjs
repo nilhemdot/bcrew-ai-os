@@ -105,6 +105,7 @@ const DEV_SCOPER_EVIDENCE_TRACE_JS_PATH = 'public/dev-scoper-evidence-trace.js'
 const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
+const DEV_ROUTE_REVIEW_TRIAGE_JS_PATH = 'public/dev-route-review-triage.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
@@ -113,6 +114,7 @@ const DEV_CSS_PATHS = [
   'public/dev-intelligence-hygiene.css',
   'public/dev-auditor-flow.css',
   'public/dev-synthesis-scope.css',
+  'public/dev-route-review-triage.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -227,6 +229,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="intelligence-hygiene"',
 	    'id="auditor-flow"',
 	    'id="synthesis-scope"',
+	    'id="route-review-triage"',
   ].every(marker => html.includes(marker))
 }
 
@@ -427,6 +430,7 @@ async function main() {
     intelligenceHygieneJsSource,
     auditorFlowJsSource,
     synthesisScopeJsSource,
+    routeReviewTriageJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -446,6 +450,7 @@ async function main() {
     readRepoFile(DEV_INTELLIGENCE_HYGIENE_JS_PATH),
     readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
+    readRepoFile(DEV_ROUTE_REVIEW_TRIAGE_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -461,7 +466,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -670,6 +675,46 @@ async function main() {
       cssSource.includes('.auditor-flow'),
     'Dev Hub exposes Auditor Flow run/report/review gates without running audits or promoting findings',
     `auditors=${payload?.auditorFlowReadback?.summary?.auditorJobCount || 0}; scheduled=${payload?.auditorFlowReadback?.summary?.scheduledAuditorJobs || 0}; reportOnly=${payload?.auditorFlowReadback?.summary?.reportOnlyJobs || 0}; autoPromote=${payload?.auditorFlowReadback?.summary?.autoFindingPromotionCount || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubRouteReviewTriage') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'routeReviewTriage') &&
+      payload?.routeReviewTriage?.contractVersion === 'dev-hub-route-review-triage.v1' &&
+      payload?.routeReviewTriage?.source?.reviewInboxRoute === '/api/foundation/action-route-review-inbox' &&
+      payload?.routeReviewTriage?.source?.noSecondTruthLayer === true &&
+      payload?.routeReviewTriage?.boundaries?.noRouteApply === true &&
+      payload?.routeReviewTriage?.boundaries?.noRouteApprove === true &&
+      payload?.routeReviewTriage?.boundaries?.noRouteReject === true &&
+      payload?.routeReviewTriage?.boundaries?.noRouteSnooze === true &&
+      payload?.routeReviewTriage?.boundaries?.noRouteReroute === true &&
+      payload?.routeReviewTriage?.boundaries?.noBacklogMutation === true &&
+      payload?.routeReviewTriage?.boundaries?.noScoperMutation === true &&
+      payload?.routeReviewTriage?.boundaries?.noHarlanSend === true &&
+      payload?.routeReviewTriage?.boundaries?.noExternalWrites === true &&
+      payload?.routeReviewTriage?.boundaries?.noAutoApply === true &&
+      payload?.routeReviewTriage?.boundaries?.noAutoClear === true &&
+      Number(payload?.routeReviewTriage?.summary?.autoApplyAllowedItems || 0) === 0 &&
+      Number(payload?.routeReviewTriage?.summary?.routesMutatedByReadback || 0) === 0 &&
+      Number(payload?.routeReviewTriage?.summary?.destinationsMutatedByReadback || 0) === 0 &&
+      Number(payload?.routeReviewTriage?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.routeReviewTriage?.triageBuckets).length <= 6 &&
+      list(payload?.routeReviewTriage?.queues?.readyForConfirmedApply).length <= 6 &&
+      list(payload?.routeReviewTriage?.queues?.ownerRequired).length <= 6 &&
+      list(payload?.routeReviewTriage?.queues?.sensitiveReview).length <= 6 &&
+      list(payload?.routeReviewTriage?.queues?.duplicateOrStale).length <= 6 &&
+      list(payload?.routeReviewTriage?.queues?.oldest).length <= 6 &&
+      htmlSource.includes('id="route-review-triage"') &&
+      htmlSource.includes('/dev-route-review-triage.css') &&
+      htmlSource.includes('/dev-route-review-triage.js') &&
+      routeReviewTriageJsSource.includes('routeReviewTriage') &&
+      routeReviewTriageJsSource.includes('Read-only review triage') &&
+      routeReviewTriageJsSource.includes('autoApplyAllowedItems') &&
+      cssSource.includes('.route-review-triage') &&
+      cssSource.includes('.route-triage-summary') &&
+      cssSource.includes('.route-triage-bucket'),
+    'Dev Hub exposes Route Review Triage buckets without approving, applying, auto-clearing, or sending',
+    `waiting=${payload?.routeReviewTriage?.summary?.needsReviewItems || 0}; owner=${payload?.routeReviewTriage?.summary?.ownerRequiredItems || 0}; sensitive=${payload?.routeReviewTriage?.summary?.sensitiveReviewItems || 0}; duplicateStale=${payload?.routeReviewTriage?.summary?.duplicateOrStaleReviewItems || 0}; ready=${payload?.routeReviewTriage?.summary?.readyForConfirmedApplyItems || 0}`,
   )
   addCheck(
     checks,
