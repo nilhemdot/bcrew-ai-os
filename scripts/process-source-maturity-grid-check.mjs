@@ -258,6 +258,8 @@ async function main() {
   addFinding(findings, Array.isArray(grid.stageKeys) && grid.stageKeys.join('|') === SOURCE_MATURITY_STAGE_KEYS.join('|'), 'grid exposes exactly seven maturity stages', grid.stageKeys?.join(',') || 'missing')
   addFinding(findings, grid.rows.every(hasSevenStages), 'every grid row has seven behavior stage objects')
   addFinding(findings, Number(grid.summary?.sourceCount || 0) === grid.rows.length, 'grid summary source count matches rows', JSON.stringify(grid.summary))
+  addFinding(findings, Number.isFinite(Number(grid.summary?.routeReview?.pendingRoutes)) && Number.isFinite(Number(grid.summary?.routeReview?.approvedRoutes)) && Number.isFinite(Number(grid.summary?.routeReview?.appliedRoutes)), 'grid summary exposes action-route pending/approved/applied counts', JSON.stringify(grid.summary?.routeReview || {}))
+  addFinding(findings, grid.rows.some(row => Number(row.metrics?.routeSignals || 0) > 0 && Number.isFinite(Number(row.metrics?.pendingRouteSignals)) && Number.isFinite(Number(row.metrics?.approvedRouteSignals)) && Number.isFinite(Number(row.metrics?.appliedRouteSignals)) && String(row.stages?.routed?.detail || '').includes('pending review')), 'routed source rows expose review/applied state instead of route-only progress')
   addFinding(findings, Array.isArray(grid.topGaps) && grid.topGaps.length > 0, 'grid exposes top source maturity gaps', String(grid.topGaps?.length || 0))
   addFinding(findings, syntheticProof.ok, 'synthetic source maturity proof classifies complete and deferred rows', JSON.stringify(syntheticProof.summary))
   addFinding(findings, packageJson.scripts?.['process:source-maturity-grid-check'] === `node --env-file-if-exists=.env ${SOURCE_MATURITY_GRID_SCRIPT_PATH}`, 'package exposes focused proof script')
@@ -283,6 +285,7 @@ async function main() {
     'sourceMaturityGrid',
   ]), 'Foundation APIs expose source maturity grid')
   addFinding(findings, foundationDbSource.includes('getSourceMaturityOperationalMetrics') &&
+    foundationSourceCrawlDbSource.includes('approved_routes') &&
     foundationSourceCrawlDbSource.includes('getSourceMaturityOperationalMetrics') &&
     [SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID].every(cardId => cardMap.has(cardId)), 'Foundation DB exposes operational source metrics and scoped cards')
   addFinding(findings, includesAll(foundationCurrentSprintSource, [

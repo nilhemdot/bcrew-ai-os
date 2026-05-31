@@ -204,16 +204,19 @@ function renderSourceMaturityGridPanel(grid) {
   left.appendChild(title)
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'This is the Foundation finish-line map: connected, trusted, monitored, extracted, atomized, synthesized, and routed.'
+  intro.textContent = 'This is the Foundation finish-line map: connected, trusted, monitored, extracted, atomized, synthesized, and routed. Routed rows show pending, approved, and applied action state so a source cannot hide behind routed-only progress.'
   left.appendChild(intro)
   header.appendChild(left)
 
   var summary = grid.summary || {}
+  var routeReview = summary.routeReview || {}
   var right = document.createElement('div')
   right.className = 'source-lifecycle-evidence'
   right.appendChild(renderSourceTag((summary.completeSources || 0) + ' complete', summary.gapSources ? 'pending' : 'connected'))
   right.appendChild(renderSourceTag((summary.gapSources || 0) + ' gaps', summary.gapSources ? 'missing' : 'connected'))
   right.appendChild(renderSourceTag((summary.deferredSources || 0) + ' deferred', summary.deferredSources ? 'pending' : 'neutral'))
+  right.appendChild(renderSourceTag((routeReview.pendingRoutes || 0) + ' pending routes', routeReview.pendingRoutes ? 'pending' : 'connected'))
+  right.appendChild(renderSourceTag((routeReview.appliedRoutes || 0) + ' applied routes', routeReview.appliedRoutes ? 'connected' : 'pending'))
   header.appendChild(right)
   panel.appendChild(header)
 
