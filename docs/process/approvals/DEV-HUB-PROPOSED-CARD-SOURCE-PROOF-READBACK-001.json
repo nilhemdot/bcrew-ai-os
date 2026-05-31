@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T09:15:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-proposed-card-source-proof-readback-001-plan.md",
+  "approvedPlanSha256": "aa95fd3632494e66bd7efcff0ddabccb46550554d757ac39f9434341449cd0e2",
+  "approvedRepoHead": "ff4193caabca2724120a9bec94f319203f1ddfb2",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub source-proof readback for proposed-card approval rows without creating backlog cards or authorizing builds.",
+  "constraints": [
+    "Do not create backlog cards, approval records, Scoper records, Portfolio records, Current Sprint overlays, route records, destination records, Harlan messages, model calls, extraction runs, connector probes, browser sessions, or external writes.",
+    "Do not auto-promote Director, Scoper, Portfolio, or proposed-card recommendations into backlog, sprint, route action, Harlan, or build execution.",
+    "Every source-proof row must derive from Build Portfolio, Morning Proposed Cards, and Proposed Card Approval Preflight readbacks only.",
+    "Fail proof if raw atom/hit trace or source lineage disappears.",
+    "Fail proof if any row claims it created a card, wrote backlog/Scoper/Portfolio/approval records, opened Current Sprint, externally sent, or authorized a build."
+  ],
+  "approvalDigest": "3f32eafdf42a509d1218bc160547cdf23a343162ba8ad4100a078210404d4d86"
+}

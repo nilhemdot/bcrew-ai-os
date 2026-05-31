@@ -105,6 +105,7 @@ const DEV_SCOPER_EVIDENCE_TRACE_JS_PATH = 'public/dev-scoper-evidence-trace.js'
 const DEV_BUILD_PORTFOLIO_READBACK_JS_PATH = 'public/dev-build-portfolio-readback.js'
 const DEV_MORNING_PROPOSED_CARDS_JS_PATH = 'public/dev-morning-proposed-cards-readback.js'
 const DEV_PROPOSED_CARD_APPROVAL_PREFLIGHT_JS_PATH = 'public/dev-proposed-card-approval-preflight.js'
+const DEV_PROPOSED_CARD_SOURCE_PROOF_READBACK_JS_PATH = 'public/dev-proposed-card-source-proof-readback.js'
 const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
@@ -125,6 +126,7 @@ const DEV_CSS_PATHS = [
   'public/dev-build-portfolio-readback.css',
   'public/dev-morning-proposed-cards-readback.css',
   'public/dev-proposed-card-approval-preflight.css',
+  'public/dev-proposed-card-source-proof-readback.css',
   'public/dev-intelligence-hygiene.css',
   'public/dev-auditor-flow.css',
   'public/dev-synthesis-scope.css',
@@ -457,6 +459,7 @@ async function main() {
     buildPortfolioReadbackJsSource,
     morningProposedCardsJsSource,
     proposedCardApprovalPreflightJsSource,
+    proposedCardSourceProofReadbackJsSource,
     intelligenceHygieneJsSource,
     auditorFlowJsSource,
     synthesisScopeJsSource,
@@ -488,6 +491,7 @@ async function main() {
     readRepoFile(DEV_BUILD_PORTFOLIO_READBACK_JS_PATH),
     readRepoFile(DEV_MORNING_PROPOSED_CARDS_JS_PATH),
     readRepoFile(DEV_PROPOSED_CARD_APPROVAL_PREFLIGHT_JS_PATH),
+    readRepoFile(DEV_PROPOSED_CARD_SOURCE_PROOF_READBACK_JS_PATH),
     readRepoFile(DEV_INTELLIGENCE_HYGIENE_JS_PATH),
     readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
@@ -515,7 +519,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${buildPortfolioReadbackJsSource}\n${morningProposedCardsJsSource}\n${proposedCardApprovalPreflightJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${buildPortfolioReadbackJsSource}\n${morningProposedCardsJsSource}\n${proposedCardApprovalPreflightJsSource}\n${proposedCardSourceProofReadbackJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -972,6 +976,51 @@ async function main() {
       cssSource.includes('.proposed-card-approval-preflight'),
     'Dev Hub exposes proposed-card approval preflight without creating cards or authorizing builds',
     `approvalRows=${payload?.proposedCardApprovalPreflight?.summary?.approvalItemCount || 0}; exact=${payload?.proposedCardApprovalPreflight?.summary?.exactApprovalRequiredCount || 0}; created=${payload?.proposedCardApprovalPreflight?.summary?.cardsCreatedByReadback || 0}; builds=${payload?.proposedCardApprovalPreflight?.summary?.buildAuthorizationsByReadback || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubProposedCardSourceProofReadback') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'proposedCardSourceProofReadback') &&
+      payload?.proposedCardSourceProofReadback?.contractVersion === 'dev-hub-proposed-card-source-proof-readback.v1' &&
+      payload?.proposedCardSourceProofReadback?.source?.noSecondTruthLayer === true &&
+      list(payload?.proposedCardSourceProofReadback?.source?.reusedTruthLayers).includes('buildPortfolioReadback') &&
+      list(payload?.proposedCardSourceProofReadback?.source?.reusedTruthLayers).includes('morningProposedCardsReadback') &&
+      list(payload?.proposedCardSourceProofReadback?.source?.reusedTruthLayers).includes('proposedCardApprovalPreflight') &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.sourceProofOnly === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.approvalRequired === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.noCardCreate === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.noBacklogMutation === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.noScoperMutation === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.noPortfolioMutation === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.noCurrentSprintMutation === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.noApprovalMutation === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.noHarlanSend === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.noExternalWrites === true &&
+      payload?.proposedCardSourceProofReadback?.boundaries?.noAutoBuild === true &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.proofItemCount || 0) >= 1 &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.sourceProofReadyCount || 0) === Number(payload?.proposedCardSourceProofReadback?.summary?.proofItemCount || 0) &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.missingProofCount || 0) === 0 &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.candidateProofRowCount || 0) >= Number(payload?.proposedCardSourceProofReadback?.summary?.proofItemCount || 0) &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.sourceLineageRefCount || 0) >= Number(payload?.proposedCardSourceProofReadback?.summary?.proofItemCount || 0) &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.cardsCreatedByReadback || 0) === 0 &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.currentSprintOpenedByReadback || 0) === 0 &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.approvalRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.buildAuthorizationsByReadback || 0) === 0 &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.harlanSendsByReadback || 0) === 0 &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.proposedCardSourceProofReadback?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.proposedCardSourceProofReadback?.proofRows).length <= 6 &&
+      list(payload?.proposedCardSourceProofReadback?.proofRows).every(row => row.status === 'read_only_source_proof' && row.proofStatus === 'source_proof_ready' && row.cardCreatedNow === false && row.backlogWrittenNow === false && row.buildAuthorizedNow === false && row.candidateProofCount >= 1 && row.sourceLineageCount >= 1) &&
+      list(payload?.proposedCardSourceProofReadback?.proofRows).flatMap(row => list(row.candidateProofs)).every(candidate => candidate.rawAtomId && candidate.rawHitId && candidate.readyForPortfolio === true) &&
+      htmlSource.includes('id="proposed-card-source-proof-readback"') &&
+      htmlSource.includes('/dev-proposed-card-source-proof-readback.css') &&
+      htmlSource.includes('/dev-proposed-card-source-proof-readback.js') &&
+      proposedCardSourceProofReadbackJsSource.includes('proposedCardSourceProofReadback') &&
+      proposedCardSourceProofReadbackJsSource.includes('Source proof only') &&
+      cssSource.includes('.proposed-card-source-proof-readback'),
+    'Dev Hub exposes proposed-card source proof with raw atom/hit candidate trace and zero writes',
+    `proofRows=${payload?.proposedCardSourceProofReadback?.summary?.proofItemCount || 0}; candidateProof=${payload?.proposedCardSourceProofReadback?.summary?.candidateProofRowCount || 0}; lineage=${payload?.proposedCardSourceProofReadback?.summary?.sourceLineageRefCount || 0}; created=${payload?.proposedCardSourceProofReadback?.summary?.cardsCreatedByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -2275,6 +2324,20 @@ async function main() {
           title: row.title,
           status: row.status,
           sourceLineageCount: row.sourceLineageCount,
+        })),
+      } : null,
+      proposedCardSourceProofReadback: payload.proposedCardSourceProofReadback ? {
+        status: payload.proposedCardSourceProofReadback.status,
+        summary: payload.proposedCardSourceProofReadback.summary,
+        proofRows: list(payload.proposedCardSourceProofReadback.proofRows).map(row => ({
+          proofItemId: row.proofItemId,
+          proposedCardId: row.proposedCardId,
+          portfolioRank: row.portfolioRank,
+          portfolioScore: row.portfolioScore,
+          title: row.title,
+          candidateProofCount: row.candidateProofCount,
+          sourceLineageCount: row.sourceLineageCount,
+          proofStatus: row.proofStatus,
         })),
       } : null,
       intelligenceHygieneReadback: payload.intelligenceHygieneReadback ? {

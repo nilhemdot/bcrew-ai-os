@@ -775,5 +775,62 @@
       "This does not mutate Scoper, Portfolio, route, decision, open-question, approval, or destination records.",
       "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, browser sessions, connector probes, or external writes."
     ]
+  },
+  {
+    "key": "dev-hub-proposed-card-source-proof-readback-v1",
+    "backlogIds": [
+      "DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub proposed-card source proof readback",
+        "DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001",
+        "dev-hub-proposed-card-source-proof-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001",
+      "DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001",
+      "DEV-HUB-BUILD-PORTFOLIO-READBACK-001"
+    ],
+    "systemArea": "Dev Hub proposed-card source proof readback",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Proposed Card Source Proof readback to Dev Hub that links approval rows back to Portfolio groups and raw Scoper candidate proof.",
+    "whatItDoes": "The Dev Hub now shows the Portfolio group, rank, score, decision, lane, candidate proof rows, raw atom IDs, raw hit IDs, source trace status, Scoper status, and source-lineage refs behind each draft proposed card.",
+    "whyItMatters": "Steve can inspect the evidence behind a proposed build card before approving card creation, closing the gap between a tidy recommendation and source-backed trust.",
+    "whereItLives": [
+      "lib/dev-hub-proposed-card-source-proof-readback.js source-proof projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js proposedCardSourceProofReadback payload wiring from Build Portfolio, Morning Proposed Cards, and Proposed Card Approval Preflight",
+      "public/dev.html Proposed Card Source Proof panel",
+      "public/dev-proposed-card-source-proof-readback.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-proposed-card-source-proof-readback.css standalone source-proof panel styles",
+      "scripts/process-dev-hub-proposed-card-source-proof-readback-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-proposed-card-source-proof-readback-001-plan.md",
+      "docs/process/approvals/DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001.json",
+      "package.json process:dev-hub-proposed-card-source-proof-readback-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-proposed-card-source-proof-readback.js scripts/process-dev-hub-proposed-card-source-proof-readback-check.mjs public/dev-proposed-card-source-proof-readback.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-proposed-card-source-proof-readback-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001.json --closeoutKey=dev-hub-proposed-card-source-proof-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001 --closeoutKey=dev-hub-proposed-card-source-proof-readback-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-PROPOSED-CARD-SOURCE-PROOF-READBACK-001.json --closeoutKey=dev-hub-proposed-card-source-proof-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure mode: source-proof rows must fail if raw atom/hit candidate trace disappears, source lineage disappears, or any card creation, backlog write, sprint opening, build authorization, approval write, route mutation, Harlan send, model call, extraction run, browser session, connector probe, or external write appears.",
+    "reviewNext": "Actual card creation still requires Steve approval of an exact proposedCardId. Do not create backlog cards, sprint work, approval records, Scoper records, Portfolio records, Harlan messages, route actions, extraction runs, model calls, builds, or external writes from this proof readback.",
+    "knownLimits": [
+      "This is a read-only source-proof readback; it does not create backlog cards.",
+      "This does not write approval records, open Current Sprint work, or authorize builds.",
+      "This does not mutate Scoper, Portfolio, route, decision, open-question, approval, or destination records.",
+      "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, browser sessions, connector probes, or external writes."
+    ]
   }
 ]
