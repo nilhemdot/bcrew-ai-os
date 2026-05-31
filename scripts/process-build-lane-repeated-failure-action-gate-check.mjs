@@ -561,7 +561,10 @@ async function main() {
     readRepoFile('lib/process-git-hooks.js'),
     readRepoFile('lib/foundation-verifier-health-live-summary.js'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
-    readRepoFile('lib/foundation-build-closeout-build-lane-records.js'),
+    Promise.all([
+      readRepoFile('lib/foundation-build-closeout-build-lane-records.js'),
+      readRepoFile('data/foundation-build-closeouts/build-lane-records.json'),
+    ]).then(parts => parts.join('\n')),
     readRepoFile('.git/foundation-build-lane-failure-summary.json', { optional: true }),
   ])
 

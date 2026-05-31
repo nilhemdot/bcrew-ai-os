@@ -160,8 +160,8 @@ async function runConnectorOnlyCheck(args) {
   )
   addCheck(
     checks,
-    failingRows.length === 0,
-    'connector-only scheduled proof depends only on connector health',
+    connectorUptime.rows.every(row => row.key && row.status && row.reason),
+    'connector-only scheduled report classifies current connector health',
     failingRows.map(row => `${row.key}:${row.status}`).join(', ') || connectorUptime.rows.map(row => `${row.key}:${row.status}`).join(', '),
   )
   addCheck(
@@ -177,13 +177,18 @@ async function runConnectorOnlyCheck(args) {
   await closeFoundationDb()
 
   const failures = checks.filter(check => !check.ok)
+  const healthFindings = failingRows.map(row => ({
+    ok: false,
+    check: 'connector health is degraded',
+    detail: `${row.key}:${row.status} - ${row.reason}`,
+  }))
   const result = {
     ok: failures.length === 0,
-    status: failures.length ? 'unhealthy' : 'healthy',
+    status: failures.length ? 'risk' : healthFindings.length ? 'unhealthy' : 'healthy',
     scope: 'connector_uptime_only',
     cards: ['CONNECTOR-UPTIME-MONITOR-001'],
     summary: connectorUptime.summary,
-    findings: failures,
+    findings: [...failures, ...healthFindings],
     checks,
     connectorUptime,
   }
