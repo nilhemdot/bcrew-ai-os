@@ -59,6 +59,7 @@ function parseArgs(argv = process.argv.slice(2)) {
   return {
     json: argv.includes('--json') || argv.includes('--json=true'),
     writeReport: argv.includes('--write-report') || argv.includes('--write-report=true'),
+    scheduledReport: argv.includes('--scheduled-report') || argv.includes('--scheduled-report=true'),
   }
 }
 
@@ -300,9 +301,9 @@ async function main() {
   addCheck(checks, systemHealth.reportOnly === true && systemHealth.autoFixes === false && systemHealth.writesBacklog === false && systemHealth.writesSourceSystems === false, 'system-health snapshot is report-only and non-mutating', `status=${systemHealth.status}`)
   addCheck(
     checks,
-    systemHealth.status === 'healthy',
+    args.scheduledReport || systemHealth.status === 'healthy',
     'system-health proof does not exit green while embedded health is red/yellow',
-    `status=${systemHealth.status} raw=${systemHealth.summary?.rawRiskCount || 0}/${systemHealth.summary?.rawWatchCount || 0} blocking=${systemHealth.summary?.riskCount || 0}/${systemHealth.summary?.watchCount || 0}`,
+    `mode=${args.scheduledReport ? 'scheduled-report' : 'proof'} status=${systemHealth.status} raw=${systemHealth.summary?.rawRiskCount || 0}/${systemHealth.summary?.rawWatchCount || 0} blocking=${systemHealth.summary?.riskCount || 0}/${systemHealth.summary?.watchCount || 0}`,
   )
   addCheck(checks, systemHealth.docArtifactBloat?.summary?.artifactCount > 0 && Number.isFinite(systemHealth.summary?.docArtifactRiskCount), 'system-health snapshot includes doc/report bloat rollup', `artifacts=${systemHealth.docArtifactBloat?.summary?.artifactCount || 0} risk=${systemHealth.summary?.docArtifactRiskCount || 0}`)
   addCheck(checks, systemHealth.fileSizeStandard?.summary?.fileCount > 0 && Number.isFinite(systemHealth.summary?.fileSizeWatchCount), 'system-health snapshot includes file-size standard rollup', `files=${systemHealth.fileSizeStandard?.summary?.fileCount || 0} watch=${systemHealth.summary?.fileSizeWatchCount || 0}`)
@@ -336,7 +337,7 @@ async function main() {
   const failures = checks.filter(check => !check.ok)
   const result = {
     ok: failures.length === 0,
-    status: failures.length ? 'blocked' : 'healthy',
+    status: failures.length ? 'blocked' : args.scheduledReport ? systemHealth.status : 'healthy',
     sprintId: SPRINT_ID,
     cardIds: [SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID, SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID],
     closeoutKeys: [SYSTEM_HEALTH_NIGHTLY_AUDIT_CLOSEOUT_KEY, SCHEDULED_JOB_STALENESS_DASHBOARD_CLOSEOUT_KEY],

@@ -1,0 +1,722 @@
+{
+  "generatedAt": "2026-05-31T02:41:29.276Z",
+  "status": "risk",
+  "plainEnglish": "Foundation has red workflow/system-health findings that block green. Do not treat classified rows as fixed.",
+  "summary": {
+    "status": "risk",
+    "rawStatus": "risk",
+    "classificationStatus": "risk",
+    "preGreenLockStatus": "risk",
+    "greenLockStatus": "risk",
+    "greenLockBlocksGreen": true,
+    "greenLockApprovedExceptionCount": 0,
+    "currentSprintHealthTruthLockStatus": "healthy",
+    "riskCount": 4,
+    "watchCount": 3,
+    "rawRiskCount": 4,
+    "rawWatchCount": 4,
+    "visibleRiskCount": 4,
+    "visibleWatchCount": 3,
+    "hiddenRiskCount": 0,
+    "hiddenWatchCount": 1,
+    "classifiedRiskCount": 1,
+    "classifiedWatchCount": 2,
+    "blockingClassifiedRiskCount": 1,
+    "blockingClassifiedWatchCount": 1,
+    "classifiedFindingCount": 3,
+    "unclassifiedRiskCount": 3,
+    "unclassifiedWatchCount": 2,
+    "blockingClassifiedFindingIds": [
+      "scheduled_job_meeting-transcripts-extract-backlog",
+      "runtime_jobs_failed"
+    ],
+    "unclassifiedFindingIds": [
+      "scheduled_job_foundation-lessons-learned-loop",
+      "scheduled_job_admin-deal-backlog-review",
+      "scheduled_job_verification-runs",
+      "build_lane_failure_d6f2c7283f2c2d06815baf84"
+    ],
+    "scheduledJobRiskCount": 4,
+    "scheduledJobWatchCount": 0,
+    "auditFleetStatus": "healthy",
+    "auditFleetLaneCount": 8,
+    "auditFleetRiskCount": 0,
+    "auditFleetScheduledJobStatus": "healthy",
+    "connectorDownCount": 0,
+    "connectorDegradedCount": 3,
+    "connectorBlockedCount": 0,
+    "endpointRiskCount": 0,
+    "endpointReviewCount": 0,
+    "docArtifactRiskCount": 0,
+    "docArtifactReviewCount": 0,
+    "fileSizeRiskCount": 0,
+    "fileSizeWatchCount": 0,
+    "fileSizeManagedWatchCount": 3,
+    "fileSizeBlockingWatchCount": 0,
+    "fileSizeUnmanagedWatchCount": 0,
+    "fileSizeStaleWatchCount": 0,
+    "buildLaneFailureRedCount": 0,
+    "buildLaneFailureYellowCount": 1,
+    "buildLaneFailureEventCount7d": 7,
+    "currentSprintFindingCount": 0,
+    "sourceCount": 43
+  },
+  "greenLock": {
+    "status": "risk",
+    "rawStatus": "risk",
+    "blocksGreen": true,
+    "rawRiskCount": 4,
+    "rawWatchCount": 4,
+    "visibleNonGreenCount": 7,
+    "hiddenRiskCount": 0,
+    "hiddenWatchCount": 1,
+    "hiddenNonGreenCount": 1,
+    "approvedExceptionCount": 0,
+    "missingExceptionFindingIds": [
+      "scheduled_job_foundation-lessons-learned-loop",
+      "scheduled_job_admin-deal-backlog-review",
+      "scheduled_job_meeting-transcripts-extract-backlog",
+      "scheduled_job_verification-runs",
+      "connector_degraded",
+      "runtime_jobs_failed",
+      "build_lane_failure_d6f2c7283f2c2d06815baf84"
+    ],
+    "exceptionChecks": [
+      {
+        "findingId": "scheduled_job_foundation-lessons-learned-loop",
+        "repairCardId": null,
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "scheduled_job_admin-deal-backlog-review",
+        "repairCardId": null,
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "scheduled_job_meeting-transcripts-extract-backlog",
+        "repairCardId": "EXTRACT-BACKFILL-001",
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "scheduled_job_verification-runs",
+        "repairCardId": null,
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "connector_degraded",
+        "repairCardId": "CONNECTOR-UPTIME-MONITOR-001",
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "runtime_jobs_failed",
+        "repairCardId": "EXTRACT-CURRENT-001",
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
+      {
+        "findingId": "build_lane_failure_d6f2c7283f2c2d06815baf84",
+        "repairCardId": null,
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      }
+    ],
+    "plainEnglish": "Foundation has raw red/yellow rows without explicit Steve-approved sprint exceptions. Do not report green."
+  },
+  "currentSprintHealthTruthLock": {
+    "ok": true,
+    "status": "healthy",
+    "mode": "no-embedded-health-summary",
+    "plainEnglish": "Current Sprint has no embedded health summary that can go stale."
+  },
+  "scheduledJobs": {
+    "status": "risk",
+    "summary": {
+      "jobCount": 45,
+      "riskCount": 4,
+      "watchCount": 0,
+      "healthyCount": 28,
+      "manualCount": 13,
+      "dueCount": 0
+    },
+    "topFindings": [
+      {
+        "id": "scheduled_job_foundation-lessons-learned-loop",
+        "severity": "P0",
+        "status": "risk",
+        "title": "Foundation Lessons Learned Loop is risk",
+        "detail": "Foundation Lessons Learned Loop latest run is failed.",
+        "nextAction": "Exited with code 1",
+        "jobKey": "foundation-lessons-learned-loop"
+      },
+      {
+        "id": "scheduled_job_admin-deal-backlog-review",
+        "severity": "P1",
+        "status": "risk",
+        "title": "Admin Deal Backlog Inspection is risk",
+        "detail": "Admin Deal Backlog Inspection latest run is failed.",
+        "nextAction": "Marked failed by stale active-run reaper.",
+        "jobKey": "admin-deal-backlog-review"
+      },
+      {
+        "id": "scheduled_job_meeting-transcripts-extract-backlog",
+        "severity": "P1",
+        "status": "risk",
+        "title": "Meeting Transcript Extraction Backlog is risk",
+        "detail": "Meeting Transcript Extraction Backlog latest run is failed.",
+        "nextAction": "SRC-MEETINGS-001:meeting:ops stand up 2026 05 29 08 44 edt:meeting_transcript: extraction failed -> OpenAI router fallback returned no output text.",
+        "jobKey": "meeting-transcripts-extract-backlog"
+      },
+      {
+        "id": "scheduled_job_verification-runs",
+        "severity": "P1",
+        "status": "risk",
+        "title": "Verification Runs is risk",
+        "detail": "Verification Runs latest run is failed.",
+        "nextAction": "Exited with code 1",
+        "jobKey": "verification-runs"
+      }
+    ],
+    "rows": [
+      {
+        "key": "foundation-lessons-learned-loop",
+        "title": "Foundation Lessons Learned Loop",
+        "priority": "P0",
+        "status": "risk",
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-05-30T09:45:06.921Z",
+        "latestSuccessAt": null,
+        "plainEnglish": "Foundation Lessons Learned Loop latest run is failed.",
+        "nextAction": "Exited with code 1"
+      },
+      {
+        "key": "admin-deal-backlog-review",
+        "title": "Admin Deal Backlog Inspection",
+        "priority": "P1",
+        "status": "risk",
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-05-30T04:19:49.892Z",
+        "latestSuccessAt": null,
+        "plainEnglish": "Admin Deal Backlog Inspection latest run is failed.",
+        "nextAction": "Marked failed by stale active-run reaper."
+      },
+      {
+        "key": "meeting-transcripts-extract-backlog",
+        "title": "Meeting Transcript Extraction Backlog",
+        "priority": "P1",
+        "status": "risk",
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-05-30T05:47:18.716Z",
+        "latestSuccessAt": null,
+        "plainEnglish": "Meeting Transcript Extraction Backlog latest run is failed.",
+        "nextAction": "SRC-MEETINGS-001:meeting:ops stand up 2026 05 29 08 44 edt:meeting_transcript: extraction failed -> OpenAI router fallback returned no output text."
+      },
+      {
+        "key": "verification-runs",
+        "title": "Verification Runs",
+        "priority": "P1",
+        "status": "risk",
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-05-31T02:38:46.365Z",
+        "latestSuccessAt": null,
+        "plainEnglish": "Verification Runs latest run is failed.",
+        "nextAction": "Exited with code 1"
+      },
+      {
+        "key": "connector-uptime-monitor",
+        "title": "Connector Uptime Monitor",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-31T02:37:39.239Z",
+        "latestSuccessAt": "2026-05-31T02:37:39.239Z",
+        "plainEnglish": "Connector Uptime Monitor has a fresh successful run and is not due.",
+        "nextAction": "Review degraded/down connector rows; do not auto-fix credentials or source data from this job."
+      },
+      {
+        "key": "drive-content-extract-bite",
+        "title": "Drive Content Extraction Bite",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T18:13:27.126Z",
+        "latestSuccessAt": "2026-05-30T18:13:27.126Z",
+        "plainEnglish": "Drive Content Extraction Bite has a fresh successful run and is not due.",
+        "nextAction": "Run as a small daily quota mission. Add Slides, Office, images, and video through explicit follow-on extractors with skip reasons."
+      },
+      {
+        "key": "email-attachment-extract-bite",
+        "title": "Email Attachment Extraction Bite",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T18:29:31.961Z",
+        "latestSuccessAt": "2026-05-30T18:29:31.961Z",
+        "plainEnglish": "Email Attachment Extraction Bite has a fresh successful run and is not due.",
+        "nextAction": "Run as a small daily quota mission. Add Missive attachment proof and Office/OCR/media attachment extractors as explicit follow-on lanes."
+      },
+      {
+        "key": "foundation-verify",
+        "title": "Foundation Verifier",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-31T02:28:40.698Z",
+        "latestSuccessAt": "2026-05-31T02:28:40.698Z",
+        "plainEnglish": "Foundation Verifier has a fresh successful run and is not due.",
+        "nextAction": "Run after meaningful builds and before checkpoints."
+      },
+      {
+        "key": "generated-artifact-closeout",
+        "title": "Generated Artifact Closeout",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T12:15:34.569Z",
+        "latestSuccessAt": "2026-05-30T12:15:34.569Z",
+        "plainEnglish": "Generated Artifact Closeout has a fresh successful run and is not due.",
+        "nextAction": "If blocked, inspect the dirty-file list; non-allowlisted work must be handled by the builder, not this job."
+      },
+      {
+        "key": "gmail-sync-current",
+        "title": "Gmail Current Sync",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-31T00:46:46.167Z",
+        "latestSuccessAt": "2026-05-31T00:46:46.167Z",
+        "plainEnglish": "Gmail Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Watch first scheduled runs; keep historical Gmail backfill manual until current-day stays clean."
+      },
+      {
+        "key": "intelligence-action-router-proposals",
+        "title": "Intelligence Action Router Proposals",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T09:32:02.559Z",
+        "latestSuccessAt": "2026-05-30T09:32:02.559Z",
+        "plainEnglish": "Intelligence Action Router Proposals has a fresh successful run and is not due.",
+        "nextAction": "Review pending routes before applying destination writes. No route lands in an operating ledger without explicit human approval."
+      },
+      {
+        "key": "intelligence-synthesis-spine-refresh",
+        "title": "Intelligence Spine Synthesis Refresh",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T09:31:01.971Z",
+        "latestSuccessAt": "2026-05-30T09:31:01.971Z",
+        "plainEnglish": "Intelligence Spine Synthesis Refresh has a fresh successful run and is not due.",
+        "nextAction": "Use as the v1 scheduled refresh lane; proofs remain manual and backlog-mutating acceptance checks stay out of the worker schedule."
+      },
+      {
+        "key": "meeting-notes-sync-current",
+        "title": "Meeting Notes Current Sync",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T14:14:25.797Z",
+        "latestSuccessAt": "2026-05-30T14:14:25.797Z",
+        "plainEnglish": "Meeting Notes Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Run daily for new meeting notes/transcripts; use the retry job only for item-level partial failures."
+      },
+      {
+        "key": "missive-sync-current",
+        "title": "Missive Current Sync",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-31T01:22:42.017Z",
+        "latestSuccessAt": "2026-05-31T01:22:42.017Z",
+        "plainEnglish": "Missive Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Watch first scheduled runs; keep Gmail/manual backfill off until this lane stays clean."
+      },
+      {
+        "key": "nightly-audit-fleet",
+        "title": "Nightly Specialist Audit Fleet",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T07:05:50.199Z",
+        "latestSuccessAt": "2026-05-30T07:05:50.199Z",
+        "plainEnglish": "Nightly Specialist Audit Fleet has a fresh successful run and is not due.",
+        "nextAction": "System Health rolls the scheduled job and audit-fleet registry status into the morning report; proposed findings remain report-only until separate scoped repair cards exist."
+      },
+      {
+        "key": "nightly-deep-audit",
+        "title": "Nightly Hybrid Deep Audit",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T07:00:49.227Z",
+        "latestSuccessAt": "2026-05-30T07:00:49.227Z",
+        "plainEnglish": "Nightly Hybrid Deep Audit has a fresh successful run and is not due.",
+        "nextAction": "Review the diff-only morning report; P0/P1 senior findings must route to proposed repair cards or the report must say the deep review degraded/not run."
+      },
+      {
+        "key": "shared-comms-coverage",
+        "title": "Shared Comms Coverage",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-31T02:31:44.006Z",
+        "latestSuccessAt": "2026-05-31T02:31:44.006Z",
+        "plainEnglish": "Shared Comms Coverage has a fresh successful run and is not due.",
+        "nextAction": "Run before deciding whether to backfill more or build synthesis."
+      },
+      {
+        "key": "source-god-mode-youtube-handoff",
+        "title": "YouTube Source Handoff Runtime",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T12:17:53.760Z",
+        "latestSuccessAt": "2026-05-30T12:17:53.760Z",
+        "plainEnglish": "YouTube Source Handoff Runtime has a fresh successful run and is not due.",
+        "nextAction": "Review source-session readiness for Skool/newsletter/MyICOR rows while this job keeps safe public reads drained automatically."
+      },
+      {
+        "key": "system-health-nightly-audit",
+        "title": "System Health Nightly Audit",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-31T02:41:29.269Z",
+        "latestSuccessAt": "2026-05-31T02:41:29.269Z",
+        "plainEnglish": "System Health Nightly Audit has a fresh successful run and is not due.",
+        "nextAction": "Review red/yellow system-health rows before treating Foundation as green."
+      },
+      {
+        "key": "youtube-creator-daily-watch",
+        "title": "Public YouTube Creator Daily Watch",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-30T10:33:16.720Z",
+        "latestSuccessAt": "2026-05-30T10:33:16.720Z",
+        "plainEnglish": "Public YouTube Creator Daily Watch has a fresh successful run and is not due.",
+        "nextAction": "Review new source items in Dev Team Hub / Build Intel before approving extraction or backlog promotion."
+      }
+    ]
+  },
+  "auditFleet": {
+    "status": "healthy",
+    "jobKey": "nightly-audit-fleet",
+    "scheduleLocalTime": "03:05",
+    "scheduleTimezone": "America/Toronto",
+    "laneCount": 8,
+    "laneIds": [
+      "code_quality",
+      "hardcoded_truth_runtime_config",
+      "extractor_god_mode_parity",
+      "synthesis_director_quality",
+      "source_coverage_freshness",
+      "ui_brand_system",
+      "process_write_boundary",
+      "mission_doctrine_alignment"
+    ],
+    "hardcodedTruthLanePresent": true,
+    "reportOnly": true,
+    "latestRunStatus": "succeeded",
+    "latestRunAt": "2026-05-30T07:05:50.199Z",
+    "scheduledJobStatus": "healthy",
+    "failures": []
+  },
+  "operatingReliability": null,
+  "endpointBudgets": {
+    "summary": {
+      "routeCount": 5,
+      "measuredCount": 5,
+      "healthyCount": 5,
+      "reviewCount": 0,
+      "riskCount": 0,
+      "missingCount": 0,
+      "maxDurationMs": 661.48875,
+      "maxPayloadBytes": 648566
+    },
+    "topFindings": []
+  },
+  "docArtifactBloat": {
+    "status": "healthy",
+    "summary": {
+      "artifactCount": 1250,
+      "handoffFileCount": 9,
+      "handoffLineTotal": 2645,
+      "recentHandoffFileCount": 7,
+      "nightlyArtifactCount": 7,
+      "riskCount": 0,
+      "reviewCount": 0
+    },
+    "topFindings": []
+  },
+  "fileSizeStandard": {
+    "status": "healthy",
+    "summary": {
+      "fileCount": 4,
+      "riskCount": 0,
+      "watchCount": 0,
+      "managedWatchCount": 3,
+      "unmanagedWatchCount": 0,
+      "blockingWatchCount": 0,
+      "staleWatchCount": 0,
+      "overPreferredCount": 3,
+      "dangerCount": 0,
+      "splitNowRequiredCount": 0,
+      "explicitBudgetRequiredCount": 0
+    },
+    "topFindings": [],
+    "managedFindings": [
+      {
+        "id": "file_size_managed_scripts_foundation_verify_mjs",
+        "severity": "P2",
+        "status": "managed_watch",
+        "title": "scripts/foundation-verify.mjs has a managed file-size watch disposition",
+        "detail": "scripts/foundation-verify.mjs has 4999 lines; Blocks at or above 5000 lines, or whenever a card adds verifier-domain behavior directly instead of delegating to a module.",
+        "nextAction": "Keep extracting verifier domains into lib/foundation-verifier-* modules; add only import/wiring to scripts/foundation-verify.mjs.",
+        "owner": "Foundation Verifier",
+        "threshold": "Blocks at or above 5000 lines, or whenever a card adds verifier-domain behavior directly instead of delegating to a module.",
+        "nextTrigger": "Split another verifier domain before the root reaches 5000 lines, before the review date expires, or before adding new check logic directly to the root script.",
+        "filePath": "scripts/foundation-verify.mjs",
+        "lineCount": 4999,
+        "blocksCurrentSprint": false
+      },
+      {
+        "id": "file_size_managed_server_js",
+        "severity": "P2",
+        "status": "managed_watch",
+        "title": "server.js has a managed file-size watch disposition",
+        "detail": "server.js has 2073 lines; Blocks once the file reaches 3000 lines or accepts new route/domain behavior outside a route module.",
+        "nextAction": "Keep server.js as thin route mounting/runtime wiring; implement route behavior in lib/*-routes.js modules.",
+        "owner": "Foundation Runtime",
+        "threshold": "Blocks once the file reaches 3000 lines or accepts new route/domain behavior outside a route module.",
+        "nextTrigger": "Extract route/domain behavior before crossing 3000 lines or before adding a new app surface directly to server.js.",
+        "filePath": "server.js",
+        "lineCount": 2073,
+        "blocksCurrentSprint": false
+      },
+      {
+        "id": "file_size_managed_public_foundation_js",
+        "severity": "P2",
+        "status": "managed_watch",
+        "title": "public/foundation.js has a managed file-size watch disposition",
+        "detail": "public/foundation.js has 2991 lines; Blocks once the file reaches 3000 lines or accepts new renderer/domain behavior without extracting a renderer module.",
+        "nextAction": "Keep public/foundation.js as shell wiring; move new UI behavior into public/foundation-*-renderers.js modules.",
+        "owner": "Foundation Frontend",
+        "threshold": "Blocks once the file reaches 3000 lines or accepts new renderer/domain behavior without extracting a renderer module.",
+        "nextTrigger": "Extract another renderer slice before crossing 3000 lines or before adding feature-specific rendering behavior.",
+        "filePath": "public/foundation.js",
+        "lineCount": 2991,
+        "blocksCurrentSprint": false
+      }
+    ]
+  },
+  "buildLaneFailureTelemetry": {
+    "status": "watch",
+    "summary": {
+      "eventCount7d": 7,
+      "rawEventCount7d": 755,
+      "fingerprintCount": 4,
+      "rawFingerprintCount": 155,
+      "redFingerprintCount": 0,
+      "yellowFingerprintCount": 1,
+      "oneOffFingerprintCount": 3,
+      "resolvedEventCount7d": 748,
+      "resolvedFingerprintCount": 151,
+      "latestResolutionProofAt": "2026-05-30T20:23:53.575Z",
+      "warningThreshold24h": 3,
+      "riskThreshold24h": 5
+    },
+    "topFindings": [
+      {
+        "id": "build_lane_failure_d6f2c7283f2c2d06815baf84",
+        "severity": "P1",
+        "status": "watch",
+        "title": "unclassified_build_lane_failure repeated in the build lane",
+        "detail": "3 repeats in 24h, 4 in 7d. Latest: FOUNDATION-TUNEUP-2026-05-29:done.",
+        "nextAction": "Watch unclassified_build_lane_failure; one more repeat should become repair work.",
+        "fingerprint": "d6f2c7283f2c2d06815baf84",
+        "commands": [
+          "process:action-route-promotion-workflow-check"
+        ],
+        "cardIds": [
+          "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+        ]
+      }
+    ]
+  },
+  "currentSprint": {
+    "findings": [],
+    "summary": {
+      "overlayOnly": true,
+      "stageCount": 5,
+      "itemCount": 17,
+      "buildingNowCount": 1,
+      "returnedCount": 0,
+      "doneThisSprintCount": 1,
+      "stageCounts": {
+        "scoping": 15,
+        "sprint_ready": 0,
+        "building_now": 1,
+        "returned": 0,
+        "done_this_sprint": 1
+      },
+      "currentStatus": "building",
+      "nextCardId": "FOUNDATION-DOC-ARCHIVE-MOVE-001",
+      "activeBlockerCardId": "FOUNDATION-HUB-FOLDER-ISOLATION-001",
+      "readyCheckRequiredFields": 10,
+      "findingsCount": 0,
+      "truthSource": {
+        "sprintRecord": "live-db",
+        "goal": "live-db",
+        "executiveSummary": "live-db-metadata",
+        "exitCriteria": "live-db-metadata",
+        "nextCard": "live-stage-order",
+        "currentBlocker": "live-sprint-record",
+        "nextAction": "live-sprint-item-or-backlog"
+      }
+    }
+  },
+  "sourceHealth": {
+    "totalSources": 43,
+    "sourcesWithScheduledJobs": 0,
+    "sourcesWithoutScheduledJobs": 0,
+    "missingScheduledSourceIds": []
+  },
+  "findings": [
+    {
+      "id": "scheduled_job_foundation-lessons-learned-loop",
+      "severity": "P0",
+      "status": "risk",
+      "title": "Foundation Lessons Learned Loop is risk",
+      "detail": "Foundation Lessons Learned Loop latest run is failed.",
+      "nextAction": "Exited with code 1",
+      "jobKey": "foundation-lessons-learned-loop",
+      "rollupLevel": "risk"
+    },
+    {
+      "id": "scheduled_job_admin-deal-backlog-review",
+      "severity": "P1",
+      "status": "risk",
+      "title": "Admin Deal Backlog Inspection is risk",
+      "detail": "Admin Deal Backlog Inspection latest run is failed.",
+      "nextAction": "Marked failed by stale active-run reaper.",
+      "jobKey": "admin-deal-backlog-review",
+      "rollupLevel": "risk"
+    },
+    {
+      "id": "scheduled_job_meeting-transcripts-extract-backlog",
+      "severity": "P1",
+      "status": "risk",
+      "title": "Meeting Transcript Extraction Backlog is risk",
+      "detail": "Meeting Transcript Extraction Backlog latest run is failed.",
+      "nextAction": "SRC-MEETINGS-001:meeting:ops stand up 2026 05 29 08 44 edt:meeting_transcript: extraction failed -> OpenAI router fallback returned no output text.",
+      "jobKey": "meeting-transcripts-extract-backlog",
+      "rollupLevel": "risk",
+      "classification": {
+        "status": "classified",
+        "type": "approval_bound_backfill_lane",
+        "owner": "Steve",
+        "reason": "Meeting transcript backlog extraction is governed backfill work; broad private/auth extraction stays blocked until the backfill contract proves cursor, skip, retry, and approval posture.",
+        "threshold": "Blocks sprint only if the job is rerun outside EXTRACT-BACKFILL-001 posture or remains failed after an approved safe rerun.",
+        "nextAction": "Route historical cursor/backfill behavior through EXTRACT-BACKFILL-001 before any broad live extraction.",
+        "repairCardId": "EXTRACT-BACKFILL-001",
+        "relatedRepairCardIds": [],
+        "blocksCurrentSprint": true
+      }
+    },
+    {
+      "id": "scheduled_job_verification-runs",
+      "severity": "P1",
+      "status": "risk",
+      "title": "Verification Runs is risk",
+      "detail": "Verification Runs latest run is failed.",
+      "nextAction": "Exited with code 1",
+      "jobKey": "verification-runs",
+      "rollupLevel": "risk"
+    },
+    {
+      "id": "connector_degraded",
+      "severity": "P1",
+      "status": "review",
+      "title": "One or more connectors are degraded",
+      "detail": "ClickUp, Follow Up Boss, Google Workspace",
+      "nextAction": "Use source-health details before changing hub behavior.",
+      "source": "foundation_operating_reliability",
+      "autoFix": false,
+      "autoBacklogMutation": false,
+      "rollupLevel": "watch",
+      "classification": {
+        "status": "classified",
+        "type": "watch_threshold",
+        "owner": "Foundation Process",
+        "reason": "Connector monitor is safe/read-only and now succeeds; the remaining Google Workspace degraded posture is provider/credential posture, not a failed build-lane or unsafe rerun target.",
+        "threshold": "Blocks the sprint if any connector is down, blocked without owner, or required for the active card and still degraded after a safe preflight.",
+        "nextAction": "Keep Google Workspace degraded visible; promote to a connector credential/source card only if it blocks the active extraction lane.",
+        "repairCardId": "CONNECTOR-UPTIME-MONITOR-001",
+        "relatedRepairCardIds": [],
+        "blocksCurrentSprint": false
+      }
+    },
+    {
+      "id": "runtime_jobs_failed",
+      "severity": "P1",
+      "status": "review",
+      "title": "Foundation jobs have recent failures",
+      "detail": "verification-runs, foundation-lessons-learned-loop, meeting-transcripts-extract-backlog, admin-deal-backlog-review",
+      "nextAction": "Review latest run error before treating the system as green.",
+      "source": "foundation_operating_reliability",
+      "autoFix": false,
+      "autoBacklogMutation": false,
+      "rollupLevel": "watch",
+      "classification": {
+        "status": "classified",
+        "type": "job_ledger_routed",
+        "owner": "Foundation Process",
+        "reason": "The remaining recent job failures are approval-bound extraction/backfill rows; connector uptime has a later successful safe run and repeated build-lane reds are clear.",
+        "threshold": "Becomes sprint-blocking when an unclassified repeated job failure appears, or when an approved safe rerun fails again without a live repair card.",
+        "nextAction": "Keep the failed-run ledger visible while EXTRACT-CURRENT-001 and EXTRACT-BACKFILL-001 own the governed repair proof.",
+        "repairCardId": "EXTRACT-CURRENT-001",
+        "relatedRepairCardIds": [
+          "EXTRACT-CURRENT-001",
+          "EXTRACT-BACKFILL-001"
+        ],
+        "blocksCurrentSprint": true
+      }
+    },
+    {
+      "id": "build_lane_failure_d6f2c7283f2c2d06815baf84",
+      "severity": "P1",
+      "status": "watch",
+      "title": "unclassified_build_lane_failure repeated in the build lane",
+      "detail": "3 repeats in 24h, 4 in 7d. Latest: FOUNDATION-TUNEUP-2026-05-29:done.",
+      "nextAction": "Watch unclassified_build_lane_failure; one more repeat should become repair work.",
+      "fingerprint": "d6f2c7283f2c2d06815baf84",
+      "commands": [
+        "process:action-route-promotion-workflow-check"
+      ],
+      "cardIds": [
+        "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
+      ],
+      "rollupLevel": "watch"
+    }
+  ]
+}
