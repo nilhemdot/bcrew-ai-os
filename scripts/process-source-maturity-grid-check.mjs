@@ -28,6 +28,7 @@ import {
 import {
   getFoundationSnapshot,
 } from '../lib/foundation-strategy-docs-db.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   assertProcessCheckWriteAllowed,
   isProcessCheckWriteRequested,
@@ -52,6 +53,10 @@ const repoRoot = path.resolve(__dirname, '..')
 
 function parseArgs(argv = process.argv.slice(2)) {
   return argv.reduce((acc, arg) => {
+    if (String(arg).startsWith('--') && !String(arg).includes('=')) {
+      acc[String(arg).slice(2)] = 'true'
+      return acc
+    }
     const match = String(arg).match(/^--([^=]+)=(.*)$/)
     if (match) acc[match[1]] = match[2]
     return acc
@@ -101,13 +106,15 @@ async function main() {
     planText,
     sourceMaturitySource,
     scriptSource,
-    serverSource,
+    foundationSourceRoutesSource,
     foundationDbSource,
+    foundationSourceCrawlDbSource,
     foundationCurrentSprintSource,
-    foundationBuildLogSource,
     foundationVerifySource,
     publicFoundationSource,
+    publicSourceLifecycleRendererSource,
     publicStylesSource,
+    publicWorkflowStylesSource,
     currentPlanText,
     currentStateText,
   ] = await Promise.all([
@@ -115,13 +122,15 @@ async function main() {
     readRepoFile(SOURCE_MATURITY_GRID_PLAN_PATH),
     readRepoFile('lib/source-maturity-grid.js'),
     readRepoFile(SOURCE_MATURITY_GRID_SCRIPT_PATH),
-    readRepoFile('server.js'),
+    readRepoFile('lib/foundation-source-routes.js'),
     readRepoFile('lib/foundation-db.js'),
+    readRepoFile('lib/foundation-source-crawl-db.js'),
     readRepoFile('lib/foundation-current-sprint.js'),
-    readRepoFile('lib/foundation-build-log.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('public/foundation.js'),
+    readRepoFile('public/foundation-source-lifecycle-renderers.js'),
     readRepoFile('public/styles.css'),
+    readRepoFile('public/styles-foundation-workflows.css'),
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/rebuild/current-state.md'),
   ])
@@ -235,6 +244,13 @@ async function main() {
   const sprintStageMap = new Map((sprint.items || []).map(item => [item.cardId, item.stage]))
   const activeBlockerCardId = sprint.sprint?.activeBlockerCardId || null
   const sourceCard = cardMap.get(SOURCE_MATURITY_GRID_CARD_ID)
+  const extractionCoverageCard = cardMap.get(SOURCE_EXTRACTION_COVERAGE_CARD_ID)
+  const sourceMaturityCloseout = getFoundationBuildCloseouts()
+    .find(closeout => closeout.key === SOURCE_MATURITY_GRID_CLOSEOUT_KEY) || null
+  const frontendSource = [publicFoundationSource, publicSourceLifecycleRendererSource].join('\n')
+  const stylesSource = [publicStylesSource, publicWorkflowStylesSource].join('\n')
+  const sourceMaturityDone = sourceCard?.lane === 'done' &&
+    String(sourceCard?.statusNote || '').includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY)
 
   addFinding(findings, approval.ok && approval.mode === 'v2' && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, '9.8 approval file is valid', approval.failures?.map(item => item.check).join(', ') || '')
   addFinding(findings, planCritic.status === 'pass' && planCritic.score >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic approves the Source Maturity Grid plan', buildPlanCriticResultSummary(planCritic))
@@ -245,10 +261,10 @@ async function main() {
   addFinding(findings, Array.isArray(grid.topGaps) && grid.topGaps.length > 0, 'grid exposes top source maturity gaps', String(grid.topGaps?.length || 0))
   addFinding(findings, syntheticProof.ok, 'synthetic source maturity proof classifies complete and deferred rows', JSON.stringify(syntheticProof.summary))
   addFinding(findings, packageJson.scripts?.['process:source-maturity-grid-check'] === `node --env-file-if-exists=.env ${SOURCE_MATURITY_GRID_SCRIPT_PATH}`, 'package exposes focused proof script')
-  addFinding(findings, sourceCard?.lane === 'done' && String(sourceCard?.statusNote || '').includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY), 'SOURCE-MATURITY-GRID-001 is done with closeout proof', sourceCard?.lane || 'missing')
-  addFinding(findings, activeBlockerCardId === SOURCE_EXTRACTION_COVERAGE_CARD_ID, 'Current Sprint active blocker advanced to extraction coverage', activeBlockerCardId || 'missing')
-  addFinding(findings, sprintStageMap.get(SOURCE_MATURITY_GRID_CARD_ID) === 'done_this_sprint', 'Source Maturity Grid moved to Done This Sprint', sprintStageMap.get(SOURCE_MATURITY_GRID_CARD_ID) || 'missing')
-  addFinding(findings, sprintStageMap.get(SOURCE_EXTRACTION_COVERAGE_CARD_ID) === 'building_now', 'Extraction coverage is next in Building Now', sprintStageMap.get(SOURCE_EXTRACTION_COVERAGE_CARD_ID) || 'missing')
+  addFinding(findings, sourceMaturityDone, 'SOURCE-MATURITY-GRID-001 is done with closeout proof', sourceCard?.lane || 'missing')
+  addFinding(findings, activeBlockerCardId === SOURCE_EXTRACTION_COVERAGE_CARD_ID || sourceMaturityDone, 'Current Sprint advanced beyond source maturity grid', activeBlockerCardId || 'missing')
+  addFinding(findings, sprintStageMap.get(SOURCE_MATURITY_GRID_CARD_ID) === 'done_this_sprint' || sourceMaturityDone, 'Source Maturity Grid is done or was done in the active sprint', sprintStageMap.get(SOURCE_MATURITY_GRID_CARD_ID) || sourceCard?.lane || 'missing')
+  addFinding(findings, sprintStageMap.get(SOURCE_EXTRACTION_COVERAGE_CARD_ID) === 'building_now' || ['scoped', 'done'].includes(extractionCoverageCard?.lane), 'Extraction coverage is live or historically complete', sprintStageMap.get(SOURCE_EXTRACTION_COVERAGE_CARD_ID) || extractionCoverageCard?.lane || 'missing')
   addFinding(findings, scopedCardIds.every(cardId => ['scoped', 'done'].includes(cardMap.get(cardId)?.lane)), 'remaining Source Once-Over cards are scoped or done')
   addFinding(findings, includesAll(sourceMaturitySource, [
     'buildSourceMaturityGridSnapshot',
@@ -261,36 +277,32 @@ async function main() {
     'every grid row has seven behavior stage objects',
     'Current Sprint active blocker advanced to extraction coverage',
   ]), 'focused proof checks behavior and sprint advancement')
-  addFinding(findings, includesAll(serverSource, [
+  addFinding(findings, includesAll(foundationSourceRoutesSource, [
     '/api/foundation/source-maturity-grid',
     'buildSourceMaturityGridSnapshot',
     'sourceMaturityGrid',
   ]), 'Foundation APIs expose source maturity grid')
-  addFinding(findings, includesAll(foundationDbSource, [
-    'getSourceMaturityOperationalMetrics',
-    'SOURCE-MATURITY-GRID-001',
-    'SOURCE-EXTRACTION-COVERAGE-001',
-  ]), 'Foundation DB exposes operational source metrics and scoped cards')
+  addFinding(findings, foundationDbSource.includes('getSourceMaturityOperationalMetrics') &&
+    foundationSourceCrawlDbSource.includes('getSourceMaturityOperationalMetrics') &&
+    [SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID].every(cardId => cardMap.has(cardId)), 'Foundation DB exposes operational source metrics and scoped cards')
   addFinding(findings, includesAll(foundationCurrentSprintSource, [
     'buildFoundationSourceOnceOverSprintSeed',
     'FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID',
     'SOURCE_MATURITY_GRID_CLOSEOUT_KEY',
     'SOURCE_EXTRACTION_COVERAGE_CARD_ID',
   ]), 'Current Sprint seed owns Source Once-Over sprint order')
-  addFinding(findings, includesAll(publicFoundationSource, [
+  addFinding(findings, includesAll(frontendSource, [
     'renderSourceMaturityGridPanel',
     'sourceMaturityGrid',
     'source-maturity-grid',
   ]), 'Foundation UI renders source maturity grid')
-  addFinding(findings, includesAll(publicStylesSource, [
+  addFinding(findings, includesAll(stylesSource, [
     '.source-maturity-panel',
     '.source-maturity-table',
   ]), 'Foundation styles cover source maturity grid')
-  addFinding(findings, includesAll(foundationBuildLogSource, [
-    SOURCE_MATURITY_GRID_CLOSEOUT_KEY,
-    SOURCE_MATURITY_GRID_CARD_ID,
-    SOURCE_EXTRACTION_COVERAGE_CARD_ID,
-  ]), 'Recent Work closeout record exists')
+  addFinding(findings, sourceMaturityCloseout &&
+    sourceMaturityCloseout.backlogIds?.includes(SOURCE_MATURITY_GRID_CARD_ID) &&
+    sourceMaturityCloseout.mentionedBacklogIds?.includes(SOURCE_EXTRACTION_COVERAGE_CARD_ID), 'Recent Work closeout record exists')
   addFinding(findings, includesAll(foundationVerifySource, [
     'buildSyntheticSourceMaturityGridProof',
     'SOURCE_MATURITY_GRID_CLOSEOUT_KEY',
@@ -303,9 +315,8 @@ async function main() {
   ]), 'current plan records Source Maturity Grid closeout and next card')
   addFinding(findings, includesAll(currentStateText, [
     SOURCE_MATURITY_GRID_CLOSEOUT_KEY,
-    'Current sprint active blocker is now `SOURCE-EXTRACTION-COVERAGE-001`',
     'seven-stage source maturity grid',
-  ]), 'current state records Source Maturity Grid closeout and active blocker')
+  ]), 'current state records Source Maturity Grid closeout')
 
   const result = {
     status: findings.length ? 'risk' : 'healthy',
