@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-SHEETS-ATOM-FLOW-REPAIR-BLUEPRINT-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T03:29:01.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-sheets-atom-flow-repair-blueprint-001-plan.md",
+  "approvedPlanSha256": "da94dd0cfb2feb28bca6ab4b18db005c8c067345e1c7449dafb8f2c0b0fe031f",
+  "approvedRepoHead": "d1427f732cd37f7d2679825ef91ad5a1cb33e9ce",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub Sheets Atom Flow Repair Blueprint that turns atom-flow preflight candidates into exact source-contract repair rows without reading Sheets or writing atoms.",
+  "constraints": [
+    "Do not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, action routes, atoms, facts, synthesis rows, Harlan messages, model calls, extraction runs, connector probes, source syncs, sheet reads, or external writes.",
+    "Do not approve, apply, reject, snooze, reroute, auto-clear, or mutate live action routes.",
+    "Do not auto-promote Director recommendations, repair proposals, source gaps, atom-flow preflight rows, or blueprint rows into backlog or Scoper.",
+    "Keep actual Google Sheets reads, atom/fact writes, synthesis refresh, route proposal/apply, source extraction, connector sync, and Scoper promotion as separate approval-bound cards.",
+    "Fail proof if any blueprint row is missing source-contract proof, marked auto-created, applied, promoted, or no longer proposal-only."
+  ],
+  "approvalDigest": "0eb45216ec8fb563b6d29d8fe8a20785c4ee4f12b3acedee8d2d3667854c0e7a"
+}

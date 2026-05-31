@@ -1,0 +1,212 @@
+.sheets-atom-flow-blueprint {
+  display: grid;
+  gap: 14px;
+}
+
+.sheets-blueprint-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sheets-blueprint-summary article,
+.sheets-blueprint-gate,
+.sheets-blueprint-row,
+.sheets-blueprint-boundary {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.sheets-blueprint-summary article {
+  padding: 12px;
+}
+
+.sheets-blueprint-summary span,
+.sheets-blueprint-boundary span,
+.sheets-blueprint-gate span,
+.sheets-blueprint-copy span {
+  display: block;
+  color: #5d6572;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.sheets-blueprint-summary strong {
+  display: block;
+  color: #111827;
+  font-size: 1.45rem;
+  line-height: 1.1;
+  margin-top: 5px;
+}
+
+.sheets-blueprint-boundary {
+  padding: 15px;
+  border-left: 4px solid #0084c9;
+}
+
+.sheets-blueprint-boundary h3,
+.sheets-blueprint-boundary p,
+.sheets-blueprint-gate p,
+.sheets-blueprint-copy p {
+  margin: 0;
+}
+
+.sheets-blueprint-boundary h3 {
+  margin-top: 4px;
+  font-size: 1.05rem;
+}
+
+.sheets-blueprint-boundary p,
+.sheets-blueprint-gate p,
+.sheets-blueprint-copy p,
+.sheets-blueprint-copy small {
+  color: #3f4652;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.sheets-blueprint-gates {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sheets-blueprint-gate {
+  padding: 12px;
+  min-height: 128px;
+}
+
+.sheets-blueprint-gate strong {
+  display: block;
+  color: #111827;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  margin: 5px 0 7px;
+}
+
+.sheets-blueprint-gate.approval_required {
+  background: #fff9ed;
+  border-color: rgba(194, 122, 0, 0.28);
+}
+
+.sheets-blueprint-gate.blocked {
+  background: #fff1f1;
+  border-color: rgba(190, 24, 24, 0.24);
+}
+
+.sheets-blueprint-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.sheets-blueprint-row {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 12px;
+  padding: 13px;
+}
+
+.sheets-blueprint-rank {
+  align-items: center;
+  background: #eef7fc;
+  border-radius: 8px;
+  color: #006b9f;
+  display: flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 46px;
+}
+
+.sheets-blueprint-copy {
+  min-width: 0;
+}
+
+.sheets-blueprint-copy strong {
+  color: #111827;
+  display: block;
+  font-size: 0.98rem;
+  line-height: 1.25;
+  margin: 4px 0 6px;
+  overflow-wrap: anywhere;
+}
+
+.sheets-blueprint-copy small {
+  display: block;
+  margin-top: 7px;
+}
+
+.sheets-blueprint-copy ul {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.sheets-blueprint-copy li {
+  background: #f7f8fa;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  min-height: 64px;
+  padding: 8px;
+}
+
+.sheets-blueprint-copy li span {
+  color: #7a4a00;
+  font-size: 0.64rem;
+}
+
+.sheets-blueprint-copy li strong {
+  font-size: 0.78rem;
+  margin: 3px 0 0;
+}
+
+.sheets-blueprint-empty {
+  border: 1px solid rgba(190, 24, 24, 0.2);
+  border-radius: 8px;
+  background: #fff1f1;
+  padding: 16px;
+}
+
+.sheets-blueprint-empty span {
+  color: #991b1b;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.sheets-blueprint-empty h3,
+.sheets-blueprint-empty p {
+  margin: 5px 0 0;
+}
+
+@media (max-width: 1100px) {
+  .sheets-blueprint-summary,
+  .sheets-blueprint-gates,
+  .sheets-blueprint-copy ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .sheets-blueprint-summary,
+  .sheets-blueprint-gates,
+  .sheets-blueprint-copy ul {
+    grid-template-columns: 1fr;
+  }
+
+  .sheets-blueprint-row {
+    grid-template-columns: 1fr;
+  }
+
+  .sheets-blueprint-rank {
+    justify-content: flex-start;
+    min-height: 34px;
+    padding-left: 12px;
+  }
+}

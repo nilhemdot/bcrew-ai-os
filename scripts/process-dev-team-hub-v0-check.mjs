@@ -111,6 +111,7 @@ const DEV_SCOPER_RUNTIME_JS_PATH = 'public/dev-scoper-runtime-readback.js'
 const DEV_BUSINESS_SOURCE_JS_PATH = 'public/dev-business-source-pipeline-triage.js'
 const DEV_NEXT_REPAIR_JS_PATH = 'public/dev-next-repair-queue.js'
 const DEV_BUSINESS_ATOM_FLOW_PREFLIGHT_JS_PATH = 'public/dev-business-atom-flow-preflight.js'
+const DEV_SHEETS_ATOM_FLOW_REPAIR_BLUEPRINT_JS_PATH = 'public/dev-sheets-atom-flow-repair-blueprint.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
@@ -125,6 +126,7 @@ const DEV_CSS_PATHS = [
   'public/dev-business-source-pipeline-triage.css',
   'public/dev-next-repair-queue.css',
   'public/dev-business-atom-flow-preflight.css',
+  'public/dev-sheets-atom-flow-repair-blueprint.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -447,6 +449,7 @@ async function main() {
     businessSourceJsSource,
     nextRepairJsSource,
     businessAtomFlowPreflightJsSource,
+    sheetsAtomFlowRepairBlueprintJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -472,6 +475,7 @@ async function main() {
     readRepoFile(DEV_BUSINESS_SOURCE_JS_PATH),
     readRepoFile(DEV_NEXT_REPAIR_JS_PATH),
     readRepoFile(DEV_BUSINESS_ATOM_FLOW_PREFLIGHT_JS_PATH),
+    readRepoFile(DEV_SHEETS_ATOM_FLOW_REPAIR_BLUEPRINT_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -487,7 +491,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -712,6 +716,56 @@ async function main() {
       cssSource.includes('.atom-flow-candidate'),
     'Dev Hub exposes Business Atom Flow Preflight without creating cards, syncing sources, writing atoms/facts, running synthesis, or mutating routes',
     `target=${payload?.businessAtomFlowPreflight?.summary?.targetFamilyLabel || 'none'}; candidates=${payload?.businessAtomFlowPreflight?.summary?.candidateSourceCount || 0}; ready=${payload?.businessAtomFlowPreflight?.summary?.readyForRepairCardCount || 0}; atomWrites=${payload?.businessAtomFlowPreflight?.summary?.atomRowsWrittenByReadback || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubSheetsAtomFlowRepairBlueprint') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'sheetsAtomFlowRepairBlueprint') &&
+      payload?.sheetsAtomFlowRepairBlueprint?.contractVersion === 'dev-hub-sheets-atom-flow-repair-blueprint.v1' &&
+      payload?.sheetsAtomFlowRepairBlueprint?.source?.targetFamilyId === 'sheets' &&
+      payload?.sheetsAtomFlowRepairBlueprint?.source?.noSecondTruthLayer === true &&
+      list(payload?.sheetsAtomFlowRepairBlueprint?.source?.reusedTruthLayers).includes('businessAtomFlowPreflight') &&
+      list(payload?.sheetsAtomFlowRepairBlueprint?.source?.reusedTruthLayers).includes('sourceContracts') &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.proposalOnly === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noCardCreate === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noBacklogMutation === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noScoperMutation === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noRouteMutation === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noActionRouteProposal === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noAtomWrites === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noFactWrites === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noSynthesisWrite === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noSheetRead === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noSourceSync === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noLiveExtraction === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noModelCalls === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noExternalWrites === true &&
+      payload?.sheetsAtomFlowRepairBlueprint?.boundaries?.noAutoBuild === true &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.suggestedRepairCardsCreatedByReadback || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.scoperRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.routeMutationsByReadback || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.actionRoutesProposedByReadback || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.atomRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.factRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.synthesisRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.sheetReadsStarted || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.sourceSyncsStarted || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.sheetsAtomFlowRepairBlueprint?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.sheetsAtomFlowRepairBlueprint?.blueprintRows).length <= 6 &&
+      list(payload?.sheetsAtomFlowRepairBlueprint?.blueprintGates).length <= 6 &&
+      list(payload?.sheetsAtomFlowRepairBlueprint?.blueprintRows).every(item => item.status === 'proposal_only' && item.autoCreated === false && item.autoPromoted === false && item.appliedNow === false && item.sourceContractPresent === true) &&
+      htmlSource.includes('id="sheets-atom-flow-blueprint"') &&
+      htmlSource.includes('/dev-sheets-atom-flow-repair-blueprint.css') &&
+      htmlSource.includes('/dev-sheets-atom-flow-repair-blueprint.js') &&
+      sheetsAtomFlowRepairBlueprintJsSource.includes('sheetsAtomFlowRepairBlueprint') &&
+      sheetsAtomFlowRepairBlueprintJsSource.includes('Sheets atom-flow repair blueprint') &&
+      cssSource.includes('.sheets-atom-flow-blueprint') &&
+      cssSource.includes('.sheets-blueprint-summary') &&
+      cssSource.includes('.sheets-blueprint-row'),
+    'Dev Hub exposes Sheets Atom Flow Repair Blueprint without reading Sheets, creating cards, writing atoms/facts, running synthesis, or mutating routes',
+    `sources=${payload?.sheetsAtomFlowRepairBlueprint?.summary?.blueprintSourceCount || 0}; contracts=${payload?.sheetsAtomFlowRepairBlueprint?.summary?.sourceContractMatchedCount || 0}; ready=${payload?.sheetsAtomFlowRepairBlueprint?.summary?.readyBlueprintCount || 0}; sheetReads=${payload?.sheetsAtomFlowRepairBlueprint?.summary?.sheetReadsStarted || 0}; atomWrites=${payload?.sheetsAtomFlowRepairBlueprint?.summary?.atomRowsWrittenByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -1876,6 +1930,18 @@ async function main() {
           title: item.title,
           businessStatus: item.businessStatus,
           readyForRepairCard: item.readyForRepairCard,
+          status: item.status,
+        })),
+      } : null,
+      sheetsAtomFlowRepairBlueprint: payload.sheetsAtomFlowRepairBlueprint ? {
+        status: payload.sheetsAtomFlowRepairBlueprint.status,
+        summary: payload.sheetsAtomFlowRepairBlueprint.summary,
+        blueprintRows: list(payload.sheetsAtomFlowRepairBlueprint.blueprintRows).map(item => ({
+          rank: item.rank,
+          sourceId: item.sourceId,
+          title: item.title,
+          sourceContractPresent: item.sourceContractPresent,
+          readyForBlueprint: item.readyForBlueprint,
           status: item.status,
         })),
       } : null,
