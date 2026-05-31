@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-AUDITOR-FLOW-READBACK-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T02:42:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-auditor-flow-readback-001-plan.md",
+  "approvedPlanSha256": "014832cff0d12fbe8dd4e446c83587114346ab2a2469d5f1ad89813737564d04",
+  "approvedRepoHead": "be436a1a136149bbdc24cd37251d729b09a79b8e",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and expose whether auditors are flowing or sitting without unsafe automation.",
+  "scopeSummary": "Expose a read-only Dev Hub Auditor Flow readback across scheduled/manual auditors, report-only/read-only output, review gates, route review pressure, and hygiene pressure.",
+  "constraints": [
+    "Do not run live audits, health jobs, extraction, source sync, provider/model calls, login, Browserbase, paid/private source work, or external writes.",
+    "Do not write report artifacts, atoms, chunks, facts, routes, backlog cards, Scoper cards, Portfolio records, Current Sprint overlays, or approval records from this readback.",
+    "Do not approve, apply, reject, snooze, reroute, or promote live action routes.",
+    "Do not auto-promote audit findings or Director recommendations into backlog, Scoper, Portfolio, or Current Sprint.",
+    "Do not send Telegram, email, Slack, Agent Feedback, public messages, or Harlan notifications outside the governed ship gate.",
+    "Fail proof if audit findings are represented as automatic backlog, route, Scoper, or external movement."
+  ],
+  "approvalDigest": "17072f1e7ff6de46197352fe9eba02c1337232a0f89fc032a851602e4162c82b"
+}

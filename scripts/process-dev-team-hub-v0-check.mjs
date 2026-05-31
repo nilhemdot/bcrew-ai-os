@@ -103,12 +103,14 @@ const DEV_ACTION_ROUTE_READBACK_JS_PATH = 'public/dev-action-route-readback.js'
 const DEV_FOUNDATION_DONE_BAR_JS_PATH = 'public/dev-foundation-done-bar.js'
 const DEV_SCOPER_EVIDENCE_TRACE_JS_PATH = 'public/dev-scoper-evidence-trace.js'
 const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
+const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
   'public/dev-source-approval.css',
   'public/dev-scoper-evidence-trace.css',
   'public/dev-intelligence-hygiene.css',
+  'public/dev-auditor-flow.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -221,6 +223,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="action-route-readback"',
 	    'id="foundation-done-bar"',
 	    'id="intelligence-hygiene"',
+	    'id="auditor-flow"',
   ].every(marker => html.includes(marker))
 }
 
@@ -419,6 +422,7 @@ async function main() {
     foundationDoneBarJsSource,
     scoperEvidenceTraceJsSource,
     intelligenceHygieneJsSource,
+    auditorFlowJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -436,6 +440,7 @@ async function main() {
     readRepoFile(DEV_FOUNDATION_DONE_BAR_JS_PATH),
     readRepoFile(DEV_SCOPER_EVIDENCE_TRACE_JS_PATH),
     readRepoFile(DEV_INTELLIGENCE_HYGIENE_JS_PATH),
+    readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -451,7 +456,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -597,6 +602,38 @@ async function main() {
       cssSource.includes('.intelligence-hygiene'),
     'Dev Hub exposes Intelligence Hygiene cleanup pressure without false freshness or mutation',
     `cleanup=${payload?.intelligenceHygieneReadback?.summary?.totalCleanupPressure || 0}; atomized=${payload?.intelligenceHygieneReadback?.summary?.atomizedGapSources || 0}; routes=${payload?.intelligenceHygieneReadback?.summary?.routeReviewItems || 0}; scoper=${payload?.intelligenceHygieneReadback?.summary?.scoperParkedCandidates || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubAuditorFlowReadback') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'auditorFlowReadback') &&
+      payload?.auditorFlowReadback?.contractVersion === 'dev-hub-auditor-flow-readback.v1' &&
+      payload?.auditorFlowReadback?.source?.registry === 'foundationJobs.jobs' &&
+      payload?.auditorFlowReadback?.source?.noSecondTruthLayer === true &&
+      payload?.auditorFlowReadback?.boundaries?.noAuditRun === true &&
+      payload?.auditorFlowReadback?.boundaries?.noReportWrite === true &&
+      payload?.auditorFlowReadback?.boundaries?.noBacklogMutation === true &&
+      payload?.auditorFlowReadback?.boundaries?.noRouteMutation === true &&
+      payload?.auditorFlowReadback?.boundaries?.noScoperMutation === true &&
+      payload?.auditorFlowReadback?.boundaries?.noExternalWrites === true &&
+      payload?.auditorFlowReadback?.boundaries?.noAutoFindingPromotion === true &&
+      payload?.auditorFlowReadback?.summary?.autoFindingPromotionCount === 0 &&
+      payload?.auditorFlowReadback?.summary?.externalWriteCount === 0 &&
+      payload?.auditorFlowReadback?.summary?.backlogMutationCount === 0 &&
+      payload?.auditorFlowReadback?.summary?.routeMutationCount === 0 &&
+      list(payload?.auditorFlowReadback?.auditorJobs).length <= 8 &&
+      list(payload?.auditorFlowReadback?.downstreamJobs).length <= 4 &&
+      list(payload?.auditorFlowReadback?.flowStages).length <= 4 &&
+      list(payload?.auditorFlowReadback?.reviewBuckets).length <= 5 &&
+      list(payload?.auditorFlowReadback?.auditorJobs).every(job => job.findingsMoveAutomatically === false && job.writesBacklogNow === false && job.writesRoutesNow === false && job.writesScoperNow === false && job.sendsExternalNow === false) &&
+      htmlSource.includes('id="auditor-flow"') &&
+      htmlSource.includes('/dev-auditor-flow.css') &&
+      htmlSource.includes('/dev-auditor-flow.js') &&
+      auditorFlowJsSource.includes('auditorFlowReadback') &&
+      auditorFlowJsSource.includes('Report/check output only') &&
+      cssSource.includes('.auditor-flow'),
+    'Dev Hub exposes Auditor Flow run/report/review gates without running audits or promoting findings',
+    `auditors=${payload?.auditorFlowReadback?.summary?.auditorJobCount || 0}; scheduled=${payload?.auditorFlowReadback?.summary?.scheduledAuditorJobs || 0}; reportOnly=${payload?.auditorFlowReadback?.summary?.reportOnlyJobs || 0}; autoPromote=${payload?.auditorFlowReadback?.summary?.autoFindingPromotionCount || 0}`,
   )
   addCheck(
     checks,

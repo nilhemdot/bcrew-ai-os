@@ -1164,5 +1164,63 @@
       "The panel ranks cleanup pressure from existing read models; it is not a Steve approval or a Scoper promotion.",
       "Future repairs must choose one bucket and dogfood the exact failure mode with fresh source-backed proof."
     ]
+  },
+  {
+    "key": "dev-hub-auditor-flow-readback-v1",
+    "backlogIds": [
+      "DEV-HUB-AUDITOR-FLOW-READBACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub auditor flow readback",
+        "DEV-HUB-AUDITOR-FLOW-READBACK-001",
+        "dev-hub-auditor-flow-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001",
+      "AUDIT-FINDING-TO-BACKLOG-ROUTER-001",
+      "SYSTEM-HEALTH-NIGHTLY-AUDIT-001",
+      "NIGHTLY-AUDIT-FLEET-001",
+      "ACTION-ROUTE-REVIEW-INBOX-001"
+    ],
+    "systemArea": "Dev Hub auditor flow visibility",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Auditor Flow readback to Dev Hub that shows scheduled/manual auditor jobs, report-only/read-only output posture, downstream synthesis context, review buckets, and stuck signals.",
+    "whatItDoes": "The Dev Hub now answers whether auditors are running and where their output goes: reports/checks flow to review, while backlog, action routes, Scoper, Portfolio, Harlan, and external systems require separate approved actions.",
+    "whyItMatters": "Steve asked whether audit output moves down the intelligence pipeline or just sits still. This panel makes the boundary explicit without running audits, writing reports, creating backlog cards, applying routes, promoting Scoper candidates, or sending external messages.",
+    "whereItLives": [
+      "lib/dev-hub-auditor-flow-readback.js compact auditor flow projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js auditorFlowReadback payload wiring from existing read models",
+      "public/dev.html Auditor Flow panel",
+      "public/dev-auditor-flow.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-auditor-flow.css standalone Auditor Flow panel styles",
+      "scripts/process-dev-hub-auditor-flow-readback-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-auditor-flow-readback-001-plan.md",
+      "docs/process/approvals/DEV-HUB-AUDITOR-FLOW-READBACK-001.json",
+      "package.json process:dev-hub-auditor-flow-readback-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-AUDITOR-FLOW-READBACK-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-auditor-flow-readback.js scripts/process-dev-hub-auditor-flow-readback-check.mjs public/dev-auditor-flow.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-auditor-flow-readback-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-AUDITOR-FLOW-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-AUDITOR-FLOW-READBACK-001.json --closeoutKey=dev-hub-auditor-flow-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-AUDITOR-FLOW-READBACK-001 --closeoutKey=dev-hub-auditor-flow-readback-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-AUDITOR-FLOW-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-AUDITOR-FLOW-READBACK-001.json --closeoutKey=dev-hub-auditor-flow-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: audit findings must stay report-only/read-only until a separate approved action, and any automatic finding promotion fails validation. Live readback validates current auditor jobs with bounded rows and no audit run, report write, atom, fact, chunk, route, destination, backlog, Scoper, Portfolio, approval, Harlan, extraction, model, or external write path.",
+    "reviewNext": "Use Auditor Flow plus Intelligence Hygiene to choose one explicit repair/promotion mechanism only after Steve approves the mutation boundary. Do not run audits, write reports, approve/apply routes, or promote findings from this readback.",
+    "knownLimits": [
+      "This is a read-only visibility slice; it does not run audit jobs, write audit reports, repair findings, create backlog cards, send Harlan, call a model, or write externally.",
+      "Report-only output being visible is not the same as automatic pipeline movement; a separate approved promotion card must own that path.",
+      "Future repair work must dogfood the exact report-to-work promotion failure mode before any live mutation exists."
+    ]
   }
 ]

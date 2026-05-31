@@ -1,0 +1,203 @@
+.auditor-flow-head-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.auditor-flow-head-stats span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: var(--t-xs);
+  font-weight: 800;
+  padding: 6px 10px;
+  text-transform: uppercase;
+}
+
+.auditor-flow {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.auditor-flow-summary,
+.auditor-flow-stages,
+.auditor-flow-buckets,
+.auditor-flow-grid {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.auditor-flow-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.auditor-flow-stages,
+.auditor-flow-buckets {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.auditor-flow-grid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+}
+
+.auditor-flow-summary article,
+.auditor-flow-boundary,
+.auditor-flow-stage,
+.auditor-flow-bucket,
+.auditor-flow-column,
+.auditor-flow-empty {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.auditor-flow-summary article {
+  min-height: 88px;
+  padding: var(--s-4);
+}
+
+.auditor-flow-summary span,
+.auditor-flow-boundary span,
+.auditor-flow-stage span,
+.auditor-flow-bucket span,
+.auditor-flow-column-head span,
+.auditor-flow-empty span,
+.auditor-flow-job span,
+.auditor-flow-signal span {
+  color: var(--muted);
+  display: block;
+  font-size: var(--t-xs);
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.auditor-flow-summary strong {
+  color: var(--ink);
+  display: block;
+  font-size: var(--t-3xl);
+  line-height: 1;
+  margin-top: 8px;
+}
+
+.auditor-flow-boundary {
+  border-left: 4px solid #0084C9;
+  padding: var(--s-4);
+}
+
+.auditor-flow-boundary p,
+.auditor-flow-stage p,
+.auditor-flow-bucket p,
+.auditor-flow-job p,
+.auditor-flow-job small,
+.auditor-flow-signal p,
+.auditor-flow-empty p {
+  color: var(--muted);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
+
+.auditor-flow-job small {
+  display: block;
+}
+
+.auditor-flow-stage,
+.auditor-flow-bucket {
+  min-height: 128px;
+  padding: var(--s-4);
+}
+
+.auditor-flow-bucket {
+  align-items: start;
+  display: flex;
+  gap: var(--s-3);
+  justify-content: space-between;
+}
+
+.auditor-flow-bucket strong {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  display: flex;
+  font-family: var(--mono);
+  font-size: var(--t-sm);
+  height: 34px;
+  justify-content: center;
+  min-width: 42px;
+}
+
+.auditor-flow-column {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+}
+
+.auditor-flow-column-head {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  padding: 12px var(--s-4);
+}
+
+.auditor-flow-column-head small {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+
+.auditor-flow-list {
+  display: grid;
+}
+
+.auditor-flow-job,
+.auditor-flow-signal {
+  border-bottom: 1px solid var(--line);
+  min-height: 118px;
+  padding: var(--s-4);
+}
+
+.auditor-flow-job:last-child,
+.auditor-flow-signal:last-child {
+  border-bottom: 0;
+}
+
+.auditor-flow-stage strong,
+.auditor-flow-job strong,
+.auditor-flow-signal strong {
+  color: var(--ink);
+  display: block;
+  font-size: var(--t-sm);
+  line-height: 1.35;
+  margin-top: 6px;
+}
+
+.auditor-flow-empty {
+  padding: var(--s-5);
+}
+
+.auditor-flow-empty.blocked {
+  border-left: 4px solid #B3261E;
+}
+
+@media (max-width: 1180px) {
+  .auditor-flow-summary,
+  .auditor-flow-stages,
+  .auditor-flow-buckets,
+  .auditor-flow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 780px) {
+  .auditor-flow-summary,
+  .auditor-flow-stages,
+  .auditor-flow-buckets,
+  .auditor-flow-grid {
+    grid-template-columns: 1fr;
+  }
+}
