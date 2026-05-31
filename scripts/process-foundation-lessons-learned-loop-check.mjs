@@ -66,6 +66,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     json: argv.includes('--json') || argv.includes('--json=true'),
     apply: isProcessCheckWriteRequested({ argv, allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply] }),
     closeCard: isProcessCheckWriteRequested({ argv, allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.closeCard] }),
+    scheduledReport: argv.includes('--scheduled-report') || argv.includes('--scheduled-report=true'),
   }
 }
 
@@ -139,9 +140,13 @@ function buildSystemHealthGate({ args, processResult }) {
     return { ok: true, detail: 'healthy' }
   }
 
-  const inSelfScheduledJob = Boolean(process.env.FOUNDATION_JOB_ACTOR) && !args.apply && !args.closeCard
+  const inSelfScheduledJob = (Boolean(process.env.FOUNDATION_JOB_ACTOR) || args.scheduledReport) && !args.apply && !args.closeCard
   if (!inSelfScheduledJob) {
     return { ok: false, detail: `exit=${processResult.exitStatus} status=${status}` }
+  }
+
+  if (args.scheduledReport && health.reportOnly === true) {
+    return { ok: true, detail: `scheduled lessons report captured system-health status=${status}` }
   }
 
   const allowedIds = new Set([

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T02:44:54.573Z",
+  "generatedAt": "2026-05-31T02:49:59.234Z",
   "status": "risk",
   "plainEnglish": "Foundation has red workflow/system-health findings that block green. Do not treat classified rows as fixed.",
   "summary": {
@@ -11,11 +11,11 @@
     "greenLockBlocksGreen": true,
     "greenLockApprovedExceptionCount": 0,
     "currentSprintHealthTruthLockStatus": "healthy",
-    "riskCount": 3,
+    "riskCount": 2,
     "watchCount": 3,
-    "rawRiskCount": 3,
+    "rawRiskCount": 2,
     "rawWatchCount": 4,
-    "visibleRiskCount": 3,
+    "visibleRiskCount": 2,
     "visibleWatchCount": 3,
     "hiddenRiskCount": 0,
     "hiddenWatchCount": 1,
@@ -24,18 +24,17 @@
     "blockingClassifiedRiskCount": 1,
     "blockingClassifiedWatchCount": 1,
     "classifiedFindingCount": 3,
-    "unclassifiedRiskCount": 2,
+    "unclassifiedRiskCount": 1,
     "unclassifiedWatchCount": 2,
     "blockingClassifiedFindingIds": [
       "scheduled_job_meeting-transcripts-extract-backlog",
       "runtime_jobs_failed"
     ],
     "unclassifiedFindingIds": [
-      "scheduled_job_foundation-lessons-learned-loop",
       "scheduled_job_admin-deal-backlog-review",
       "build_lane_failure_d6f2c7283f2c2d06815baf84"
     ],
-    "scheduledJobRiskCount": 3,
+    "scheduledJobRiskCount": 2,
     "scheduledJobWatchCount": 0,
     "auditFleetStatus": "healthy",
     "auditFleetLaneCount": 8,
@@ -64,15 +63,14 @@
     "status": "risk",
     "rawStatus": "risk",
     "blocksGreen": true,
-    "rawRiskCount": 3,
+    "rawRiskCount": 2,
     "rawWatchCount": 4,
-    "visibleNonGreenCount": 6,
+    "visibleNonGreenCount": 5,
     "hiddenRiskCount": 0,
     "hiddenWatchCount": 1,
     "hiddenNonGreenCount": 1,
     "approvedExceptionCount": 0,
     "missingExceptionFindingIds": [
-      "scheduled_job_foundation-lessons-learned-loop",
       "scheduled_job_admin-deal-backlog-review",
       "scheduled_job_meeting-transcripts-extract-backlog",
       "connector_degraded",
@@ -80,14 +78,6 @@
       "build_lane_failure_d6f2c7283f2c2d06815baf84"
     ],
     "exceptionChecks": [
-      {
-        "findingId": "scheduled_job_foundation-lessons-learned-loop",
-        "repairCardId": null,
-        "ok": false,
-        "missing": [
-          "approved exception"
-        ]
-      },
       {
         "findingId": "scheduled_job_admin-deal-backlog-review",
         "repairCardId": null,
@@ -141,22 +131,13 @@
     "status": "risk",
     "summary": {
       "jobCount": 45,
-      "riskCount": 3,
+      "riskCount": 2,
       "watchCount": 0,
-      "healthyCount": 29,
+      "healthyCount": 30,
       "manualCount": 13,
       "dueCount": 0
     },
     "topFindings": [
-      {
-        "id": "scheduled_job_foundation-lessons-learned-loop",
-        "severity": "P0",
-        "status": "risk",
-        "title": "Foundation Lessons Learned Loop is risk",
-        "detail": "Foundation Lessons Learned Loop latest run is failed.",
-        "nextAction": "Exited with code 1",
-        "jobKey": "foundation-lessons-learned-loop"
-      },
       {
         "id": "scheduled_job_admin-deal-backlog-review",
         "severity": "P1",
@@ -177,17 +158,6 @@
       }
     ],
     "rows": [
-      {
-        "key": "foundation-lessons-learned-loop",
-        "title": "Foundation Lessons Learned Loop",
-        "priority": "P0",
-        "status": "risk",
-        "latestRunStatus": "failed",
-        "latestRunAt": "2026-05-30T09:45:06.921Z",
-        "latestSuccessAt": null,
-        "plainEnglish": "Foundation Lessons Learned Loop latest run is failed.",
-        "nextAction": "Exited with code 1"
-      },
       {
         "key": "admin-deal-backlog-review",
         "title": "Admin Deal Backlog Inspection",
@@ -244,6 +214,17 @@
         "nextAction": "Run as a small daily quota mission. Add Missive attachment proof and Office/OCR/media attachment extractors as explicit follow-on lanes."
       },
       {
+        "key": "foundation-lessons-learned-loop",
+        "title": "Foundation Lessons Learned Loop",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-31T02:49:53.256Z",
+        "latestSuccessAt": "2026-05-31T02:49:53.256Z",
+        "plainEnglish": "Foundation Lessons Learned Loop has a fresh successful run and is not due.",
+        "nextAction": "If the loop reports risk, Foundation Builder owns the repair or routing before normal sprint progression continues."
+      },
+      {
         "key": "foundation-verify",
         "title": "Foundation Verifier",
         "priority": "P0",
@@ -271,8 +252,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T00:46:46.167Z",
-        "latestSuccessAt": "2026-05-31T00:46:46.167Z",
+        "latestRunAt": "2026-05-31T02:49:02.225Z",
+        "latestSuccessAt": "2026-05-31T02:49:02.225Z",
         "plainEnglish": "Gmail Current Sync has a fresh successful run and is not due.",
         "nextAction": "Watch first scheduled runs; keep historical Gmail backfill manual until current-day stays clean."
       },
@@ -370,8 +351,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T02:44:54.566Z",
-        "latestSuccessAt": "2026-05-31T02:44:54.566Z",
+        "latestRunAt": "2026-05-31T02:49:59.227Z",
+        "latestSuccessAt": "2026-05-31T02:49:59.227Z",
         "plainEnglish": "System Health Nightly Audit has a fresh successful run and is not due.",
         "nextAction": "Review red/yellow system-health rows before treating Foundation as green."
       },
@@ -441,7 +422,7 @@
     "summary": {
       "artifactCount": 1252,
       "handoffFileCount": 11,
-      "handoffLineTotal": 3421,
+      "handoffLineTotal": 3359,
       "recentHandoffFileCount": 9,
       "nightlyArtifactCount": 9,
       "riskCount": 0,
@@ -584,16 +565,6 @@
   },
   "findings": [
     {
-      "id": "scheduled_job_foundation-lessons-learned-loop",
-      "severity": "P0",
-      "status": "risk",
-      "title": "Foundation Lessons Learned Loop is risk",
-      "detail": "Foundation Lessons Learned Loop latest run is failed.",
-      "nextAction": "Exited with code 1",
-      "jobKey": "foundation-lessons-learned-loop",
-      "rollupLevel": "risk"
-    },
-    {
       "id": "scheduled_job_admin-deal-backlog-review",
       "severity": "P1",
       "status": "risk",
@@ -652,7 +623,7 @@
       "severity": "P1",
       "status": "review",
       "title": "Foundation jobs have recent failures",
-      "detail": "foundation-lessons-learned-loop, meeting-transcripts-extract-backlog, admin-deal-backlog-review",
+      "detail": "meeting-transcripts-extract-backlog, admin-deal-backlog-review",
       "nextAction": "Review latest run error before treating the system as green.",
       "source": "foundation_operating_reliability",
       "autoFix": false,
