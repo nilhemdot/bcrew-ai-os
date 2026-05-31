@@ -264,6 +264,64 @@
     ]
   },
   {
+    "key": "dev-hub-action-route-readback-v1",
+    "backlogIds": [
+      "DEV-HUB-ACTION-ROUTE-READBACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "DEV-HUB-ACTION-ROUTE-READBACK-001",
+        "Expose action-route readback in Dev Hub",
+        "Expose Dev Hub action-route readback",
+        "dev-hub-action-route-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-HARLAN-DIGEST-001",
+      "ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001",
+      "ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002"
+    ],
+    "systemArea": "Dev Hub action-route intelligence readback",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only action-route readback to the Dev Hub payload and /dev surface.",
+    "whatItDoes": "Builds an actionRouteReadback payload from the Action Route Review Inbox, Harlan digest dry-run packet, and apply-safety preflight, then renders waiting, ready-for-confirmed-apply, operator-review, blocked, and applied route state in Dev Hub.",
+    "whyItMatters": "Steve needs to see whether the intelligence pipe is flowing or silently stuck. This brings route state into the Dev Hub loop without starting the dangerous part: live approval/apply.",
+    "whereItLives": [
+      "lib/dev-hub-action-route-readback.js compact readback builder, validator, and dogfood proof",
+      "lib/dev-team-hub.js actionRouteReadback payload integration",
+      "public/dev.html Action Routes panel mount",
+      "public/dev.js snapshot/error event dispatch",
+      "public/dev-action-route-readback.js standalone renderer",
+      "public/dev.css Action Routes panel styles",
+      "scripts/process-dev-hub-action-route-readback-check.mjs focused proof and guarded close-card writer",
+      "docs/process/dev-hub-action-route-readback-001-plan.md",
+      "docs/process/approvals/DEV-HUB-ACTION-ROUTE-READBACK-001.json",
+      "package.json script process:dev-hub-action-route-readback-check"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-action-route-readback.js scripts/process-dev-hub-action-route-readback-check.mjs public/dev-action-route-readback.js",
+      "npm run process:dev-hub-action-route-readback-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-ACTION-ROUTE-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-ACTION-ROUTE-READBACK-001.json --closeoutKey=dev-hub-action-route-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-ACTION-ROUTE-READBACK-001 --closeoutKey=dev-hub-action-route-readback-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-ACTION-ROUTE-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-ACTION-ROUTE-READBACK-001.json --closeoutKey=dev-hub-action-route-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates the live backlog card, dogfood waiting/ready/applied states, live readback validation, dry-run Harlan digest, auto-apply disabled state, bounded payload, Dev Hub payload integration, UI wiring, no mutation/source/model/external-write path, closeout registry, and verifier coverage.",
+    "reviewNext": "Next safe slice is surfacing one operator-selected live route for Steve review. Do not approve or apply it until Steve explicitly confirms the exact route ID and approver.",
+    "knownLimits": [
+      "This is a read-only Dev Hub readback only; it does not approve, apply, reject, snooze, reroute, or mutate routes.",
+      "This does not create backlog, decision, or open-question records from Director, Scoper, Portfolio, or route recommendations.",
+      "This does not send Telegram, email, Slack, Agent Feedback, or public messages.",
+      "This does not start Harlan runtime, reply parsing, login, source-session resume, extraction, provider/model calls, or external-action authority.",
+      "A real live-route apply still needs explicit operator approval with exact route ID confirmation."
+    ]
+  },
+  {
     "key": "foundation-kb-action-review-sprint-v1",
     "backlogIds": [
       "FOUNDATION-KB-ACTION-REVIEW-SPRINT-001"

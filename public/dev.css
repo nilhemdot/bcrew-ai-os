@@ -1729,6 +1729,187 @@ button {
   font-size: var(--t-xs);
 }
 
+.action-route-readback {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.action-route-head-stats,
+.action-route-summary,
+.action-route-boundary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.action-route-head-stats span,
+.action-route-boundary-pills span {
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  background: var(--white);
+  color: var(--grey-d);
+  font-size: var(--t-xs);
+  font-weight: var(--w-sb);
+}
+
+.action-route-head-stats b {
+  color: var(--ink);
+  font-family: var(--mono);
+}
+
+.action-route-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.action-route-metric,
+.action-route-empty,
+.action-route-column,
+.action-route-boundary {
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-sm);
+  background: var(--white);
+}
+
+.action-route-metric {
+  min-height: 92px;
+  padding: var(--s-4);
+}
+
+.action-route-metric span,
+.action-route-empty span,
+.action-route-column-head span,
+.action-route-boundary span,
+.action-route-review-item span,
+.action-route-safety-item span {
+  display: block;
+  color: var(--grey-d);
+  font-size: var(--t-micro);
+  font-weight: var(--w-bold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+
+.action-route-metric strong {
+  display: block;
+  margin-top: var(--s-2);
+  font-family: var(--display);
+  font-size: var(--t-2xl);
+  line-height: var(--lh-tight);
+}
+
+.action-route-metric.ready strong,
+.action-route-safety-item.ready span {
+  color: #007A5A;
+}
+
+.action-route-metric.review strong,
+.action-route-safety-item.review span {
+  color: var(--blue-deep);
+}
+
+.action-route-metric.blocked strong,
+.action-route-empty.blocked span,
+.action-route-safety-item.blocked span {
+  color: #B42318;
+}
+
+.action-route-metric.applied strong,
+.action-route-safety-item.applied span {
+  color: #4B5563;
+}
+
+.action-route-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-4);
+  background: var(--grey-1);
+}
+
+.action-route-boundary p,
+.action-route-empty p,
+.action-route-next,
+.action-route-review-item p,
+.action-route-safety-item p {
+  margin: var(--s-2) 0 0;
+  color: var(--grey-d);
+  line-height: var(--lh-body);
+}
+
+.action-route-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s-4);
+}
+
+.action-route-column {
+  min-width: 0;
+  padding: var(--s-4);
+}
+
+.action-route-column-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+
+.action-route-column-head small,
+.action-route-review-item small,
+.action-route-safety-item small {
+  color: var(--grey-d);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+}
+
+.action-route-column pre {
+  max-height: 220px;
+  overflow: auto;
+  margin: 0 0 var(--s-4);
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-sm);
+  padding: var(--s-3);
+  background: #FBFCFE;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.action-route-review-list,
+.action-route-safety-list {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.action-route-review-item,
+.action-route-safety-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s-3);
+  align-items: start;
+  border: 1px solid var(--grey-line);
+  border-radius: var(--r-sm);
+  padding: var(--s-3);
+}
+
+.action-route-review-item strong,
+.action-route-safety-item strong,
+.action-route-empty h3 {
+  display: block;
+  margin-top: var(--s-1);
+  overflow-wrap: anywhere;
+}
+
+.action-route-empty {
+  padding: var(--s-5);
+}
+
 .candidate-meta .pill {
   flex: 0 0 auto;
 }
@@ -3105,4 +3286,16 @@ button {
   font-size: var(--t-sm);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+}
+
+@media (max-width: 1080px) {
+  .action-route-summary,
+  .action-route-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .action-route-boundary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

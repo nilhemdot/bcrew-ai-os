@@ -2967,6 +2967,7 @@ function renderSnapshot(snapshot = {}) {
   renderSources()
   renderTargets(state.selectedSourceId)
   renderDirector(snapshot)
+  window.dispatchEvent(new CustomEvent('devhub:snapshot', { detail: { snapshot } }))
 }
 
 function renderError(error) {
@@ -2982,6 +2983,7 @@ function renderError(error) {
   els.grid.innerHTML = html
   els.panel.innerHTML = html
   els.directorPanel.innerHTML = html
+  window.dispatchEvent(new CustomEvent('devhub:error', { detail: { error: message } }))
 }
 
 async function loadDevDataPool() {

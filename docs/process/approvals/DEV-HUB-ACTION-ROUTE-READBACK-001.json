@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-ACTION-ROUTE-READBACK-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T00:42:10.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-action-route-readback-001-plan.md",
+  "approvedPlanSha256": "8127c2af7858515c8e01c6a5d9b45b29afec22405a9f737855240096cecb0c04",
+  "approvedRepoHead": "aae115e6b9d80a02a41196774ea07f0ee8103335",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to park blocked work and keep going. The prior action-route synthetic apply proof made this read-only visibility slice the next safe move.",
+  "scopeSummary": "Expose action-route waiting, Harlan digest dry-run, and apply-safety state in Dev Hub without sending, approving, applying, rejecting, snoozing, or mutating routes.",
+  "constraints": [
+    "Do not approve, apply, reject, snooze, reroute, or promote live action routes.",
+    "Do not create backlog, decision, or open-question records from live recommendations.",
+    "Do not send Telegram, email, Slack, Agent Feedback, or public messages.",
+    "Do not run extraction, source sync, provider/model calls, login, Browserbase, paid/private source work, or external writes.",
+    "Keep live route apply parked until Steve explicitly confirms the exact route ID and approver."
+  ],
+  "approvalDigest": "df0468b47116f59f47c5bcf240cb2f72234ccf42f2a2479bec3a39e5edab76f7"
+}

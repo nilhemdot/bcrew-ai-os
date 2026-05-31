@@ -96,6 +96,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-dev-team-hub-v0-check.mjs'
+const DEV_ACTION_ROUTE_READBACK_JS_PATH = 'public/dev-action-route-readback.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
@@ -209,6 +210,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="source-grid"',
 	    'id="target-panel"',
 	    'id="director-panel"',
+	    'id="action-route-readback"',
   ].every(marker => html.includes(marker))
 }
 
@@ -400,6 +402,7 @@ async function main() {
     serverSource,
     htmlSource,
     jsSource,
+    actionRouteReadbackJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -413,6 +416,7 @@ async function main() {
     readRepoFile('server.js'),
     readRepoFile('public/dev.html'),
     readRepoFile('public/dev.js'),
+    readRepoFile(DEV_ACTION_ROUTE_READBACK_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -428,7 +432,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -510,6 +514,24 @@ async function main() {
 	      htmlSource.includes('/dev-source-approval.css?v=20260530-oversized-v1'),
     'Dev page automatically refetches source-backed dashboard data after extraction writes',
     '30s no-store polling + focus refresh + in-flight guard',
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubActionRouteReadback') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'actionRouteReadback') &&
+      payload?.actionRouteReadback?.contractVersion === 'dev-hub-action-route-readback.v1' &&
+      payload?.actionRouteReadback?.boundaries?.noAutoApply === true &&
+      payload?.actionRouteReadback?.harlanDigest?.sendsMessageNow === false &&
+      payload?.actionRouteReadback?.applySafety?.autoApplyAllowed === false &&
+      htmlSource.includes('id="action-route-readback"') &&
+      htmlSource.includes('/dev-action-route-readback.js') &&
+      jsSource.includes("new CustomEvent('devhub:snapshot'") &&
+      actionRouteReadbackJsSource.includes('actionRouteReadback') &&
+      actionRouteReadbackJsSource.includes('No auto-apply') &&
+      actionRouteReadbackJsSource.includes('No Harlan send') &&
+      cssSource.includes('.action-route-readback'),
+    'Dev Hub exposes action-route waiting/apply-safety/Harlan digest readback without applying or sending',
+    `waiting=${payload?.actionRouteReadback?.summary?.needsReviewItems || 0}; ready=${payload?.actionRouteReadback?.summary?.readyForConfirmedApplyItems || 0}; applied=${payload?.actionRouteReadback?.summary?.appliedRoutes || 0}`,
   )
   addCheck(
     checks,
@@ -1370,6 +1392,20 @@ async function main() {
         } : null,
       } : null,
       extractionEconomics: payload.extractionEconomics,
+      actionRouteReadback: payload.actionRouteReadback ? {
+        status: payload.actionRouteReadback.status,
+        summary: payload.actionRouteReadback.summary,
+        harlanDigest: {
+          status: payload.actionRouteReadback.harlanDigest?.status,
+          sendsMessageNow: payload.actionRouteReadback.harlanDigest?.sendsMessageNow,
+          itemCount: list(payload.actionRouteReadback.harlanDigest?.items).length,
+        },
+        applySafety: {
+          status: payload.actionRouteReadback.applySafety?.status,
+          autoApplyAllowed: payload.actionRouteReadback.applySafety?.autoApplyAllowed,
+          itemCount: list(payload.actionRouteReadback.applySafety?.items).length,
+        },
+      } : null,
       approvalReviewQueue: list(payload.approvalReviewQueue).slice(0, 5),
       approvalReviewTriage: payload.approvalReviewTriage ? {
         totalReviewRows: payload.approvalReviewTriage.totalReviewRows,
