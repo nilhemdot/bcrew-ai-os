@@ -1561,5 +1561,61 @@
       "This does not create job registry rows, runtime controls, backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, action routes, atoms, facts, synthesis rows, Harlan messages, model calls, extraction runs, connector probes, source syncs, or external writes.",
       "Actual Scoper scheduling and any future promotion path remain separate approval-bound cards."
     ]
+  },
+  {
+    "key": "dev-hub-auditor-promotion-boundary-preflight-v1",
+    "backlogIds": [
+      "DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub auditor promotion boundary preflight",
+        "DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001",
+        "dev-hub-auditor-promotion-boundary-preflight-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-AUDITOR-FLOW-READBACK-001",
+      "DEV-HUB-NEXT-REPAIR-QUEUE-001",
+      "AUDIT-FINDING-TO-BACKLOG-ROUTER-001"
+    ],
+    "systemArea": "Dev Hub auditor promotion boundary preflight",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Auditor Promotion Boundary Preflight to Dev Hub that prepares the exact approval-required internal-write-later audit finding promotion gate.",
+    "whatItDoes": "The Dev Hub now turns report-only auditor output into a concrete approval packet without running audits, writing reports, promoting findings, creating backlog cards, mutating routes, writing Scoper/Portfolio/Current Sprint records, sending Harlan, calling models, or writing externally.",
+    "whyItMatters": "Steve wants the Dev Hub to keep cleaning and recommending from real intelligence while avoiding unsafe auto-work. This makes the auditor report-to-work seam exact without turning scheduled audits into quiet backlog writers.",
+    "whereItLives": [
+      "lib/dev-hub-auditor-promotion-boundary-preflight.js compact promotion-boundary projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js auditorPromotionBoundaryPreflight payload wiring from Auditor Flow and Next Repair Queue readbacks",
+      "public/dev.html Auditor Promotion Boundary panel",
+      "public/dev-auditor-promotion-boundary-preflight.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-auditor-promotion-boundary-preflight.css standalone promotion-boundary panel styles",
+      "scripts/process-dev-hub-auditor-promotion-boundary-preflight-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-auditor-promotion-boundary-preflight-001-plan.md",
+      "docs/process/approvals/DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001.json",
+      "package.json process:dev-hub-auditor-promotion-boundary-preflight-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-auditor-promotion-boundary-preflight.js scripts/process-dev-hub-auditor-promotion-boundary-preflight-check.mjs public/dev-auditor-promotion-boundary-preflight.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-auditor-promotion-boundary-preflight-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001.json --closeoutKey=dev-hub-auditor-promotion-boundary-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001 --closeoutKey=dev-hub-auditor-promotion-boundary-preflight-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001.json --closeoutKey=dev-hub-auditor-promotion-boundary-preflight-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: the promotion gate must stay approval-required and internal-write-later, and any audit run, report write, finding promotion, backlog write, route mutation/apply, Scoper/Portfolio/Current Sprint write, approval record write, model/extraction start, Harlan send, or external write fails validation.",
+    "reviewNext": "Actual audit-finding promotion remains a separate approved card with exact source report IDs and candidate finding/card IDs. Do not run audits, write reports, create cards, mutate routes, promote findings, call models, or send Harlan from this preflight.",
+    "knownLimits": [
+      "This is a read-only preflight; it does not promote audit findings.",
+      "This does not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, action routes, atoms, facts, synthesis rows, Harlan messages, model calls, extraction runs, connector probes, source syncs, reports, or external writes.",
+      "Actual audit-finding promotion and any future work creation remain separate approval-bound cards."
+    ]
   }
 ]

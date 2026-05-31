@@ -257,6 +257,7 @@
     "process:dev-hub-scoper-evidence-trace-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-scoper-evidence-trace-readback-check.mjs",
     "process:dev-hub-intelligence-hygiene-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-intelligence-hygiene-readback-check.mjs",
     "process:dev-hub-auditor-flow-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-auditor-flow-readback-check.mjs",
+    "process:dev-hub-auditor-promotion-boundary-preflight-check": "node --env-file-if-exists=.env scripts/process-dev-hub-auditor-promotion-boundary-preflight-check.mjs",
     "process:dev-hub-synthesis-scope-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-synthesis-scope-readback-check.mjs",
     "process:dev-hub-route-review-triage-check": "node --env-file-if-exists=.env scripts/process-dev-hub-route-review-triage-check.mjs",
     "process:dev-hub-route-review-operator-packet-check": "node --env-file-if-exists=.env scripts/process-dev-hub-route-review-operator-packet-check.mjs",

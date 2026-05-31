@@ -108,6 +108,7 @@ const DEV_PROPOSED_CARD_APPROVAL_PREFLIGHT_JS_PATH = 'public/dev-proposed-card-a
 const DEV_PROPOSED_CARD_SOURCE_PROOF_READBACK_JS_PATH = 'public/dev-proposed-card-source-proof-readback.js'
 const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
+const DEV_AUDITOR_PROMOTION_BOUNDARY_PREFLIGHT_JS_PATH = 'public/dev-auditor-promotion-boundary-preflight.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
 const DEV_ROUTE_REVIEW_TRIAGE_JS_PATH = 'public/dev-route-review-triage.js'
 const DEV_ROUTE_REVIEW_OPERATOR_PACKET_JS_PATH = 'public/dev-route-review-operator-packet.js'
@@ -130,6 +131,7 @@ const DEV_CSS_PATHS = [
   'public/dev-proposed-card-source-proof-readback.css',
   'public/dev-intelligence-hygiene.css',
   'public/dev-auditor-flow.css',
+  'public/dev-auditor-promotion-boundary-preflight.css',
   'public/dev-synthesis-scope.css',
   'public/dev-route-review-triage.css',
   'public/dev-route-review-operator-packet.css',
@@ -464,6 +466,7 @@ async function main() {
     proposedCardSourceProofReadbackJsSource,
     intelligenceHygieneJsSource,
     auditorFlowJsSource,
+    auditorPromotionBoundaryPreflightJsSource,
     synthesisScopeJsSource,
     routeReviewTriageJsSource,
     routeReviewOperatorPacketJsSource,
@@ -497,6 +500,7 @@ async function main() {
     readRepoFile(DEV_PROPOSED_CARD_SOURCE_PROOF_READBACK_JS_PATH),
     readRepoFile(DEV_INTELLIGENCE_HYGIENE_JS_PATH),
     readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
+    readRepoFile(DEV_AUDITOR_PROMOTION_BOUNDARY_PREFLIGHT_JS_PATH),
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
     readRepoFile(DEV_ROUTE_REVIEW_TRIAGE_JS_PATH),
     readRepoFile(DEV_ROUTE_REVIEW_OPERATOR_PACKET_JS_PATH),
@@ -523,7 +527,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${buildPortfolioReadbackJsSource}\n${morningProposedCardsJsSource}\n${proposedCardApprovalPreflightJsSource}\n${proposedCardSourceProofReadbackJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${buildPortfolioReadbackJsSource}\n${morningProposedCardsJsSource}\n${proposedCardApprovalPreflightJsSource}\n${proposedCardSourceProofReadbackJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${auditorPromotionBoundaryPreflightJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -1175,6 +1179,48 @@ async function main() {
       cssSource.includes('.auditor-flow'),
     'Dev Hub exposes Auditor Flow run/report/review gates without running audits or promoting findings',
     `auditors=${payload?.auditorFlowReadback?.summary?.auditorJobCount || 0}; scheduled=${payload?.auditorFlowReadback?.summary?.scheduledAuditorJobs || 0}; reportOnly=${payload?.auditorFlowReadback?.summary?.reportOnlyJobs || 0}; autoPromote=${payload?.auditorFlowReadback?.summary?.autoFindingPromotionCount || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubAuditorPromotionBoundaryPreflight') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'auditorPromotionBoundaryPreflight') &&
+      payload?.auditorPromotionBoundaryPreflight?.contractVersion === 'dev-hub-auditor-promotion-boundary-preflight.v1' &&
+      payload?.auditorPromotionBoundaryPreflight?.source?.targetRepairId === 'auditor-report-to-work-boundary' &&
+      payload?.auditorPromotionBoundaryPreflight?.source?.existingRouterCardId === 'AUDIT-FINDING-TO-BACKLOG-ROUTER-001' &&
+      payload?.auditorPromotionBoundaryPreflight?.source?.noSecondTruthLayer === true &&
+      list(payload?.auditorPromotionBoundaryPreflight?.source?.reusedTruthLayers).includes('auditorFlowReadback') &&
+      list(payload?.auditorPromotionBoundaryPreflight?.source?.reusedTruthLayers).includes('nextRepairQueue') &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.preflightOnly === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.approvalRequiredBeforeInternalWrite === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.noAuditRun === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.noReportWrite === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.noBacklogMutationNow === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.noRouteMutationNow === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.noRouteApply === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.noScoperMutationNow === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.noHarlanSend === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.noExternalWrites === true &&
+      payload?.auditorPromotionBoundaryPreflight?.boundaries?.noAutoFindingPromotion === true &&
+      Number(payload?.auditorPromotionBoundaryPreflight?.summary?.auditRunsStartedByReadback || 0) === 0 &&
+      Number(payload?.auditorPromotionBoundaryPreflight?.summary?.reportsWrittenByReadback || 0) === 0 &&
+      Number(payload?.auditorPromotionBoundaryPreflight?.summary?.findingsPromotedByReadback || 0) === 0 &&
+      Number(payload?.auditorPromotionBoundaryPreflight?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.auditorPromotionBoundaryPreflight?.summary?.routeMutationsByReadback || 0) === 0 &&
+      Number(payload?.auditorPromotionBoundaryPreflight?.summary?.scoperRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.auditorPromotionBoundaryPreflight?.summary?.harlanSendsByReadback || 0) === 0 &&
+      Number(payload?.auditorPromotionBoundaryPreflight?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.auditorPromotionBoundaryPreflight?.promotionContracts).length <= 1 &&
+      list(payload?.auditorPromotionBoundaryPreflight?.promotionContracts).every(item => item.status === 'approval_required' && item.approvalRequired === true && item.mutationPosture === 'approval_required_internal_write_later' && item.promotedNow === false && item.backlogRecordsWrittenNow === false && item.routeMutatedNow === false) &&
+      htmlSource.includes('id="auditor-promotion-boundary-preflight"') &&
+      htmlSource.includes('/dev-auditor-promotion-boundary-preflight.css') &&
+      htmlSource.includes('/dev-auditor-promotion-boundary-preflight.js') &&
+      auditorPromotionBoundaryPreflightJsSource.includes('auditorPromotionBoundaryPreflight') &&
+      auditorPromotionBoundaryPreflightJsSource.includes('approval_required_internal_write_later') &&
+      cssSource.includes('.auditor-promotion-boundary-preflight') &&
+      cssSource.includes('.auditor-promotion-summary') &&
+      cssSource.includes('.auditor-promotion-contract'),
+    'Dev Hub exposes Auditor Promotion Boundary approval gate without running audits, promoting findings, creating cards, or mutating routes',
+    `contracts=${payload?.auditorPromotionBoundaryPreflight?.summary?.promotionContractCount || 0}; lanes=${payload?.auditorPromotionBoundaryPreflight?.summary?.reportOnlyOutputLanes || 0}; backlogWrites=${payload?.auditorPromotionBoundaryPreflight?.summary?.backlogRecordsWrittenByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -2279,6 +2325,17 @@ async function main() {
           status: item.status,
           mutationPosture: item.mutationPosture,
           scheduledNow: item.scheduledNow,
+        })),
+      } : null,
+      auditorPromotionBoundaryPreflight: payload.auditorPromotionBoundaryPreflight ? {
+        status: payload.auditorPromotionBoundaryPreflight.status,
+        summary: payload.auditorPromotionBoundaryPreflight.summary,
+        promotionContracts: list(payload.auditorPromotionBoundaryPreflight.promotionContracts).map(item => ({
+          gateId: item.gateId,
+          status: item.status,
+          mutationPosture: item.mutationPosture,
+          reportOnlyOutputCount: item.reportOnlyOutputCount,
+          promotedNow: item.promotedNow,
         })),
       } : null,
       routeReviewOperatorPacket: payload.routeReviewOperatorPacket ? {

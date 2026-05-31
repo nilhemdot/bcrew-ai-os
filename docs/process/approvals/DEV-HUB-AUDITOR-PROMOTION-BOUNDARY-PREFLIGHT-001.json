@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-AUDITOR-PROMOTION-BOUNDARY-PREFLIGHT-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T06:55:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-auditor-promotion-boundary-preflight-001-plan.md",
+  "approvedPlanSha256": "58efa603a1741856388fbdbfd3da8e03665de10a014c5726a655f75487bdb929",
+  "approvedRepoHead": "c4afb34340dfbdebb2717caad35e2fd558ec3626",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build, instructed Codex to keep going while parking blocked approval-bound work, then asked Codex to wrap up and pause with everything committed and pushed.",
+  "scopeSummary": "Expose a read-only Dev Hub Auditor Promotion Boundary preflight that prepares the exact audit-finding promotion approval gate without running audits, writing reports, creating cards, mutating routes, or promoting findings.",
+  "constraints": [
+    "Do not run audits or write audit reports from this preflight.",
+    "Do not promote findings, create backlog cards, approve/apply/reject/snooze/reroute routes, write Scoper/Portfolio/Current Sprint/approval records, or implement audit findings from this preflight.",
+    "Do not auto-promote Director, auditor, Scoper, Portfolio, or proposed-card recommendations into backlog, Scoper, sprint, or build work.",
+    "Do not run extraction, source sync, provider/model calls, login, Browserbase, paid/private source work, Harlan sends, or external writes.",
+    "Keep actual audit-finding promotion behind separate exact Steve approval with source report IDs, candidate finding/card IDs, classifications, and proof.",
+    "Fail proof if the preflight promotes, creates, mutates, runs, sends, writes externally, or presents a non-approval-required promotion contract."
+  ],
+  "approvalDigest": "a17f98575623898754cee4b19d4fc11ace35cdb284963d9ad319cbab85126bbd"
+}
