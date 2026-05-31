@@ -29,6 +29,11 @@ import {
 import {
   getExtractionControlSnapshot,
 } from '../lib/foundation-source-crawl-db.js'
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  assertProcessCheckWriteAllowed,
+  isProcessCheckWriteRequested,
+} from '../lib/process-write-guard.js'
 
 const execFile = promisify(execFileCallback)
 const SPRINT_ID = 'source-truth-guardrails-2026-05-13'
@@ -116,10 +121,29 @@ async function closeSprintCard(snapshot, dryRunSummary) {
 }
 
 async function main() {
+  const argv = process.argv.slice(2)
   const args = parseArgs()
   const jsonMode = boolArg(args.json)
   const skipClose = boolArg(args.skipClose) || boolArg(args['skip-close'])
+  const writeFlags = [
+    PROCESS_CHECK_WRITE_FLAGS.apply,
+    PROCESS_CHECK_WRITE_FLAGS.closeCard,
+    PROCESS_CHECK_WRITE_FLAGS.mutateSprint,
+  ]
+  const writeRequested = isProcessCheckWriteRequested({
+    argv,
+    allowedFlags: writeFlags,
+  })
   const findings = []
+
+  if (writeRequested) {
+    assertProcessCheckWriteAllowed({
+      argv,
+      scriptPath: EXTRACT_RUN_HARDENING_EXECUTION_SCRIPT_PATH,
+      operation: 'close extract-run hardening execution card and advance source truth guardrails sprint',
+      allowedFlags: writeFlags,
+    })
+  }
 
   await initFoundationDb()
   try {
@@ -134,6 +158,7 @@ async function main() {
       retryScriptSource,
       foundationJobsSource,
       verifySource,
+      processGovernanceVerifierSource,
     ] = await Promise.all([
       validatePlanApprovalFile({
         repoRoot: process.cwd(),
@@ -149,6 +174,7 @@ async function main() {
       fs.readFile(EXTRACTION_RETRY_FAILED_SCRIPT_PATH, 'utf8'),
       fs.readFile('lib/foundation-jobs.js', 'utf8'),
       fs.readFile('scripts/foundation-verify.mjs', 'utf8'),
+      fs.readFile('lib/foundation-verifier-process-governance.js', 'utf8'),
     ])
     const card = backlogCards.find(item => item.id === EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID)
     const retryJob = (extractionSnapshot.jobs || []).find?.(job => job.key === EXTRACTION_RETRY_FAILED_JOB_KEY) || null
@@ -161,7 +187,13 @@ async function main() {
     addFinding(findings, helperSource.includes('selectEligibleExtractionRetryItems') && helperSource.includes('finishExtractionRetryItem') && helperSource.includes('source_crawl_item_attempts'), 'helper owns bounded selection and attempt proof')
     addFinding(findings, retryScriptSource.includes('classifySourceCrawlItemRetries') && retryScriptSource.includes('getRetryableSourceCrawlItems') && retryScriptSource.includes('dryRun'), 'retry CLI reads live retry state and supports no-write proof')
     addFinding(findings, foundationJobsSource.includes(EXTRACTION_RETRY_FAILED_JOB_KEY) && foundationJobsSource.includes("runtimeMode: 'manual'"), 'Foundation job registry has manual retry recovery job')
-    addFinding(findings, verifySource.includes(EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID), 'foundation verifier covers this card')
+    addFinding(
+      findings,
+      verifySource.includes('EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID') &&
+        processGovernanceVerifierSource.includes('EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID') &&
+        processGovernanceVerifierSource.includes('EXTRACT-RUN-HARDENING-EXECUTION-001 runs bounded failed-item retry execution'),
+      'foundation verifier covers this card',
+    )
     addFinding(findings, card?.lane === 'scoped' || card?.lane === 'done', 'backlog card is scoped or done before close', card?.lane || 'missing')
     addFinding(findings, !retryJob || retryJob.runtimeMode === 'manual', 'retry job is manual unless separately scheduled', retryJob?.runtimeMode || 'not in extraction snapshot')
 
@@ -186,10 +218,15 @@ async function main() {
         retryExhaustedItems: Number(extractionSnapshot.summary?.retryExhaustedItems || 0),
         retryBlockedItems: Number(extractionSnapshot.summary?.retryBlockedItems || 0),
       },
+      writeRequested,
+      applied: false,
       findings,
     }
 
-    if (summary.status === 'healthy' && !skipClose) await closeSprintCard(extractionSnapshot, retryDryRun)
+    if (summary.status === 'healthy' && writeRequested && !skipClose) {
+      await closeSprintCard(extractionSnapshot, retryDryRun)
+      summary.applied = true
+    }
 
     if (jsonMode) console.log(JSON.stringify(summary, null, 2))
     else {
