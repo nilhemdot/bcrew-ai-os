@@ -109,6 +109,7 @@ const DEV_ROUTE_REVIEW_TRIAGE_JS_PATH = 'public/dev-route-review-triage.js'
 const DEV_SCOPER_RUNTIME_JS_PATH = 'public/dev-scoper-runtime-readback.js'
 const DEV_BUSINESS_SOURCE_JS_PATH = 'public/dev-business-source-pipeline-triage.js'
 const DEV_NEXT_REPAIR_JS_PATH = 'public/dev-next-repair-queue.js'
+const DEV_BUSINESS_ATOM_FLOW_PREFLIGHT_JS_PATH = 'public/dev-business-atom-flow-preflight.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
@@ -121,6 +122,7 @@ const DEV_CSS_PATHS = [
   'public/dev-scoper-runtime-readback.css',
   'public/dev-business-source-pipeline-triage.css',
   'public/dev-next-repair-queue.css',
+  'public/dev-business-atom-flow-preflight.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -441,6 +443,7 @@ async function main() {
     scoperRuntimeJsSource,
     businessSourceJsSource,
     nextRepairJsSource,
+    businessAtomFlowPreflightJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -464,6 +467,7 @@ async function main() {
     readRepoFile(DEV_SCOPER_RUNTIME_JS_PATH),
     readRepoFile(DEV_BUSINESS_SOURCE_JS_PATH),
     readRepoFile(DEV_NEXT_REPAIR_JS_PATH),
+    readRepoFile(DEV_BUSINESS_ATOM_FLOW_PREFLIGHT_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -479,7 +483,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -658,6 +662,52 @@ async function main() {
       cssSource.includes('.next-repair-card'),
     'Dev Hub exposes a proposal-only Next Repair Queue without creating cards, applying routes, promoting Scoper, or writing intelligence rows',
     `proposals=${payload?.nextRepairQueue?.summary?.proposedRepairCount || 0}; approvalBound=${payload?.nextRepairQueue?.summary?.approvalBoundCount || 0}; cardsCreated=${payload?.nextRepairQueue?.summary?.cardsCreatedByReadback || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubBusinessAtomFlowPreflight') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'businessAtomFlowPreflight') &&
+      payload?.businessAtomFlowPreflight?.contractVersion === 'dev-hub-business-atom-flow-preflight.v1' &&
+      payload?.businessAtomFlowPreflight?.source?.targetRepairId === 'business-source-atom-flow-repair' &&
+      payload?.businessAtomFlowPreflight?.source?.noSecondTruthLayer === true &&
+      list(payload?.businessAtomFlowPreflight?.source?.reusedTruthLayers).includes('businessSourcePipelineTriage') &&
+      list(payload?.businessAtomFlowPreflight?.source?.reusedTruthLayers).includes('nextRepairQueue') &&
+      payload?.businessAtomFlowPreflight?.boundaries?.proposalOnly === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noCardCreate === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noBacklogMutation === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noScoperMutation === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noRouteMutation === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noAtomWrites === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noFactWrites === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noSynthesisWrite === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noSourceSync === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noLiveExtraction === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noModelCalls === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noExternalWrites === true &&
+      payload?.businessAtomFlowPreflight?.boundaries?.noAutoBuild === true &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.cardsCreatedByReadback || 0) === 0 &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.scoperRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.routeMutationsByReadback || 0) === 0 &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.atomRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.factRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.synthesisRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.sourceSyncsStarted || 0) === 0 &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.businessAtomFlowPreflight?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.businessAtomFlowPreflight?.candidates).length <= 6 &&
+      list(payload?.businessAtomFlowPreflight?.repairGates).length <= 6 &&
+      list(payload?.businessAtomFlowPreflight?.candidates).every(item => item.status === 'proposal_only' && item.autoCreated === false && item.autoPromoted === false && item.appliedNow === false) &&
+      htmlSource.includes('id="business-atom-flow-preflight"') &&
+      htmlSource.includes('/dev-business-atom-flow-preflight.css') &&
+      htmlSource.includes('/dev-business-atom-flow-preflight.js') &&
+      businessAtomFlowPreflightJsSource.includes('businessAtomFlowPreflight') &&
+      businessAtomFlowPreflightJsSource.includes('Read-only atom-flow repair preflight') &&
+      cssSource.includes('.business-atom-flow-preflight') &&
+      cssSource.includes('.atom-flow-summary') &&
+      cssSource.includes('.atom-flow-candidate'),
+    'Dev Hub exposes Business Atom Flow Preflight without creating cards, syncing sources, writing atoms/facts, running synthesis, or mutating routes',
+    `target=${payload?.businessAtomFlowPreflight?.summary?.targetFamilyLabel || 'none'}; candidates=${payload?.businessAtomFlowPreflight?.summary?.candidateSourceCount || 0}; ready=${payload?.businessAtomFlowPreflight?.summary?.readyForRepairCardCount || 0}; atomWrites=${payload?.businessAtomFlowPreflight?.summary?.atomRowsWrittenByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -1756,6 +1806,18 @@ async function main() {
           repairId: item.repairId,
           title: item.title,
           suggestedCardType: item.suggestedCardType,
+          status: item.status,
+        })),
+      } : null,
+      businessAtomFlowPreflight: payload.businessAtomFlowPreflight ? {
+        status: payload.businessAtomFlowPreflight.status,
+        summary: payload.businessAtomFlowPreflight.summary,
+        candidates: list(payload.businessAtomFlowPreflight.candidates).map(item => ({
+          rank: item.rank,
+          sourceId: item.sourceId,
+          title: item.title,
+          businessStatus: item.businessStatus,
+          readyForRepairCard: item.readyForRepairCard,
           status: item.status,
         })),
       } : null,

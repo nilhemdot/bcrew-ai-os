@@ -1395,5 +1395,60 @@
       "Scoper scheduling, route apply, model-backed synthesis, extraction, connector sync, and source writes remain separate approval-bound cards.",
       "Future work should pick one proposal row and dogfood that exact failure mode before any live mutation exists."
     ]
+  },
+  {
+    "key": "dev-hub-business-atom-flow-preflight-v1",
+    "backlogIds": [
+      "DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub business atom-flow preflight",
+        "DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001",
+        "dev-hub-business-atom-flow-preflight-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001",
+      "DEV-HUB-NEXT-REPAIR-QUEUE-001"
+    ],
+    "systemArea": "Dev Hub business source atom-flow repair preflight",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Business Atom Flow Preflight to Dev Hub that turns the top business-source atom-flow repair proposal into exact candidate source IDs, gates, and operator boundaries.",
+    "whatItDoes": "The Dev Hub now prepares the next source-flow repair packet without creating cards, syncing sources, extracting data, writing atoms/facts, running synthesis, mutating routes, or promoting Scoper work.",
+    "whyItMatters": "Steve wants the Dev Hub to recommend and scope the next builds from real data while keeping actual writes approval-bound. This gets the top stale business-source repair ready without recreating unsafe auto-build behavior.",
+    "whereItLives": [
+      "lib/dev-hub-business-atom-flow-preflight.js compact preflight projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js businessAtomFlowPreflight payload wiring from Business Sources and Next Repair Queue readbacks",
+      "public/dev.html Business Atom Flow Preflight panel",
+      "public/dev-business-atom-flow-preflight.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-business-atom-flow-preflight.css standalone preflight panel styles",
+      "scripts/process-dev-hub-business-atom-flow-preflight-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-business-atom-flow-preflight-001-plan.md",
+      "docs/process/approvals/DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001.json",
+      "package.json process:dev-hub-business-atom-flow-preflight-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-business-atom-flow-preflight.js scripts/process-dev-hub-business-atom-flow-preflight-check.mjs public/dev-business-atom-flow-preflight.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-business-atom-flow-preflight-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001.json --closeoutKey=dev-hub-business-atom-flow-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001 --closeoutKey=dev-hub-business-atom-flow-preflight-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001.json --closeoutKey=dev-hub-business-atom-flow-preflight-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: the preflight must select one stale business family, keep candidate rows proposal-only, and fail if any card creation, source runtime start, route mutation, intelligence write, Harlan send, model call, or external write appears.",
+    "reviewNext": "Actual atom/fact source-flow repair remains a separate approved card. Do not write atoms/facts, run synthesis, propose/apply routes, sync sources, run extraction, schedule Scoper, or send Harlan from this preflight.",
+    "knownLimits": [
+      "This is a read-only preflight; it does not perform the source-flow repair.",
+      "This does not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, action routes, atoms, facts, synthesis rows, Harlan messages, model calls, extraction runs, connector probes, source syncs, or external writes.",
+      "Actual atom/fact writes, synthesis refresh, route proposal/apply, source extraction, connector sync, and Scoper promotion remain separate approval-bound cards."
+    ]
   }
 ]

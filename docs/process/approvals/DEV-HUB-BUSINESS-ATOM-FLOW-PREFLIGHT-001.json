@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-BUSINESS-ATOM-FLOW-PREFLIGHT-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T03:01:28.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-business-atom-flow-preflight-001-plan.md",
+  "approvedPlanSha256": "bd25e490fd22e32a502da2f9bbe6d38414b1c03b1eac4f35c1ef567c7344ac1e",
+  "approvedRepoHead": "a290996d514662505c2cc0c4f2ca36e003be2c17",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub Business Atom Flow Preflight that prepares the top business-source atom-flow repair without writing atoms or syncing sources.",
+  "constraints": [
+    "Do not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, action routes, atoms, facts, synthesis rows, Harlan messages, model calls, extraction runs, connector probes, source syncs, or external writes.",
+    "Do not approve, apply, reject, snooze, reroute, auto-clear, or mutate live action routes.",
+    "Do not auto-promote Director recommendations, repair proposals, source gaps, or atom-flow preflight rows into backlog or Scoper.",
+    "Keep actual atom/fact writes, synthesis refresh, route proposal/apply, source extraction, connector sync, and Scoper promotion as separate approval-bound cards.",
+    "Fail proof if any candidate is marked auto-created, applied, promoted, or no longer proposal-only."
+  ],
+  "approvalDigest": "723c52d9688726f63af95ddce2ffdcfcf59fc381c4d22bcff078cbdf143f04d3"
+}

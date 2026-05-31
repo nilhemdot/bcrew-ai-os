@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/dev-scoper-runtime-readback.css?v=20260531-scoper-runtime-v1" />
   <link rel="stylesheet" href="/dev-business-source-pipeline-triage.css?v=20260531-business-source-v1" />
   <link rel="stylesheet" href="/dev-next-repair-queue.css?v=20260531-next-repair-v1" />
+  <link rel="stylesheet" href="/dev-business-atom-flow-preflight.css?v=20260531-atom-flow-preflight-v1" />
 </head>
 <body>
   <header class="launcher-topbar">
@@ -153,6 +154,20 @@
 
           <section class="next-repair-queue" id="next-repair-queue" aria-label="Dev next repair queue">
             <article class="loading-card">Loading next repair queue from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band">
+          <section class="section-head business-atom-flow-preflight-head">
+            <div>
+              <span>ATOM FLOW PREFLIGHT</span>
+              <h2>Candidate Sources, No Writes</h2>
+            </div>
+            <div class="business-atom-flow-preflight-head-stats" id="business-atom-flow-preflight-head-stats" aria-live="polite"></div>
+          </section>
+
+          <section class="business-atom-flow-preflight" id="business-atom-flow-preflight" aria-label="Dev business atom flow repair preflight">
+            <article class="loading-card">Loading business atom-flow preflight from Foundation...</article>
           </section>
         </section>
 
@@ -406,5 +421,6 @@
   <script src="/dev-scoper-runtime-readback.js?v=20260531-scoper-runtime-v1"></script>
   <script src="/dev-business-source-pipeline-triage.js?v=20260531-business-source-v1"></script>
   <script src="/dev-next-repair-queue.js?v=20260531-next-repair-v1"></script>
+  <script src="/dev-business-atom-flow-preflight.js?v=20260531-atom-flow-preflight-v1"></script>
 </body>
 </html>
