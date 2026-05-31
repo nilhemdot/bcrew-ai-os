@@ -91,6 +91,9 @@ import {
 import {
   SOURCE_BROWSER_AGENT_TARGET_KEY,
 } from '../lib/source-browser-agent-harness.js'
+import {
+  buildDevBuildOpportunityEvidenceTrace,
+} from '../lib/dev-build-opportunity-evidence-trace.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -98,10 +101,12 @@ const repoRoot = path.resolve(__dirname, '..')
 const SCRIPT_PATH = 'scripts/process-dev-team-hub-v0-check.mjs'
 const DEV_ACTION_ROUTE_READBACK_JS_PATH = 'public/dev-action-route-readback.js'
 const DEV_FOUNDATION_DONE_BAR_JS_PATH = 'public/dev-foundation-done-bar.js'
+const DEV_SCOPER_EVIDENCE_TRACE_JS_PATH = 'public/dev-scoper-evidence-trace.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
   'public/dev-source-approval.css',
+  'public/dev-scoper-evidence-trace.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -281,6 +286,7 @@ async function loadLiveSnapshot() {
     geminiVideoReviewCalls,
     sourceGodModeHandoffRunItems,
     sourceBrowserAgentRunItems,
+    scoperEvidenceTraceResult,
   ] = await Promise.all([
     getFoundationSnapshot(),
     listYoutubeFullWatchReportArtifacts({ limit: 500 }),
@@ -305,6 +311,7 @@ async function loadLiveSnapshot() {
     listLlmCalls({ provider: 'gemini', workload: 'video_vision', status: 'succeeded', limit: 5000 }),
     listSourceCrawlItems({ targetKey: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
     listSourceCrawlItems({ targetKey: SOURCE_BROWSER_AGENT_TARGET_KEY, limit: SOURCE_GOD_MODE_YOUTUBE_HANDOFF_READBACK_LIMIT, order: 'desc' }),
+    buildDevBuildOpportunityEvidenceTrace({ candidateLimit: 5 }),
   ])
   const target = list(extractionControl.targets)
     .find(item => item.targetKey === YOUTUBE_CREATOR_DAILY_WATCH_TARGET_KEY) || null
@@ -348,6 +355,7 @@ async function loadLiveSnapshot() {
     actionRouter: foundationSnapshot.intelligenceActionRouter || {},
     currentSprint: activeFoundationSprint,
     extractionControl,
+    scoperEvidenceTraceResult,
   })
 }
 
@@ -406,6 +414,7 @@ async function main() {
     jsSource,
     actionRouteReadbackJsSource,
     foundationDoneBarJsSource,
+    scoperEvidenceTraceJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -421,6 +430,7 @@ async function main() {
     readRepoFile('public/dev.js'),
     readRepoFile(DEV_ACTION_ROUTE_READBACK_JS_PATH),
     readRepoFile(DEV_FOUNDATION_DONE_BAR_JS_PATH),
+    readRepoFile(DEV_SCOPER_EVIDENCE_TRACE_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -436,7 +446,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -535,6 +545,27 @@ async function main() {
       cssSource.includes('.foundation-done-bar'),
     'Dev Hub exposes Foundation Done source pipeline bar without counting routed-only work as done',
     `sources=${payload?.foundationDoneBar?.summary?.sourceCount || 0}; routed=${payload?.foundationDoneBar?.summary?.stageCounts?.routed || 0}; resolved=${payload?.foundationDoneBar?.summary?.stageCounts?.resolved || 0}; waitingRoutes=${payload?.foundationDoneBar?.summary?.waitingRoutes || 0}`,
+  )
+  addCheck(
+    checks,
+    routeSource.includes('buildDevBuildOpportunityEvidenceTrace({ candidateLimit: 5 })') &&
+      moduleSource.includes('buildDevHubScoperEvidenceTraceReadback') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'scoperEvidenceTraceReadback') &&
+      payload?.scoperEvidenceTraceReadback?.contractVersion === 'dev-hub-scoper-evidence-trace-readback.v1' &&
+      payload?.scoperEvidenceTraceReadback?.source?.reusedTruthLayer === 'buildDevBuildOpportunityEvidenceTrace' &&
+      payload?.scoperEvidenceTraceReadback?.boundaries?.noAutoScoperPromotion === true &&
+      payload?.scoperEvidenceTraceReadback?.boundaries?.noBacklogMutation === true &&
+      Number(payload?.scoperEvidenceTraceReadback?.summary?.readyForPortfolioCount || 0) <= Number(payload?.scoperEvidenceTraceReadback?.summary?.sourceTraceReadyCount || 0) &&
+      list(payload?.scoperEvidenceTraceReadback?.candidates).length <= 5 &&
+      list(payload?.scoperEvidenceTraceReadback?.candidates).every(candidate => candidate.readyForPortfolio !== true || candidate.rawTraceReady === true) &&
+      htmlSource.includes('id="scoper-evidence-trace"') &&
+      htmlSource.includes('/dev-scoper-evidence-trace.css') &&
+      htmlSource.includes('/dev-scoper-evidence-trace.js') &&
+      scoperEvidenceTraceJsSource.includes('scoperEvidenceTraceReadback') &&
+      scoperEvidenceTraceJsSource.includes('Proposal-only') &&
+      cssSource.includes('.scoper-evidence-trace'),
+    'Dev Hub exposes Scoper evidence trace readback without promoting Director candidates',
+    `reviewed=${payload?.scoperEvidenceTraceReadback?.summary?.reviewedCount || 0}; ready=${payload?.scoperEvidenceTraceReadback?.summary?.readyForPortfolioCount || 0}; parked=${payload?.scoperEvidenceTraceReadback?.summary?.parkedCount || 0}`,
   )
   addCheck(
     checks,
@@ -1431,6 +1462,17 @@ async function main() {
         status: payload.foundationDoneBar.status,
         summary: payload.foundationDoneBar.summary,
         topGaps: list(payload.foundationDoneBar.topGaps).slice(0, 5),
+      } : null,
+      scoperEvidenceTraceReadback: payload.scoperEvidenceTraceReadback ? {
+        status: payload.scoperEvidenceTraceReadback.status,
+        summary: payload.scoperEvidenceTraceReadback.summary,
+        candidates: list(payload.scoperEvidenceTraceReadback.candidates).map(candidate => ({
+          rank: candidate.rank,
+          title: candidate.title,
+          sourceTraceStatus: candidate.sourceTraceStatus,
+          scoperStatus: candidate.scoperStatus,
+          readyForPortfolio: candidate.readyForPortfolio,
+        })),
       } : null,
       approvalReviewQueue: list(payload.approvalReviewQueue).slice(0, 5),
       approvalReviewTriage: payload.approvalReviewTriage ? {

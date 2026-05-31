@@ -1049,5 +1049,63 @@
       "The bar intentionally requires an applied action-route signal before a source counts as resolved; route-only or pending-review work remains open.",
       "The Dev Hub surface is still above the 3,000-line caution threshold in existing files, so future work should keep adding standalone modules/renderers or split files before broad UI changes."
     ]
+  },
+  {
+    "key": "dev-hub-scoper-evidence-trace-readback-v1",
+    "backlogIds": [
+      "DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub Scoper evidence trace readback",
+        "DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001",
+        "dev-hub-scoper-evidence-trace-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-BUILD-OPPORTUNITY-SCOPER-001",
+      "DEV-TEAM-INTELLIGENCE-DIRECTOR-001",
+      "DEV-HUB-FOUNDATION-DONE-BAR-001"
+    ],
+    "systemArea": "Dev Hub Scoper evidence trace visibility",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Scoper evidence trace readback to Dev Hub that projects existing Director-to-Scoper trace proof into reviewed, raw-trace-ready, Portfolio-ready, parked, and proposal-only states.",
+    "whatItDoes": "The Dev Hub now shows which current Director recommendations have raw atom and raw hit proof before Scoper/Portfolio review, and which recommendations stay parked because source evidence is missing or blocked.",
+    "whyItMatters": "Steve wants Dev Hub to recommend next builds from real evidence without auto-building or hiding promotion gaps. This makes Scoper readiness visible while keeping recommendations proposal-only.",
+    "whereItLives": [
+      "lib/dev-hub-scoper-evidence-trace-readback.js compact trace projection, validation, and dogfood proof",
+      "lib/foundation-build-intel-routes.js existing Scoper evidence trace readback for Dev Hub API",
+      "lib/dev-team-hub.js scoperEvidenceTraceReadback payload wiring",
+      "public/dev.html Scoper Trace panel",
+      "public/dev-scoper-evidence-trace.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-scoper-evidence-trace.css standalone Scoper Trace panel styles",
+      "scripts/process-dev-hub-scoper-evidence-trace-readback-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-scoper-evidence-trace-readback-001-plan.md",
+      "docs/process/approvals/DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001.json",
+      "package.json process:dev-hub-scoper-evidence-trace-readback-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-scoper-evidence-trace-readback.js scripts/process-dev-hub-scoper-evidence-trace-readback-check.mjs public/dev-scoper-evidence-trace.js lib/foundation-build-intel-routes.js lib/dev-team-hub.js",
+      "npm run process:dev-build-scoper-evidence-trace-check -- --json --limit=5",
+      "npm run process:dev-hub-scoper-evidence-trace-readback-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001.json --closeoutKey=dev-hub-scoper-evidence-trace-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001 --closeoutKey=dev-hub-scoper-evidence-trace-readback-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001.json --closeoutKey=dev-hub-scoper-evidence-trace-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: a candidate without raw atom and raw hit proof cannot be ready for Portfolio review, and any auto-promoted candidate fails validation. Live readback validates current Director candidates through existing Scoper evidence trace with bounded rows and no backlog, route, Harlan, extraction, model, or external write path.",
+    "reviewNext": "Use Foundation Done plus Scoper trace to choose the next safe repair slice: source-family atom-flow repair/readback or Dev Hub self-cleaning lifecycle readback. Do not create live build cards, approve/apply routes, or auto-promote recommendations without Steve confirming the exact card.",
+    "knownLimits": [
+      "This is a read-only visibility slice; it does not create Scoper cards, Portfolio records, backlog cards, Current Sprint overlays, action routes, Harlan messages, extraction runs, model calls, or external writes.",
+      "Portfolio-ready means raw trace is available for review; it is not Steve approval to build.",
+      "The fifth current Director candidate is parked when raw source evidence is incomplete; this card surfaces that boundary but does not repair the source atom gap."
+    ]
   }
 ]

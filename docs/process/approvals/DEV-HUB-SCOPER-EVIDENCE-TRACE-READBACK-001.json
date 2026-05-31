@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T01:24:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-scoper-evidence-trace-readback-001-plan.md",
+  "approvedPlanSha256": "99c5e4bb96956dad6151e92a132ac5e5be5a77fa38a08fe7979e449a57a9519e",
+  "approvedRepoHead": "ac3ebe4f09b82f3bd0ab3a8cea5bb1a58fa66278",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to park blocked work and keep going. The Foundation Done bar made Scoper evidence readback the next safe visibility slice.",
+  "scopeSummary": "Expose a read-only Dev Hub Scoper evidence trace readback over current Director recommendations without promoting candidates or mutating backlog/routes.",
+  "constraints": [
+    "Do not auto-promote Director candidates into backlog, Scoper, Portfolio, or Current Sprint.",
+    "Do not approve, apply, reject, snooze, reroute, or promote live action routes.",
+    "Do not create backlog, decision, or open-question records from live recommendations.",
+    "Do not send Telegram, email, Slack, Agent Feedback, or public messages.",
+    "Do not run extraction, source sync, provider/model calls, login, Browserbase, paid/private source work, or external writes.",
+    "Fail proof if a candidate without both raw atom and raw hit evidence is marked ready for Portfolio review."
+  ],
+  "approvalDigest": "9052d9a9b27adb9bfe2da684f87e94105715205074c9e5d7d3bc1594dabaa3a2"
+}

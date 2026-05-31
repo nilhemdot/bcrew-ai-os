@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/dev.css?v=20260530-oversized-core" />
   <link rel="stylesheet" href="/dev-youtube-source.css?v=20260530-oversized-v1" />
   <link rel="stylesheet" href="/dev-source-approval.css?v=20260530-oversized-v1" />
+  <link rel="stylesheet" href="/dev-scoper-evidence-trace.css?v=20260531-scoper-trace-v1" />
 </head>
 <body>
   <header class="launcher-topbar">
@@ -131,6 +132,20 @@
 
           <section class="director-panel" id="director-panel" aria-label="Dev Intelligence Director recommendations">
             <article class="loading-card">Loading Director recommendations from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band">
+          <section class="section-head scoper-trace-head">
+            <div>
+              <span>SCOPER TRACE</span>
+              <h2>Evidence To Scope</h2>
+            </div>
+            <div class="scoper-trace-head-stats" id="scoper-trace-head-stats" aria-live="polite"></div>
+          </section>
+
+          <section class="scoper-evidence-trace" id="scoper-evidence-trace" aria-label="Scoper evidence trace readback">
+            <article class="loading-card">Loading Scoper evidence trace from Foundation...</article>
           </section>
         </section>
 
@@ -278,5 +293,6 @@
   <script src="/dev.js?v=20260531-action-route-readback-v1"></script>
   <script src="/dev-action-route-readback.js?v=20260531-action-route-readback-v1"></script>
   <script src="/dev-foundation-done-bar.js?v=20260531-foundation-done-bar-v1"></script>
+  <script src="/dev-scoper-evidence-trace.js?v=20260531-scoper-trace-v1"></script>
 </body>
 </html>
