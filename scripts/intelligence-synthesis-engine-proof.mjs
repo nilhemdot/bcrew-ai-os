@@ -17,16 +17,14 @@ import {
   upsertSynthesisFactsBundle,
 } from '../lib/foundation-intelligence-db.js'
 import { callEmbedding } from '../lib/llm-router.js'
+import {
+  SYNTHESIS_REFRESH_SOURCE_IDS,
+  buildSynthesisEngineRunConfig,
+} from '../lib/synthesis-refresh-real-corpus-scope.js'
 
 const EMBEDDING_DIMENSIONS = 1536
 const EMBEDDING_MODEL = process.env.LLM_EMBEDDING_MODEL || 'text-embedding-3-large'
 const DIVERSITY_SOURCE_ID = 'SRC-GMAIL-001'
-const SCHEDULED_PROMOTION_SOURCE_IDS = [
-  'SRC-GMAIL-001',
-  'SRC-MISSIVE-001',
-  'SRC-MEETINGS-001',
-  'SRC-SLACK-001',
-]
 const SAFE_QUERY_PATTERNS = [
   /marketing.*source map/i,
   /source map/i,
@@ -175,8 +173,9 @@ async function embedChunks(chunks, actor = 'synthesis-engine-proof') {
 async function main() {
   const args = parseArgs()
   const refreshMode = args.refresh === 'true' || args.refreshMode === 'true' || args.refresh_mode === 'true'
-  const actor = refreshMode ? 'synthesis-engine-refresh' : 'synthesis-engine-proof'
-  const commandName = refreshMode ? 'npm run intelligence:synthesis-refresh' : 'npm run intelligence:synthesis-proof'
+  const synthesisRunConfig = buildSynthesisEngineRunConfig({ refreshMode })
+  const actor = synthesisRunConfig.actor
+  const commandName = synthesisRunConfig.commandName
   const runSuffix = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)
 
   await initFoundationDb()
@@ -202,7 +201,7 @@ async function main() {
     ? await promoteSharedCommunicationCandidatesToAtoms({
         runId: `retrieval-fresh-candidate-promotion-${runSuffix}`,
         reportArtifactId: `report-artifact:synthesis-engine-fresh-candidate-promotion-${runSuffix}`,
-        sourceIds: SCHEDULED_PROMOTION_SOURCE_IDS,
+        sourceIds: synthesisRunConfig.scheduledPromotionSourceIds,
         maxTier: 1,
         limit: 30,
       }, actor)
@@ -219,7 +218,7 @@ async function main() {
   ])
   const embeddingSelection = promotedCandidateKeys.length
     ? { candidateKeys: promotedCandidateKeys }
-    : { sourceIds: refreshMode ? SCHEDULED_PROMOTION_SOURCE_IDS : [DIVERSITY_SOURCE_ID] }
+    : { sourceIds: refreshMode ? SYNTHESIS_REFRESH_SOURCE_IDS : [DIVERSITY_SOURCE_ID] }
   const chunksForEmbedding = await selectRetrievalChunksForEmbedding({
     ...embeddingSelection,
     maxTier: 1,
@@ -302,26 +301,28 @@ async function main() {
       queryEmbeddingCallId: queryEmbeddingResult.call.callId,
       evidence: factBundle.evidence,
       corpusDiversitySourceId: DIVERSITY_SOURCE_ID,
-      scheduledPromotionSourceIds: refreshMode ? SCHEDULED_PROMOTION_SOURCE_IDS : [],
+      scheduledPromotionSourceIds: synthesisRunConfig.scheduledPromotionSourceIds,
       promotedCandidateKeys,
     },
   }, actor)
 
   const synthesis = await runGovernedSynthesis({
-    runId: `${refreshMode ? 'synthesis-engine-refresh' : 'synthesis-engine-proof'}-${runSuffix}`,
-    runType: refreshMode ? 'governed_synthesis' : 'governed_synthesis_proof',
+    runId: `${synthesisRunConfig.runIdPrefix}-${runSuffix}`,
+    runType: synthesisRunConfig.runType,
     status: 'succeeded',
     requestedBy: actor,
     sourceIds: factBundle.sourceIds,
     facts: savedFacts.facts,
     evidence: factBundle.evidence,
     maxTier: 1,
-    itemLimit: 8,
-    synthesisScopeKey: 'foundation-spine-proof',
+    itemLimit: synthesisRunConfig.itemLimit,
+    synthesisScopeKey: synthesisRunConfig.synthesisScopeKey,
     metadata: {
       backlogCardId: 'SYNTHESIS-ENGINE-001',
       [refreshMode ? 'scheduledCommand' : 'proofCommand']: commandName,
-      synthesisScopeKey: 'foundation-spine-proof',
+      synthesisScopeKey: synthesisRunConfig.synthesisScopeKey,
+      synthesisItemLimit: synthesisRunConfig.itemLimit,
+      synthesisRunMode: synthesisRunConfig.mode,
       queries,
       queryEmbeddingCallId: queryEmbeddingResult.call.callId,
       corpusDiversity: {
@@ -331,7 +332,7 @@ async function main() {
         promoted: diversityPromotion.chunksUpserted,
         freshPromoted: freshPromotion.chunksUpserted,
         embedded: embedded.length,
-        scheduledPromotionSourceIds: refreshMode ? SCHEDULED_PROMOTION_SOURCE_IDS : [],
+        scheduledPromotionSourceIds: synthesisRunConfig.scheduledPromotionSourceIds,
       },
     },
   }, actor)
@@ -448,7 +449,7 @@ async function main() {
       promoted: diversityPromotion.chunksUpserted,
       freshPromoted: freshPromotion.chunksUpserted,
       embedded: embedded.length,
-      scheduledPromotionSourceIds: refreshMode ? SCHEDULED_PROMOTION_SOURCE_IDS : [],
+      scheduledPromotionSourceIds: synthesisRunConfig.scheduledPromotionSourceIds,
       bySource: retrievalSnapshot.bySource,
     },
     facts: {

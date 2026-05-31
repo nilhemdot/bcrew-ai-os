@@ -72,12 +72,14 @@ async function main() {
   const [
     moduleSource,
     verifierSource,
+    healthLiveSummarySource,
     scriptSource,
     planSource,
     packageSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-health-script-verifier.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
+    readRepoFile('lib/foundation-verifier-health-live-summary.js'),
     readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH),
     readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH),
     readRepoFile('package.json'),
@@ -103,20 +105,25 @@ async function main() {
     'clickUpVerifyHealthy || (',
     "sheetVerify.includes('Sheet structure verification passed.')",
   ].every(token => !verifierSource.includes(token))
-  const delegates = verifierSource.includes('evaluateFoundationHealthScriptVerifier({') &&
-    verifierSource.includes('healthScriptVerifier.checks') &&
-    verifierSource.includes('buildFoundationHealthScriptVerifierDogfoodProof') &&
-    verifierSource.includes('VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID')
+  const sprintHistoricalDone = card?.lane === 'done'
+  const sprintStageOk = Boolean(sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage))
+  const delegates = verifierSource.includes('evaluateFoundationVerifierHealthLiveSummary({') &&
+    healthLiveSummarySource.includes('evaluateFoundationHealthScriptVerifier({') &&
+    healthLiveSummarySource.includes('healthScriptVerifier.checks') &&
+    healthLiveSummarySource.includes('buildFoundationHealthScriptVerifierDogfoodProof') &&
+    healthLiveSummarySource.includes('VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID')
 
   ensure(checks, approvalValidation.ok && Number(approvalValidation.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || VERIFIER_HEALTH_SCRIPT_MODULE_APPROVAL_PATH)
   ensure(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  ensure(checks, activeSprint.sprint?.sprintId === VERIFIER_HEALTH_SCRIPT_MODULE_SPRINT_ID, 'Current Sprint is the verifier health-script module sprint', activeSprint.sprint?.sprintId || 'missing')
-  ensure(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  ensure(checks, activeSprint.sprint?.sprintId === VERIFIER_HEALTH_SCRIPT_MODULE_SPRINT_ID || sprintHistoricalDone, 'Current Sprint is the verifier health-script module sprint or historical card is done', sprintHistoricalDone ? `${card.id}:${card.lane}` : (activeSprint.sprint?.sprintId || 'missing'))
+  ensure(checks, sprintStageOk || sprintHistoricalDone, 'Current Sprint contains the card in Building Now/Done or historical card is done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : (sprintHistoricalDone ? `${card.id}:${card.lane}` : 'missing'))
   ensure(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
   ensure(checks, moduleSource.includes('evaluateFoundationHealthScriptVerifier') && moduleSource.includes('buildFoundationHealthScriptVerifierDogfoodProof'), 'new module owns health-script verifier logic', 'lib/foundation-health-script-verifier.js')
   ensure(checks, dogfood.ok === true, 'dogfood rejects health-script verifier failures', dogfood.invariant)
   ensure(checks, dogfood.healthy.ok === true, 'dogfood healthy fixture passes', `${dogfood.healthy.summary.passed}/${dogfood.healthy.summary.total}`)
   ensure(checks, dogfood.missingGoogleDelegated.ok === false, 'dogfood rejects missing Google delegated access', dogfood.missingGoogleDelegated.failed.map(item => item.check).join('; '))
+  ensure(checks, dogfood.googleDelegatedAuthOutageAccepted.ok === true, 'dogfood accepts governed Google delegated-auth outage with direct service-account read proof', `${dogfood.googleDelegatedAuthOutageAccepted.summary.passed}/${dogfood.googleDelegatedAuthOutageAccepted.summary.total}`)
+  ensure(checks, dogfood.googleDelegatedAuthOutageRejectedWithoutGovernedConnector.ok === false, 'dogfood rejects Google delegated-auth outage without governed connector degradation', dogfood.googleDelegatedAuthOutageRejectedWithoutGovernedConnector.failed.map(item => item.check).join('; '))
   ensure(checks, dogfood.riskyKpi.ok === false, 'dogfood rejects risky KPI health', dogfood.riskyKpi.failed.map(item => item.check).join('; '))
   ensure(checks, dogfood.missingBacklogSynthetic.ok === false, 'dogfood rejects missing backlog stale-card synthetic proof', dogfood.missingBacklogSynthetic.failed.map(item => item.check).join('; '))
   ensure(checks, dogfood.clickUpVendorOutageAccepted.ok === true, 'dogfood accepts governed ClickUp vendor outage only with degraded source health', `${dogfood.clickUpVendorOutageAccepted.summary.passed}/${dogfood.clickUpVendorOutageAccepted.summary.total}`)
@@ -143,6 +150,8 @@ async function main() {
     dogfood: {
       healthy: dogfood.healthy.ok,
       missingGoogleDelegatedRejected: dogfood.missingGoogleDelegated.ok === false,
+      googleDelegatedAuthOutageAccepted: dogfood.googleDelegatedAuthOutageAccepted.ok === true,
+      googleDelegatedAuthOutageRejectedWithoutGovernedConnector: dogfood.googleDelegatedAuthOutageRejectedWithoutGovernedConnector.ok === false,
       riskyKpiRejected: dogfood.riskyKpi.ok === false,
       missingBacklogSyntheticRejected: dogfood.missingBacklogSynthetic.ok === false,
       clickUpVendorOutageAccepted: dogfood.clickUpVendorOutageAccepted.ok === true,

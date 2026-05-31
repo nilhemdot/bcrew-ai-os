@@ -714,5 +714,54 @@
       "Reminder sends do not write ClickUp Requested; Requested remains initial-send only.",
       "Closeout owns only AGENT-FEEDBACK-LIVE-REMINDERS-001."
     ]
+  },
+  {
+    "key": "agent-feedback-real-user-submit-repair-metadata-fallback-v1",
+    "backlogIds": [
+      "AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "agent-feedback-real-user-submit-repair-metadata-fallback-v1",
+        "Agent Feedback Real-User Submit Repair Metadata Fallback",
+        "Repair health gates and synthesis refresh scope"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001",
+      "VERIFIER-AGENT-FEEDBACK-ORCHESTRATION-SPLIT-001"
+    ],
+    "systemArea": "Agent Onboarding / Agent Feedback verifier proof boundary",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a metadata-only fallback for the real-user repair status builder so archived BCC and duplicate-submit proof can satisfy the verifier when a later Gmail metadata read is unavailable.",
+    "whatItDoes": "Parses the accepted repair proof artifact and uses it only when the artifact matches the active repair attempt and real browser response token hash prefix, while preserving the no raw email, no raw token, and no feedback-content boundary.",
+    "whyItMatters": "Agent Feedback proof should not become red because a later external Gmail read disappears after the accepted metadata-only proof already captured the evidence. The gate remains strict because mismatched artifacts or private proof leaks still fail.",
+    "whereItLives": [
+      "lib/agent-feedback-real-user-submit-repair.js",
+      "scripts/process-agent-feedback-real-user-submit-repair-check.mjs",
+      "docs/process/agent-feedback-real-user-submit-repair-metadata-fallback-001-plan.md",
+      "docs/process/approvals/AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-METADATA-FALLBACK-001.json",
+      "docs/_archive/audits/2026-05-01-agent-feedback-real-user-submit-repair-proof.md"
+    ],
+    "proofCommands": [
+      "node --check lib/agent-feedback-real-user-submit-repair.js scripts/process-agent-feedback-real-user-submit-repair-check.mjs",
+      "npm run process:agent-feedback-real-user-submit-repair-check -- --includeDuplicateProbe",
+      "npm run process:agent-feedback-steve-full-loop-test-check -- --json",
+      "npm run process:verifier-agent-feedback-orchestration-split-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001 --planApprovalRef=docs/process/approvals/AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-METADATA-FALLBACK-001.json --closeoutKey=agent-feedback-real-user-submit-repair-metadata-fallback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001 --closeoutKey=agent-feedback-real-user-submit-repair-metadata-fallback-v1",
+      "npm run process:foundation-ship -- --card=AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001 --planApprovalRef=docs/process/approvals/AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-METADATA-FALLBACK-001.json --closeoutKey=agent-feedback-real-user-submit-repair-metadata-fallback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused checks prove the real-user repair status is healthy, Steve full-loop remains not accepted but properly gated, Agent Feedback orchestration proof passes 15/15, and foundation:verify passes 519/519 without sending Gmail, writing ClickUp, or logging raw private values.",
+    "reviewNext": "Keep production auto-send and any future Agent Feedback sends on their separate approval gates. This is only a verifier/proof-boundary repair.",
+    "knownLimits": [
+      "This does not send Gmail, mutate Gmail, write ClickUp, send reminders, enable production auto-send, or target Georgia.",
+      "This does not log raw tokens, raw emails, or feedback content.",
+      "This does not change Agent Feedback route or product behavior.",
+      "The fallback is accepted only when the metadata-only artifact matches the active repair token hash prefix."
+    ]
   }
 ]

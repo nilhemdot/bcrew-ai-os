@@ -2983,5 +2983,57 @@
       "No docs were deleted; archive contents are preserved for search and one-time idea mining.",
       "FOUNDATION-HUB-FOLDER-ISOLATION-001 remains checkpoint-only."
     ]
+  },
+  {
+    "key": "google-delegated-health-gate-degrade-v1",
+    "backlogIds": [
+      "VERIFIER-HEALTH-SCRIPT-MODULE-SPLIT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "google-delegated-health-gate-degrade-v1",
+        "Google delegated health gate",
+        "delegated-auth outage",
+        "Repair health gates and synthesis refresh scope"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "CONNECTOR-UPTIME-MONITOR-001",
+      "SOURCE-OUTAGE-BOUNDARY-001"
+    ],
+    "systemArea": "Foundation verifier health gate / Google Workspace connector reliability",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Changed the health verifier to capture `google:health` delegated-auth failures as structured output, then run a bounded service-account direct Sheets read fallback only after the delegated check fails. Owners governance read routes now use the same read-only fallback and mark source health degraded instead of returning 400.",
+    "whatItDoes": "Keeps delegated Google health strict when it is healthy, but lets `foundation:verify` continue only for the governed degraded case: delegated impersonation fails with the known auth class, service-account direct Sheets read passes, Google Workspace is already marked degraded/not safe to use, and Owners governance can still return source-backed read payloads with degraded source health.",
+    "whyItMatters": "This prevents one external Google delegation outage from blocking unrelated Foundation ships or core owner governance APIs while still exposing the real connector degradation. It does not hide a broken Google connector or downgrade missing proof to green.",
+    "whereItLives": [
+      "lib/foundation-health-script-verifier.js",
+      "lib/foundation-verifier-health-live-summary.js",
+      "lib/owners-governance-routes.js",
+      "scripts/process-verifier-health-script-module-check.mjs",
+      "scripts/process-google-delegated-health-gate-degrade-check.mjs",
+      "docs/process/google-delegated-health-gate-degrade-001-plan.md",
+      "docs/process/approvals/GOOGLE-DELEGATED-HEALTH-GATE-DEGRADE-001.json"
+    ],
+    "proofCommands": [
+      "node --check lib/foundation-health-script-verifier.js lib/foundation-verifier-health-live-summary.js lib/owners-governance-routes.js scripts/process-verifier-health-script-module-check.mjs scripts/process-google-delegated-health-gate-degrade-check.mjs",
+      "npm run process:google-delegated-health-gate-degrade-check -- --json",
+      "npm run process:verifier-health-script-module-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=VERIFIER-HEALTH-SCRIPT-MODULE-SPLIT-001 --planApprovalRef=docs/process/approvals/GOOGLE-DELEGATED-HEALTH-GATE-DEGRADE-001.json --closeoutKey=google-delegated-health-gate-degrade-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=VERIFIER-HEALTH-SCRIPT-MODULE-SPLIT-001 --closeoutKey=google-delegated-health-gate-degrade-v1",
+      "npm run process:foundation-ship -- --card=VERIFIER-HEALTH-SCRIPT-MODULE-SPLIT-001 --planApprovalRef=docs/process/approvals/GOOGLE-DELEGATED-HEALTH-GATE-DEGRADE-001.json --closeoutKey=google-delegated-health-gate-degrade-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused dogfood recreates the exact delegated `invalid_grant` failure, proves service-account direct Sheets read is required, proves the fallback is rejected when Google Workspace is not governed degraded, proves Owners governance read routes use the fallback with degraded source health, and keeps the existing KPI, backlog, ClickUp, and Sheets health failures red.",
+    "reviewNext": "Repair the actual Google delegated impersonation/domain-wide delegation authority as a connector credential task. Until then, the health gate remains honest: Google Workspace is degraded/not safe to use for delegated workloads, while unrelated non-Google Foundation ships can continue.",
+    "knownLimits": [
+      "This does not repair Google Admin, domain-wide delegation, OAuth, Gmail, Calendar, or credential material.",
+      "`npm run google:health` remains strict and still exits nonzero for the delegated impersonation failure.",
+      "The fallback only proves service-account direct Sheets reads, not delegated user impersonation.",
+      "Owners governance fallback is read-route only and reports degraded source health.",
+      "No source sync, extraction, route apply, backlog auto-promotion, or external write is performed."
+    ]
   }
 ]

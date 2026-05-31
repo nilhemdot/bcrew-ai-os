@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-30T23:40:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/synthesis-refresh-real-corpus-scope-001-plan.md",
+  "approvedPlanSha256": "ac3e39da9b2791f5100eef088061a4fb518ac27c5c9f13d1dacdb271fdae74bc",
+  "approvedRepoHead": "c258030d60c1f3bf47cbe00a57d5ccf53fc80311",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and specifically instructed Codex to keep going, park blocked/unsafe work, and avoid waking him for safe internal slices. This approval covers config separation and no-run proof only.",
+  "scopeSummary": "Separate synthesis proof scope from scheduled refresh scope so refresh no longer inherits the 8-item foundation-spine-proof configuration; do not execute synthesis refresh or model/provider work.",
+  "constraints": [
+    "Keep proof mode small and deterministic.",
+    "Move refresh mode to a separate real-corpus synthesis scope with a larger bounded item limit.",
+    "Do not run intelligence:synthesis-refresh in this card.",
+    "Do not call embeddings, model/provider routes, live extraction, or source sync from the focused proof.",
+    "Do not propose, approve, apply, reject, snooze, reroute, or mutate action routes.",
+    "Do not create backlog cards from Director, Scoper, Portfolio, or route recommendations.",
+    "Do not send Telegram, email, Slack, Agent Feedback, or public messages."
+  ],
+  "approvalDigest": "3af751a9020ffd622c42441dc1015687ed07670958992863efe9e39e47de4727"
+}

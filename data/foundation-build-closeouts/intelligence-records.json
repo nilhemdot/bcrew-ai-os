@@ -2682,5 +2682,59 @@
       "This does not mutate Drive/Gmail/ClickUp/Slack/Agent Feedback, Drive permissions, or external systems.",
       "This does not launch hidden subagents, invisible workers, parallel builders, live agent runtime work, or extraction workers."
     ]
+  },
+  {
+    "key": "synthesis-refresh-real-corpus-scope-v1",
+    "backlogIds": [
+      "SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001",
+        "Separate synthesis refresh from proof scope",
+        "synthesis-refresh-real-corpus-scope-v1",
+        "Repair health gates and synthesis refresh scope"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SYNTHESIS-ENGINE-001",
+      "SYNTHESIS-VERIFY-001",
+      "ACTION-ROUTER-001",
+      "SYNTHESIS-ROUTER-FRESHNESS-TRIGGER-001"
+    ],
+    "systemArea": "Foundation intelligence synthesis refresh",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Separated the small synthesis proof scope from the scheduled real-corpus synthesis refresh configuration.",
+    "whatItDoes": "Keeps proof mode on the 8-item foundation-spine proof lane while refresh mode uses a separate real-corpus scope and larger bounded item limit through a shared config helper.",
+    "whyItMatters": "The intelligence pipe should not look live while the scheduled synthesis refresh is still configured to chew only the old proof/demo scope.",
+    "whereItLives": [
+      "lib/synthesis-refresh-real-corpus-scope.js proof/refresh config owner, validator, and dogfood proof",
+      "scripts/intelligence-synthesis-engine-proof.mjs uses config-owned scope, item limit, run type, and run id prefix",
+      "scripts/process-synthesis-refresh-real-corpus-scope-check.mjs focused no-run proof and guarded close-card writer",
+      "docs/process/synthesis-refresh-real-corpus-scope-001-plan.md",
+      "docs/process/approvals/SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001.json",
+      "package.json script process:synthesis-refresh-real-corpus-scope-check"
+    ],
+    "proofCommands": [
+      "node --check lib/synthesis-refresh-real-corpus-scope.js scripts/intelligence-synthesis-engine-proof.mjs scripts/process-synthesis-refresh-real-corpus-scope-check.mjs",
+      "npm run process:synthesis-refresh-real-corpus-scope-check -- --close-card --json",
+      "npm run process:synthesis-verify-check -- --json",
+      "npm run process:action-route-apply-safety-preflight-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001 --planApprovalRef=docs/process/approvals/SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001.json --closeoutKey=synthesis-refresh-real-corpus-scope-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001 --closeoutKey=synthesis-refresh-real-corpus-scope-v1",
+      "npm run process:foundation-ship -- --card=SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001 --planApprovalRef=docs/process/approvals/SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001.json --closeoutKey=synthesis-refresh-real-corpus-scope-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live child-card state, shipped parent synthesis engine card, package and scheduled-job wiring, dogfood proof/refresh config split, runner source wiring, synthesis verification health, and no focused-proof model, synthesis, action-router, or send runtime.",
+    "reviewNext": "Run the model-backed intelligence:synthesis-refresh only under explicit provider/model spend approval, then route proposals through the guarded Action Router and apply-safety preflight.",
+    "knownLimits": [
+      "This does not run intelligence:synthesis-refresh, embeddings, model/provider routes, live extraction, source sync, transcript fetch, browser work, screenshots, OCR, downloads, or summarization.",
+      "This does not create or mutate synthesis facts, synthesized items, action routes, decisions, questions, backlog cards from source content, vectors, KB, or query indexes.",
+      "This does not approve, apply, reject, snooze, reroute, or auto-promote Director, Scoper, Portfolio, or route recommendations.",
+      "This does not send Telegram, email, Slack, Agent Feedback, or public messages.",
+      "The next real refresh still requires a deliberate runtime/spend decision because it can call embeddings/model infrastructure and write synthesis rows."
+    ]
   }
 ]

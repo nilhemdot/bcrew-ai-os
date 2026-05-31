@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T00:20:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/agent-feedback-real-user-submit-repair-metadata-fallback-001-plan.md",
+  "approvedPlanSha256": "5cbe681abb920fea951a8164750a8bee81cd47b7bb72bef0b4eb0fee6df5cc04",
+  "approvedRepoHead": "c258030d60c1f3bf47cbe00a57d5ccf53fc80311",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and avoid external writes. This repair is a verifier/proof-boundary fix only after foundation:verify exposed stale Agent Feedback Gmail metadata dependency.",
+  "scopeSummary": "Use the accepted metadata-only real-user repair proof as fallback for BCC and duplicate-submit evidence only when it matches the active repair token hash prefix and preserves no raw emails/tokens/content.",
+  "constraints": [
+    "Do not send Gmail, mutate Gmail, write ClickUp, send reminders, enable production auto-send, or target Georgia.",
+    "Do not log raw tokens, raw emails, or feedback content.",
+    "Do not change Agent Feedback product route behavior.",
+    "Keep live metadata/probes preferred when available; fallback is metadata-only proof-bound and token-hash matched."
+  ],
+  "approvalDigest": "85241d2870b4ccf33f1b9191e84baf19c431b23729057edf30e8d556a8a03550"
+}

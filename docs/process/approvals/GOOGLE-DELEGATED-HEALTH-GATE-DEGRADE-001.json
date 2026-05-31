@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-HEALTH-SCRIPT-MODULE-SPLIT-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T00:05:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/google-delegated-health-gate-degrade-001-plan.md",
+  "approvedPlanSha256": "5350ec054870cf45c1581c275ad27d03c4c27565b7094e849d04ca4cc1f5f86d",
+  "approvedRepoHead": "c258030d60c1f3bf47cbe00a57d5ccf53fc80311",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to park blocked work and keep going. This repair covers the protected gate blocking all ships after google:health returned delegated invalid_grant while service-account direct Sheets reads still passed.",
+  "scopeSummary": "Make foundation:verify capture google:health delegated-auth failure as structured health data, prove service-account direct read fallback, and pass only when Google Workspace is already governed degraded/not safe to use.",
+  "constraints": [
+    "Do not repair Google Admin, domain-wide delegation, OAuth, Gmail, or credentials in this card.",
+    "Do not change npm run google:health strict operator behavior.",
+    "Do not run source sync, extraction, route apply, backlog auto-promotion, or model/provider calls.",
+    "Do not send Telegram, email, Slack, Agent Feedback, or public messages.",
+    "Focused proof is static/read-only and performs no Google API calls."
+  ],
+  "approvalDigest": "544fc2599df89f16c6151f8b1a27728f10775b4b5474ca33b9909f04a78c45d3"
+}
