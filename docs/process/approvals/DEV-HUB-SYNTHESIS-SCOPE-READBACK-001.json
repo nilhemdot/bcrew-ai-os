@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-SYNTHESIS-SCOPE-READBACK-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T03:02:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-synthesis-scope-readback-001-plan.md",
+  "approvedPlanSha256": "8c3287fdf6335302cd7a7a34710e8d1b4822fe14995af2bdeb0e37c81a0f3db5",
+  "approvedRepoHead": "fec250c6408603851abb005a355a9bac0ba83dfc",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and prove the pipe is real without unsafe automation.",
+  "scopeSummary": "Expose a read-only Dev Hub Synthesis Scope readback showing proof scope, scheduled real-corpus refresh scope, job status, and no-run/no-model boundaries.",
+  "constraints": [
+    "Do not run intelligence:synthesis-refresh, intelligence:synthesis-proof, embeddings, model/provider calls, live extraction, source sync, transcript fetch, browser work, screenshots, OCR, downloads, or external writes.",
+    "Do not write synthesis rows, atoms, chunks, facts, routes, backlog cards, Scoper cards, Portfolio records, Current Sprint overlays, or approval records from this readback.",
+    "Do not propose, approve, apply, reject, snooze, reroute, or promote live action routes.",
+    "Do not auto-promote Director recommendations into backlog, Scoper, Portfolio, or Current Sprint.",
+    "Do not send Telegram, email, Slack, Agent Feedback, public messages, or Harlan notifications outside the governed ship gate.",
+    "Fail proof if scheduled refresh is represented as using the 8-item proof scope or if the readback starts synthesis/model work."
+  ],
+  "approvalDigest": "db2793a547e2206e4d170d613e2807677c50f7a01c136d68eaf3f450f720801e"
+}

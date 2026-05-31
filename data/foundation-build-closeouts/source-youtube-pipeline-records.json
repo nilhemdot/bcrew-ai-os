@@ -1222,5 +1222,62 @@
       "Report-only output being visible is not the same as automatic pipeline movement; a separate approved promotion card must own that path.",
       "Future repair work must dogfood the exact report-to-work promotion failure mode before any live mutation exists."
     ]
+  },
+  {
+    "key": "dev-hub-synthesis-scope-readback-v1",
+    "backlogIds": [
+      "DEV-HUB-SYNTHESIS-SCOPE-READBACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub synthesis scope readback",
+        "DEV-HUB-SYNTHESIS-SCOPE-READBACK-001",
+        "dev-hub-synthesis-scope-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "SYNTHESIS-REFRESH-REAL-CORPUS-SCOPE-001",
+      "SYNTHESIS-ENGINE-001",
+      "DEV-HUB-FOUNDATION-DONE-BAR-001",
+      "DEV-HUB-AUDITOR-FLOW-READBACK-001"
+    ],
+    "systemArea": "Dev Hub synthesis scope visibility",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Synthesis Scope readback to Dev Hub that shows proof scope, scheduled real-corpus refresh scope, item limits, source input count, scheduled job status, review buckets, and stuck signals.",
+    "whatItDoes": "The Dev Hub now proves that the proof lane remains the 8-item foundation-spine lane while scheduled refresh is configured for the bounded foundation-real-corpus-refresh lane. The readback does not run synthesis, call models, generate embeddings, propose routes, or write destinations.",
+    "whyItMatters": "Steve wanted the Dev Hub intelligence loop to use real data instead of hidden demo scope. The config repair was invisible to the operator; this makes proof-vs-real-corpus truth visible in the same Dev Hub where the Director and route queues live.",
+    "whereItLives": [
+      "lib/dev-hub-synthesis-scope-readback.js compact synthesis scope projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js synthesisScopeReadback payload wiring from existing synthesis config and Foundation job registry",
+      "public/dev.html Synthesis Scope panel",
+      "public/dev-synthesis-scope.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-synthesis-scope.css standalone Synthesis Scope panel styles",
+      "scripts/process-dev-hub-synthesis-scope-readback-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-synthesis-scope-readback-001-plan.md",
+      "docs/process/approvals/DEV-HUB-SYNTHESIS-SCOPE-READBACK-001.json",
+      "package.json process:dev-hub-synthesis-scope-readback-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-SYNTHESIS-SCOPE-READBACK-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-synthesis-scope-readback.js scripts/process-dev-hub-synthesis-scope-readback-check.mjs public/dev-synthesis-scope.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-synthesis-scope-readback-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-SYNTHESIS-SCOPE-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-SYNTHESIS-SCOPE-READBACK-001.json --closeoutKey=dev-hub-synthesis-scope-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-SYNTHESIS-SCOPE-READBACK-001 --closeoutKey=dev-hub-synthesis-scope-readback-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-SYNTHESIS-SCOPE-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-SYNTHESIS-SCOPE-READBACK-001.json --closeoutKey=dev-hub-synthesis-scope-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: scheduled refresh must not regress to the 8-item proof scope, and any readback-started synthesis/model work fails validation. Live readback validates current synthesis config and scheduled job state with bounded rows and no synthesis refresh, model, embedding, atom, fact, chunk, route, destination, backlog, Scoper, Portfolio, approval, Harlan, extraction, or external write path.",
+    "reviewNext": "Use Synthesis Scope plus Foundation Done to decide when to run or repair model-backed synthesis refresh. Do not execute refresh, call providers, or route findings from this readback without explicit approval.",
+    "knownLimits": [
+      "This is a read-only visibility slice; it does not execute synthesis refresh, embeddings, model/provider calls, action routing, Harlan, extraction, or external writes.",
+      "A healthy real-corpus refresh configuration is not proof that a new refresh has run today.",
+      "Future refresh execution must use a separate approved card with provider/model spend and route boundaries explicit."
+    ]
   }
 ]

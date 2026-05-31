@@ -104,6 +104,7 @@ const DEV_FOUNDATION_DONE_BAR_JS_PATH = 'public/dev-foundation-done-bar.js'
 const DEV_SCOPER_EVIDENCE_TRACE_JS_PATH = 'public/dev-scoper-evidence-trace.js'
 const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
+const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
@@ -111,6 +112,7 @@ const DEV_CSS_PATHS = [
   'public/dev-scoper-evidence-trace.css',
   'public/dev-intelligence-hygiene.css',
   'public/dev-auditor-flow.css',
+  'public/dev-synthesis-scope.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -224,6 +226,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="foundation-done-bar"',
 	    'id="intelligence-hygiene"',
 	    'id="auditor-flow"',
+	    'id="synthesis-scope"',
   ].every(marker => html.includes(marker))
 }
 
@@ -423,6 +426,7 @@ async function main() {
     scoperEvidenceTraceJsSource,
     intelligenceHygieneJsSource,
     auditorFlowJsSource,
+    synthesisScopeJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -441,6 +445,7 @@ async function main() {
     readRepoFile(DEV_SCOPER_EVIDENCE_TRACE_JS_PATH),
     readRepoFile(DEV_INTELLIGENCE_HYGIENE_JS_PATH),
     readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
+    readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -456,7 +461,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -555,6 +560,37 @@ async function main() {
       cssSource.includes('.foundation-done-bar'),
     'Dev Hub exposes Foundation Done source pipeline bar without counting routed-only work as done',
     `sources=${payload?.foundationDoneBar?.summary?.sourceCount || 0}; routed=${payload?.foundationDoneBar?.summary?.stageCounts?.routed || 0}; resolved=${payload?.foundationDoneBar?.summary?.stageCounts?.resolved || 0}; waitingRoutes=${payload?.foundationDoneBar?.summary?.waitingRoutes || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubSynthesisScopeReadback') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'synthesisScopeReadback') &&
+      payload?.synthesisScopeReadback?.contractVersion === 'dev-hub-synthesis-scope-readback.v1' &&
+      payload?.synthesisScopeReadback?.source?.configOwner === 'buildSynthesisEngineRunConfig' &&
+      payload?.synthesisScopeReadback?.source?.noSecondTruthLayer === true &&
+      payload?.synthesisScopeReadback?.boundaries?.noRefreshRun === true &&
+      payload?.synthesisScopeReadback?.boundaries?.noSynthesisWrite === true &&
+      payload?.synthesisScopeReadback?.boundaries?.noModelCalls === true &&
+      payload?.synthesisScopeReadback?.boundaries?.noEmbeddings === true &&
+      payload?.synthesisScopeReadback?.boundaries?.noActionRouteProposal === true &&
+      payload?.synthesisScopeReadback?.boundaries?.noActionRouteMutation === true &&
+      payload?.synthesisScopeReadback?.boundaries?.noBacklogMutation === true &&
+      payload?.synthesisScopeReadback?.summary?.refreshConfiguredForRealCorpus === true &&
+      payload?.synthesisScopeReadback?.summary?.proofAndRefreshSeparated === true &&
+      Number(payload?.synthesisScopeReadback?.summary?.refreshItemLimit || 0) > Number(payload?.synthesisScopeReadback?.summary?.proofItemLimit || 0) &&
+      payload?.synthesisScopeReadback?.summary?.refreshRunsStartedByReadback === 0 &&
+      payload?.synthesisScopeReadback?.summary?.modelOrProviderCallsStarted === 0 &&
+      payload?.synthesisScopeReadback?.summary?.actionRoutesProposedByReadback === 0 &&
+      list(payload?.synthesisScopeReadback?.flowStages).length <= 4 &&
+      list(payload?.synthesisScopeReadback?.reviewBuckets).length <= 5 &&
+      htmlSource.includes('id="synthesis-scope"') &&
+      htmlSource.includes('/dev-synthesis-scope.css') &&
+      htmlSource.includes('/dev-synthesis-scope.js') &&
+      synthesisScopeJsSource.includes('synthesisScopeReadback') &&
+      synthesisScopeJsSource.includes('No-run scope proof') &&
+      cssSource.includes('.synthesis-scope'),
+    'Dev Hub exposes Synthesis Scope proof-vs-real-corpus readback without running synthesis',
+    `proof=${payload?.synthesisScopeReadback?.summary?.proofScopeKey || 'missing'}/${payload?.synthesisScopeReadback?.summary?.proofItemLimit || 0}; refresh=${payload?.synthesisScopeReadback?.summary?.refreshScopeKey || 'missing'}/${payload?.synthesisScopeReadback?.summary?.refreshItemLimit || 0}; job=${payload?.synthesisScopeReadback?.summary?.scheduledRefreshLatestStatus || 'missing'}`,
   )
   addCheck(
     checks,
