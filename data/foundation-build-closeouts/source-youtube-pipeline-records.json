@@ -1335,5 +1335,65 @@
       "Ready-for-portfolio candidates are proposal-only and still need explicit operator approval before any destination write.",
       "Future Scoper scheduling must own the runtime boundary and prove no auto-promotion."
     ]
+  },
+  {
+    "key": "dev-hub-next-repair-queue-v1",
+    "backlogIds": [
+      "DEV-HUB-NEXT-REPAIR-QUEUE-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub next repair queue",
+        "DEV-HUB-NEXT-REPAIR-QUEUE-001",
+        "dev-hub-next-repair-queue-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-BUSINESS-SOURCE-PIPELINE-TRIAGE-001",
+      "DEV-HUB-ROUTE-REVIEW-TRIAGE-001",
+      "DEV-HUB-SCOPER-RUNTIME-READBACK-001",
+      "DEV-HUB-SYNTHESIS-SCOPE-READBACK-001",
+      "DEV-HUB-AUDITOR-FLOW-READBACK-001",
+      "DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001"
+    ],
+    "systemArea": "Dev Hub next repair visibility",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Next Repair Queue to Dev Hub that ranks proposal-only repair rows from existing pipeline readbacks.",
+    "whatItDoes": "The Dev Hub now proposes the next repairs across business source flow, action-route review, Scoper runtime, synthesis scope, auditor flow, and hygiene pressure without creating cards or mutating any destination.",
+    "whyItMatters": "Steve wants the Dev Hub to recommend what to build next from real data while he remains the builder/operator. This gives the builder a ranked queue without recreating unsafe auto-build or auto-promotion behavior.",
+    "whereItLives": [
+      "lib/dev-hub-next-repair-queue.js compact proposal-only queue projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js nextRepairQueue payload wiring from existing Dev Hub readbacks",
+      "public/dev.html Next Repairs panel",
+      "public/dev-next-repair-queue.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-next-repair-queue.css standalone Next Repairs panel styles",
+      "scripts/process-dev-hub-next-repair-queue-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-next-repair-queue-001-plan.md",
+      "docs/process/approvals/DEV-HUB-NEXT-REPAIR-QUEUE-001.json",
+      "package.json process:dev-hub-next-repair-queue-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-NEXT-REPAIR-QUEUE-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-next-repair-queue.js scripts/process-dev-hub-next-repair-queue-check.mjs public/dev-next-repair-queue.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-next-repair-queue-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-NEXT-REPAIR-QUEUE-001 --planApprovalRef=docs/process/approvals/DEV-HUB-NEXT-REPAIR-QUEUE-001.json --closeoutKey=dev-hub-next-repair-queue-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-NEXT-REPAIR-QUEUE-001 --closeoutKey=dev-hub-next-repair-queue-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-NEXT-REPAIR-QUEUE-001 --planApprovalRef=docs/process/approvals/DEV-HUB-NEXT-REPAIR-QUEUE-001.json --closeoutKey=dev-hub-next-repair-queue-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: every proposed repair must remain proposal-only, and any auto-created card, promotion, route mutation, intelligence write, runtime/model start, Harlan send, or external write fails validation. Live readback validates current proposed repairs with bounded rows and all mutation counters at zero.",
+    "reviewNext": "Choose one proposed repair as a separate approved card. Do not use this queue to create cards, schedule Scoper, apply routes, run extraction, run synthesis, write atoms/facts, send Harlan, or write externally.",
+    "knownLimits": [
+      "This is a read-only proposal queue; it does not perform repairs.",
+      "This does not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, action routes, atoms, facts, synthesis rows, Harlan messages, model calls, extraction runs, connector probes, or external writes.",
+      "Scoper scheduling, route apply, model-backed synthesis, extraction, connector sync, and source writes remain separate approval-bound cards.",
+      "Future work should pick one proposal row and dogfood that exact failure mode before any live mutation exists."
+    ]
   }
 ]

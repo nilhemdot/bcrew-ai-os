@@ -108,6 +108,7 @@ const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
 const DEV_ROUTE_REVIEW_TRIAGE_JS_PATH = 'public/dev-route-review-triage.js'
 const DEV_SCOPER_RUNTIME_JS_PATH = 'public/dev-scoper-runtime-readback.js'
 const DEV_BUSINESS_SOURCE_JS_PATH = 'public/dev-business-source-pipeline-triage.js'
+const DEV_NEXT_REPAIR_JS_PATH = 'public/dev-next-repair-queue.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
@@ -119,6 +120,7 @@ const DEV_CSS_PATHS = [
   'public/dev-route-review-triage.css',
   'public/dev-scoper-runtime-readback.css',
   'public/dev-business-source-pipeline-triage.css',
+  'public/dev-next-repair-queue.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -438,6 +440,7 @@ async function main() {
     routeReviewTriageJsSource,
     scoperRuntimeJsSource,
     businessSourceJsSource,
+    nextRepairJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -460,6 +463,7 @@ async function main() {
     readRepoFile(DEV_ROUTE_REVIEW_TRIAGE_JS_PATH),
     readRepoFile(DEV_SCOPER_RUNTIME_JS_PATH),
     readRepoFile(DEV_BUSINESS_SOURCE_JS_PATH),
+    readRepoFile(DEV_NEXT_REPAIR_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -475,7 +479,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -615,6 +619,45 @@ async function main() {
       cssSource.includes('.business-source-family'),
     'Dev Hub exposes Business Source Pipeline triage without syncing, extracting, writing, or false-green source completion',
     `sources=${payload?.businessSourcePipelineTriage?.summary?.businessSourceCount || 0}; stale=${payload?.businessSourcePipelineTriage?.summary?.staleAtomFlowCount || 0}; extractedOnly=${payload?.businessSourcePipelineTriage?.summary?.extractedNotAtomizedCount || 0}; waitingRoutes=${payload?.businessSourcePipelineTriage?.summary?.waitingRoutes || 0}; resolved=${payload?.businessSourcePipelineTriage?.summary?.resolvedCount || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubNextRepairQueue') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'nextRepairQueue') &&
+      payload?.nextRepairQueue?.contractVersion === 'dev-hub-next-repair-queue.v1' &&
+      payload?.nextRepairQueue?.source?.noSecondTruthLayer === true &&
+      list(payload?.nextRepairQueue?.source?.reusedTruthLayers).includes('businessSourcePipelineTriage') &&
+      list(payload?.nextRepairQueue?.source?.reusedTruthLayers).includes('routeReviewTriage') &&
+      payload?.nextRepairQueue?.boundaries?.proposalOnly === true &&
+      payload?.nextRepairQueue?.boundaries?.noCardCreate === true &&
+      payload?.nextRepairQueue?.boundaries?.noBacklogMutation === true &&
+      payload?.nextRepairQueue?.boundaries?.noScoperMutation === true &&
+      payload?.nextRepairQueue?.boundaries?.noRouteMutation === true &&
+      payload?.nextRepairQueue?.boundaries?.noAtomWrites === true &&
+      payload?.nextRepairQueue?.boundaries?.noSourceSync === true &&
+      payload?.nextRepairQueue?.boundaries?.noLiveExtraction === true &&
+      payload?.nextRepairQueue?.boundaries?.noModelCalls === true &&
+      payload?.nextRepairQueue?.boundaries?.noExternalWrites === true &&
+      payload?.nextRepairQueue?.boundaries?.noAutoBuild === true &&
+      Number(payload?.nextRepairQueue?.summary?.cardsCreatedByReadback || 0) === 0 &&
+      Number(payload?.nextRepairQueue?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.nextRepairQueue?.summary?.scoperRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.nextRepairQueue?.summary?.routeMutationsByReadback || 0) === 0 &&
+      Number(payload?.nextRepairQueue?.summary?.atomRowsWrittenByReadback || 0) === 0 &&
+      Number(payload?.nextRepairQueue?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.nextRepairQueue?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.nextRepairQueue?.proposedRepairs).length <= 6 &&
+      list(payload?.nextRepairQueue?.proposedRepairs).every(item => item.status === 'proposal_only' && item.autoCreated === false && item.autoPromoted === false && item.appliedNow === false) &&
+      htmlSource.includes('id="next-repair-queue"') &&
+      htmlSource.includes('/dev-next-repair-queue.css') &&
+      htmlSource.includes('/dev-next-repair-queue.js') &&
+      nextRepairJsSource.includes('nextRepairQueue') &&
+      nextRepairJsSource.includes('Proposal-only repair queue') &&
+      cssSource.includes('.next-repair-queue') &&
+      cssSource.includes('.next-repair-summary') &&
+      cssSource.includes('.next-repair-card'),
+    'Dev Hub exposes a proposal-only Next Repair Queue without creating cards, applying routes, promoting Scoper, or writing intelligence rows',
+    `proposals=${payload?.nextRepairQueue?.summary?.proposedRepairCount || 0}; approvalBound=${payload?.nextRepairQueue?.summary?.approvalBoundCount || 0}; cardsCreated=${payload?.nextRepairQueue?.summary?.cardsCreatedByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -1704,6 +1747,17 @@ async function main() {
         familyBuckets: payload.businessSourcePipelineTriage.familyBuckets,
         queueCounts: Object.fromEntries(Object.entries(payload.businessSourcePipelineTriage.queues || {})
           .map(([key, value]) => [key, list(value).length])),
+      } : null,
+      nextRepairQueue: payload.nextRepairQueue ? {
+        status: payload.nextRepairQueue.status,
+        summary: payload.nextRepairQueue.summary,
+        proposedRepairs: list(payload.nextRepairQueue.proposedRepairs).map(item => ({
+          rank: item.rank,
+          repairId: item.repairId,
+          title: item.title,
+          suggestedCardType: item.suggestedCardType,
+          status: item.status,
+        })),
       } : null,
       scoperEvidenceTraceReadback: payload.scoperEvidenceTraceReadback ? {
         status: payload.scoperEvidenceTraceReadback.status,

@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/dev-route-review-triage.css?v=20260531-route-triage-v1" />
   <link rel="stylesheet" href="/dev-scoper-runtime-readback.css?v=20260531-scoper-runtime-v1" />
   <link rel="stylesheet" href="/dev-business-source-pipeline-triage.css?v=20260531-business-source-v1" />
+  <link rel="stylesheet" href="/dev-next-repair-queue.css?v=20260531-next-repair-v1" />
 </head>
 <body>
   <header class="launcher-topbar">
@@ -138,6 +139,20 @@
 
           <section class="business-source-triage" id="business-source-triage" aria-label="Dev business source pipeline triage">
             <article class="loading-card">Loading business source pipeline from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band">
+          <section class="section-head next-repair-head">
+            <div>
+              <span>NEXT REPAIRS</span>
+              <h2>Proposed, Not Created</h2>
+            </div>
+            <div class="next-repair-head-stats" id="next-repair-head-stats" aria-live="polite"></div>
+          </section>
+
+          <section class="next-repair-queue" id="next-repair-queue" aria-label="Dev next repair queue">
+            <article class="loading-card">Loading next repair queue from Foundation...</article>
           </section>
         </section>
 
@@ -390,5 +405,6 @@
   <script src="/dev-route-review-triage.js?v=20260531-route-triage-v1"></script>
   <script src="/dev-scoper-runtime-readback.js?v=20260531-scoper-runtime-v1"></script>
   <script src="/dev-business-source-pipeline-triage.js?v=20260531-business-source-v1"></script>
+  <script src="/dev-next-repair-queue.js?v=20260531-next-repair-v1"></script>
 </body>
 </html>

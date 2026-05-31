@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-NEXT-REPAIR-QUEUE-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T06:52:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-next-repair-queue-001-plan.md",
+  "approvedPlanSha256": "f7b3b5c3d9947355a9d91b4d1c1976c8f2db2f787fdfab221ca4c8747a9ebc41",
+  "approvedRepoHead": "4f34aa66f8ada1a7bc2beec8b4a4e912416034d8",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub Next Repair Queue that ranks proposal-only pipeline repair moves from existing readbacks.",
+  "constraints": [
+    "Do not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, action routes, atoms, facts, synthesis rows, Harlan messages, model calls, extraction runs, connector probes, or external writes.",
+    "Do not approve, apply, reject, snooze, reroute, auto-clear, or mutate live action routes.",
+    "Do not auto-promote Director recommendations, repair proposals, source gaps, or next repair rows into backlog or Scoper.",
+    "Keep Scoper scheduling, route apply, model-backed synthesis, extraction, connector sync, and source writes as separate approval-bound cards.",
+    "Fail proof if any proposed repair is marked auto-created, applied, promoted, or no longer proposal-only."
+  ],
+  "approvalDigest": "2f502bd31aa3657ae020f28988d49c3ec1d1da4857309a17620b93aa78372cca"
+}
