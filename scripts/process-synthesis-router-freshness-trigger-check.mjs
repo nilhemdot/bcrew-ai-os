@@ -51,6 +51,8 @@ function run({
   at,
   runId = `${jobKey}-${at}`,
   errorMessage = '',
+  outputTail = '',
+  metadata = {},
 }) {
   return {
     runId,
@@ -62,7 +64,8 @@ function run({
     finishedAt: at,
     createdAt: at,
     errorMessage,
-    metadata: {},
+    metadata,
+    outputTail,
   }
 }
 
@@ -85,6 +88,26 @@ function buildBlockedFixture() {
       status: 'failed',
       at: '2026-05-25T16:05:00.000Z',
       errorMessage: 'Direct OpenAI Responses fallback blocked by spend policy.',
+    }),
+  ]
+}
+
+function buildUsefulPartialExtractorFixture() {
+  return [
+    run({ jobKey: SYNTHESIS_REFRESH_JOB_KEY, at: '2026-05-25T14:00:00.000Z' }),
+    run({ jobKey: ACTION_ROUTER_PROPOSALS_JOB_KEY, at: '2026-05-25T14:05:00.000Z' }),
+    run({ jobKey: 'meeting-notes-sync-current', at: '2026-05-25T16:00:00.000Z' }),
+    run({
+      jobKey: 'meeting-transcripts-extract-backlog',
+      status: 'failed',
+      at: '2026-05-25T16:15:00.000Z',
+      errorMessage: 'one transcript artifact failed and remains item-level retryable',
+      outputTail: [
+        '  meeting:a: extraction failed -> OpenAI router fallback returned no output text.',
+        '  meeting:b: 2 candidates (transcript)',
+        '  meeting:c: 8 candidates (transcript)',
+        '  Candidates upserted this run: 10',
+      ].join('\n'),
     }),
   ]
 }
@@ -175,6 +198,11 @@ async function main() {
     now: '2026-05-25T16:10:00.000Z',
     debounceMinutes: 0,
   })
+  const usefulPartial = buildSynthesisRouterFreshnessSnapshot({
+    runs: buildUsefulPartialExtractorFixture(),
+    now: '2026-05-25T16:20:00.000Z',
+    debounceMinutes: 0,
+  })
   const afterSynthesis = buildSynthesisRouterFreshnessSnapshot({
     runs: buildFreshAfterSynthesisFixture(),
     now: '2026-05-25T15:40:00.000Z',
@@ -194,8 +222,18 @@ async function main() {
     }),
     blocked,
   )
+  const usefulPartialMetadata = buildSynthesisFreshnessMetadataForJobRun(
+    run({
+      jobKey: 'meeting-transcripts-extract-backlog',
+      status: 'failed',
+      at: '2026-05-25T16:15:00.000Z',
+      errorMessage: 'one transcript artifact failed and remains item-level retryable',
+      outputTail: '  Candidates upserted this run: 10',
+    }),
+    usefulPartial,
+  )
   const runtimeHookProof = await buildSyntheticRuntimeHookProof()
-  const liveJobSnapshot = await getFoundationJobRunSnapshot({ limit: 120 })
+  const liveJobSnapshot = await getFoundationJobRunSnapshot({ limit: 120, includeOutput: true })
   const liveFreshness = buildSynthesisRouterFreshnessSnapshot({
     jobs: liveJobSnapshot.jobs || [],
     runs: liveJobSnapshot.latestRuns || [],
@@ -203,6 +241,7 @@ async function main() {
   })
   const liveFreshnessMetadataRuns = liveTrackedRunsWithFreshness(liveJobSnapshot.latestRuns || [])
   const liveFailedExtractorJobKeys = liveFreshness.failedExtractorJobKeys || []
+  const livePartialUsefulExtractorJobKeys = liveFreshness.partialUsefulExtractorJobKeys || []
 
   addCheck(
     checks,
@@ -221,6 +260,17 @@ async function main() {
       blocked.failedExtractorJobKeys.includes('gmail-extract-latest'),
     'failed extractor blocks synthesis freshness claim',
     `${blocked.status} failed=${blocked.failedExtractorJobKeys.join(',')}`,
+  )
+  addCheck(
+    checks,
+    usefulPartial.status === 'needs_synthesis_refresh' &&
+      usefulPartial.blockedByExtractor === false &&
+      usefulPartial.shouldTriggerSynthesis === true &&
+      usefulPartial.readyFamilies.includes('meetings') &&
+      usefulPartial.partialUsefulExtractorJobKeys.includes('meeting-transcripts-extract-backlog') &&
+      usefulPartial.failedExtractorJobKeys.length === 0,
+    'failed extractor with useful candidate output stays visible but does not block synthesis',
+    `${usefulPartial.status} partial=${usefulPartial.partialUsefulExtractorJobKeys.join(',')} next=${usefulPartial.nextJobKey}`,
   )
   addCheck(
     checks,
@@ -246,6 +296,15 @@ async function main() {
       blockedMetadata?.synthesisFreshness?.failedExtractorJobKeys.includes('gmail-extract-latest'),
     'job metadata records blocked-by-extractor instead of fake freshness',
     blockedMetadata?.synthesisFreshness?.freshnessStatus || 'missing',
+  )
+  addCheck(
+    checks,
+    usefulPartialMetadata?.synthesisFreshness?.blockedByExtractor === false &&
+      usefulPartialMetadata?.synthesisFreshness?.partialUsefulExtractor === true &&
+      usefulPartialMetadata?.synthesisFreshness?.partialUsefulCandidateCount === 10 &&
+      usefulPartialMetadata?.synthesisFreshness?.marksSynthesisDirty === true,
+    'job metadata records useful partial extraction separately from blocking extractor failure',
+    usefulPartialMetadata?.synthesisFreshness?.freshnessStatus || 'missing',
   )
   addCheck(
     checks,
@@ -283,13 +342,19 @@ async function main() {
   )
   addCheck(
     checks,
-    liveFailedExtractorJobKeys.length > 0
+    livePartialUsefulExtractorJobKeys.length > 0
+      ? liveFreshness.blockedByExtractor === false &&
+        liveFreshness.status !== 'blocked_by_extractor' &&
+        liveFreshness.partialUsefulExtractorRuns.some(run => Number(run.usefulCandidateCount) > 0)
+      : liveFailedExtractorJobKeys.length > 0
       ? liveFreshness.blockedByExtractor === true && liveFreshness.failedExtractorJobKeys.length >= 1
       : liveFreshness.blockedByExtractor === false && liveFreshness.status !== 'blocked_by_extractor',
-    liveFailedExtractorJobKeys.length > 0
+    livePartialUsefulExtractorJobKeys.length > 0
+      ? 'live freshness snapshot advances useful partial extractors without hiding item-level retry'
+      : liveFailedExtractorJobKeys.length > 0
       ? 'live freshness snapshot blocks on failed extractors instead of claiming fresh'
       : 'live freshness snapshot advances after extractor failures are repaired',
-    `${liveFreshness.status} failed=${liveFreshness.failedExtractorJobKeys.join(',') || 'none'} next=${liveFreshness.nextJobKey || 'none'}`,
+    `${liveFreshness.status} failed=${liveFreshness.failedExtractorJobKeys.join(',') || 'none'} partial=${livePartialUsefulExtractorJobKeys.join(',') || 'none'} next=${liveFreshness.nextJobKey || 'none'}`,
   )
   addCheck(
     checks,
@@ -350,12 +415,15 @@ async function main() {
       blocked,
       afterSynthesis,
       afterActionRouter,
+      usefulPartial,
       runtimeHookProof,
       liveFreshness: {
         status: liveFreshness.status,
         nextJobKey: liveFreshness.nextJobKey,
         blockedByExtractor: liveFreshness.blockedByExtractor,
         failedExtractorJobKeys: liveFreshness.failedExtractorJobKeys,
+        partialUsefulExtractorJobKeys: liveFreshness.partialUsefulExtractorJobKeys,
+        partialUsefulExtractorRuns: liveFreshness.partialUsefulExtractorRuns,
         metadataPatchedRuns: liveFreshnessMetadataRuns.length,
       },
     },

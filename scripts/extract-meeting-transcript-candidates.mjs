@@ -287,6 +287,13 @@ async function main() {
     );
   }
 
+  if (failed && upserted > 0) {
+    console.warn(
+      `  Partial extraction failures recorded: ${failed}; useful candidates were upserted, so downstream synthesis can continue while failed artifacts stay retryable.`,
+    );
+    return;
+  }
+
   if (failed) {
     process.exitCode = 1;
   }
