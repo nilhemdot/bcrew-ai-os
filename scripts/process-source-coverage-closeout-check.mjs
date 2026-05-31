@@ -27,6 +27,7 @@ import {
 import {
   getFoundationSnapshot,
 } from '../lib/foundation-strategy-docs-db.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   isProcessCheckWriteRequested,
@@ -110,7 +111,6 @@ async function main() {
     serverSource,
     foundationDbSource,
     foundationCurrentSprintSource,
-    foundationBuildLogSource,
     foundationVerifySource,
     publicFoundationSource,
     publicStylesSource,
@@ -130,7 +130,6 @@ async function main() {
     readRepoFile('server.js'),
     readRepoFile('lib/foundation-db.js'),
     readRepoFile('lib/foundation-current-sprint.js'),
-    readRepoFile('lib/foundation-build-log.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('public/foundation.js'),
     readRepoFile('public/styles.css'),
@@ -244,6 +243,8 @@ async function main() {
   const extractionGapCard = cardMap.get(SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID)
   const maturityGapCard = cardMap.get(SOURCE_MATURITY_GAP_FOLLOWUP_CARD_ID)
   const marketingSourceMapCard = cardMap.get(MARKETING_SOURCE_MAP_CARD_ID)
+  const sourceCoverageCloseoutRecord = getFoundationBuildCloseouts()
+    .find(closeout => closeout.key === SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) || null
   const routedExtractionRows = sourceCoverageCloseout.rows.filter(row => row.decision === 'advance_extraction_gap')
   const routedMaturityRows = sourceCoverageCloseout.rows.filter(row => row.decision === 'advance_maturity_gap')
   const routeSource = [
@@ -260,11 +261,6 @@ async function main() {
     publicStylesSource,
     foundationWorkflowStylesSource,
   ].join('\n')
-  const closeoutRecordsSource = [
-    foundationBuildLogSource,
-    sourceOnceOverCloseoutSource,
-  ].join('\n')
-
   addFinding(findings, approval.ok && approval.mode === 'v2' && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, '9.8 approval file is valid', approval.failures?.map(item => item.check).join(', ') || '')
   addFinding(findings, planCritic.status === 'pass' && planCritic.score >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic approves the Source Coverage Closeout plan', buildPlanCriticResultSummary(planCritic))
   addFinding(findings, Array.isArray(sourceCoverageCloseout.rows) && sourceCoverageCloseout.rows.length >= 35, 'source coverage closeout includes every source contract', String(sourceCoverageCloseout.rows.length))
@@ -322,11 +318,9 @@ async function main() {
     '.source-coverage-closeout-panel',
     '.source-coverage-closeout-table',
   ]), 'Foundation styles cover source coverage closeout')
-  addFinding(findings, includesAll(closeoutRecordsSource, [
-    SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
-    SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
-    MARKETING_SOURCE_MAP_CARD_ID,
-  ]), 'Recent Work closeout record exists')
+  addFinding(findings, sourceCoverageCloseoutRecord &&
+    sourceCoverageCloseoutRecord.backlogIds?.includes(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) &&
+    sourceCoverageCloseoutRecord.mentionedBacklogIds?.includes(MARKETING_SOURCE_MAP_CARD_ID), 'Recent Work closeout record exists')
   addFinding(findings, includesAll(foundationVerifySource, [
     'buildSyntheticSourceCoverageCloseoutProof',
     'SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY',
