@@ -412,10 +412,12 @@ async function main() {
   )
   const dogfood = buildActionRouteDedupStalenessDogfoodProof()
   const closeoutRecord = closeouts.find(record => record.key === ACTION_ROUTE_DEDUP_STALENESS_CLOSEOUT_KEY)
+  const activeOrHistoricallyDone = (stageOk && sprint.sprint?.sprintId === ACTION_ROUTE_DEDUP_STALENESS_SPRINT_ID) ||
+    (card?.lane === 'done' && closeoutRecord && currentPlan.includes(ACTION_ROUTE_DEDUP_STALENESS_CLOSEOUT_KEY) && currentState.includes(ACTION_ROUTE_DEDUP_STALENESS_CLOSEOUT_KEY))
 
   addCheck(checks, approval.ok && approval.mode === 'v2', 'approval file is valid v2 and matches plan hash', approval.failures?.map(f => f.check).join('; ') || approval.approvalRef)
   addCheck(checks, cardScaffold.ok, 'live backlog card has required scaffold fields', cardScaffold.missing.join(', ') || card?.lane || 'ok')
-  addCheck(checks, stageOk && sprint.sprint?.sprintId === ACTION_ROUTE_DEDUP_STALENESS_SPRINT_ID, 'Current Sprint points to Action Route dedupe/staleness guard', `${sprint.sprint?.sprintId || 'missing'}:${activeItem?.stage || card?.lane || 'missing'}`)
+  addCheck(checks, activeOrHistoricallyDone, 'Current Sprint points to Action Route dedupe/staleness guard or card is historically closed', `${sprint.sprint?.sprintId || 'missing'}:${activeItem?.stage || card?.lane || 'missing'}`)
   addCheck(checks, sprintMetadata.ok, 'Current Sprint item has complete metadata before build/done', sprintMetadata.missing.join(', ') || 'ok')
   addCheck(checks, currentSprintStatus.status === 'healthy' || card?.lane === 'done', 'Current Sprint status remains healthy or historically done', currentSprintStatus.status)
   addCheck(checks, planCriticPass && selfReview.status === 'pass' && Number(selfReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic coverage passes for dedupe/staleness card', `stored=${planCriticPass} self=${selfReview.status}:${selfReview.score}`)
@@ -447,7 +449,7 @@ async function main() {
   ]), 'Review Inbox renderer surfaces duplicate and stale state without broad redesign', 'public/foundation-action-route-review-inbox-renderers.js')
   addCheck(checks, packageJson.scripts?.['process:action-route-dedup-staleness-guard-check'] === 'node --env-file-if-exists=.env scripts/process-action-route-dedup-staleness-guard-check.mjs', 'package script is registered', 'process:action-route-dedup-staleness-guard-check')
   addCheck(checks, coverageSource.includes('ACTION_ROUTE_DEDUP_STALENESS_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE') && foundationVerifySource.includes('ACTION_ROUTE_DEDUP_STALENESS_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE'), 'foundation verifier imports done-card coverage constant', 'coverage card ID is reachable')
-  addCheck(checks, closeoutRecordsSource.includes('actionRouteCloseoutRecords') && actionRouteRecordsSource.includes(ACTION_ROUTE_DEDUP_STALENESS_CLOSEOUT_KEY), 'closeout registry uses action-route record module to avoid growing cleanup registry over budget', 'lib/foundation-build-closeout-action-route-records.js')
+  addCheck(checks, closeoutRecordsSource.includes('actionRouteCloseoutRecords') && actionRouteRecordsSource.includes("loadFoundationBuildCloseoutDataArtifact('action-route-records')") && closeoutRecord, 'closeout registry uses action-route record module to avoid growing cleanup registry over budget', closeoutRecord ? 'action-route-records artifact' : 'missing closeout record')
   addCheck(checks, !unsafeExternalTokens([moduleSource, inboxSource, verifierSource, rendererSource].join('\n')).length, 'dedupe/staleness card does not introduce extraction/auth/model/external-write tokens', unsafeExternalTokens([moduleSource, inboxSource, verifierSource, rendererSource].join('\n')).join(', ') || 'clean')
   addCheck(checks, await repoFileExists(ACTION_ROUTE_DEDUP_STALENESS_SCRIPT_PATH), 'focused proof script exists', ACTION_ROUTE_DEDUP_STALENESS_SCRIPT_PATH)
   addCheck(checks, !args.closeCard || (closeoutRecord && closeoutDoc.includes(ACTION_ROUTE_DEDUP_STALENESS_CLOSEOUT_KEY)), 'closeout registry and handoff exist before close-card', closeoutRecord ? closeoutRecord.key : 'missing closeout record')

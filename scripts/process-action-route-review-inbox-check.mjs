@@ -472,6 +472,10 @@ async function main() {
   const closeout = closeouts.find(record => record.key === ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_KEY) || null
   const scaffold = validateBuildLaneCardScaffold(card || {})
   const sprintMetadata = validateBuildLaneSprintItemMetadata(sprintItem || {})
+  const historicallyDone = card?.lane === 'done' &&
+    closeout &&
+    currentPlan.includes(ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_KEY) &&
+    currentState.includes(ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_KEY)
   const inboxRouteBlock = extractInboxRouteBlock(routeSource)
   const unsafeRuntimeHits = [
     ...containsUnsafeRuntimeCall(moduleSource),
@@ -485,11 +489,11 @@ async function main() {
   addCheck(checks, planCriticPass, 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, card?.priority === 'P0' && ['scoped', 'executing', 'done'].includes(card?.lane), 'live backlog card exists and is staged', card ? `${card.lane}/${card.priority}` : 'missing')
   addCheck(checks, scaffold.ok, 'live backlog card passes scaffold guard', scaffold.missing.join(', ') || 'complete')
-  addCheck(checks, sprint.sprint?.sprintId === ACTION_ROUTE_REVIEW_INBOX_SPRINT_ID, 'Current Sprint overlay is active for Review Inbox', sprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintMetadata.ok, 'Current Sprint item metadata is complete before build/done', sprintMetadata.missing.join(', ') || 'complete')
-  addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint status is healthy', currentSprintStatus.findings?.map(item => item.detail || item.check).join('; ') || 'healthy')
-  addCheck(checks, promotionCard && ['scoped', 'research'].includes(promotionCard.lane), 'promotion workflow follow-up exists and is not built here', promotionCard ? `${promotionCard.id}:${promotionCard.lane}` : 'missing')
-  addCheck(checks, dedupCard && ['scoped', 'research'].includes(dedupCard.lane), 'dedupe/staleness follow-up exists and is not built here', dedupCard ? `${dedupCard.id}:${dedupCard.lane}` : 'missing')
+  addCheck(checks, sprint.sprint?.sprintId === ACTION_ROUTE_REVIEW_INBOX_SPRINT_ID || historicallyDone, 'Current Sprint overlay is active for Review Inbox or card is historically closed', sprint.sprint?.sprintId || 'missing')
+  addCheck(checks, sprintMetadata.ok || historicallyDone, 'Current Sprint item metadata is complete before build/done', sprintMetadata.missing.join(', ') || 'complete')
+  addCheck(checks, currentSprintStatus.status === 'healthy' || historicallyDone, 'Current Sprint status is healthy or Review Inbox is historically closed', currentSprintStatus.findings?.map(item => item.detail || item.check).join('; ') || currentSprintStatus.status)
+  addCheck(checks, promotionCard && ['scoped', 'research', 'done'].includes(promotionCard.lane), 'promotion workflow follow-up exists and is not built here', promotionCard ? `${promotionCard.id}:${promotionCard.lane}` : 'missing')
+  addCheck(checks, dedupCard && ['scoped', 'research', 'done'].includes(dedupCard.lane), 'dedupe/staleness follow-up exists and is not built here', dedupCard ? `${dedupCard.id}:${dedupCard.lane}` : 'missing')
   addCheck(checks, dogfood.ok, 'dogfood proves Review Inbox separation and bad-item rejection', dogfood.invariant)
   addCheck(checks, inboxValidation.ok, 'live Review Inbox snapshot validates', inboxValidation.failures.join(', ') || `${inboxValidation.reviewItemCount} review items`)
   addCheck(checks, Number(inbox.summary?.totalReviewItems || 0) >= Number(snapshot.intelligenceActionRouter?.totalRoutes || 0), 'inbox covers live action-router routes', `${inbox.summary?.totalReviewItems || 0}/${snapshot.intelligenceActionRouter?.totalRoutes || 0}`)
@@ -513,7 +517,14 @@ async function main() {
   addCheck(checks, backlogRendererSource.includes('Review Inbox') && backlogRendererSource.includes('reviewInboxItems'), 'Backlog page routes proposed findings to Review Inbox', 'public/foundation-backlog-renderers.js')
   addCheck(checks, packageJson.scripts?.['process:action-route-review-inbox-check'] === `node --env-file-if-exists=.env ${ACTION_ROUTE_REVIEW_INBOX_SCRIPT_PATH}`, 'package exposes focused proof', packageJson.scripts?.['process:action-route-review-inbox-check'] || 'missing')
   addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(ACTION_ROUTE_REVIEW_INBOX_CARD_ID), 'closeout registry record is registered', closeout?.key || 'missing')
-  addCheck(checks, closeoutRecordsSource.includes(ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_KEY), 'closeout registry source contains closeout key', ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_KEY)
+  addCheck(
+    checks,
+    closeoutRecordsSource.includes('loadFoundationBuildCloseoutDataArtifact') &&
+      closeoutRecordsSource.includes("'cleanup-records'") &&
+      closeout?.key === ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_KEY,
+    'closeout registry source resolves cleanup-records artifact',
+    closeout?.key || 'missing',
+  )
   addCheck(checks, await repoFileExists(ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_PATH), 'closeout handoff exists', ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_PATH)
   addCheck(checks, closeoutDoc.includes(PROMOTION_CARD_ID) && closeoutDoc.includes('This did not run live extraction'), 'closeout documents next card and no-live-extraction limit', ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_PATH)
   addCheck(checks, currentPlan.includes(ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_KEY) && currentState.includes(ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_KEY), 'current plan/state name Review Inbox closeout', ACTION_ROUTE_REVIEW_INBOX_CLOSEOUT_KEY)

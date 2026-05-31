@@ -14,10 +14,16 @@ import {
   initFoundationDb,
 } from '../lib/foundation-db-session.js'
 import { updateBacklogItem } from '../lib/foundation-backlog-sprint-db.js'
-import { buildSynthesisVerificationDbReport } from '../lib/foundation-intelligence-db.js'
+import { buildSynthesisVerificationDbReport } from '../lib/foundation-shared-comms-db.js'
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  assertProcessCheckWriteAllowed,
+  isProcessCheckWriteRequested,
+} from '../lib/process-write-guard.js'
 import {
   SYNTHESIS_VERIFY_CARD_ID,
   SYNTHESIS_VERIFY_CLOSEOUT_KEY,
+  SYNTHESIS_VERIFY_SCRIPT_PATH,
   SYNTHESIS_VERIFY_SUMMARY_MARKER,
   buildSynthesisEvidenceIndex,
   verifySynthesizedRecord,
@@ -244,19 +250,31 @@ async function main() {
   const args = parseArgs()
   const baseUrl = String(args.baseUrl || process.env.FOUNDATION_BASE_URL || 'http://localhost:3000')
   const jsonOnly = boolArg(args.json)
+  const apply = isProcessCheckWriteRequested({
+    argv: process.argv.slice(2),
+    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply],
+  })
   const repoHead = await currentHead()
 
   await initFoundationDb()
   try {
     const synthetic = buildSyntheticProof()
-    const report = await buildSynthesisVerificationDbReport({ stamp: true })
+    if (apply) {
+      assertProcessCheckWriteAllowed({
+        argv: process.argv.slice(2),
+        scriptPath: SYNTHESIS_VERIFY_SCRIPT_PATH,
+        operation: 'stamp synthesis verification metadata and refresh SYNTHESIS-VERIFY-001 backlog closeout',
+        allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply],
+      })
+    }
+    const report = await buildSynthesisVerificationDbReport({ stamp: apply })
     const rawLeakFindings = noRawProof(report, synthetic)
     const healthy = synthetic.pass &&
       report.status === 'healthy' &&
       report.summary.privateOrRawLeakFindings === 0 &&
       rawLeakFindings === 0
 
-    if (healthy) {
+    if (healthy && apply) {
       await updateBacklogItem(SYNTHESIS_VERIFY_CARD_ID, {
         lane: 'done',
         nextAction: 'Keep SYNTHESIS-VERIFY-001 closed as the claim-verification gate for synthesized output. Next Foundation readiness blockers remain extraction hardening and meeting Drive ACL/vault work; do not reopen Strategy/advisor/scout/researcher output until their own approved cards use this verifier.',
@@ -292,6 +310,8 @@ async function main() {
       decisionGradeRouteCount: report.summary.decisionGradeRouteCount,
       unverifiedDecisionGradeRouteCount: report.summary.unverifiedDecisionGradeRouteCount,
       privateOrRawLeakFindings: report.summary.privateOrRawLeakFindings + rawLeakFindings,
+      applied: apply,
+      stampApplied: report.summary.stampApplied,
       readinessStillNamesSynthesisVerify,
       remainingReadinessBlockers: readiness?.blockingCards || [],
     }
@@ -307,6 +327,7 @@ async function main() {
       console.log(`  Shared-comms items: ${summary.sharedVerifiedCount}/${summary.sharedItemCount} verified, ${summary.sharedAdvisoryOrBlockedCount} advisory/blocked`)
       console.log(`  Decision-grade routes: ${summary.decisionGradeRouteCount}, unverified=${summary.unverifiedDecisionGradeRouteCount}`)
       console.log(`  Private/raw leak findings: ${summary.privateOrRawLeakFindings}`)
+      console.log(`  Metadata stamp applied: ${summary.stampApplied ? 'yes' : 'no'}`)
       console.log(`  Readiness still names SYNTHESIS-VERIFY-001: ${summary.readinessStillNamesSynthesisVerify ? 'yes' : 'no'}`)
       console.log('')
       for (const [key, value] of Object.entries(synthetic.cases)) {

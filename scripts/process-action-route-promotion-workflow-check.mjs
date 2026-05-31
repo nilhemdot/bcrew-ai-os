@@ -350,6 +350,7 @@ async function main() {
     inboxSource,
     routeSource,
     dbSource,
+    intelligenceDbSource,
     securitySource,
     surfaceMapSource,
     coverageSource,
@@ -382,6 +383,7 @@ async function main() {
     readRepoFile('lib/action-route-review-inbox.js'),
     readRepoFile('lib/strategy-shared-comms-routes.js'),
     readRepoFile('lib/foundation-db.js'),
+    readRepoFile('lib/foundation-intelligence-db.js'),
     readRepoFile('lib/security-access.js'),
     readRepoFile('lib/foundation-surface-map.js'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
@@ -417,10 +419,12 @@ async function main() {
   )
   const dogfood = buildActionRoutePromotionWorkflowDogfoodProof()
   const closeoutRecord = closeouts.find(record => record.key === ACTION_ROUTE_PROMOTION_WORKFLOW_CLOSEOUT_KEY)
+  const activeOrHistoricallyDone = (stageOk && sprint.sprint?.sprintId === ACTION_ROUTE_PROMOTION_WORKFLOW_SPRINT_ID) ||
+    (card?.lane === 'done' && closeoutRecord && currentPlan.includes(ACTION_ROUTE_PROMOTION_WORKFLOW_CLOSEOUT_KEY) && currentState.includes(ACTION_ROUTE_PROMOTION_WORKFLOW_CLOSEOUT_KEY))
 
   addCheck(checks, approval.ok && approval.mode === 'v2', 'approval file is valid v2 and matches plan hash', approval.failures?.map(f => f.check).join('; ') || approval.approvalRef)
   addCheck(checks, cardScaffold.ok, 'live backlog card has required scaffold fields', cardScaffold.missing.join(', ') || card?.lane || 'ok')
-  addCheck(checks, stageOk && sprint.sprint?.sprintId === ACTION_ROUTE_PROMOTION_WORKFLOW_SPRINT_ID, 'Current Sprint points to Action Route Promotion Workflow', `${sprint.sprint?.sprintId || 'missing'}:${activeItem?.stage || card?.lane || 'missing'}`)
+  addCheck(checks, activeOrHistoricallyDone, 'Current Sprint points to Action Route Promotion Workflow or card is historically closed', `${sprint.sprint?.sprintId || 'missing'}:${activeItem?.stage || card?.lane || 'missing'}`)
   addCheck(checks, sprintMetadata.ok, 'Current Sprint item has complete metadata before build/done', sprintMetadata.missing.join(', ') || 'ok')
   addCheck(checks, currentSprintStatus.status === 'healthy' || card?.lane === 'done', 'Current Sprint status remains healthy or historically done', currentSprintStatus.status)
   addCheck(checks, planCriticPass && selfReview.status === 'pass' && Number(selfReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic coverage passes for workflow card', `stored=${planCriticPass} self=${selfReview.status}:${selfReview.score}`)
@@ -451,7 +455,11 @@ async function main() {
     "normalized.action === 'link_existing_card'",
     'action_route_promotion_workflow_failed',
   ]), 'shared route module wires narrow workflow POST route', 'POST /api/foundation/action-route-review-inbox/:routeId/workflow')
-  addCheck(checks, dbSource.includes('input.promotionWorkflow') && dbSource.includes('actionRoutePromotionWorkflow'), 'DB curation stores promotion workflow metadata', 'recordActionRouteCuration metadata patch')
+  addCheck(checks, includesAll(intelligenceDbSource, [
+    'export async function recordActionRouteCuration',
+    'input.promotionWorkflow',
+    'actionRoutePromotionWorkflow',
+  ]) && dbSource.includes('recordActionRouteCuration'), 'DB curation stores promotion workflow metadata', 'recordActionRouteCuration metadata patch')
   addCheck(checks, securitySource.includes("route('POST', '/api/foundation/action-route-review-inbox/:routeId/workflow'"), 'security posture registers owner-gated workflow route', 'owner tier route present')
   addCheck(checks, surfaceMapSource.includes('/api/foundation/action-route-review-inbox/:routeId/workflow') && surfaceMapSource.includes(ACTION_ROUTE_PROMOTION_WORKFLOW_CARD_ID), 'surface map owns workflow backing route', 'Foundation surface map')
   addCheck(checks, includesAll(frontendDataSource, [
