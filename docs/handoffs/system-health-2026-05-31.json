@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-31T09:16:25.444Z",
+  "generatedAt": "2026-05-31T09:20:15.738Z",
   "status": "risk",
   "plainEnglish": "Foundation has red workflow/system-health findings that block green. Do not treat classified rows as fixed.",
   "summary": {
     "status": "risk",
     "rawStatus": "risk",
-    "classificationStatus": "risk",
+    "classificationStatus": "healthy",
     "preGreenLockStatus": "risk",
     "greenLockStatus": "risk",
     "greenLockBlocksGreen": true,
@@ -19,21 +19,20 @@
     "visibleWatchCount": 2,
     "hiddenRiskCount": 0,
     "hiddenWatchCount": 0,
-    "classifiedRiskCount": 1,
+    "classifiedRiskCount": 3,
     "classifiedWatchCount": 2,
-    "blockingClassifiedRiskCount": 1,
+    "blockingClassifiedRiskCount": 3,
     "blockingClassifiedWatchCount": 1,
-    "classifiedFindingCount": 3,
-    "unclassifiedRiskCount": 2,
+    "classifiedFindingCount": 5,
+    "unclassifiedRiskCount": 0,
     "unclassifiedWatchCount": 0,
     "blockingClassifiedFindingIds": [
+      "scheduled_job_foundation-verify",
       "scheduled_job_admin-deal-backlog-review",
+      "scheduled_job_conditional-deal-review-readonly",
       "runtime_jobs_failed"
     ],
-    "unclassifiedFindingIds": [
-      "scheduled_job_foundation-verify",
-      "scheduled_job_conditional-deal-review-readonly"
-    ],
+    "unclassifiedFindingIds": [],
     "scheduledJobRiskCount": 3,
     "scheduledJobWatchCount": 0,
     "auditFleetStatus": "healthy",
@@ -80,7 +79,7 @@
     "exceptionChecks": [
       {
         "findingId": "scheduled_job_foundation-verify",
-        "repairCardId": null,
+        "repairCardId": "FOUNDATION-VERIFY-HEALTH-REPAIR-001",
         "ok": false,
         "missing": [
           "approved exception"
@@ -96,7 +95,7 @@
       },
       {
         "findingId": "scheduled_job_conditional-deal-review-readonly",
-        "repairCardId": null,
+        "repairCardId": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
         "ok": false,
         "missing": [
           "approved exception"
@@ -112,7 +111,7 @@
       },
       {
         "findingId": "runtime_jobs_failed",
-        "repairCardId": "EXTRACT-BACKFILL-001",
+        "repairCardId": "FOUNDATION-VERIFY-HEALTH-REPAIR-001",
         "ok": false,
         "missing": [
           "approved exception"
@@ -360,8 +359,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T09:16:25.437Z",
-        "latestSuccessAt": "2026-05-31T09:16:25.437Z",
+        "latestRunAt": "2026-05-31T09:16:25.471Z",
+        "latestSuccessAt": "2026-05-31T09:16:25.471Z",
         "plainEnglish": "System Health Nightly Audit has a fresh successful run and is not due.",
         "nextAction": "Review red/yellow system-health rows before treating Foundation as green."
       },
@@ -431,7 +430,7 @@
     "summary": {
       "artifactCount": 1306,
       "handoffFileCount": 13,
-      "handoffLineTotal": 4409,
+      "handoffLineTotal": 4381,
       "recentHandoffFileCount": 11,
       "nightlyArtifactCount": 11,
       "riskCount": 0,
@@ -565,7 +564,21 @@
       "detail": "Foundation Verifier latest run is failed.",
       "nextAction": "FAIL AGENT-FEEDBACK-AUTO-SEND-001 keeps governed auto-send controls under production enablement -> georgia=source_unavailable wouldSend=0 guard=runtime_diagnostic_timeout closeout=agent-feedback-auto-send-v1\nFAIL AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 production auto-send is live and visible -> sent=0 skipped=0 blocked=1 repair=0 closeout=agent-feedback-production-autosend-enable-v1\nFAIL VERIFIER-AGENT-FEEDBACK-ORCHESTRATION-SPLIT-001 moves Agent Feedback verifier orchestration into the focused module -> lane=done dogfood=pass agentChecks=11/13 lines=6345->4999",
       "jobKey": "foundation-verify",
-      "rollupLevel": "risk"
+      "rollupLevel": "risk",
+      "classification": {
+        "status": "classified",
+        "type": "scheduled_verifier_repair_lane",
+        "owner": "Foundation Builder",
+        "reason": "The scheduled Foundation Verifier failed inside verifier/Agent Feedback proof, not inside the current Dev Hub readback card. It must stay red until the verifier failure is repaired or the latest scheduled run succeeds; do not rerun Agent Feedback send lanes from System Health.",
+        "threshold": "Blocks green and normal sprint progression while the scheduled verifier latest run is failed. Manual foundation:verify success proves current code can pass, but it does not erase the scheduled-job failure row.",
+        "nextAction": "Repair the Agent Feedback verifier/orchestration failure or rerun only the approved scheduled verifier path after the repair; do not send Agent Feedback email, mutate ClickUp, or change production send posture from this classifier.",
+        "repairCardId": "FOUNDATION-VERIFY-HEALTH-REPAIR-001",
+        "relatedRepairCardIds": [
+          "AGENT-FEEDBACK-AUTO-SEND-001",
+          "AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001"
+        ],
+        "blocksCurrentSprint": true
+      }
     },
     {
       "id": "scheduled_job_admin-deal-backlog-review",
@@ -596,7 +609,20 @@
       "detail": "Conditional Deal Forecast Sync latest run is failed.",
       "nextAction": "    at async googleFetch (file:///Users/bensoncrew/bcrew-ai-os/lib/google-delegated.js:280:25)\n    at async googleJsonFetch (file:///Users/bensoncrew/bcrew-ai-os/lib/google-delegated.js:317:20)\n    at async readGoogleSheetsCachedJson (file:///Users/bensoncrew/bcrew-ai-os/lib/google-sheets-cache.js:246:13)",
       "jobKey": "conditional-deal-review-readonly",
-      "rollupLevel": "risk"
+      "rollupLevel": "risk",
+      "classification": {
+        "status": "classified",
+        "type": "approval_bound_business_source_read_lane",
+        "owner": "Steve",
+        "reason": "Conditional Deal Forecast Sync reads governed Owners/Google Workspace business-source data and currently fails at delegated Google auth. The row is a business-source repair signal, not a reason to rerun broad connector or sheet work without approval.",
+        "threshold": "Blocks green while the job remains failed and unrerouted; blocks any Sales/Ops/business-source card that depends on conditional deal forecast freshness until an approved read-only preflight or credential repair succeeds.",
+        "nextAction": "Park the failed read-only business-source row; use ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001 and connector health proof before any approved rerun or credential repair.",
+        "repairCardId": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+        "relatedRepairCardIds": [
+          "CONNECTOR-UPTIME-MONITOR-001"
+        ],
+        "blocksCurrentSprint": true
+      }
     },
     {
       "id": "connector_degraded",
@@ -637,11 +663,12 @@
         "status": "classified",
         "type": "job_ledger_routed",
         "owner": "Foundation Process",
-        "reason": "The remaining recent job failures are approval-bound backfill or operational-write rows; connector uptime has a later successful safe run and repeated build-lane reds are clear.",
+        "reason": "The remaining recent job failures are routed verifier, business-source, backfill, or operational-write rows; connector uptime has a later successful safe run and repeated build-lane reds are clear.",
         "threshold": "Becomes sprint-blocking when an unclassified repeated job failure appears, or when an approved safe rerun fails again without a live repair card.",
-        "nextAction": "Keep the failed-run ledger visible while EXTRACT-BACKFILL-001 and ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001 own the governed repair proof.",
-        "repairCardId": "EXTRACT-BACKFILL-001",
+        "nextAction": "Keep the failed-run ledger visible while FOUNDATION-VERIFY-HEALTH-REPAIR-001, EXTRACT-BACKFILL-001, and ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001 own the governed repair proof.",
+        "repairCardId": "FOUNDATION-VERIFY-HEALTH-REPAIR-001",
         "relatedRepairCardIds": [
+          "FOUNDATION-VERIFY-HEALTH-REPAIR-001",
           "EXTRACT-BACKFILL-001",
           "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001"
         ],
