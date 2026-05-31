@@ -255,6 +255,7 @@
     "process:dev-hub-action-route-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-action-route-readback-check.mjs",
     "process:dev-hub-foundation-done-bar-check": "node --env-file-if-exists=.env scripts/process-dev-hub-foundation-done-bar-check.mjs",
     "process:dev-hub-scoper-evidence-trace-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-scoper-evidence-trace-readback-check.mjs",
+    "process:dev-hub-intelligence-hygiene-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-intelligence-hygiene-readback-check.mjs",
     "process:foundation-kb-action-review-sprint-check": "node --env-file-if-exists=.env scripts/process-foundation-kb-action-review-sprint-check.mjs",
     "process:aios-runtime-portability-gate-check": "node --env-file-if-exists=.env scripts/process-aios-runtime-portability-gate-check.mjs",
     "process:agent-status-freshness-gate-check": "node --env-file-if-exists=.env scripts/process-agent-status-freshness-gate-check.mjs",

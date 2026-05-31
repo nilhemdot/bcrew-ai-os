@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T01:43:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-intelligence-hygiene-readback-001-plan.md",
+  "approvedPlanSha256": "997213fbf12f21ac9463fbfdea5b515d2077dd719ba19d40da4b3d8c42000e90",
+  "approvedRepoHead": "f6e7bc94b8fafd6eb2c859fe09ede0ab55e7334a",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and make the pipeline self-cleaning without unsafe automation.",
+  "scopeSummary": "Expose a read-only Dev Hub Intelligence Hygiene readback across atom-flow gaps, route noise/staleness, Scoper parked rows, and source-family blockers.",
+  "constraints": [
+    "Do not write fresh atoms, chunks, facts, routes, backlog cards, Scoper cards, Portfolio records, or Current Sprint overlays from this readback.",
+    "Do not approve, apply, reject, snooze, reroute, or promote live action routes.",
+    "Do not auto-promote Director recommendations into backlog, Scoper, Portfolio, or Current Sprint.",
+    "Do not send Telegram, email, Slack, Agent Feedback, or public messages.",
+    "Do not run extraction, source sync, provider/model calls, login, Browserbase, paid/private source work, or external writes.",
+    "Fail proof if stale atom flow is represented as repaired or green without source-backed fresh evidence."
+  ],
+  "approvalDigest": "c1d1ddd9a161f312177e1cf983937befa21b909e74410501426422fad934b72f"
+}

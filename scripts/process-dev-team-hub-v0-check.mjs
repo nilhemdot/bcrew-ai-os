@@ -102,11 +102,13 @@ const SCRIPT_PATH = 'scripts/process-dev-team-hub-v0-check.mjs'
 const DEV_ACTION_ROUTE_READBACK_JS_PATH = 'public/dev-action-route-readback.js'
 const DEV_FOUNDATION_DONE_BAR_JS_PATH = 'public/dev-foundation-done-bar.js'
 const DEV_SCOPER_EVIDENCE_TRACE_JS_PATH = 'public/dev-scoper-evidence-trace.js'
+const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
   'public/dev-source-approval.css',
   'public/dev-scoper-evidence-trace.css',
+  'public/dev-intelligence-hygiene.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -218,6 +220,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="director-panel"',
 	    'id="action-route-readback"',
 	    'id="foundation-done-bar"',
+	    'id="intelligence-hygiene"',
   ].every(marker => html.includes(marker))
 }
 
@@ -415,6 +418,7 @@ async function main() {
     actionRouteReadbackJsSource,
     foundationDoneBarJsSource,
     scoperEvidenceTraceJsSource,
+    intelligenceHygieneJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -431,6 +435,7 @@ async function main() {
     readRepoFile(DEV_ACTION_ROUTE_READBACK_JS_PATH),
     readRepoFile(DEV_FOUNDATION_DONE_BAR_JS_PATH),
     readRepoFile(DEV_SCOPER_EVIDENCE_TRACE_JS_PATH),
+    readRepoFile(DEV_INTELLIGENCE_HYGIENE_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -446,7 +451,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -566,6 +571,32 @@ async function main() {
       cssSource.includes('.scoper-evidence-trace'),
     'Dev Hub exposes Scoper evidence trace readback without promoting Director candidates',
     `reviewed=${payload?.scoperEvidenceTraceReadback?.summary?.reviewedCount || 0}; ready=${payload?.scoperEvidenceTraceReadback?.summary?.readyForPortfolioCount || 0}; parked=${payload?.scoperEvidenceTraceReadback?.summary?.parkedCount || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubIntelligenceHygieneReadback') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'intelligenceHygieneReadback') &&
+      payload?.intelligenceHygieneReadback?.contractVersion === 'dev-hub-intelligence-hygiene-readback.v1' &&
+      payload?.intelligenceHygieneReadback?.source?.noSecondTruthLayer === true &&
+      payload?.intelligenceHygieneReadback?.boundaries?.noAtomWrites === true &&
+      payload?.intelligenceHygieneReadback?.boundaries?.noRouteMutation === true &&
+      payload?.intelligenceHygieneReadback?.boundaries?.noBacklogMutation === true &&
+      payload?.intelligenceHygieneReadback?.boundaries?.noScoperMutation === true &&
+      payload?.intelligenceHygieneReadback?.boundaries?.noExternalWrites === true &&
+      payload?.intelligenceHygieneReadback?.summary?.autoMutationCount === 0 &&
+      (Number(payload?.intelligenceHygieneReadback?.summary?.atomizedGapSources || 0) === 0 || Boolean(payload?.intelligenceHygieneReadback?.falseFreshnessWarning)) &&
+      list(payload?.intelligenceHygieneReadback?.queues?.sourcePipeline).length <= 8 &&
+      list(payload?.intelligenceHygieneReadback?.queues?.routeNoise).length <= 6 &&
+      list(payload?.intelligenceHygieneReadback?.queues?.scoperParked).length <= 5 &&
+      list(payload?.intelligenceHygieneReadback?.queues?.sourceFamilyBlockers).length <= 8 &&
+      htmlSource.includes('id="intelligence-hygiene"') &&
+      htmlSource.includes('/dev-intelligence-hygiene.css') &&
+      htmlSource.includes('/dev-intelligence-hygiene.js') &&
+      intelligenceHygieneJsSource.includes('intelligenceHygieneReadback') &&
+      intelligenceHygieneJsSource.includes('Read-only cleanup queue') &&
+      cssSource.includes('.intelligence-hygiene'),
+    'Dev Hub exposes Intelligence Hygiene cleanup pressure without false freshness or mutation',
+    `cleanup=${payload?.intelligenceHygieneReadback?.summary?.totalCleanupPressure || 0}; atomized=${payload?.intelligenceHygieneReadback?.summary?.atomizedGapSources || 0}; routes=${payload?.intelligenceHygieneReadback?.summary?.routeReviewItems || 0}; scoper=${payload?.intelligenceHygieneReadback?.summary?.scoperParkedCandidates || 0}`,
   )
   addCheck(
     checks,
@@ -1473,6 +1504,11 @@ async function main() {
           scoperStatus: candidate.scoperStatus,
           readyForPortfolio: candidate.readyForPortfolio,
         })),
+      } : null,
+      intelligenceHygieneReadback: payload.intelligenceHygieneReadback ? {
+        status: payload.intelligenceHygieneReadback.status,
+        summary: payload.intelligenceHygieneReadback.summary,
+        nextBuckets: payload.intelligenceHygieneReadback.nextBuckets,
       } : null,
       approvalReviewQueue: list(payload.approvalReviewQueue).slice(0, 5),
       approvalReviewTriage: payload.approvalReviewTriage ? {

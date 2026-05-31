@@ -1107,5 +1107,62 @@
       "Portfolio-ready means raw trace is available for review; it is not Steve approval to build.",
       "The fifth current Director candidate is parked when raw source evidence is incomplete; this card surfaces that boundary but does not repair the source atom gap."
     ]
+  },
+  {
+    "key": "dev-hub-intelligence-hygiene-readback-v1",
+    "backlogIds": [
+      "DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub intelligence hygiene readback",
+        "DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001",
+        "dev-hub-intelligence-hygiene-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-FOUNDATION-DONE-BAR-001",
+      "DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001",
+      "DEV-HUB-ACTION-ROUTE-READBACK-001",
+      "ATOM-FLOW-AUTO-DEMOTION-001"
+    ],
+    "systemArea": "Dev Hub intelligence hygiene visibility",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Intelligence Hygiene readback to Dev Hub that ranks source pipeline gaps, action-route cleanup pressure, Scoper parked recommendations, and source-family boundaries from existing read models.",
+    "whatItDoes": "The Dev Hub now shows what to clean, park, or review next without writing atoms, facts, chunks, routes, backlog cards, Scoper records, Portfolio records, Harlan messages, extraction runs, model calls, or external side effects.",
+    "whyItMatters": "Steve wants the Dev Hub loop to keep the intelligence pipe clean while new data arrives, but false freshness and auto-promotion would recreate the old built-but-untrusted pattern. This surfaces the cleanup queue and keeps repair work proposal-only until the exact source evidence and approval boundary are clear.",
+    "whereItLives": [
+      "lib/dev-hub-intelligence-hygiene-readback.js compact hygiene projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js intelligenceHygieneReadback payload wiring from existing read models",
+      "public/dev.html Intelligence Hygiene panel",
+      "public/dev-intelligence-hygiene.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-intelligence-hygiene.css standalone Intelligence Hygiene panel styles",
+      "scripts/process-dev-hub-intelligence-hygiene-readback-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-intelligence-hygiene-readback-001-plan.md",
+      "docs/process/approvals/DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001.json",
+      "package.json process:dev-hub-intelligence-hygiene-readback-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-intelligence-hygiene-readback.js scripts/process-dev-hub-intelligence-hygiene-readback-check.mjs public/dev-intelligence-hygiene.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-intelligence-hygiene-readback-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001.json --closeoutKey=dev-hub-intelligence-hygiene-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001 --closeoutKey=dev-hub-intelligence-hygiene-readback-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-INTELLIGENCE-HYGIENE-READBACK-001.json --closeoutKey=dev-hub-intelligence-hygiene-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: atom-flow gaps must carry a false-freshness warning, and any auto-mutation fails validation. Live readback validates current cleanup pressure with bounded queues and no atom, fact, chunk, route, destination, backlog, Scoper, Portfolio, approval, Harlan, extraction, model, or external write path.",
+    "reviewNext": "Use the Intelligence Hygiene buckets to choose the next specific safe repair. Do not write fresh atoms from stale facts, approve/apply live routes, or promote recommendations into Scoper/backlog without exact source-backed evidence and Steve approval.",
+    "knownLimits": [
+      "This is a read-only visibility slice; it does not repair stale atom flow, run extraction, run synthesis, approve/apply routes, create build cards, send Harlan, call a model, or write externally.",
+      "The panel ranks cleanup pressure from existing read models; it is not a Steve approval or a Scoper promotion.",
+      "Future repairs must choose one bucket and dogfood the exact failure mode with fresh source-backed proof."
+    ]
   }
 ]
