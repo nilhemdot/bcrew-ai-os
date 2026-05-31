@@ -1,0 +1,131 @@
+.morning-proposed-cards-readback {
+  display: grid;
+  gap: 16px;
+}
+
+.morning-proposed-cards-readback article {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+}
+
+.morning-proposed-cards-readback p,
+.morning-proposed-cards-readback h3 {
+  margin: 0;
+}
+
+.morning-proposed-cards-readback span,
+.morning-proposed-cards-readback small {
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.morning-cards-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.morning-cards-summary article {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.morning-cards-summary strong {
+  color: #0f172a;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.morning-cards-boundary > div {
+  background: #f0fdf4;
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.morning-cards-boundary p {
+  color: #334155;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.morning-cards-list {
+  display: grid;
+  gap: 10px;
+}
+
+.morning-card-proposal {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  padding: 14px;
+}
+
+.morning-card-rank {
+  align-items: center;
+  align-self: start;
+  background: #15803d;
+  border-radius: 8px;
+  color: #fff;
+  display: inline-flex;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.83rem;
+  font-weight: 800;
+  height: 34px;
+  justify-content: center;
+  width: 44px;
+}
+
+.morning-card-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.morning-card-copy strong {
+  color: #0f172a;
+  font-size: 1rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.morning-card-copy p {
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.morning-card-copy small {
+  color: #475569;
+  line-height: 1.4;
+  text-transform: none;
+}
+
+.morning-cards-empty {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.morning-cards-empty.blocked {
+  background: #fef2f2;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+@media (max-width: 980px) {
+  .morning-cards-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .morning-cards-summary,
+  .morning-card-proposal {
+    grid-template-columns: 1fr;
+  }
+}

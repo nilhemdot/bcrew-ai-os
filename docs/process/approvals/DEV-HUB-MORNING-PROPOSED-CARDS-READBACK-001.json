@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T05:05:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-morning-proposed-cards-readback-001-plan.md",
+  "approvedPlanSha256": "fcc4a060cfeb48550bf77ed9d3d92c020041c5abfc88179f50e48fb27ba8bdbf",
+  "approvedRepoHead": "dae65178a1469c5b6297f61ab870f1d9b89d8e4e",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub morning proposed-cards packet from Build Portfolio groups without creating cards or authorizing builds.",
+  "constraints": [
+    "Do not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, route records, destination records, Harlan messages, model calls, extraction runs, connector probes, browser sessions, or external writes.",
+    "Do not auto-promote Director, Scoper, Portfolio, or proposed-card recommendations into backlog, sprint, route action, Harlan, or build execution.",
+    "Every proposed card must remain draft_requires_steve_approval and draft_only.",
+    "Fail proof if any proposed card claims it was created, promoted, opened in Current Sprint, externally sent, or authorized for build.",
+    "Read only buildPortfolioReadback; do not create a second Portfolio truth layer."
+  ],
+  "approvalDigest": "3d142397cbf03a3eae563af839c72d797546bc9b22e56e077161060d97e9c895"
+}

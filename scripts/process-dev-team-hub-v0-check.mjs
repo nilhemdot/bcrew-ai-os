@@ -103,6 +103,7 @@ const DEV_ACTION_ROUTE_READBACK_JS_PATH = 'public/dev-action-route-readback.js'
 const DEV_FOUNDATION_DONE_BAR_JS_PATH = 'public/dev-foundation-done-bar.js'
 const DEV_SCOPER_EVIDENCE_TRACE_JS_PATH = 'public/dev-scoper-evidence-trace.js'
 const DEV_BUILD_PORTFOLIO_READBACK_JS_PATH = 'public/dev-build-portfolio-readback.js'
+const DEV_MORNING_PROPOSED_CARDS_JS_PATH = 'public/dev-morning-proposed-cards-readback.js'
 const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
@@ -121,6 +122,7 @@ const DEV_CSS_PATHS = [
   'public/dev-source-approval.css',
   'public/dev-scoper-evidence-trace.css',
   'public/dev-build-portfolio-readback.css',
+  'public/dev-morning-proposed-cards-readback.css',
   'public/dev-intelligence-hygiene.css',
   'public/dev-auditor-flow.css',
   'public/dev-synthesis-scope.css',
@@ -251,6 +253,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="route-autoclear-preflight"',
 	    'id="route-blocker-preflight"',
 	    'id="build-portfolio-readback"',
+	    'id="morning-proposed-cards-readback"',
 	    'id="scoper-runtime-readback"',
   ].every(marker => html.includes(marker))
 }
@@ -450,6 +453,7 @@ async function main() {
     foundationDoneBarJsSource,
     scoperEvidenceTraceJsSource,
     buildPortfolioReadbackJsSource,
+    morningProposedCardsJsSource,
     intelligenceHygieneJsSource,
     auditorFlowJsSource,
     synthesisScopeJsSource,
@@ -479,6 +483,7 @@ async function main() {
     readRepoFile(DEV_FOUNDATION_DONE_BAR_JS_PATH),
     readRepoFile(DEV_SCOPER_EVIDENCE_TRACE_JS_PATH),
     readRepoFile(DEV_BUILD_PORTFOLIO_READBACK_JS_PATH),
+    readRepoFile(DEV_MORNING_PROPOSED_CARDS_JS_PATH),
     readRepoFile(DEV_INTELLIGENCE_HYGIENE_JS_PATH),
     readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
@@ -506,7 +511,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${buildPortfolioReadbackJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${buildPortfolioReadbackJsSource}\n${morningProposedCardsJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -878,6 +883,47 @@ async function main() {
       cssSource.includes('.build-portfolio-readback'),
     'Dev Hub exposes Build Portfolio ranked merge readback without promotion or writes',
     `groups=${payload?.buildPortfolioReadback?.summary?.portfolioGroupCount || 0}; merged=${payload?.buildPortfolioReadback?.summary?.mergedGroupCount || 0}; ready=${payload?.buildPortfolioReadback?.summary?.readyScopedCandidateCount || 0}; writes=${payload?.buildPortfolioReadback?.summary?.backlogRecordsWrittenByReadback || 0}/${payload?.buildPortfolioReadback?.summary?.portfolioRecordsPersistedByReadback || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubMorningProposedCardsReadback') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'morningProposedCardsReadback') &&
+      payload?.morningProposedCardsReadback?.contractVersion === 'dev-hub-morning-proposed-cards-readback.v1' &&
+      payload?.morningProposedCardsReadback?.source?.reusedTruthLayer === 'buildPortfolioReadback' &&
+      payload?.morningProposedCardsReadback?.source?.noSecondTruthLayer === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.draftOnly === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.proposalOnly === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.approvalRequired === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.noBacklogMutation === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.noCardCreation === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.noScoperMutation === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.noPortfolioPersistence === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.noCurrentSprintMutation === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.noHarlanSend === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.noExternalWrites === true &&
+      payload?.morningProposedCardsReadback?.boundaries?.noAutoBuild === true &&
+      Number(payload?.morningProposedCardsReadback?.summary?.proposedCardCount || 0) >= 1 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.readyForSteveReviewCount || 0) === Number(payload?.morningProposedCardsReadback?.summary?.proposedCardCount || 0) &&
+      Number(payload?.morningProposedCardsReadback?.summary?.createdCardsByReadback || 0) === 0 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.promotedCardsByReadback || 0) === 0 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.currentSprintOpenedByReadback || 0) === 0 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.buildAuthorizationsByReadback || 0) === 0 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.scoperRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.portfolioRecordsPersistedByReadback || 0) === 0 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.harlanSendsByReadback || 0) === 0 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.morningProposedCardsReadback?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.morningProposedCardsReadback?.proposedCards).length <= 6 &&
+      list(payload?.morningProposedCardsReadback?.proposedCards).every(card => card.approvalStatus === 'draft_requires_steve_approval' && card.status === 'draft_only' && card.createdNow === false && card.promotedNow === false && card.sprintOpenedNow === false && card.buildAuthorizedNow === false && card.sourceLineageCount >= 1) &&
+      htmlSource.includes('id="morning-proposed-cards-readback"') &&
+      htmlSource.includes('/dev-morning-proposed-cards-readback.css') &&
+      htmlSource.includes('/dev-morning-proposed-cards-readback.js') &&
+      morningProposedCardsJsSource.includes('morningProposedCardsReadback') &&
+      morningProposedCardsJsSource.includes('Draft cards only') &&
+      cssSource.includes('.morning-proposed-cards-readback'),
+    'Dev Hub exposes morning proposed-card drafts without creating cards or authorizing builds',
+    `drafts=${payload?.morningProposedCardsReadback?.summary?.proposedCardCount || 0}; created=${payload?.morningProposedCardsReadback?.summary?.createdCardsByReadback || 0}; builds=${payload?.morningProposedCardsReadback?.summary?.buildAuthorizationsByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -2155,6 +2201,19 @@ async function main() {
           sourceTraceStatus: candidate.sourceTraceStatus,
           scoperStatus: candidate.scoperStatus,
           portfolioGroupId: candidate.portfolioGroupId,
+        })),
+      } : null,
+      morningProposedCardsReadback: payload.morningProposedCardsReadback ? {
+        status: payload.morningProposedCardsReadback.status,
+        summary: payload.morningProposedCardsReadback.summary,
+        proposedCards: list(payload.morningProposedCardsReadback.proposedCards).map(card => ({
+          proposedCardId: card.proposedCardId,
+          sourcePortfolioGroupId: card.sourcePortfolioGroupId,
+          portfolioRank: card.portfolioRank,
+          portfolioScore: card.portfolioScore,
+          title: card.title,
+          approvalStatus: card.approvalStatus,
+          sourceLineageCount: card.sourceLineageCount,
         })),
       } : null,
       intelligenceHygieneReadback: payload.intelligenceHygieneReadback ? {

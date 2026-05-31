@@ -661,5 +661,62 @@
       "This does not mutate Scoper records, action routes, decisions, open questions, or destinations.",
       "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, browser sessions, connector probes, or external writes."
     ]
+  },
+  {
+    "key": "dev-hub-morning-proposed-cards-readback-v1",
+    "backlogIds": [
+      "DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub morning proposed cards readback",
+        "DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001",
+        "dev-hub-morning-proposed-cards-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-BUILD-PORTFOLIO-READBACK-001",
+      "BUILD-PORTFOLIO-SCRUM-MASTER-001",
+      "DEV-BUILD-OPPORTUNITY-SCOPER-001"
+    ],
+    "systemArea": "Dev Hub morning proposed cards readback",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Morning Proposed Cards packet to Dev Hub that turns Build Portfolio groups into draft card-shaped proposals.",
+    "whatItDoes": "The Dev Hub now shows draft proposed card IDs, portfolio source group, rank, score, proposed priority, owner lane, source-lineage count, acceptance criteria, definition of done, proof plan, risks, not-next boundaries, and approval status.",
+    "whyItMatters": "Steve can wake up to clean build proposals sourced from the intelligence pipe without the system silently creating backlog cards, opening sprint work, sending Harlan, or authorizing builds.",
+    "whereItLives": [
+      "lib/dev-hub-morning-proposed-cards-readback.js draft proposal projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js morningProposedCardsReadback payload wiring from Build Portfolio Readback",
+      "public/dev.html Morning Proposed Cards panel",
+      "public/dev-morning-proposed-cards-readback.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-morning-proposed-cards-readback.css standalone morning cards panel styles",
+      "scripts/process-dev-hub-morning-proposed-cards-readback-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-morning-proposed-cards-readback-001-plan.md",
+      "docs/process/approvals/DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001.json",
+      "package.json process:dev-hub-morning-proposed-cards-readback-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-morning-proposed-cards-readback.js scripts/process-dev-hub-morning-proposed-cards-readback-check.mjs public/dev-morning-proposed-cards-readback.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-morning-proposed-cards-readback-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001.json --closeoutKey=dev-hub-morning-proposed-cards-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001 --closeoutKey=dev-hub-morning-proposed-cards-readback-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001.json --closeoutKey=dev-hub-morning-proposed-cards-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: proposed cards must remain draft_requires_steve_approval and fail if any card is created, promoted, opened in Current Sprint, build-authorized, Harlan-sent, externally written, or missing source-lineage/proof fields.",
+    "reviewNext": "Actual card promotion still requires Steve approval of an exact draft proposed card. Do not create backlog cards, sprint work, Scoper records, Portfolio records, Harlan messages, route actions, extraction runs, model calls, builds, or external writes from this readback.",
+    "knownLimits": [
+      "This is a read-only proposed-card readback; it does not create backlog cards.",
+      "This does not open Current Sprint work or authorize builds.",
+      "This does not mutate Scoper, Portfolio, route, decision, open-question, approval, or destination records.",
+      "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, browser sessions, connector probes, or external writes."
+    ]
   }
 ]
