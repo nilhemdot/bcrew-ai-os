@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T05:35:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-scoper-schedule-boundary-preflight-001-plan.md",
+  "approvedPlanSha256": "00a21fc93644b57741f8cda6ce9608f4c1777217e476510f171841d9a5e0ae78",
+  "approvedRepoHead": "e5f12fe0f257a16c49434fb4cb366bfd523ecc58",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and prepare exact approval-bound repair packets without unsafe automation.",
+  "scopeSummary": "Expose a read-only Dev Hub Scoper Schedule Boundary preflight that prepares the exact read-only schedule contract without registering, scheduling, running, or promoting Scoper work.",
+  "constraints": [
+    "Do not register, schedule, run, or mutate Scoper jobs from this preflight.",
+    "Do not auto-promote Director recommendations into Scoper, backlog, Portfolio, decisions, or route destinations.",
+    "Do not create or update Scoper cards, backlog cards, Portfolio records, Current Sprint overlays, approval records, job registry rows, runtime controls, or destination records from this preflight.",
+    "Do not run extraction, source sync, provider/model calls, login, Browserbase, paid/private source work, Harlan sends, or external writes.",
+    "Keep actual Scoper scheduling behind separate exact Steve approval for the named read-only job contract.",
+    "Fail proof if the preflight schedules, registers, runs, promotes, mutates, writes externally, or presents a non-read-only/non-approval-required schedule row."
+  ],
+  "approvalDigest": "3c4353e639163376e364b5fbb7d86671956d98c0c4dcc312c131d91b15238602"
+}

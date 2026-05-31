@@ -268,6 +268,7 @@
     "process:dev-hub-proposed-card-source-proof-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-proposed-card-source-proof-readback-check.mjs",
     "process:dev-hub-morning-build-review-summary-check": "node --env-file-if-exists=.env scripts/process-dev-hub-morning-build-review-summary-check.mjs",
     "process:dev-hub-scoper-runtime-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-scoper-runtime-readback-check.mjs",
+    "process:dev-hub-scoper-schedule-boundary-preflight-check": "node --env-file-if-exists=.env scripts/process-dev-hub-scoper-schedule-boundary-preflight-check.mjs",
     "process:dev-hub-business-source-pipeline-triage-check": "node --env-file-if-exists=.env scripts/process-dev-hub-business-source-pipeline-triage-check.mjs",
     "process:dev-hub-next-repair-queue-check": "node --env-file-if-exists=.env scripts/process-dev-hub-next-repair-queue-check.mjs",
     "process:dev-hub-business-atom-flow-preflight-check": "node --env-file-if-exists=.env scripts/process-dev-hub-business-atom-flow-preflight-check.mjs",

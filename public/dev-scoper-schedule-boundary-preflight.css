@@ -1,0 +1,121 @@
+.scoper-schedule-boundary-preflight {
+  display: grid;
+  gap: 14px;
+}
+
+.scoper-schedule-boundary-preflight .loading-card.error {
+  border-color: rgba(181, 65, 74, 0.34);
+}
+
+.scoper-schedule-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.scoper-schedule-summary article,
+.scoper-schedule-boundary,
+.scoper-schedule-card,
+.scoper-schedule-empty {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 8px;
+}
+
+.scoper-schedule-summary article {
+  padding: 12px;
+}
+
+.scoper-schedule-summary span,
+.scoper-schedule-boundary span,
+.scoper-schedule-card span,
+.scoper-schedule-empty p,
+.scoper-schedule-card p,
+.scoper-schedule-card dt,
+.scoper-schedule-card dd {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.scoper-schedule-summary span,
+.scoper-schedule-boundary span,
+.scoper-schedule-card span,
+.scoper-schedule-card dt {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.scoper-schedule-summary strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 22px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.scoper-schedule-boundary {
+  padding: 14px;
+}
+
+.scoper-schedule-boundary p,
+.scoper-schedule-card p,
+.scoper-schedule-empty p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.scoper-schedule-list {
+  display: grid;
+  gap: 10px;
+}
+
+.scoper-schedule-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 14px;
+  padding: 14px;
+}
+
+.scoper-schedule-card strong,
+.scoper-schedule-empty strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.scoper-schedule-card dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.scoper-schedule-card dl div {
+  min-width: 0;
+}
+
+.scoper-schedule-card dd {
+  margin: 2px 0 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.scoper-schedule-boundary-copy {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.scoper-schedule-empty {
+  padding: 14px;
+}
+
+@media (max-width: 820px) {
+  .scoper-schedule-summary,
+  .scoper-schedule-card {
+    grid-template-columns: 1fr;
+  }
+}

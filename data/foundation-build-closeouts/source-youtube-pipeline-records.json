@@ -1506,5 +1506,60 @@
       "This does not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, action routes, atoms, facts, synthesis rows, Harlan messages, model calls, extraction runs, connector probes, source syncs, sheet reads, or external writes.",
       "Actual source reads, atom/fact writes, synthesis refresh, route proposal/apply, source extraction, connector sync, and Scoper promotion remain separate approval-bound cards."
     ]
+  },
+  {
+    "key": "dev-hub-scoper-schedule-boundary-preflight-v1",
+    "backlogIds": [
+      "DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub Scoper schedule boundary preflight",
+        "DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001",
+        "dev-hub-scoper-schedule-boundary-preflight-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-SCOPER-RUNTIME-READBACK-001",
+      "DEV-HUB-NEXT-REPAIR-QUEUE-001"
+    ],
+    "systemArea": "Dev Hub Scoper schedule boundary preflight",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Scoper Schedule Boundary Preflight to Dev Hub that prepares the exact proposed read-only job key, command, cadence, mutation posture, and approval text.",
+    "whatItDoes": "The Dev Hub now turns the missing Scoper schedule seam into an exact approval packet without registering a job, scheduling, running Scoper, creating Scoper/backlog/Portfolio records, mutating routes, sending Harlan, calling models, or writing externally.",
+    "whyItMatters": "Steve wants the Dev Hub to keep recommending next builds from real data while parking unsafe automation. This makes the next Scoper runtime decision exact without repeating automatic-build behavior.",
+    "whereItLives": [
+      "lib/dev-hub-scoper-schedule-boundary-preflight.js compact schedule-boundary projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js scoperScheduleBoundaryPreflight payload wiring from Scoper Runtime and Next Repair Queue readbacks",
+      "public/dev.html Scoper Schedule Boundary panel",
+      "public/dev-scoper-schedule-boundary-preflight.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-scoper-schedule-boundary-preflight.css standalone schedule-boundary panel styles",
+      "scripts/process-dev-hub-scoper-schedule-boundary-preflight-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-scoper-schedule-boundary-preflight-001-plan.md",
+      "docs/process/approvals/DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001.json",
+      "package.json process:dev-hub-scoper-schedule-boundary-preflight-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-scoper-schedule-boundary-preflight.js scripts/process-dev-hub-scoper-schedule-boundary-preflight-check.mjs public/dev-scoper-schedule-boundary-preflight.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-scoper-schedule-boundary-preflight-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001.json --closeoutKey=dev-hub-scoper-schedule-boundary-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001 --closeoutKey=dev-hub-scoper-schedule-boundary-preflight-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-SCOPER-SCHEDULE-BOUNDARY-PREFLIGHT-001.json --closeoutKey=dev-hub-scoper-schedule-boundary-preflight-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: the schedule packet must stay read-only and approval-required, and any schedule registration, run start, Scoper/backlog/Portfolio write, route mutation, model/extraction start, Harlan send, or external write fails validation.",
+    "reviewNext": "Actual Scoper job registration/scheduling remains a separate approved card. Do not add the job, schedule it, run it, promote candidates, create cards, apply routes, call models, or send Harlan from this preflight.",
+    "knownLimits": [
+      "This is a read-only preflight; it does not schedule Scoper.",
+      "This does not create job registry rows, runtime controls, backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, action routes, atoms, facts, synthesis rows, Harlan messages, model calls, extraction runs, connector probes, source syncs, or external writes.",
+      "Actual Scoper scheduling and any future promotion path remain separate approval-bound cards."
+    ]
   }
 ]

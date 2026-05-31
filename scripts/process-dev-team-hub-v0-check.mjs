@@ -114,6 +114,7 @@ const DEV_ROUTE_REVIEW_OPERATOR_PACKET_JS_PATH = 'public/dev-route-review-operat
 const DEV_ROUTE_AUTOCLEAR_PREFLIGHT_JS_PATH = 'public/dev-route-autoclear-preflight.js'
 const DEV_ROUTE_BLOCKER_PREFLIGHT_JS_PATH = 'public/dev-route-blocker-preflight.js'
 const DEV_SCOPER_RUNTIME_JS_PATH = 'public/dev-scoper-runtime-readback.js'
+const DEV_SCOPER_SCHEDULE_BOUNDARY_PREFLIGHT_JS_PATH = 'public/dev-scoper-schedule-boundary-preflight.js'
 const DEV_BUSINESS_SOURCE_JS_PATH = 'public/dev-business-source-pipeline-triage.js'
 const DEV_NEXT_REPAIR_JS_PATH = 'public/dev-next-repair-queue.js'
 const DEV_BUSINESS_ATOM_FLOW_PREFLIGHT_JS_PATH = 'public/dev-business-atom-flow-preflight.js'
@@ -135,6 +136,7 @@ const DEV_CSS_PATHS = [
   'public/dev-route-autoclear-preflight.css',
   'public/dev-route-blocker-preflight.css',
   'public/dev-scoper-runtime-readback.css',
+  'public/dev-scoper-schedule-boundary-preflight.css',
   'public/dev-business-source-pipeline-triage.css',
   'public/dev-next-repair-queue.css',
   'public/dev-business-atom-flow-preflight.css',
@@ -468,6 +470,7 @@ async function main() {
     routeAutoClearPreflightJsSource,
     routeBlockerPreflightJsSource,
     scoperRuntimeJsSource,
+    scoperScheduleBoundaryPreflightJsSource,
     businessSourceJsSource,
     nextRepairJsSource,
     businessAtomFlowPreflightJsSource,
@@ -500,6 +503,7 @@ async function main() {
     readRepoFile(DEV_ROUTE_AUTOCLEAR_PREFLIGHT_JS_PATH),
     readRepoFile(DEV_ROUTE_BLOCKER_PREFLIGHT_JS_PATH),
     readRepoFile(DEV_SCOPER_RUNTIME_JS_PATH),
+    readRepoFile(DEV_SCOPER_SCHEDULE_BOUNDARY_PREFLIGHT_JS_PATH),
     readRepoFile(DEV_BUSINESS_SOURCE_JS_PATH),
     readRepoFile(DEV_NEXT_REPAIR_JS_PATH),
     readRepoFile(DEV_BUSINESS_ATOM_FLOW_PREFLIGHT_JS_PATH),
@@ -1068,6 +1072,51 @@ async function main() {
       cssSource.includes('.scoper-runtime-bucket'),
     'Dev Hub exposes Scoper Runtime schedule/readiness without scheduling, running, or promoting',
     `jobs=${payload?.scoperRuntimeReadback?.summary?.scoperJobCount || 0}; scheduled=${payload?.scoperRuntimeReadback?.summary?.scheduledScoperJobCount || 0}; ready=${payload?.scoperRuntimeReadback?.summary?.readyForPortfolioCount || 0}; parked=${payload?.scoperRuntimeReadback?.summary?.parkedCount || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubScoperScheduleBoundaryPreflight') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'scoperScheduleBoundaryPreflight') &&
+      payload?.scoperScheduleBoundaryPreflight?.contractVersion === 'dev-hub-scoper-schedule-boundary-preflight.v1' &&
+      payload?.scoperScheduleBoundaryPreflight?.source?.targetRepairId === 'scoper-runtime-schedule-boundary' &&
+      payload?.scoperScheduleBoundaryPreflight?.source?.proposedJobKey === 'dev-build-scoper-evidence-trace-readonly' &&
+      payload?.scoperScheduleBoundaryPreflight?.source?.noSecondTruthLayer === true &&
+      list(payload?.scoperScheduleBoundaryPreflight?.source?.reusedTruthLayers).includes('scoperRuntimeReadback') &&
+      list(payload?.scoperScheduleBoundaryPreflight?.source?.reusedTruthLayers).includes('nextRepairQueue') &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.preflightOnly === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.approvalRequiredBeforeSchedule === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.noScheduleMutation === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.noJobRegistryWrite === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.noScoperRun === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.noScoperMutation === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.noPortfolioMutation === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.noBacklogMutation === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.noRouteMutation === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.noAutoScoperPromotion === true &&
+      payload?.scoperScheduleBoundaryPreflight?.boundaries?.noExternalWrites === true &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.scheduleMutationsByReadback || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.jobRegistryWritesByReadback || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.scoperRunsStartedByReadback || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.scoperRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.portfolioRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.routeMutationsByReadback || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.extractionRunsStarted || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.harlanSendsByReadback || 0) === 0 &&
+      Number(payload?.scoperScheduleBoundaryPreflight?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.scoperScheduleBoundaryPreflight?.proposedSchedules).length <= 1 &&
+      list(payload?.scoperScheduleBoundaryPreflight?.proposedSchedules).every(item => item.status === 'approval_required' && item.approvalRequired === true && item.mutationPosture === 'read_only' && item.scheduledNow === false && item.jobRegisteredNow === false && item.scoperRunStartedNow === false) &&
+      htmlSource.includes('id="scoper-schedule-boundary-preflight"') &&
+      htmlSource.includes('/dev-scoper-schedule-boundary-preflight.css') &&
+      htmlSource.includes('/dev-scoper-schedule-boundary-preflight.js') &&
+      scoperScheduleBoundaryPreflightJsSource.includes('scoperScheduleBoundaryPreflight') &&
+      scoperScheduleBoundaryPreflightJsSource.includes('schedule writes') &&
+      cssSource.includes('.scoper-schedule-boundary-preflight') &&
+      cssSource.includes('.scoper-schedule-summary') &&
+      cssSource.includes('.scoper-schedule-card'),
+    'Dev Hub exposes Scoper schedule boundary approval packet without registering, scheduling, running, or promoting',
+    `proposals=${payload?.scoperScheduleBoundaryPreflight?.summary?.proposedScheduleCount || 0}; ready=${payload?.scoperScheduleBoundaryPreflight?.summary?.readyForPortfolioCount || 0}; scheduleWrites=${payload?.scoperScheduleBoundaryPreflight?.summary?.scheduleMutationsByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -2219,6 +2268,17 @@ async function main() {
           title: item.title,
           suggestedCardType: item.suggestedCardType,
           status: item.status,
+        })),
+      } : null,
+      scoperScheduleBoundaryPreflight: payload.scoperScheduleBoundaryPreflight ? {
+        status: payload.scoperScheduleBoundaryPreflight.status,
+        summary: payload.scoperScheduleBoundaryPreflight.summary,
+        proposedSchedules: list(payload.scoperScheduleBoundaryPreflight.proposedSchedules).map(item => ({
+          proposalId: item.proposalId,
+          proposedJobKey: item.proposedJobKey,
+          status: item.status,
+          mutationPosture: item.mutationPosture,
+          scheduledNow: item.scheduledNow,
         })),
       } : null,
       routeReviewOperatorPacket: payload.routeReviewOperatorPacket ? {
