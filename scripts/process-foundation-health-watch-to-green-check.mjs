@@ -538,7 +538,10 @@ async function main() {
     readRepoFile(SCRIPT_PATH),
     readRepoFile('lib/foundation-verifier-health-live-summary.js'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
-    readRepoFile('lib/foundation-build-closeout-build-lane-records.js'),
+    Promise.all([
+      readRepoFile('lib/foundation-build-closeout-build-lane-records.js'),
+      readRepoFile('data/foundation-build-closeouts/build-lane-records.json'),
+    ]).then(parts => parts.join('\n')),
   ])
 
   const card = cards.find(item => item.id === CARD_ID) || null
@@ -584,10 +587,11 @@ async function main() {
   addCheck(checks, !findingById.has('scheduled_job_meeting-notes-sync-current') || (findingById.get('scheduled_job_meeting-notes-sync-current').classification?.owner === 'Steve' && findingById.get('scheduled_job_meeting-notes-sync-current').classification?.repairCardId === 'EXTRACT-CURRENT-001'), 'meeting-notes current sync is green/resolved or Steve approval-bound', 'scheduled_job_meeting-notes-sync-current')
   addCheck(checks, !findingById.has('scheduled_job_gmail-sync-current') || findingById.get('scheduled_job_gmail-sync-current').classification?.repairCardId === 'EXTRACT-CURRENT-001', 'Gmail current sync is green/resolved or routes to EXTRACT-CURRENT-001', 'scheduled_job_gmail-sync-current')
   addCheck(checks, !findingById.has('scheduled_job_meeting-transcripts-extract-backlog') || findingById.get('scheduled_job_meeting-transcripts-extract-backlog').classification?.repairCardId === 'EXTRACT-BACKFILL-001', 'meeting transcript backlog is green/resolved or routes to EXTRACT-BACKFILL-001', 'scheduled_job_meeting-transcripts-extract-backlog')
+  addCheck(checks, !findingById.has('scheduled_job_admin-deal-backlog-review') || (findingById.get('scheduled_job_admin-deal-backlog-review').classification?.owner === 'Steve' && findingById.get('scheduled_job_admin-deal-backlog-review').classification?.repairCardId === 'ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001'), 'admin deal backlog review is green/resolved or Steve approval-bound', 'scheduled_job_admin-deal-backlog-review')
   addCheck(checks, liveSystemHealth.findings.filter(finding => String(finding.id || '').startsWith('endpoint_budget_')).every(finding => finding.classification?.repairCardId === 'FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001'), 'endpoint budget rows route to endpoint freshness card', `${healthSummary.endpointRoutedCount} row(s)`)
   addCheck(checks, liveSystemHealth.findings.filter(finding => String(finding.id || '').startsWith('doc_artifact_handoff_')).every(finding => finding.classification?.repairCardId === 'FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001'), 'hot-doc rows route to handoff cleanup card', `${healthSummary.hotDocRoutedCount} row(s)`)
   addCheck(checks, liveSystemHealth.findings.filter(finding => String(finding.id || '').startsWith('file_size_')).every(finding => finding.classification?.repairCardId === 'FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001'), 'file-size rows route to file-size classifier card', `${healthSummary.fileSizeRoutedCount} row(s)`)
-  addCheck(checks, liveSystemHealth.summary?.buildLaneFailureRedCount === 0 && liveSystemHealth.summary?.buildLaneFailureYellowCount === 0, 'build-lane repeated failure telemetry is green before health card closes', `${liveSystemHealth.summary?.buildLaneFailureRedCount || 0}/${liveSystemHealth.summary?.buildLaneFailureYellowCount || 0}`)
+  addCheck(checks, liveSystemHealth.summary?.buildLaneFailureRedCount === 0 && liveSystemHealth.findings.filter(finding => String(finding.id || '').startsWith('build_lane_failure_')).every(finding => finding.classification?.repairCardId === 'BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001'), 'build-lane repeated failure telemetry has no red rows and watch rows route to action gate', `${liveSystemHealth.summary?.buildLaneFailureRedCount || 0}/${liveSystemHealth.summary?.buildLaneFailureYellowCount || 0}; routed=${healthSummary.buildLaneRoutedCount}`)
   addCheck(checks, systemHealthDogfood.ok === true, 'base system-health dogfood still blocks unclassified red rows', systemHealthDogfood.checks.filter(check => !check.ok).map(check => check.check).join(', ') || 'pass')
   addCheck(checks, watchToGreenDogfood.ok === true, 'health watch-to-green dogfood proves classification and false-green prevention', watchToGreenDogfood.checks.filter(check => !check.ok).map(check => check.check).join(', ') || 'pass')
   addCheck(checks, packageJson.scripts?.['process:foundation-health-watch-to-green-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused proof', packageJson.scripts?.['process:foundation-health-watch-to-green-check'] || 'missing')

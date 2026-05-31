@@ -1,39 +1,37 @@
 {
-  "generatedAt": "2026-05-31T02:49:59.234Z",
+  "generatedAt": "2026-05-31T02:58:52.234Z",
   "status": "risk",
   "plainEnglish": "Foundation has red workflow/system-health findings that block green. Do not treat classified rows as fixed.",
   "summary": {
     "status": "risk",
     "rawStatus": "risk",
-    "classificationStatus": "risk",
+    "classificationStatus": "healthy",
     "preGreenLockStatus": "risk",
     "greenLockStatus": "risk",
     "greenLockBlocksGreen": true,
     "greenLockApprovedExceptionCount": 0,
     "currentSprintHealthTruthLockStatus": "healthy",
     "riskCount": 2,
-    "watchCount": 3,
+    "watchCount": 1,
     "rawRiskCount": 2,
     "rawWatchCount": 4,
     "visibleRiskCount": 2,
     "visibleWatchCount": 3,
     "hiddenRiskCount": 0,
-    "hiddenWatchCount": 1,
-    "classifiedRiskCount": 1,
-    "classifiedWatchCount": 2,
-    "blockingClassifiedRiskCount": 1,
+    "hiddenWatchCount": 0,
+    "classifiedRiskCount": 2,
+    "classifiedWatchCount": 3,
+    "blockingClassifiedRiskCount": 2,
     "blockingClassifiedWatchCount": 1,
-    "classifiedFindingCount": 3,
-    "unclassifiedRiskCount": 1,
-    "unclassifiedWatchCount": 2,
+    "classifiedFindingCount": 5,
+    "unclassifiedRiskCount": 0,
+    "unclassifiedWatchCount": 0,
     "blockingClassifiedFindingIds": [
+      "scheduled_job_admin-deal-backlog-review",
       "scheduled_job_meeting-transcripts-extract-backlog",
       "runtime_jobs_failed"
     ],
-    "unclassifiedFindingIds": [
-      "scheduled_job_admin-deal-backlog-review",
-      "build_lane_failure_d6f2c7283f2c2d06815baf84"
-    ],
+    "unclassifiedFindingIds": [],
     "scheduledJobRiskCount": 2,
     "scheduledJobWatchCount": 0,
     "auditFleetStatus": "healthy",
@@ -67,8 +65,8 @@
     "rawWatchCount": 4,
     "visibleNonGreenCount": 5,
     "hiddenRiskCount": 0,
-    "hiddenWatchCount": 1,
-    "hiddenNonGreenCount": 1,
+    "hiddenWatchCount": 0,
+    "hiddenNonGreenCount": 0,
     "approvedExceptionCount": 0,
     "missingExceptionFindingIds": [
       "scheduled_job_admin-deal-backlog-review",
@@ -80,7 +78,7 @@
     "exceptionChecks": [
       {
         "findingId": "scheduled_job_admin-deal-backlog-review",
-        "repairCardId": null,
+        "repairCardId": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
         "ok": false,
         "missing": [
           "approved exception"
@@ -104,7 +102,7 @@
       },
       {
         "findingId": "runtime_jobs_failed",
-        "repairCardId": "EXTRACT-CURRENT-001",
+        "repairCardId": "EXTRACT-BACKFILL-001",
         "ok": false,
         "missing": [
           "approved exception"
@@ -112,7 +110,7 @@
       },
       {
         "findingId": "build_lane_failure_d6f2c7283f2c2d06815baf84",
-        "repairCardId": null,
+        "repairCardId": "BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001",
         "ok": false,
         "missing": [
           "approved exception"
@@ -351,8 +349,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T02:49:59.227Z",
-        "latestSuccessAt": "2026-05-31T02:49:59.227Z",
+        "latestRunAt": "2026-05-31T02:58:52.227Z",
+        "latestSuccessAt": "2026-05-31T02:58:52.227Z",
         "plainEnglish": "System Health Nightly Audit has a fresh successful run and is not due.",
         "nextAction": "Review red/yellow system-health rows before treating Foundation as green."
       },
@@ -422,7 +420,7 @@
     "summary": {
       "artifactCount": 1252,
       "handoffFileCount": 11,
-      "handoffLineTotal": 3359,
+      "handoffLineTotal": 3380,
       "recentHandoffFileCount": 9,
       "nightlyArtifactCount": 9,
       "riskCount": 0,
@@ -572,7 +570,18 @@
       "detail": "Admin Deal Backlog Inspection latest run is failed.",
       "nextAction": "Marked failed by stale active-run reaper.",
       "jobKey": "admin-deal-backlog-review",
-      "rollupLevel": "risk"
+      "rollupLevel": "risk",
+      "classification": {
+        "status": "classified",
+        "type": "approval_bound_operational_write_lane",
+        "owner": "Steve",
+        "reason": "Admin deal backlog review writes governed Ops review/action/finding rows across Owners/FUB/ClickUp posture; a failed stale active-run row must stay parked until Steve approves the operational-write rerun or a safe read-only preflight narrows it.",
+        "threshold": "Blocks sprint if rerun outside the Admin Deal policy/source contract, if required for the active card, or if it remains failed after an approved safe rerun.",
+        "nextAction": "Park the failed operational-write row; use ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001 as the source contract before any approved rerun.",
+        "repairCardId": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+        "relatedRepairCardIds": [],
+        "blocksCurrentSprint": true
+      }
     },
     {
       "id": "scheduled_job_meeting-transcripts-extract-backlog",
@@ -605,6 +614,7 @@
       "source": "foundation_operating_reliability",
       "autoFix": false,
       "autoBacklogMutation": false,
+      "rawWatchCoverage": 3,
       "rollupLevel": "watch",
       "classification": {
         "status": "classified",
@@ -633,13 +643,13 @@
         "status": "classified",
         "type": "job_ledger_routed",
         "owner": "Foundation Process",
-        "reason": "The remaining recent job failures are approval-bound extraction/backfill rows; connector uptime has a later successful safe run and repeated build-lane reds are clear.",
+        "reason": "The remaining recent job failures are approval-bound backfill or operational-write rows; connector uptime has a later successful safe run and repeated build-lane reds are clear.",
         "threshold": "Becomes sprint-blocking when an unclassified repeated job failure appears, or when an approved safe rerun fails again without a live repair card.",
-        "nextAction": "Keep the failed-run ledger visible while EXTRACT-CURRENT-001 and EXTRACT-BACKFILL-001 own the governed repair proof.",
-        "repairCardId": "EXTRACT-CURRENT-001",
+        "nextAction": "Keep the failed-run ledger visible while EXTRACT-BACKFILL-001 and ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001 own the governed repair proof.",
+        "repairCardId": "EXTRACT-BACKFILL-001",
         "relatedRepairCardIds": [
-          "EXTRACT-CURRENT-001",
-          "EXTRACT-BACKFILL-001"
+          "EXTRACT-BACKFILL-001",
+          "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001"
         ],
         "blocksCurrentSprint": true
       }
@@ -658,7 +668,18 @@
       "cardIds": [
         "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
       ],
-      "rollupLevel": "watch"
+      "rollupLevel": "watch",
+      "classification": {
+        "status": "classified",
+        "type": "watch_threshold",
+        "owner": "Foundation Process",
+        "reason": "Build-lane failure telemetry is already evaluated by the repeated-failure action gate; yellow fingerprints stay visible as watch rows instead of becoming unowned System Health noise.",
+        "threshold": "Blocks sprint when the action gate reports an unsatisfied red item or the fingerprint reaches the red threshold without a live repair route; yellow watch rows remain visible.",
+        "nextAction": "Watch unclassified_build_lane_failure; one more repeat should become repair work.",
+        "repairCardId": "BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001",
+        "relatedRepairCardIds": [],
+        "blocksCurrentSprint": false
+      }
     }
   ]
 }
