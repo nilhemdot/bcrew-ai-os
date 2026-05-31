@@ -26,6 +26,11 @@ import {
 import { getFoundationSnapshot } from '../lib/foundation-strategy-docs-db.js'
 import { buildSourceLifecycleStatus } from '../lib/source-lifecycle.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
+import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  assertProcessCheckWriteAllowed,
+  isProcessCheckWriteRequested,
+} from '../lib/process-write-guard.js'
 
 const SPRINT_ID = 'source-truth-guardrails-2026-05-13'
 const NEXT_CARD_ID = 'EXTRACT-RUN-HARDENING-EXECUTION-001'
@@ -203,10 +208,29 @@ async function closeSprintCard(liveGrid) {
 }
 
 async function main() {
+  const argv = process.argv.slice(2)
   const args = parseArgs()
   const jsonMode = boolArg(args.json)
   const skipClose = boolArg(args.skipClose) || boolArg(args['skip-close'])
+  const writeFlags = [
+    PROCESS_CHECK_WRITE_FLAGS.apply,
+    PROCESS_CHECK_WRITE_FLAGS.closeCard,
+    PROCESS_CHECK_WRITE_FLAGS.mutateSprint,
+  ]
+  const writeRequested = isProcessCheckWriteRequested({
+    argv,
+    allowedFlags: writeFlags,
+  })
   const findings = []
+
+  if (writeRequested) {
+    assertProcessCheckWriteAllowed({
+      argv,
+      scriptPath: ATOM_FLOW_AUTO_DEMOTION_SCRIPT_PATH,
+      operation: 'close atom-flow auto-demotion card and advance source truth guardrails sprint',
+      allowedFlags: writeFlags,
+    })
+  }
 
   await initFoundationDb()
   try {
@@ -265,10 +289,15 @@ async function main() {
       },
       syntheticClassifierProof,
       syntheticGridSummary: syntheticGridProof.summary,
+      writeRequested,
+      applied: false,
       findings,
     }
 
-    if (summary.status === 'healthy' && !skipClose) await closeSprintCard(liveGrid)
+    if (summary.status === 'healthy' && writeRequested && !skipClose) {
+      await closeSprintCard(liveGrid)
+      summary.applied = true
+    }
 
     if (jsonMode) console.log(JSON.stringify(summary, null, 2))
     else {
