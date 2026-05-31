@@ -107,6 +107,7 @@ const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
 const DEV_ROUTE_REVIEW_TRIAGE_JS_PATH = 'public/dev-route-review-triage.js'
 const DEV_ROUTE_REVIEW_OPERATOR_PACKET_JS_PATH = 'public/dev-route-review-operator-packet.js'
+const DEV_ROUTE_AUTOCLEAR_PREFLIGHT_JS_PATH = 'public/dev-route-autoclear-preflight.js'
 const DEV_SCOPER_RUNTIME_JS_PATH = 'public/dev-scoper-runtime-readback.js'
 const DEV_BUSINESS_SOURCE_JS_PATH = 'public/dev-business-source-pipeline-triage.js'
 const DEV_NEXT_REPAIR_JS_PATH = 'public/dev-next-repair-queue.js'
@@ -122,6 +123,7 @@ const DEV_CSS_PATHS = [
   'public/dev-synthesis-scope.css',
   'public/dev-route-review-triage.css',
   'public/dev-route-review-operator-packet.css',
+  'public/dev-route-autoclear-preflight.css',
   'public/dev-scoper-runtime-readback.css',
   'public/dev-business-source-pipeline-triage.css',
   'public/dev-next-repair-queue.css',
@@ -242,6 +244,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="auditor-flow"',
 	    'id="synthesis-scope"',
 	    'id="route-review-triage"',
+	    'id="route-autoclear-preflight"',
 	    'id="scoper-runtime-readback"',
   ].every(marker => html.includes(marker))
 }
@@ -445,6 +448,7 @@ async function main() {
     synthesisScopeJsSource,
     routeReviewTriageJsSource,
     routeReviewOperatorPacketJsSource,
+    routeAutoClearPreflightJsSource,
     scoperRuntimeJsSource,
     businessSourceJsSource,
     nextRepairJsSource,
@@ -471,6 +475,7 @@ async function main() {
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
     readRepoFile(DEV_ROUTE_REVIEW_TRIAGE_JS_PATH),
     readRepoFile(DEV_ROUTE_REVIEW_OPERATOR_PACKET_JS_PATH),
+    readRepoFile(DEV_ROUTE_AUTOCLEAR_PREFLIGHT_JS_PATH),
     readRepoFile(DEV_SCOPER_RUNTIME_JS_PATH),
     readRepoFile(DEV_BUSINESS_SOURCE_JS_PATH),
     readRepoFile(DEV_NEXT_REPAIR_JS_PATH),
@@ -491,7 +496,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -995,6 +1000,55 @@ async function main() {
       cssSource.includes('.route-packet-row'),
     'Dev Hub exposes Route Review Operator Packet with exact route IDs and zero approve/apply/reject/snooze/reroute writes',
     `rows=${payload?.routeReviewOperatorPacket?.summary?.packetItemCount || 0}; exact=${payload?.routeReviewOperatorPacket?.summary?.exactRouteIdCount || 0}; mutated=${payload?.routeReviewOperatorPacket?.summary?.routesMutatedByReadback || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubRouteAutoClearPreflight') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'routeAutoClearPreflight') &&
+      payload?.routeAutoClearPreflight?.contractVersion === 'dev-hub-route-autoclear-preflight.v1' &&
+      payload?.routeAutoClearPreflight?.source?.noSecondTruthLayer === true &&
+      list(payload?.routeAutoClearPreflight?.source?.reusedTruthLayers).includes('routeReviewTriage') &&
+      list(payload?.routeAutoClearPreflight?.source?.reusedTruthLayers).includes('routeReviewOperatorPacket') &&
+      list(payload?.routeAutoClearPreflight?.source?.reusedTruthLayers).includes('actionRouteReadback') &&
+      payload?.routeAutoClearPreflight?.boundaries?.preflightOnly === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.approvalRequired === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noRouteApprove === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noRouteApply === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noRouteReject === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noRouteSnooze === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noRouteReroute === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noRouteMutation === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noDestinationMutation === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noBacklogMutation === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noHarlanSend === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noExternalWrites === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noAutoApply === true &&
+      payload?.routeAutoClearPreflight?.boundaries?.noAutoClear === true &&
+      Number(payload?.routeAutoClearPreflight?.summary?.missingRouteIdCount || 0) === 0 &&
+      Number(payload?.routeAutoClearPreflight?.summary?.safeToAutoClearNowRows || 0) === 0 &&
+      Number(payload?.routeAutoClearPreflight?.summary?.approvalRequiredRows || 0) === Number(payload?.routeAutoClearPreflight?.summary?.preflightItemCount || 0) &&
+      Number(payload?.routeAutoClearPreflight?.summary?.routesRejectedByReadback || 0) === 0 &&
+      Number(payload?.routeAutoClearPreflight?.summary?.routesSnoozedByReadback || 0) === 0 &&
+      Number(payload?.routeAutoClearPreflight?.summary?.routesMutatedByReadback || 0) === 0 &&
+      Number(payload?.routeAutoClearPreflight?.summary?.destinationsMutatedByReadback || 0) === 0 &&
+      Number(payload?.routeAutoClearPreflight?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.routeAutoClearPreflight?.summary?.harlanSendsByReadback || 0) === 0 &&
+      Number(payload?.routeAutoClearPreflight?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.routeAutoClearPreflight?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.routeAutoClearPreflight?.preflightRows).length <= 16 &&
+      list(payload?.routeAutoClearPreflight?.groups).length <= 5 &&
+      list(payload?.routeAutoClearPreflight?.preflightRows).every(item => item.status === 'approval_required' && item.approvalRequired === true && item.safeToAutoClearNow === false && item.routeMutatedNow === false && item.destinationMutatedNow === false && item.autoCleared === false) &&
+      htmlSource.includes('id="route-autoclear-preflight"') &&
+      htmlSource.includes('/dev-route-autoclear-preflight.css') &&
+      htmlSource.includes('/dev-route-autoclear-preflight.js') &&
+      routeAutoClearPreflightJsSource.includes('routeAutoClearPreflight') &&
+      routeAutoClearPreflightJsSource.includes('Auto-clear preflight') &&
+      routeAutoClearPreflightJsSource.includes('safeToAutoClearNowRows') &&
+      cssSource.includes('.route-autoclear-preflight') &&
+      cssSource.includes('.route-autoclear-summary') &&
+      cssSource.includes('.route-autoclear-row'),
+    'Dev Hub exposes Route Auto-Clear Preflight with approval-bound exact IDs and zero reject/snooze/route writes',
+    `rows=${payload?.routeAutoClearPreflight?.summary?.preflightItemCount || 0}; candidates=${payload?.routeAutoClearPreflight?.summary?.candidateAfterApprovalRows || 0}; safeNow=${payload?.routeAutoClearPreflight?.summary?.safeToAutoClearNowRows || 0}; mutated=${payload?.routeAutoClearPreflight?.summary?.routesMutatedByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -1918,6 +1972,18 @@ async function main() {
           routeId: item.routeId,
           groupId: item.groupId,
           title: item.title,
+          status: item.status,
+        })),
+      } : null,
+      routeAutoClearPreflight: payload.routeAutoClearPreflight ? {
+        status: payload.routeAutoClearPreflight.status,
+        summary: payload.routeAutoClearPreflight.summary,
+        preflightRows: list(payload.routeAutoClearPreflight.preflightRows).map(item => ({
+          rank: item.rank,
+          routeId: item.routeId,
+          groupId: item.groupId,
+          clearReadiness: item.clearReadiness,
+          proposedDisposition: item.proposedDisposition,
           status: item.status,
         })),
       } : null,

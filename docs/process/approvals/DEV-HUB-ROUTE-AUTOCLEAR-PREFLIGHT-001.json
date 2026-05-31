@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-ROUTE-AUTOCLEAR-PREFLIGHT-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T04:02:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-route-autoclear-preflight-001-plan.md",
+  "approvedPlanSha256": "62edfe8f1b3dc1ee02e1c0fc7e93036df88ef8a7ba9214dd4bd882690951654a",
+  "approvedRepoHead": "854a6c56dfd35100bf09f83e13ac1a882524c59a",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub Route Auto-Clear Preflight that names exact approval-bound route cleanup candidates without mutating routes or destinations.",
+  "constraints": [
+    "Do not approve, apply, reject, snooze, reroute, auto-clear, or mutate live action routes.",
+    "Do not create backlog cards, Scoper records, Portfolio records, Current Sprint overlays, approval records, destination records, Harlan messages, model calls, extraction runs, connector probes, or external writes.",
+    "Do not auto-promote Director recommendations, route rows, repair proposals, or preflight rows into backlog or Scoper.",
+    "Keep real route mutation behind exact route IDs and separate Steve approval.",
+    "Fail proof if any row is marked safe-to-clear-now, auto-cleared, rejected, snoozed, applied, mutated, or no longer approval-required."
+  ],
+  "approvalDigest": "4c0ce647cce8f5a23e17187a280209a95421cca383643f1f5c622a2d96b9790a"
+}

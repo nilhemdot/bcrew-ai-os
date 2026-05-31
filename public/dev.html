@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/dev-synthesis-scope.css?v=20260531-synthesis-scope-v1" />
   <link rel="stylesheet" href="/dev-route-review-triage.css?v=20260531-route-triage-v1" />
   <link rel="stylesheet" href="/dev-route-review-operator-packet.css?v=20260531-route-packet-v1" />
+  <link rel="stylesheet" href="/dev-route-autoclear-preflight.css?v=20260531-route-autoclear-v1" />
   <link rel="stylesheet" href="/dev-scoper-runtime-readback.css?v=20260531-scoper-runtime-v1" />
   <link rel="stylesheet" href="/dev-business-source-pipeline-triage.css?v=20260531-business-source-v1" />
   <link rel="stylesheet" href="/dev-next-repair-queue.css?v=20260531-next-repair-v1" />
@@ -300,6 +301,20 @@
         </section>
 
         <section class="page-band">
+          <section class="section-head route-autoclear-head">
+            <div>
+              <span>AUTO-CLEAR PREFLIGHT</span>
+              <h2>Exact IDs, Approval Bound</h2>
+            </div>
+            <div class="route-autoclear-preflight-head-stats" id="route-autoclear-preflight-head-stats" aria-live="polite"></div>
+          </section>
+
+          <section class="route-autoclear-preflight" id="route-autoclear-preflight" aria-label="Dev route auto-clear preflight">
+            <article class="loading-card">Loading route auto-clear preflight from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band">
           <section class="section-head action-route-head">
             <div>
               <span>ACTION ROUTES</span>
@@ -449,6 +464,7 @@
   <script src="/dev-synthesis-scope.js?v=20260531-synthesis-scope-v1"></script>
   <script src="/dev-route-review-triage.js?v=20260531-route-triage-v1"></script>
   <script src="/dev-route-review-operator-packet.js?v=20260531-route-packet-v1"></script>
+  <script src="/dev-route-autoclear-preflight.js?v=20260531-route-autoclear-v1"></script>
   <script src="/dev-scoper-runtime-readback.js?v=20260531-scoper-runtime-v1"></script>
   <script src="/dev-business-source-pipeline-triage.js?v=20260531-business-source-v1"></script>
   <script src="/dev-next-repair-queue.js?v=20260531-next-repair-v1"></script>
