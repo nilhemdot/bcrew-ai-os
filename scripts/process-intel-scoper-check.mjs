@@ -779,6 +779,13 @@ async function main() {
   const nextSprintItem = (refreshedSprint.items || []).find(item => item.cardId === INTEL_SCOPER_NEXT_CARD_ID) || null
   const closeout = closeouts.find(record => record.key === INTEL_SCOPER_CLOSEOUT_KEY) || null
   const activeBlocker = refreshedSprint.sprint?.activeBlockerCardId || refreshedSprint.sprint?.active_blocker_card_id || null
+  const intelScoperDone = card?.lane === 'done' && Boolean(closeout)
+  const nextCardDone = nextCard?.lane === 'done'
+  const nextCardPinnedOrClosed = Boolean(nextCard) && (
+    nextCardDone ||
+    String(nextCard.nextAction || '').includes(INTEL_SCOPER_CLOSEOUT_KEY) ||
+    String(nextCard.statusNote || '').includes(INTEL_SCOPER_CLOSEOUT_KEY)
+  )
   const durablePlanCriticPass = planCriticRuns.some(run =>
     run.cardId === INTEL_SCOPER_CARD_ID &&
     run.status === 'pass' &&
@@ -795,11 +802,11 @@ async function main() {
   addCheck(checks, evaluation.ok, 'INTEL-SCOPER output snapshot is healthy', evaluation.failed.map(item => item.check).join('; ') || JSON.stringify(evaluation.summary))
   addCheck(checks, dogfood.ok, 'dogfood rejects weak or mutating scoper outputs', dogfood.invariant)
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live INTEL-SCOPER backlog card exists', card ? `${card.id}:${card.lane}` : 'missing')
-  addCheck(checks, nextCard && nextCard.nextAction?.includes(INTEL_SCOPER_CLOSEOUT_KEY), 'DATA-003 is pinned to INTEL-SCOPER outputs', nextCard?.nextAction || 'missing')
+  addCheck(checks, nextCardPinnedOrClosed, 'DATA-003 is done or pinned to INTEL-SCOPER outputs', nextCard ? `${nextCard.id}:${nextCard.lane}` : 'missing')
   addCheck(checks, registrySource.includes(INTEL_SCOPER_CLOSEOUT_KEY), 'closeout registry includes INTEL-SCOPER', INTEL_SCOPER_CLOSEOUT_KEY)
   addCheck(checks, closeout && closeout.backlogIds?.includes(INTEL_SCOPER_CARD_ID), 'closeout record links INTEL-SCOPER', closeout ? closeout.key : 'missing')
   addCheck(checks, closeoutDoc.includes(INTEL_SCOPER_CLOSEOUT_KEY) && closeoutDoc.includes('intelligence_scoper_outputs'), 'closeout handoff exists and names scoper output ledger', INTEL_SCOPER_CLOSEOUT_PATH)
-  addCheck(checks, refreshedSprint.sprint?.sprintId === INTEL_SCOPER_SPRINT_ID, 'Current Sprint remains overnight audit-control sprint', refreshedSprint.sprint?.sprintId || 'missing')
+  addCheck(checks, refreshedSprint.sprint?.sprintId === INTEL_SCOPER_SPRINT_ID || intelScoperDone, 'Current Sprint may advance after historical INTEL-SCOPER closeout', refreshedSprint.sprint?.sprintId || 'missing')
   addCheck(checks, !args.closeCard || sprintItem?.stage === 'done_this_sprint', 'close-card marks INTEL-SCOPER done this sprint', sprintItem?.stage || 'not closed')
   addCheck(checks, !args.closeCard || activeBlocker === INTEL_SCOPER_NEXT_CARD_ID, 'close-card advances active blocker to DATA-003', activeBlocker || 'missing')
   addCheck(checks, !args.closeCard || nextSprintItem?.stage === 'scoping', 'next sprint item remains scoped for its own build', nextSprintItem?.stage || 'missing')
