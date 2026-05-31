@@ -29,6 +29,28 @@
     `
   }
 
+  function renderMorningReview(review = {}) {
+    const items = list(review.topItems).slice(0, 3)
+    return `
+      <section class="proposed-card-morning-review">
+        <div>
+          <span>${escapeHtml(review.status || 'ready_for_steve_review')} · Harlan ${escapeHtml(review.harlanDigestPreview?.status || 'preview_only')}</span>
+          <h3>${escapeHtml(review.title || 'Morning build review')}</h3>
+          <p>${escapeHtml(review.summaryText || 'No cards were created and no builds were authorized.')}</p>
+          <small>Harlan sends now: ${escapeHtml(String(review.harlanDigestPreview?.sendsMessageNow === true))}</small>
+        </div>
+        <ul>
+          ${items.map(item => `
+            <li>
+              <b>${escapeHtml(item.title || item.proposedCardId || 'Proposed card')}</b>
+              <small>${escapeHtml(item.proposedCardId || 'draft')} · score ${escapeHtml(compactNumber(item.portfolioScore || 0))} · ${escapeHtml(compactNumber(item.candidateProofCount || 0))} proofs</small>
+            </li>
+          `).join('')}
+        </ul>
+      </section>
+    `
+  }
+
   function renderCandidates(candidates = []) {
     const rows = list(candidates).slice(0, 4)
     if (!rows.length) return ''
@@ -84,6 +106,8 @@
     }
 
     root.innerHTML = `
+      ${renderMorningReview(packet.morningBuildReview || {})}
+
       <section class="proposed-card-source-proof-summary">
         ${renderMetric('Proof Rows', summary.proofItemCount)}
         ${renderMetric('Candidate Proof', summary.candidateProofRowCount)}

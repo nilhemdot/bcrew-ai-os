@@ -30,6 +30,51 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.proposed-card-morning-review {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  padding: 16px;
+}
+
+.proposed-card-morning-review h3 {
+  color: #0f172a;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  margin-top: 6px;
+}
+
+.proposed-card-morning-review p {
+  color: #334155;
+  font-size: 0.93rem;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.proposed-card-morning-review ul {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+.proposed-card-morning-review li {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+}
+
+.proposed-card-morning-review li b {
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
 .proposed-card-source-proof-summary article {
   display: grid;
   gap: 6px;
@@ -149,6 +194,7 @@
 
 @media (max-width: 640px) {
   .proposed-card-source-proof-summary,
+  .proposed-card-morning-review,
   .proposed-card-source-proof-row {
     grid-template-columns: 1fr;
   }

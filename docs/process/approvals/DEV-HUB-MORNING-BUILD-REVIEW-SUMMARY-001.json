@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-MORNING-BUILD-REVIEW-SUMMARY-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T09:35:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-morning-build-review-summary-001-plan.md",
+  "approvedPlanSha256": "c8cb1f8d38e3164c7ed509c963fa94ce4d01c28ab7afdf231c53841d67686454",
+  "approvedRepoHead": "63c50460969601b08df8c9d0eb08ff9397121b77",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Add a read-only Morning Build Review summary and no-send Harlan digest preview to the proposed-card source proof readback.",
+  "constraints": [
+    "Do not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, connector probes, browser sessions, or external writes.",
+    "Do not create backlog cards, approval records, Scoper records, Portfolio records, Current Sprint overlays, route records, or destination records.",
+    "Do not auto-promote proposed-card recommendations into backlog, sprint, route action, Harlan, or build execution.",
+    "The Harlan digest must remain preview_only with sendsMessageNow false.",
+    "Fail proof if the summary claims card creation, approval writes, sprint opening, external send, or build authorization."
+  ],
+  "approvalDigest": "17db81ba966bb0f1de218e476599318d9d5177126f5a9576f03160c0e5f43907"
+}

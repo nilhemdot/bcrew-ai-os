@@ -1010,6 +1010,14 @@ async function main() {
       Number(payload?.proposedCardSourceProofReadback?.summary?.harlanSendsByReadback || 0) === 0 &&
       Number(payload?.proposedCardSourceProofReadback?.summary?.modelCallsStarted || 0) === 0 &&
       Number(payload?.proposedCardSourceProofReadback?.summary?.externalWritesByReadback || 0) === 0 &&
+      payload?.proposedCardSourceProofReadback?.morningBuildReview?.status === 'ready_for_steve_review' &&
+      Number(payload?.proposedCardSourceProofReadback?.morningBuildReview?.approvalRequiredCount || 0) === Number(payload?.proposedCardSourceProofReadback?.summary?.proofItemCount || 0) &&
+      Number(payload?.proposedCardSourceProofReadback?.morningBuildReview?.sourceProofReadyCount || 0) === Number(payload?.proposedCardSourceProofReadback?.summary?.sourceProofReadyCount || 0) &&
+      Number(payload?.proposedCardSourceProofReadback?.morningBuildReview?.candidateProofRowCount || 0) === Number(payload?.proposedCardSourceProofReadback?.summary?.candidateProofRowCount || 0) &&
+      Number(payload?.proposedCardSourceProofReadback?.morningBuildReview?.cardsCreatedByReadback || 0) === 0 &&
+      Number(payload?.proposedCardSourceProofReadback?.morningBuildReview?.buildAuthorizationsByReadback || 0) === 0 &&
+      payload?.proposedCardSourceProofReadback?.morningBuildReview?.harlanDigestPreview?.status === 'preview_only' &&
+      payload?.proposedCardSourceProofReadback?.morningBuildReview?.harlanDigestPreview?.sendsMessageNow === false &&
       list(payload?.proposedCardSourceProofReadback?.proofRows).length <= 6 &&
       list(payload?.proposedCardSourceProofReadback?.proofRows).every(row => row.status === 'read_only_source_proof' && row.proofStatus === 'source_proof_ready' && row.cardCreatedNow === false && row.backlogWrittenNow === false && row.buildAuthorizedNow === false && row.candidateProofCount >= 1 && row.sourceLineageCount >= 1) &&
       list(payload?.proposedCardSourceProofReadback?.proofRows).flatMap(row => list(row.candidateProofs)).every(candidate => candidate.rawAtomId && candidate.rawHitId && candidate.readyForPortfolio === true) &&
@@ -1018,9 +1026,12 @@ async function main() {
       htmlSource.includes('/dev-proposed-card-source-proof-readback.js') &&
       proposedCardSourceProofReadbackJsSource.includes('proposedCardSourceProofReadback') &&
       proposedCardSourceProofReadbackJsSource.includes('Source proof only') &&
-      cssSource.includes('.proposed-card-source-proof-readback'),
+      proposedCardSourceProofReadbackJsSource.includes('proposed-card-morning-review') &&
+      proposedCardSourceProofReadbackJsSource.includes('Harlan sends now') &&
+      cssSource.includes('.proposed-card-source-proof-readback') &&
+      cssSource.includes('.proposed-card-morning-review'),
     'Dev Hub exposes proposed-card source proof with raw atom/hit candidate trace and zero writes',
-    `proofRows=${payload?.proposedCardSourceProofReadback?.summary?.proofItemCount || 0}; candidateProof=${payload?.proposedCardSourceProofReadback?.summary?.candidateProofRowCount || 0}; lineage=${payload?.proposedCardSourceProofReadback?.summary?.sourceLineageRefCount || 0}; created=${payload?.proposedCardSourceProofReadback?.summary?.cardsCreatedByReadback || 0}`,
+    `proofRows=${payload?.proposedCardSourceProofReadback?.summary?.proofItemCount || 0}; morningReview=${payload?.proposedCardSourceProofReadback?.morningBuildReview?.status || 'missing'}; candidateProof=${payload?.proposedCardSourceProofReadback?.summary?.candidateProofRowCount || 0}; lineage=${payload?.proposedCardSourceProofReadback?.summary?.sourceLineageRefCount || 0}; created=${payload?.proposedCardSourceProofReadback?.summary?.cardsCreatedByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -2329,6 +2340,7 @@ async function main() {
       proposedCardSourceProofReadback: payload.proposedCardSourceProofReadback ? {
         status: payload.proposedCardSourceProofReadback.status,
         summary: payload.proposedCardSourceProofReadback.summary,
+        morningBuildReview: payload.proposedCardSourceProofReadback.morningBuildReview,
         proofRows: list(payload.proposedCardSourceProofReadback.proofRows).map(row => ({
           proofItemId: row.proofItemId,
           proposedCardId: row.proposedCardId,
