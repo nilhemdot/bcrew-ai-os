@@ -264,6 +264,7 @@
     "process:dev-hub-route-blocker-preflight-check": "node --env-file-if-exists=.env scripts/process-dev-hub-route-blocker-preflight-check.mjs",
     "process:dev-hub-build-portfolio-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-build-portfolio-readback-check.mjs",
     "process:dev-hub-morning-proposed-cards-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-morning-proposed-cards-readback-check.mjs",
+    "process:dev-hub-proposed-card-approval-preflight-check": "node --env-file-if-exists=.env scripts/process-dev-hub-proposed-card-approval-preflight-check.mjs",
     "process:dev-hub-scoper-runtime-readback-check": "node --env-file-if-exists=.env scripts/process-dev-hub-scoper-runtime-readback-check.mjs",
     "process:dev-hub-business-source-pipeline-triage-check": "node --env-file-if-exists=.env scripts/process-dev-hub-business-source-pipeline-triage-check.mjs",
     "process:dev-hub-next-repair-queue-check": "node --env-file-if-exists=.env scripts/process-dev-hub-next-repair-queue-check.mjs",

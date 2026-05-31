@@ -104,6 +104,7 @@ const DEV_FOUNDATION_DONE_BAR_JS_PATH = 'public/dev-foundation-done-bar.js'
 const DEV_SCOPER_EVIDENCE_TRACE_JS_PATH = 'public/dev-scoper-evidence-trace.js'
 const DEV_BUILD_PORTFOLIO_READBACK_JS_PATH = 'public/dev-build-portfolio-readback.js'
 const DEV_MORNING_PROPOSED_CARDS_JS_PATH = 'public/dev-morning-proposed-cards-readback.js'
+const DEV_PROPOSED_CARD_APPROVAL_PREFLIGHT_JS_PATH = 'public/dev-proposed-card-approval-preflight.js'
 const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
@@ -123,6 +124,7 @@ const DEV_CSS_PATHS = [
   'public/dev-scoper-evidence-trace.css',
   'public/dev-build-portfolio-readback.css',
   'public/dev-morning-proposed-cards-readback.css',
+  'public/dev-proposed-card-approval-preflight.css',
   'public/dev-intelligence-hygiene.css',
   'public/dev-auditor-flow.css',
   'public/dev-synthesis-scope.css',
@@ -454,6 +456,7 @@ async function main() {
     scoperEvidenceTraceJsSource,
     buildPortfolioReadbackJsSource,
     morningProposedCardsJsSource,
+    proposedCardApprovalPreflightJsSource,
     intelligenceHygieneJsSource,
     auditorFlowJsSource,
     synthesisScopeJsSource,
@@ -484,6 +487,7 @@ async function main() {
     readRepoFile(DEV_SCOPER_EVIDENCE_TRACE_JS_PATH),
     readRepoFile(DEV_BUILD_PORTFOLIO_READBACK_JS_PATH),
     readRepoFile(DEV_MORNING_PROPOSED_CARDS_JS_PATH),
+    readRepoFile(DEV_PROPOSED_CARD_APPROVAL_PREFLIGHT_JS_PATH),
     readRepoFile(DEV_INTELLIGENCE_HYGIENE_JS_PATH),
     readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
@@ -511,7 +515,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${buildPortfolioReadbackJsSource}\n${morningProposedCardsJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${buildPortfolioReadbackJsSource}\n${morningProposedCardsJsSource}\n${proposedCardApprovalPreflightJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${routeReviewOperatorPacketJsSource}\n${routeAutoClearPreflightJsSource}\n${routeBlockerPreflightJsSource}\n${scoperRuntimeJsSource}\n${businessSourceJsSource}\n${nextRepairJsSource}\n${businessAtomFlowPreflightJsSource}\n${sheetsAtomFlowRepairBlueprintJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -924,6 +928,50 @@ async function main() {
       cssSource.includes('.morning-proposed-cards-readback'),
     'Dev Hub exposes morning proposed-card drafts without creating cards or authorizing builds',
     `drafts=${payload?.morningProposedCardsReadback?.summary?.proposedCardCount || 0}; created=${payload?.morningProposedCardsReadback?.summary?.createdCardsByReadback || 0}; builds=${payload?.morningProposedCardsReadback?.summary?.buildAuthorizationsByReadback || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubProposedCardApprovalPreflight') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'proposedCardApprovalPreflight') &&
+      payload?.proposedCardApprovalPreflight?.contractVersion === 'dev-hub-proposed-card-approval-preflight.v1' &&
+      payload?.proposedCardApprovalPreflight?.source?.reusedTruthLayer === 'morningProposedCardsReadback' &&
+      payload?.proposedCardApprovalPreflight?.source?.noSecondTruthLayer === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.preflightOnly === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.draftOnly === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.approvalRequired === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.exactApprovalRequired === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.noCardCreate === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.noBacklogMutation === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.noScoperMutation === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.noPortfolioMutation === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.noCurrentSprintMutation === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.noApprovalMutation === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.noHarlanSend === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.noExternalWrites === true &&
+      payload?.proposedCardApprovalPreflight?.boundaries?.noAutoBuild === true &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.approvalItemCount || 0) >= 1 &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.approvalItemCount || 0) === Number(payload?.proposedCardApprovalPreflight?.summary?.sourceProposedCardCount || 0) &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.exactApprovalRequiredCount || 0) === Number(payload?.proposedCardApprovalPreflight?.summary?.approvalItemCount || 0) &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.readyForSteveDecisionCount || 0) === Number(payload?.proposedCardApprovalPreflight?.summary?.approvalItemCount || 0) &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.sourceLineageReadyCount || 0) === Number(payload?.proposedCardApprovalPreflight?.summary?.approvalItemCount || 0) &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.cardsCreatedByReadback || 0) === 0 &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.currentSprintOpenedByReadback || 0) === 0 &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.approvalRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.buildAuthorizationsByReadback || 0) === 0 &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.harlanSendsByReadback || 0) === 0 &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.modelCallsStarted || 0) === 0 &&
+      Number(payload?.proposedCardApprovalPreflight?.summary?.externalWritesByReadback || 0) === 0 &&
+      list(payload?.proposedCardApprovalPreflight?.approvalRows).length <= 6 &&
+      list(payload?.proposedCardApprovalPreflight?.approvalRows).every(row => row.status === 'approval_required' && row.exactApprovalRequired === true && row.requiresSteveDecision === true && row.cardCreatedNow === false && row.backlogWrittenNow === false && row.buildAuthorizedNow === false && row.sourceLineageCount >= 1) &&
+      htmlSource.includes('id="proposed-card-approval-preflight"') &&
+      htmlSource.includes('/dev-proposed-card-approval-preflight.css') &&
+      htmlSource.includes('/dev-proposed-card-approval-preflight.js') &&
+      proposedCardApprovalPreflightJsSource.includes('proposedCardApprovalPreflight') &&
+      proposedCardApprovalPreflightJsSource.includes('Approval preflight only') &&
+      cssSource.includes('.proposed-card-approval-preflight'),
+    'Dev Hub exposes proposed-card approval preflight without creating cards or authorizing builds',
+    `approvalRows=${payload?.proposedCardApprovalPreflight?.summary?.approvalItemCount || 0}; exact=${payload?.proposedCardApprovalPreflight?.summary?.exactApprovalRequiredCount || 0}; created=${payload?.proposedCardApprovalPreflight?.summary?.cardsCreatedByReadback || 0}; builds=${payload?.proposedCardApprovalPreflight?.summary?.buildAuthorizationsByReadback || 0}`,
   )
   addCheck(
     checks,
@@ -2214,6 +2262,19 @@ async function main() {
           title: card.title,
           approvalStatus: card.approvalStatus,
           sourceLineageCount: card.sourceLineageCount,
+        })),
+      } : null,
+      proposedCardApprovalPreflight: payload.proposedCardApprovalPreflight ? {
+        status: payload.proposedCardApprovalPreflight.status,
+        summary: payload.proposedCardApprovalPreflight.summary,
+        approvalRows: list(payload.proposedCardApprovalPreflight.approvalRows).map(row => ({
+          approvalItemId: row.approvalItemId,
+          proposedCardId: row.proposedCardId,
+          portfolioRank: row.portfolioRank,
+          portfolioScore: row.portfolioScore,
+          title: row.title,
+          status: row.status,
+          sourceLineageCount: row.sourceLineageCount,
         })),
       } : null,
       intelligenceHygieneReadback: payload.intelligenceHygieneReadback ? {

@@ -1,0 +1,131 @@
+.proposed-card-approval-preflight {
+  display: grid;
+  gap: 16px;
+}
+
+.proposed-card-approval-preflight article {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+}
+
+.proposed-card-approval-preflight p,
+.proposed-card-approval-preflight h3 {
+  margin: 0;
+}
+
+.proposed-card-approval-preflight span,
+.proposed-card-approval-preflight small {
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.proposed-card-approval-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.proposed-card-approval-summary article {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.proposed-card-approval-summary strong {
+  color: #0f172a;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.proposed-card-approval-boundary > div {
+  background: #eff6ff;
+  border: 1px solid rgba(37, 99, 235, 0.24);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.proposed-card-approval-boundary p {
+  color: #334155;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.proposed-card-approval-list {
+  display: grid;
+  gap: 10px;
+}
+
+.proposed-card-approval-row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  padding: 14px;
+}
+
+.proposed-card-approval-rank {
+  align-items: center;
+  align-self: start;
+  background: #1d4ed8;
+  border-radius: 8px;
+  color: #fff;
+  display: inline-flex;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.83rem;
+  font-weight: 800;
+  height: 34px;
+  justify-content: center;
+  width: 44px;
+}
+
+.proposed-card-approval-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.proposed-card-approval-copy strong {
+  color: #0f172a;
+  font-size: 1rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.proposed-card-approval-copy p {
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.proposed-card-approval-copy small {
+  color: #475569;
+  line-height: 1.4;
+  text-transform: none;
+}
+
+.proposed-card-approval-empty {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.proposed-card-approval-empty.blocked {
+  background: #fef2f2;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+@media (max-width: 980px) {
+  .proposed-card-approval-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .proposed-card-approval-summary,
+  .proposed-card-approval-row {
+    grid-template-columns: 1fr;
+  }
+}

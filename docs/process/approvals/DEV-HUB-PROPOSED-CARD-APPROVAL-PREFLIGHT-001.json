@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T07:15:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-proposed-card-approval-preflight-001-plan.md",
+  "approvedPlanSha256": "4878235826bf8e6c96b6fb418edaaa104c43e8d70ed79463ab3dbae3cf151838",
+  "approvedRepoHead": "709ea85f38f2e21bfcd3485fc877d4d8096f289b",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and continue safe sprint slices across the intelligence pipe.",
+  "scopeSummary": "Expose a read-only Dev Hub proposed-card approval preflight without creating backlog cards or authorizing builds.",
+  "constraints": [
+    "Do not create backlog cards, approval records, Scoper records, Portfolio records, Current Sprint overlays, route records, destination records, Harlan messages, model calls, extraction runs, connector probes, browser sessions, or external writes.",
+    "Do not auto-promote Director, Scoper, Portfolio, or proposed-card recommendations into backlog, sprint, route action, Harlan, or build execution.",
+    "Every approval row must remain approval_required and awaiting_steve_exact_approval.",
+    "Fail proof if any approval row claims it created a card, wrote backlog/Scoper/Portfolio/approval records, opened Current Sprint, externally sent, or authorized a build.",
+    "Read only morningProposedCardsReadback; do not create a second proposed-card truth layer."
+  ],
+  "approvalDigest": "224a50c507ab09ed42ee3f48f5d72825e6af2a5b52fde7635c693c19772605b7"
+}

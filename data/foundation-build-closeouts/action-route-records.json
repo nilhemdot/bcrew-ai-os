@@ -718,5 +718,62 @@
       "This does not mutate Scoper, Portfolio, route, decision, open-question, approval, or destination records.",
       "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, browser sessions, connector probes, or external writes."
     ]
+  },
+  {
+    "key": "dev-hub-proposed-card-approval-preflight-v1",
+    "backlogIds": [
+      "DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub proposed-card approval preflight",
+        "DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001",
+        "dev-hub-proposed-card-approval-preflight-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-MORNING-PROPOSED-CARDS-READBACK-001",
+      "DEV-HUB-BUILD-PORTFOLIO-READBACK-001",
+      "DEV-BUILD-OPPORTUNITY-SCOPER-001"
+    ],
+    "systemArea": "Dev Hub proposed-card approval preflight",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Proposed Card Approval Preflight to Dev Hub that turns Morning Proposed Cards into exact approval rows.",
+    "whatItDoes": "The Dev Hub now shows the exact approval phrase, proposed card ID, Portfolio group ID, source-lineage count, required fields, proof excerpts, acceptance excerpts, and mutation boundary for each draft card.",
+    "whyItMatters": "Steve can wake up and choose exact card creation without the system silently creating backlog cards, opening sprint work, writing approval records, sending Harlan, or authorizing builds overnight.",
+    "whereItLives": [
+      "lib/dev-hub-proposed-card-approval-preflight.js approval preflight projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js proposedCardApprovalPreflight payload wiring from Morning Proposed Cards",
+      "public/dev.html Proposed Card Approval Preflight panel",
+      "public/dev-proposed-card-approval-preflight.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-proposed-card-approval-preflight.css standalone approval preflight panel styles",
+      "scripts/process-dev-hub-proposed-card-approval-preflight-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-proposed-card-approval-preflight-001-plan.md",
+      "docs/process/approvals/DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001.json",
+      "package.json process:dev-hub-proposed-card-approval-preflight-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-proposed-card-approval-preflight.js scripts/process-dev-hub-proposed-card-approval-preflight-check.mjs public/dev-proposed-card-approval-preflight.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-proposed-card-approval-preflight-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001.json --closeoutKey=dev-hub-proposed-card-approval-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001 --closeoutKey=dev-hub-proposed-card-approval-preflight-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/DEV-HUB-PROPOSED-CARD-APPROVAL-PREFLIGHT-001.json --closeoutKey=dev-hub-proposed-card-approval-preflight-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure mode: approval preflight rows must remain approval_required and fail if any card creation, backlog write, sprint opening, build authorization, approval write, route mutation, Harlan send, model call, extraction run, browser session, connector probe, external write, or missing source-lineage proof appears.",
+    "reviewNext": "Actual card creation still requires Steve approval of an exact proposedCardId. Do not create backlog cards, sprint work, approval records, Scoper records, Portfolio records, Harlan messages, route actions, extraction runs, model calls, builds, or external writes from this preflight.",
+    "knownLimits": [
+      "This is a read-only approval preflight; it does not create backlog cards.",
+      "This does not write approval records, open Current Sprint work, or authorize builds.",
+      "This does not mutate Scoper, Portfolio, route, decision, open-question, approval, or destination records.",
+      "This does not send Harlan, Telegram, email, Slack, Agent Feedback, public messages, model calls, extraction runs, browser sessions, connector probes, or external writes."
+    ]
   }
 ]
