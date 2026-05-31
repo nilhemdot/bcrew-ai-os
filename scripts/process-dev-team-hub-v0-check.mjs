@@ -657,6 +657,14 @@ async function main() {
   addCheck(checks, payload?.dailyWatch?.sourceRoute === '/api/foundation/build-intel/youtube-creator-daily-watch', 'daily watch source route is preserved', payload?.dailyWatch?.sourceRoute || 'missing')
   addCheck(
     checks,
+    Number(payload?.dailyWatch?.researchPoolCount || 0) >= list(payload?.dailyWatch?.researchPool).length &&
+      list(payload?.dailyWatch?.researchPool).length <= 180 &&
+      payload?.dailyWatch?.researchPoolArePreview === true,
+    'daily watch research pool is a bounded preview with full count preserved',
+    `${list(payload?.dailyWatch?.researchPool).length}/${payload?.dailyWatch?.researchPoolCount || 0} rows`,
+  )
+  addCheck(
+    checks,
     Boolean(payload?.markYoutube?.latestVideoId) &&
       Number(payload?.markYoutube?.markResearchPoolCount || 0) >= 50 &&
       Number(payload?.markYoutube?.researchPoolCount || 0) >= Number(payload?.markYoutube?.markResearchPoolCount || 0),
@@ -714,7 +722,29 @@ async function main() {
     'live Dev Hub exposes selectable priority lens rankings from raw ranked ideas without promoting anything',
     `${list(payload?.devOpportunityVisionLens?.opportunities).length} opportunities / ${list(payload?.devOpportunityVisionLens?.priorityLensRouter?.lenses).length} lenses / ${payload?.devOpportunityVisionLens?.matchedCandidateCount || 0} matched signals`,
   )
+  const priorityLensRows = list(payload?.devOpportunityVisionLens?.priorityLensRouter?.lenses)
+  addCheck(
+    checks,
+    priorityLensRows.length >= 5 &&
+      priorityLensRows.every(lens => list(lens.opportunities).length >= 1 && list(lens.opportunities).length <= 4) &&
+      priorityLensRows.every(lens => list(lens.opportunities).every(item =>
+        list(item.lensScores).length <= 5 &&
+        list(item.importantSignals).length <= 3 &&
+        !Object.prototype.hasOwnProperty.call(item, 'matchedCandidates') &&
+        !Object.prototype.hasOwnProperty.call(item, 'candidateRows')
+      )),
+    'priority lens rankings use bounded compact opportunity previews',
+    `${priorityLensRows.length} lenses / max ${Math.max(0, ...priorityLensRows.map(lens => list(lens.opportunities).length))} rows per lens`,
+  )
   addCheck(checks, list(payload?.sourceValueGrader?.sourceGrades).length >= 3 && list(payload?.dailyWatch?.creators).length >= 3, 'live source cards can be built from multiple graded creators', `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.dailyWatch?.creators).length} watched`)
+  addCheck(
+    checks,
+    payload?.sourceValueGrader?.compacted === true &&
+      list(payload?.sourceValueGrader?.sourceGrades).every(row => list(row.reportIds).length <= 5 && list(row.topCandidates).length <= 3) &&
+      list(payload?.sourceValueGrader?.topDevBuildSources).every(row => list(row.reportIds).length <= 5 && list(row.topCandidates).length <= 3),
+    'source-value grader rows are compact previews with full source counts preserved',
+    `${list(payload?.sourceValueGrader?.sourceGrades).length} graded / ${list(payload?.sourceValueGrader?.topDevBuildSources).length} top sources`,
+  )
   const youtubeCreatorLeaderboardCount = list(payload?.youtubeSourceIntelligence?.creatorLeaderboard).length
   const youtubeActiveCreatorCount = Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0)
   const youtubeUngradedCreatorCount = Number(payload?.youtubeCreatorGodModeCatchup?.summary?.ungradedCount || 0)
@@ -755,6 +785,15 @@ async function main() {
       Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0) >= 30,
     'live YouTube catch-up payload includes all approved creators',
     `${list(payload?.youtubeCreatorGodModeCatchup?.creators).length}/${payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0} creators`
+  )
+  addCheck(
+    checks,
+    payload?.youtubeCreatorGodModeCatchup?.compacted === true &&
+      Array.isArray(payload?.youtubeCreatorGodModeCatchup?.sourcePacketReviewQueue) &&
+      list(payload?.youtubeCreatorGodModeCatchup?.sourcePacketReviewQueue).length === 0 &&
+      Number(payload?.youtubeCreatorGodModeCatchup?.sourcePacketReviewQueueCount || 0) >= list(payload?.approvalReviewQueue).length,
+    'YouTube catch-up keeps creator rows but removes duplicated source-packet queue payload',
+    `${list(payload?.youtubeCreatorGodModeCatchup?.sourcePacketReviewQueue).length}/${payload?.youtubeCreatorGodModeCatchup?.sourcePacketReviewQueueCount || 0} queue rows returned`,
   )
   addCheck(checks, payload?.youtubeCreatorGodModeCatchup?.buildPromotionReadiness?.visibleToScoper === true && Number(payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0) >= 3, 'live Dev Hub exposes catch-up baseline gate for Scoper/build promotion', `${payload?.youtubeCreatorGodModeCatchup?.buildPromotionReadiness?.status || 'missing'} / ${payload?.youtubeCreatorGodModeCatchup?.summary?.creatorCount || 0} creators`)
   addCheck(
@@ -1257,7 +1296,7 @@ async function main() {
   addCheck(checks, payload?.godModeExtractorParity?.evaluation?.ok === true && list(payload?.godModeExtractorParity?.families).length >= 14 && Number(payload?.godModeExtractorParity?.summary?.claimsGodModeCount || 0) === 0, 'live snapshot exposes extractor parity without false full-God-Mode claims', `${list(payload?.godModeExtractorParity?.families).length} families / claims=${payload?.godModeExtractorParity?.summary?.claimsGodModeCount ?? 'missing'}`)
   addCheck(checks, Array.isArray(payload?.sourceRoutes) && payload.sourceRoutes.length >= 5, 'visible value source map is present', `${payload?.sourceRoutes?.length || 0} routes`)
   const payloadBytes = Buffer.byteLength(JSON.stringify(payload || {}))
-  addCheck(checks, payloadBytes < 8_000_000, 'Dev Hub payload stays under the 8 MB operator budget', `${payloadBytes} bytes`)
+  addCheck(checks, payloadBytes < 4_000_000, 'Dev Hub payload stays under the 4 MB operator budget', `${payloadBytes} bytes`)
 
   const failed = checks.filter(check => !check.ok)
   const result = {
