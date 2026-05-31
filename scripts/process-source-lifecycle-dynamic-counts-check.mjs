@@ -97,6 +97,7 @@ async function main() {
     lifecycleSource,
     scriptSource,
     foundationVerifySource,
+    readinessBlockerCloseoutVerifierSource,
     currentPlan,
     currentState,
     sourceLifecycle,
@@ -117,6 +118,7 @@ async function main() {
     readText('lib/source-lifecycle.js'),
     readText(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SCRIPT_PATH),
     readText('scripts/foundation-verify.mjs'),
+    readText('lib/foundation-verifier-readiness-blocker-closeout.js'),
     readText('docs/rebuild/current-plan.md'),
     readText('docs/rebuild/current-state.md'),
     fetchJson(args.baseUrl, '/api/foundation/source-lifecycle'),
@@ -219,11 +221,14 @@ async function main() {
   )
   addCheck(
     checks,
-    foundationVerifySource.includes('SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID') &&
-      foundationVerifySource.includes('buildSourceLifecycleDynamicCountsDogfoodProof') &&
-      foundationVerifySource.includes('SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001 replaces exact source-count baselines'),
+    foundationVerifySource.includes('sourceLifecycleDynamicCounts') &&
+      foundationVerifySource.includes('sourceLifecycleDynamicCountsSource') &&
+      foundationVerifySource.includes('evaluateFoundationVerifierReadinessBlockerCloseout') &&
+      readinessBlockerCloseoutVerifierSource.includes('SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID') &&
+      readinessBlockerCloseoutVerifierSource.includes('buildSourceLifecycleDynamicCountsDogfoodProof') &&
+      readinessBlockerCloseoutVerifierSource.includes('SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001 replaces exact source-count baselines'),
     'foundation verifier has ID-named dynamic-count coverage',
-    'root verifier references dynamic-count constants and dogfood',
+    'root verifier delegates dynamic-count coverage to readiness-blocker closeout verifier',
   )
   if (closeout || card?.lane === 'done') {
     addCheck(
