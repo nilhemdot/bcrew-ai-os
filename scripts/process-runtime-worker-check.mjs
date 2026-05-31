@@ -149,16 +149,19 @@ async function main() {
   const dogfood = buildFoundationWorkerReliabilityDogfoodProof()
   const closeout = getFoundationBuildCloseouts().find(item => item.key === RUNTIME_WORKER_CLOSEOUT_KEY) || null
   const sprintItem = (activeSprint.items || []).find(item => item.cardId === RUNTIME_WORKER_CARD_ID) || null
+  const runtimeWorkerHistoricallyDone = card?.lane === 'done' &&
+    closeout?.operatorCloseout === true &&
+    (closeout.backlogIds || []).includes(RUNTIME_WORKER_CARD_ID)
 
   addCheck(checks, card && ['executing', 'done', 'scoped'].includes(card.lane), 'live backlog has Runtime Worker card', card ? `${card.lane}/${card.priority}` : 'missing')
   addCheck(checks, approval.ok === true && approval.mode === 'v2' && Number(approval.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approval.ok ? `${approval.mode}/${approval.approval?.score}` : approval.failures?.map(item => item.detail).join('; '))
   addCheck(checks, planCriticRuns.some(run => run.status === 'pass' && Number(run.score) >= 9.8), 'Plan Critic pass row exists', `${planCriticRuns.length} run(s)`)
   addCheck(
     checks,
-    sprintItem &&
-      ['building_now', 'done_this_sprint'].includes(sprintItem.stage),
-    'Current Sprint contains Runtime Worker card in Building Now or Done',
-    activeSprint?.sprint ? `${activeSprint.sprint.activeBlockerCardId || 'none'}:${sprintItem?.stage || 'missing'}` : 'missing sprint',
+    (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)) ||
+      runtimeWorkerHistoricallyDone,
+    'Current Sprint contains Runtime Worker card or card is historically closed',
+    activeSprint?.sprint ? `${activeSprint.sprint.activeBlockerCardId || 'none'}:${sprintItem?.stage || card?.lane || 'missing'}` : 'missing sprint',
   )
   addCheck(checks, jobsRoute.status === 200 && jobsRoute.durationMs <= JOBS_ROUTE_MAX_MS, '/api/foundation/jobs returns worker reliability inside route budget', `${jobsRoute.status}/${jobsRoute.durationMs}ms/${jobsRoute.bytes}B`)
   addCheck(checks, defaultHubRoute.status === 200 && defaultHubRoute.durationMs <= DEFAULT_HUB_MAX_MS && defaultHubRoute.bytes <= DEFAULT_HUB_MAX_BYTES, 'default /api/foundation-hub stays inside compact payload budget', `${defaultHubRoute.status}/${defaultHubRoute.durationMs}ms/${defaultHubRoute.bytes}B`)
