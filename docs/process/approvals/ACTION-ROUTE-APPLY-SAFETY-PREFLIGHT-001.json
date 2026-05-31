@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-30T23:25:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/action-route-apply-safety-preflight-001-plan.md",
+  "approvedPlanSha256": "da37579e3bd5115fb4ae7568a00da675b861cfe07f32dfc1b7b415db08fe5633",
+  "approvedRepoHead": "f4d09a33b43da91cbc106dbd0e988ab207ba1b12",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and specifically instructed Codex to keep going, park blocked/unsafe work, and avoid waking him for safe internal slices. This approval covers a read-only safety preflight only.",
+  "scopeSummary": "Classify live Action Route Review Inbox items before any route apply path with autoApplyAllowed=false and no route, destination, backlog, approval, or external mutation.",
+  "constraints": [
+    "Use the live Action Route Review Inbox as the source-backed input.",
+    "Generate a bounded local safety preflight only.",
+    "Keep autoApplyAllowed=false.",
+    "Do not approve, apply, reject, snooze, reroute, or mutate action routes.",
+    "Do not create backlog cards from Director, Scoper, Portfolio, or route recommendations.",
+    "Do not start Harlan runtime, reply parsing, login, source-session resume, extraction, provider/model calls, or external-action authority.",
+    "Do not send Telegram, email, Slack, Agent Feedback, or public messages."
+  ],
+  "approvalDigest": "479e2c0bacd057176cf3a26d13af0bf22a518a82320694a80e6b9660e21f65d5"
+}

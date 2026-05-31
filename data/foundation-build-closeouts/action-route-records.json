@@ -161,6 +161,59 @@
     ]
   },
   {
+    "key": "action-route-apply-safety-preflight-v1",
+    "backlogIds": [
+      "ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001",
+        "Add action route apply safety preflight",
+        "action-route-apply-safety-preflight-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002",
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-HARLAN-DIGEST-001"
+    ],
+    "systemArea": "Foundation action-route review workflow",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a read-only safety preflight for live action-route apply work.",
+    "whatItDoes": "Classifies Action Route Review Inbox items into ready, operator-review-required, blocked, or already-resolved states while keeping autoApplyAllowed=false and recording no route, destination, backlog, approval, or external mutation.",
+    "whyItMatters": "The action-route queue cannot be closed safely by blindly applying recommendations. This gives the operator a source-backed reason for which routes are safe to consider and which must stay parked.",
+    "whereItLives": [
+      "lib/action-route-apply-safety-preflight.js safety classifier, validator, CLI guard verifier, and dogfood proof",
+      "scripts/process-action-route-apply-safety-preflight-check.mjs focused live-inbox proof and guarded close-card writer",
+      "docs/process/action-route-apply-safety-preflight-001-plan.md",
+      "docs/process/approvals/ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001.json",
+      "package.json script process:action-route-apply-safety-preflight-check"
+    ],
+    "proofCommands": [
+      "node --check lib/action-route-apply-safety-preflight.js scripts/process-action-route-apply-safety-preflight-check.mjs",
+      "npm run process:action-route-apply-safety-preflight-check -- --close-card --json",
+      "npm run process:action-route-harlan-digest-check -- --json",
+      "npm run process:action-route-review-inbox-check -- --json",
+      "npm run process:action-route-promotion-workflow-check -- --json",
+      "npm run process:action-route-dedup-staleness-guard-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001.json --closeoutKey=action-route-apply-safety-preflight-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001 --closeoutKey=action-route-apply-safety-preflight-v1",
+      "npm run process:foundation-ship -- --card=ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001.json --closeoutKey=action-route-apply-safety-preflight-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live safety-preflight card state, open parent route-resolution card, dogfood ready/pending/sensitive/owner/fail-closed cases, live Action Route Review Inbox source, existing apply CLI confirmation guard, and no approve/apply/reject/send implementation imports in the focused path.",
+    "reviewNext": "Continue ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002 only with a separately approved live internal route apply or a synthetic transactional proof that does not auto-promote live recommendations.",
+    "knownLimits": [
+      "This is a read-only preflight only; it does not approve, apply, reject, snooze, reroute, or mutate routes.",
+      "This does not create decisions, open questions, or backlog cards from Director, Scoper, Portfolio, or route recommendations.",
+      "This does not send Telegram, email, Slack, Agent Feedback, or public messages.",
+      "This does not start Harlan runtime, reply parsing, login, source-session resume, extraction, provider/model calls, or external-action authority.",
+      "The parent ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002 remains open for an actual apply proof after explicit operator approval."
+    ]
+  },
+  {
     "key": "foundation-kb-action-review-sprint-v1",
     "backlogIds": [
       "FOUNDATION-KB-ACTION-REVIEW-SPRINT-001"

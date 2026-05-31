@@ -249,6 +249,7 @@
     "process:action-route-promotion-workflow-check": "node --env-file-if-exists=.env scripts/process-action-route-promotion-workflow-check.mjs",
     "process:action-route-dedup-staleness-guard-check": "node --env-file-if-exists=.env scripts/process-action-route-dedup-staleness-guard-check.mjs",
     "process:action-route-harlan-digest-check": "node --env-file-if-exists=.env scripts/process-action-route-harlan-digest-check.mjs",
+    "process:action-route-apply-safety-preflight-check": "node --env-file-if-exists=.env scripts/process-action-route-apply-safety-preflight-check.mjs",
     "process:foundation-kb-action-review-sprint-check": "node --env-file-if-exists=.env scripts/process-foundation-kb-action-review-sprint-check.mjs",
     "process:aios-runtime-portability-gate-check": "node --env-file-if-exists=.env scripts/process-aios-runtime-portability-gate-check.mjs",
     "process:agent-status-freshness-gate-check": "node --env-file-if-exists=.env scripts/process-agent-status-freshness-gate-check.mjs",
