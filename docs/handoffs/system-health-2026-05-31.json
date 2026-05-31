@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-31T09:20:15.738Z",
+  "generatedAt": "2026-05-31T09:26:05.927Z",
   "status": "risk",
   "plainEnglish": "Foundation has red workflow/system-health findings that block green. Do not treat classified rows as fixed.",
   "summary": {
@@ -11,29 +11,28 @@
     "greenLockBlocksGreen": true,
     "greenLockApprovedExceptionCount": 0,
     "currentSprintHealthTruthLockStatus": "healthy",
-    "riskCount": 3,
+    "riskCount": 2,
     "watchCount": 1,
-    "rawRiskCount": 3,
+    "rawRiskCount": 2,
     "rawWatchCount": 3,
-    "visibleRiskCount": 3,
+    "visibleRiskCount": 2,
     "visibleWatchCount": 2,
     "hiddenRiskCount": 0,
     "hiddenWatchCount": 0,
-    "classifiedRiskCount": 3,
+    "classifiedRiskCount": 2,
     "classifiedWatchCount": 2,
-    "blockingClassifiedRiskCount": 3,
+    "blockingClassifiedRiskCount": 2,
     "blockingClassifiedWatchCount": 1,
-    "classifiedFindingCount": 5,
+    "classifiedFindingCount": 4,
     "unclassifiedRiskCount": 0,
     "unclassifiedWatchCount": 0,
     "blockingClassifiedFindingIds": [
-      "scheduled_job_foundation-verify",
       "scheduled_job_admin-deal-backlog-review",
       "scheduled_job_conditional-deal-review-readonly",
       "runtime_jobs_failed"
     ],
     "unclassifiedFindingIds": [],
-    "scheduledJobRiskCount": 3,
+    "scheduledJobRiskCount": 2,
     "scheduledJobWatchCount": 0,
     "auditFleetStatus": "healthy",
     "auditFleetLaneCount": 8,
@@ -62,29 +61,20 @@
     "status": "risk",
     "rawStatus": "risk",
     "blocksGreen": true,
-    "rawRiskCount": 3,
+    "rawRiskCount": 2,
     "rawWatchCount": 3,
-    "visibleNonGreenCount": 5,
+    "visibleNonGreenCount": 4,
     "hiddenRiskCount": 0,
     "hiddenWatchCount": 0,
     "hiddenNonGreenCount": 0,
     "approvedExceptionCount": 0,
     "missingExceptionFindingIds": [
-      "scheduled_job_foundation-verify",
       "scheduled_job_admin-deal-backlog-review",
       "scheduled_job_conditional-deal-review-readonly",
       "connector_degraded",
       "runtime_jobs_failed"
     ],
     "exceptionChecks": [
-      {
-        "findingId": "scheduled_job_foundation-verify",
-        "repairCardId": "FOUNDATION-VERIFY-HEALTH-REPAIR-001",
-        "ok": false,
-        "missing": [
-          "approved exception"
-        ]
-      },
       {
         "findingId": "scheduled_job_admin-deal-backlog-review",
         "repairCardId": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
@@ -130,22 +120,13 @@
     "status": "risk",
     "summary": {
       "jobCount": 45,
-      "riskCount": 3,
+      "riskCount": 2,
       "watchCount": 0,
-      "healthyCount": 29,
+      "healthyCount": 30,
       "manualCount": 13,
       "dueCount": 0
     },
     "topFindings": [
-      {
-        "id": "scheduled_job_foundation-verify",
-        "severity": "P0",
-        "status": "risk",
-        "title": "Foundation Verifier is risk",
-        "detail": "Foundation Verifier latest run is failed.",
-        "nextAction": "FAIL AGENT-FEEDBACK-AUTO-SEND-001 keeps governed auto-send controls under production enablement -> georgia=source_unavailable wouldSend=0 guard=runtime_diagnostic_timeout closeout=agent-feedback-auto-send-v1\nFAIL AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 production auto-send is live and visible -> sent=0 skipped=0 blocked=1 repair=0 closeout=agent-feedback-production-autosend-enable-v1\nFAIL VERIFIER-AGENT-FEEDBACK-ORCHESTRATION-SPLIT-001 moves Agent Feedback verifier orchestration into the focused module -> lane=done dogfood=pass agentChecks=11/13 lines=6345->4999",
-        "jobKey": "foundation-verify"
-      },
       {
         "id": "scheduled_job_admin-deal-backlog-review",
         "severity": "P1",
@@ -166,17 +147,6 @@
       }
     ],
     "rows": [
-      {
-        "key": "foundation-verify",
-        "title": "Foundation Verifier",
-        "priority": "P0",
-        "status": "risk",
-        "latestRunStatus": "failed",
-        "latestRunAt": "2026-05-31T08:41:04.689Z",
-        "latestSuccessAt": null,
-        "plainEnglish": "Foundation Verifier latest run is failed.",
-        "nextAction": "FAIL AGENT-FEEDBACK-AUTO-SEND-001 keeps governed auto-send controls under production enablement -> georgia=source_unavailable wouldSend=0 guard=runtime_diagnostic_timeout closeout=agent-feedback-auto-send-v1\nFAIL AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 production auto-send is live and visible -> sent=0 skipped=0 blocked=1 repair=0 closeout=agent-feedback-production-autosend-enable-v1\nFAIL VERIFIER-AGENT-FEEDBACK-ORCHESTRATION-SPLIT-001 moves Agent Feedback verifier orchestration into the focused module -> lane=done dogfood=pass agentChecks=11/13 lines=6345->4999"
-      },
       {
         "key": "admin-deal-backlog-review",
         "title": "Admin Deal Backlog Inspection",
@@ -242,6 +212,17 @@
         "latestSuccessAt": "2026-05-31T02:49:53.256Z",
         "plainEnglish": "Foundation Lessons Learned Loop has a fresh successful run and is not due.",
         "nextAction": "If the loop reports risk, Foundation Builder owns the repair or routing before normal sprint progression continues."
+      },
+      {
+        "key": "foundation-verify",
+        "title": "Foundation Verifier",
+        "priority": "P0",
+        "status": "healthy",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-31T09:25:04.959Z",
+        "latestSuccessAt": "2026-05-31T09:25:04.959Z",
+        "plainEnglish": "Foundation Verifier has a fresh successful run and is not due.",
+        "nextAction": "Run after meaningful builds and before checkpoints."
       },
       {
         "key": "generated-artifact-closeout",
@@ -430,7 +411,7 @@
     "summary": {
       "artifactCount": 1306,
       "handoffFileCount": 13,
-      "handoffLineTotal": 4381,
+      "handoffLineTotal": 4361,
       "recentHandoffFileCount": 11,
       "nightlyArtifactCount": 11,
       "riskCount": 0,
@@ -503,15 +484,15 @@
     "status": "healthy",
     "summary": {
       "eventCount7d": 0,
-      "rawEventCount7d": 805,
+      "rawEventCount7d": 806,
       "fingerprintCount": 0,
       "rawFingerprintCount": 162,
       "redFingerprintCount": 0,
       "yellowFingerprintCount": 0,
       "oneOffFingerprintCount": 0,
-      "resolvedEventCount7d": 805,
+      "resolvedEventCount7d": 806,
       "resolvedFingerprintCount": 162,
-      "latestResolutionProofAt": "2026-05-31T09:16:09.253Z",
+      "latestResolutionProofAt": "2026-05-31T09:23:58.630Z",
       "warningThreshold24h": 3,
       "riskThreshold24h": 5
     },
@@ -556,30 +537,6 @@
     "missingScheduledSourceIds": []
   },
   "findings": [
-    {
-      "id": "scheduled_job_foundation-verify",
-      "severity": "P0",
-      "status": "risk",
-      "title": "Foundation Verifier is risk",
-      "detail": "Foundation Verifier latest run is failed.",
-      "nextAction": "FAIL AGENT-FEEDBACK-AUTO-SEND-001 keeps governed auto-send controls under production enablement -> georgia=source_unavailable wouldSend=0 guard=runtime_diagnostic_timeout closeout=agent-feedback-auto-send-v1\nFAIL AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 production auto-send is live and visible -> sent=0 skipped=0 blocked=1 repair=0 closeout=agent-feedback-production-autosend-enable-v1\nFAIL VERIFIER-AGENT-FEEDBACK-ORCHESTRATION-SPLIT-001 moves Agent Feedback verifier orchestration into the focused module -> lane=done dogfood=pass agentChecks=11/13 lines=6345->4999",
-      "jobKey": "foundation-verify",
-      "rollupLevel": "risk",
-      "classification": {
-        "status": "classified",
-        "type": "scheduled_verifier_repair_lane",
-        "owner": "Foundation Builder",
-        "reason": "The scheduled Foundation Verifier failed inside verifier/Agent Feedback proof, not inside the current Dev Hub readback card. It must stay red until the verifier failure is repaired or the latest scheduled run succeeds; do not rerun Agent Feedback send lanes from System Health.",
-        "threshold": "Blocks green and normal sprint progression while the scheduled verifier latest run is failed. Manual foundation:verify success proves current code can pass, but it does not erase the scheduled-job failure row.",
-        "nextAction": "Repair the Agent Feedback verifier/orchestration failure or rerun only the approved scheduled verifier path after the repair; do not send Agent Feedback email, mutate ClickUp, or change production send posture from this classifier.",
-        "repairCardId": "FOUNDATION-VERIFY-HEALTH-REPAIR-001",
-        "relatedRepairCardIds": [
-          "AGENT-FEEDBACK-AUTO-SEND-001",
-          "AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001"
-        ],
-        "blocksCurrentSprint": true
-      }
-    },
     {
       "id": "scheduled_job_admin-deal-backlog-review",
       "severity": "P1",
@@ -653,7 +610,7 @@
       "severity": "P1",
       "status": "review",
       "title": "Foundation jobs have recent failures",
-      "detail": "foundation-verify, admin-deal-backlog-review, conditional-deal-review-readonly",
+      "detail": "admin-deal-backlog-review, conditional-deal-review-readonly",
       "nextAction": "Review latest run error before treating the system as green.",
       "source": "foundation_operating_reliability",
       "autoFix": false,
