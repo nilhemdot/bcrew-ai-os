@@ -214,6 +214,56 @@
     ]
   },
   {
+    "key": "action-route-apply-resolution-proof-synthetic-v1",
+    "backlogIds": [
+      "ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002",
+        "Prove action-route synthetic apply resolution",
+        "action-route-apply-resolution-proof-synthetic-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "ACTION-ROUTE-REVIEW-INBOX-001",
+      "ACTION-ROUTE-PROMOTION-WORKFLOW-001",
+      "ACTION-ROUTE-HARLAN-DIGEST-001",
+      "ACTION-ROUTE-APPLY-SAFETY-PREFLIGHT-001"
+    ],
+    "systemArea": "Foundation action-route review workflow",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a rollback-only synthetic Action Router apply proof that seeds one verified synthesized item and pending action route inside a transaction, calls the real approve/apply functions, verifies destination creation, then rolls the transaction back.",
+    "whatItDoes": "Proves the queue can move pending to approved to applied through the real internal Action Router path without promoting a live Director, Scoper, Portfolio, or route recommendation.",
+    "whyItMatters": "Action-route intelligence is only useful if it can resolve into accountable internal work. This closes the code-path proof while keeping live route application as a separate operator-approved step.",
+    "whereItLives": [
+      "lib/action-route-apply-resolution-proof.js synthetic transaction proof and rollback verifier",
+      "scripts/process-action-route-apply-resolution-proof-check.mjs focused proof and guarded close-card writer",
+      "docs/process/action-route-apply-resolution-proof-002-plan.md",
+      "docs/process/approvals/ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002.json",
+      "package.json script process:action-route-apply-resolution-proof-check"
+    ],
+    "proofCommands": [
+      "node --check lib/action-route-apply-resolution-proof.js scripts/process-action-route-apply-resolution-proof-check.mjs",
+      "npm run process:action-route-apply-resolution-proof-check -- --close-card --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002.json --closeoutKey=action-route-apply-resolution-proof-synthetic-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002 --closeoutKey=action-route-apply-resolution-proof-synthetic-v1",
+      "npm run process:foundation-ship -- --card=ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002 --planApprovalRef=docs/process/approvals/ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002.json --closeoutKey=action-route-apply-resolution-proof-synthetic-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof validates approval, live parent card state, real Action Router approve/apply behavior on a synthetic verified route, destination row creation inside the transaction, rollback cleanup counts, package script, verifier coverage, closeout registry, and no external send/source/model tokens.",
+    "reviewNext": "Do not apply live action routes unattended. Next safe slice is surfacing apply-safety states and digest counts in Dev Hub or Review Inbox so Steve can choose a real route later.",
+    "knownLimits": [
+      "This does not approve, apply, reject, snooze, reroute, or mutate any live action route.",
+      "This does not create persistent backlog, decision, or open question records from live recommendations.",
+      "This does not send Telegram, email, Slack, Agent Feedback, or public messages.",
+      "This does not start Harlan runtime, reply parsing, login, source-session resume, extraction, provider/model calls, or external-action authority.",
+      "A real live-route apply still needs explicit operator approval."
+    ]
+  },
+  {
     "key": "foundation-kb-action-review-sprint-v1",
     "backlogIds": [
       "FOUNDATION-KB-ACTION-REVIEW-SPRINT-001"

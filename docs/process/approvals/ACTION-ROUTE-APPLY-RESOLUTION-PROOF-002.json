@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ACTION-ROUTE-APPLY-RESOLUTION-PROOF-002",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T00:35:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/action-route-apply-resolution-proof-002-plan.md",
+  "approvedPlanSha256": "cad38ffae7899c386f178fd78116d5d263697a90706c070132fdcbd6c9428b2b",
+  "approvedRepoHead": "61eb951442b8ef66d74ca1fa57728639ea2d6be5",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to park blocked work and keep going. The prior apply-safety preflight allows this synthetic transactional proof without promoting live recommendations.",
+  "scopeSummary": "Prove the real Action Router pending-to-approved-to-applied internal path with a rollback-only synthetic route; do not apply live recommendations or write externally.",
+  "constraints": [
+    "Use a synthetic transaction and roll it back before proof returns.",
+    "Do not approve, apply, reject, snooze, reroute, or promote live action routes.",
+    "Do not create persistent backlog, decision, or question records from Director, Scoper, Portfolio, or route recommendations.",
+    "Do not run extraction, source sync, provider/model calls, login, Browserbase, paid/private source work, or external writes.",
+    "Do not send Telegram, email, Slack, Agent Feedback, or public messages."
+  ],
+  "approvalDigest": "b4aa0b29e0b776995f514c7aa1cf05f409fcd6827fb91d9fe80508a3a9cea599"
+}
