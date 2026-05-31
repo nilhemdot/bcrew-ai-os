@@ -1,38 +1,40 @@
 {
-  "generatedAt": "2026-05-31T02:58:52.234Z",
+  "generatedAt": "2026-05-31T09:16:25.444Z",
   "status": "risk",
   "plainEnglish": "Foundation has red workflow/system-health findings that block green. Do not treat classified rows as fixed.",
   "summary": {
     "status": "risk",
     "rawStatus": "risk",
-    "classificationStatus": "healthy",
+    "classificationStatus": "risk",
     "preGreenLockStatus": "risk",
     "greenLockStatus": "risk",
     "greenLockBlocksGreen": true,
     "greenLockApprovedExceptionCount": 0,
     "currentSprintHealthTruthLockStatus": "healthy",
-    "riskCount": 2,
+    "riskCount": 3,
     "watchCount": 1,
-    "rawRiskCount": 2,
-    "rawWatchCount": 4,
-    "visibleRiskCount": 2,
-    "visibleWatchCount": 3,
+    "rawRiskCount": 3,
+    "rawWatchCount": 3,
+    "visibleRiskCount": 3,
+    "visibleWatchCount": 2,
     "hiddenRiskCount": 0,
     "hiddenWatchCount": 0,
-    "classifiedRiskCount": 2,
-    "classifiedWatchCount": 3,
-    "blockingClassifiedRiskCount": 2,
+    "classifiedRiskCount": 1,
+    "classifiedWatchCount": 2,
+    "blockingClassifiedRiskCount": 1,
     "blockingClassifiedWatchCount": 1,
-    "classifiedFindingCount": 5,
-    "unclassifiedRiskCount": 0,
+    "classifiedFindingCount": 3,
+    "unclassifiedRiskCount": 2,
     "unclassifiedWatchCount": 0,
     "blockingClassifiedFindingIds": [
       "scheduled_job_admin-deal-backlog-review",
-      "scheduled_job_meeting-transcripts-extract-backlog",
       "runtime_jobs_failed"
     ],
-    "unclassifiedFindingIds": [],
-    "scheduledJobRiskCount": 2,
+    "unclassifiedFindingIds": [
+      "scheduled_job_foundation-verify",
+      "scheduled_job_conditional-deal-review-readonly"
+    ],
+    "scheduledJobRiskCount": 3,
     "scheduledJobWatchCount": 0,
     "auditFleetStatus": "healthy",
     "auditFleetLaneCount": 8,
@@ -52,8 +54,8 @@
     "fileSizeUnmanagedWatchCount": 0,
     "fileSizeStaleWatchCount": 0,
     "buildLaneFailureRedCount": 0,
-    "buildLaneFailureYellowCount": 1,
-    "buildLaneFailureEventCount7d": 7,
+    "buildLaneFailureYellowCount": 0,
+    "buildLaneFailureEventCount7d": 0,
     "currentSprintFindingCount": 0,
     "sourceCount": 43
   },
@@ -61,21 +63,29 @@
     "status": "risk",
     "rawStatus": "risk",
     "blocksGreen": true,
-    "rawRiskCount": 2,
-    "rawWatchCount": 4,
+    "rawRiskCount": 3,
+    "rawWatchCount": 3,
     "visibleNonGreenCount": 5,
     "hiddenRiskCount": 0,
     "hiddenWatchCount": 0,
     "hiddenNonGreenCount": 0,
     "approvedExceptionCount": 0,
     "missingExceptionFindingIds": [
+      "scheduled_job_foundation-verify",
       "scheduled_job_admin-deal-backlog-review",
-      "scheduled_job_meeting-transcripts-extract-backlog",
+      "scheduled_job_conditional-deal-review-readonly",
       "connector_degraded",
-      "runtime_jobs_failed",
-      "build_lane_failure_d6f2c7283f2c2d06815baf84"
+      "runtime_jobs_failed"
     ],
     "exceptionChecks": [
+      {
+        "findingId": "scheduled_job_foundation-verify",
+        "repairCardId": null,
+        "ok": false,
+        "missing": [
+          "approved exception"
+        ]
+      },
       {
         "findingId": "scheduled_job_admin-deal-backlog-review",
         "repairCardId": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
@@ -85,8 +95,8 @@
         ]
       },
       {
-        "findingId": "scheduled_job_meeting-transcripts-extract-backlog",
-        "repairCardId": "EXTRACT-BACKFILL-001",
+        "findingId": "scheduled_job_conditional-deal-review-readonly",
+        "repairCardId": null,
         "ok": false,
         "missing": [
           "approved exception"
@@ -107,14 +117,6 @@
         "missing": [
           "approved exception"
         ]
-      },
-      {
-        "findingId": "build_lane_failure_d6f2c7283f2c2d06815baf84",
-        "repairCardId": "BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001",
-        "ok": false,
-        "missing": [
-          "approved exception"
-        ]
       }
     ],
     "plainEnglish": "Foundation has raw red/yellow rows without explicit Steve-approved sprint exceptions. Do not report green."
@@ -129,54 +131,74 @@
     "status": "risk",
     "summary": {
       "jobCount": 45,
-      "riskCount": 2,
+      "riskCount": 3,
       "watchCount": 0,
-      "healthyCount": 30,
+      "healthyCount": 29,
       "manualCount": 13,
       "dueCount": 0
     },
     "topFindings": [
+      {
+        "id": "scheduled_job_foundation-verify",
+        "severity": "P0",
+        "status": "risk",
+        "title": "Foundation Verifier is risk",
+        "detail": "Foundation Verifier latest run is failed.",
+        "nextAction": "FAIL AGENT-FEEDBACK-AUTO-SEND-001 keeps governed auto-send controls under production enablement -> georgia=source_unavailable wouldSend=0 guard=runtime_diagnostic_timeout closeout=agent-feedback-auto-send-v1\nFAIL AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 production auto-send is live and visible -> sent=0 skipped=0 blocked=1 repair=0 closeout=agent-feedback-production-autosend-enable-v1\nFAIL VERIFIER-AGENT-FEEDBACK-ORCHESTRATION-SPLIT-001 moves Agent Feedback verifier orchestration into the focused module -> lane=done dogfood=pass agentChecks=11/13 lines=6345->4999",
+        "jobKey": "foundation-verify"
+      },
       {
         "id": "scheduled_job_admin-deal-backlog-review",
         "severity": "P1",
         "status": "risk",
         "title": "Admin Deal Backlog Inspection is risk",
         "detail": "Admin Deal Backlog Inspection latest run is failed.",
-        "nextAction": "Marked failed by stale active-run reaper.",
+        "nextAction": "invalid_grant: No valid verifier for issuer: crewbert-delegation@crewbert.iam.gserviceaccount.com",
         "jobKey": "admin-deal-backlog-review"
       },
       {
-        "id": "scheduled_job_meeting-transcripts-extract-backlog",
+        "id": "scheduled_job_conditional-deal-review-readonly",
         "severity": "P1",
         "status": "risk",
-        "title": "Meeting Transcript Extraction Backlog is risk",
-        "detail": "Meeting Transcript Extraction Backlog latest run is failed.",
-        "nextAction": "SRC-MEETINGS-001:meeting:ops stand up 2026 05 29 08 44 edt:meeting_transcript: extraction failed -> OpenAI router fallback returned no output text.",
-        "jobKey": "meeting-transcripts-extract-backlog"
+        "title": "Conditional Deal Forecast Sync is risk",
+        "detail": "Conditional Deal Forecast Sync latest run is failed.",
+        "nextAction": "    at async googleFetch (file:///Users/bensoncrew/bcrew-ai-os/lib/google-delegated.js:280:25)\n    at async googleJsonFetch (file:///Users/bensoncrew/bcrew-ai-os/lib/google-delegated.js:317:20)\n    at async readGoogleSheetsCachedJson (file:///Users/bensoncrew/bcrew-ai-os/lib/google-sheets-cache.js:246:13)",
+        "jobKey": "conditional-deal-review-readonly"
       }
     ],
     "rows": [
+      {
+        "key": "foundation-verify",
+        "title": "Foundation Verifier",
+        "priority": "P0",
+        "status": "risk",
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-05-31T08:41:04.689Z",
+        "latestSuccessAt": null,
+        "plainEnglish": "Foundation Verifier latest run is failed.",
+        "nextAction": "FAIL AGENT-FEEDBACK-AUTO-SEND-001 keeps governed auto-send controls under production enablement -> georgia=source_unavailable wouldSend=0 guard=runtime_diagnostic_timeout closeout=agent-feedback-auto-send-v1\nFAIL AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 production auto-send is live and visible -> sent=0 skipped=0 blocked=1 repair=0 closeout=agent-feedback-production-autosend-enable-v1\nFAIL VERIFIER-AGENT-FEEDBACK-ORCHESTRATION-SPLIT-001 moves Agent Feedback verifier orchestration into the focused module -> lane=done dogfood=pass agentChecks=11/13 lines=6345->4999"
+      },
       {
         "key": "admin-deal-backlog-review",
         "title": "Admin Deal Backlog Inspection",
         "priority": "P1",
         "status": "risk",
         "latestRunStatus": "failed",
-        "latestRunAt": "2026-05-30T04:19:49.892Z",
+        "latestRunAt": "2026-05-31T04:19:56.057Z",
         "latestSuccessAt": null,
         "plainEnglish": "Admin Deal Backlog Inspection latest run is failed.",
-        "nextAction": "Marked failed by stale active-run reaper."
+        "nextAction": "invalid_grant: No valid verifier for issuer: crewbert-delegation@crewbert.iam.gserviceaccount.com"
       },
       {
-        "key": "meeting-transcripts-extract-backlog",
-        "title": "Meeting Transcript Extraction Backlog",
+        "key": "conditional-deal-review-readonly",
+        "title": "Conditional Deal Forecast Sync",
         "priority": "P1",
         "status": "risk",
         "latestRunStatus": "failed",
-        "latestRunAt": "2026-05-30T05:47:18.716Z",
+        "latestRunAt": "2026-05-31T06:16:04.654Z",
         "latestSuccessAt": null,
-        "plainEnglish": "Meeting Transcript Extraction Backlog latest run is failed.",
-        "nextAction": "SRC-MEETINGS-001:meeting:ops stand up 2026 05 29 08 44 edt:meeting_transcript: extraction failed -> OpenAI router fallback returned no output text."
+        "plainEnglish": "Conditional Deal Forecast Sync latest run is failed.",
+        "nextAction": "    at async googleFetch (file:///Users/bensoncrew/bcrew-ai-os/lib/google-delegated.js:280:25)\n    at async googleJsonFetch (file:///Users/bensoncrew/bcrew-ai-os/lib/google-delegated.js:317:20)\n    at async readGoogleSheetsCachedJson (file:///Users/bensoncrew/bcrew-ai-os/lib/google-sheets-cache.js:246:13)"
       },
       {
         "key": "connector-uptime-monitor",
@@ -184,8 +206,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T02:37:39.239Z",
-        "latestSuccessAt": "2026-05-31T02:37:39.239Z",
+        "latestRunAt": "2026-05-31T09:14:49.723Z",
+        "latestSuccessAt": "2026-05-31T09:14:49.723Z",
         "plainEnglish": "Connector Uptime Monitor has a fresh successful run and is not due.",
         "nextAction": "Review degraded/down connector rows; do not auto-fix credentials or source data from this job."
       },
@@ -223,17 +245,6 @@
         "nextAction": "If the loop reports risk, Foundation Builder owns the repair or routing before normal sprint progression continues."
       },
       {
-        "key": "foundation-verify",
-        "title": "Foundation Verifier",
-        "priority": "P0",
-        "status": "healthy",
-        "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T02:28:40.698Z",
-        "latestSuccessAt": "2026-05-31T02:28:40.698Z",
-        "plainEnglish": "Foundation Verifier has a fresh successful run and is not due.",
-        "nextAction": "Run after meaningful builds and before checkpoints."
-      },
-      {
         "key": "generated-artifact-closeout",
         "title": "Generated Artifact Closeout",
         "priority": "P0",
@@ -250,8 +261,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T02:49:02.225Z",
-        "latestSuccessAt": "2026-05-31T02:49:02.225Z",
+        "latestRunAt": "2026-05-31T08:52:11.050Z",
+        "latestSuccessAt": "2026-05-31T08:52:11.050Z",
         "plainEnglish": "Gmail Current Sync has a fresh successful run and is not due.",
         "nextAction": "Watch first scheduled runs; keep historical Gmail backfill manual until current-day stays clean."
       },
@@ -294,8 +305,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T01:22:42.017Z",
-        "latestSuccessAt": "2026-05-31T01:22:42.017Z",
+        "latestRunAt": "2026-05-31T07:26:24.209Z",
+        "latestSuccessAt": "2026-05-31T07:26:24.209Z",
         "plainEnglish": "Missive Current Sync has a fresh successful run and is not due.",
         "nextAction": "Watch first scheduled runs; keep Gmail/manual backfill off until this lane stays clean."
       },
@@ -305,8 +316,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-30T07:05:50.199Z",
-        "latestSuccessAt": "2026-05-30T07:05:50.199Z",
+        "latestRunAt": "2026-05-31T07:05:12.179Z",
+        "latestSuccessAt": "2026-05-31T07:05:12.179Z",
         "plainEnglish": "Nightly Specialist Audit Fleet has a fresh successful run and is not due.",
         "nextAction": "System Health rolls the scheduled job and audit-fleet registry status into the morning report; proposed findings remain report-only until separate scoped repair cards exist."
       },
@@ -316,8 +327,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-30T07:00:49.227Z",
-        "latestSuccessAt": "2026-05-30T07:00:49.227Z",
+        "latestRunAt": "2026-05-31T07:01:11.244Z",
+        "latestSuccessAt": "2026-05-31T07:01:11.244Z",
         "plainEnglish": "Nightly Hybrid Deep Audit has a fresh successful run and is not due.",
         "nextAction": "Review the diff-only morning report; P0/P1 senior findings must route to proposed repair cards or the report must say the deep review degraded/not run."
       },
@@ -327,8 +338,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T02:31:44.006Z",
-        "latestSuccessAt": "2026-05-31T02:31:44.006Z",
+        "latestRunAt": "2026-05-31T06:32:19.425Z",
+        "latestSuccessAt": "2026-05-31T06:32:19.425Z",
         "plainEnglish": "Shared Comms Coverage has a fresh successful run and is not due.",
         "nextAction": "Run before deciding whether to backfill more or build synthesis."
       },
@@ -349,8 +360,8 @@
         "priority": "P0",
         "status": "healthy",
         "latestRunStatus": "succeeded",
-        "latestRunAt": "2026-05-31T02:58:52.227Z",
-        "latestSuccessAt": "2026-05-31T02:58:52.227Z",
+        "latestRunAt": "2026-05-31T09:16:25.437Z",
+        "latestSuccessAt": "2026-05-31T09:16:25.437Z",
         "plainEnglish": "System Health Nightly Audit has a fresh successful run and is not due.",
         "nextAction": "Review red/yellow system-health rows before treating Foundation as green."
       },
@@ -397,7 +408,7 @@
     "hardcodedTruthLanePresent": true,
     "reportOnly": true,
     "latestRunStatus": "succeeded",
-    "latestRunAt": "2026-05-30T07:05:50.199Z",
+    "latestRunAt": "2026-05-31T07:05:12.179Z",
     "scheduledJobStatus": "healthy",
     "failures": []
   },
@@ -410,19 +421,19 @@
       "reviewCount": 0,
       "riskCount": 0,
       "missingCount": 0,
-      "maxDurationMs": 661.48875,
-      "maxPayloadBytes": 648566
+      "maxDurationMs": 321.73362499999996,
+      "maxPayloadBytes": 660446
     },
     "topFindings": []
   },
   "docArtifactBloat": {
     "status": "healthy",
     "summary": {
-      "artifactCount": 1252,
-      "handoffFileCount": 11,
-      "handoffLineTotal": 3380,
-      "recentHandoffFileCount": 9,
-      "nightlyArtifactCount": 9,
+      "artifactCount": 1306,
+      "handoffFileCount": 13,
+      "handoffLineTotal": 4409,
+      "recentHandoffFileCount": 11,
+      "nightlyArtifactCount": 11,
       "riskCount": 0,
       "reviewCount": 0
     },
@@ -490,38 +501,22 @@
     ]
   },
   "buildLaneFailureTelemetry": {
-    "status": "watch",
+    "status": "healthy",
     "summary": {
-      "eventCount7d": 7,
-      "rawEventCount7d": 755,
-      "fingerprintCount": 4,
-      "rawFingerprintCount": 155,
+      "eventCount7d": 0,
+      "rawEventCount7d": 805,
+      "fingerprintCount": 0,
+      "rawFingerprintCount": 162,
       "redFingerprintCount": 0,
-      "yellowFingerprintCount": 1,
-      "oneOffFingerprintCount": 3,
-      "resolvedEventCount7d": 748,
-      "resolvedFingerprintCount": 151,
-      "latestResolutionProofAt": "2026-05-30T20:23:53.575Z",
+      "yellowFingerprintCount": 0,
+      "oneOffFingerprintCount": 0,
+      "resolvedEventCount7d": 805,
+      "resolvedFingerprintCount": 162,
+      "latestResolutionProofAt": "2026-05-31T09:16:09.253Z",
       "warningThreshold24h": 3,
       "riskThreshold24h": 5
     },
-    "topFindings": [
-      {
-        "id": "build_lane_failure_d6f2c7283f2c2d06815baf84",
-        "severity": "P1",
-        "status": "watch",
-        "title": "unclassified_build_lane_failure repeated in the build lane",
-        "detail": "3 repeats in 24h, 4 in 7d. Latest: FOUNDATION-TUNEUP-2026-05-29:done.",
-        "nextAction": "Watch unclassified_build_lane_failure; one more repeat should become repair work.",
-        "fingerprint": "d6f2c7283f2c2d06815baf84",
-        "commands": [
-          "process:action-route-promotion-workflow-check"
-        ],
-        "cardIds": [
-          "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
-        ]
-      }
-    ]
+    "topFindings": []
   },
   "currentSprint": {
     "findings": [],
@@ -563,12 +558,22 @@
   },
   "findings": [
     {
+      "id": "scheduled_job_foundation-verify",
+      "severity": "P0",
+      "status": "risk",
+      "title": "Foundation Verifier is risk",
+      "detail": "Foundation Verifier latest run is failed.",
+      "nextAction": "FAIL AGENT-FEEDBACK-AUTO-SEND-001 keeps governed auto-send controls under production enablement -> georgia=source_unavailable wouldSend=0 guard=runtime_diagnostic_timeout closeout=agent-feedback-auto-send-v1\nFAIL AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 production auto-send is live and visible -> sent=0 skipped=0 blocked=1 repair=0 closeout=agent-feedback-production-autosend-enable-v1\nFAIL VERIFIER-AGENT-FEEDBACK-ORCHESTRATION-SPLIT-001 moves Agent Feedback verifier orchestration into the focused module -> lane=done dogfood=pass agentChecks=11/13 lines=6345->4999",
+      "jobKey": "foundation-verify",
+      "rollupLevel": "risk"
+    },
+    {
       "id": "scheduled_job_admin-deal-backlog-review",
       "severity": "P1",
       "status": "risk",
       "title": "Admin Deal Backlog Inspection is risk",
       "detail": "Admin Deal Backlog Inspection latest run is failed.",
-      "nextAction": "Marked failed by stale active-run reaper.",
+      "nextAction": "invalid_grant: No valid verifier for issuer: crewbert-delegation@crewbert.iam.gserviceaccount.com",
       "jobKey": "admin-deal-backlog-review",
       "rollupLevel": "risk",
       "classification": {
@@ -584,25 +589,14 @@
       }
     },
     {
-      "id": "scheduled_job_meeting-transcripts-extract-backlog",
+      "id": "scheduled_job_conditional-deal-review-readonly",
       "severity": "P1",
       "status": "risk",
-      "title": "Meeting Transcript Extraction Backlog is risk",
-      "detail": "Meeting Transcript Extraction Backlog latest run is failed.",
-      "nextAction": "SRC-MEETINGS-001:meeting:ops stand up 2026 05 29 08 44 edt:meeting_transcript: extraction failed -> OpenAI router fallback returned no output text.",
-      "jobKey": "meeting-transcripts-extract-backlog",
-      "rollupLevel": "risk",
-      "classification": {
-        "status": "classified",
-        "type": "approval_bound_backfill_lane",
-        "owner": "Steve",
-        "reason": "Meeting transcript backlog extraction is governed backfill work; broad private/auth extraction stays blocked until the backfill contract proves cursor, skip, retry, and approval posture.",
-        "threshold": "Blocks sprint only if the job is rerun outside EXTRACT-BACKFILL-001 posture or remains failed after an approved safe rerun.",
-        "nextAction": "Route historical cursor/backfill behavior through EXTRACT-BACKFILL-001 before any broad live extraction.",
-        "repairCardId": "EXTRACT-BACKFILL-001",
-        "relatedRepairCardIds": [],
-        "blocksCurrentSprint": true
-      }
+      "title": "Conditional Deal Forecast Sync is risk",
+      "detail": "Conditional Deal Forecast Sync latest run is failed.",
+      "nextAction": "    at async googleFetch (file:///Users/bensoncrew/bcrew-ai-os/lib/google-delegated.js:280:25)\n    at async googleJsonFetch (file:///Users/bensoncrew/bcrew-ai-os/lib/google-delegated.js:317:20)\n    at async readGoogleSheetsCachedJson (file:///Users/bensoncrew/bcrew-ai-os/lib/google-sheets-cache.js:246:13)",
+      "jobKey": "conditional-deal-review-readonly",
+      "rollupLevel": "risk"
     },
     {
       "id": "connector_degraded",
@@ -633,7 +627,7 @@
       "severity": "P1",
       "status": "review",
       "title": "Foundation jobs have recent failures",
-      "detail": "meeting-transcripts-extract-backlog, admin-deal-backlog-review",
+      "detail": "foundation-verify, admin-deal-backlog-review, conditional-deal-review-readonly",
       "nextAction": "Review latest run error before treating the system as green.",
       "source": "foundation_operating_reliability",
       "autoFix": false,
@@ -652,33 +646,6 @@
           "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001"
         ],
         "blocksCurrentSprint": true
-      }
-    },
-    {
-      "id": "build_lane_failure_d6f2c7283f2c2d06815baf84",
-      "severity": "P1",
-      "status": "watch",
-      "title": "unclassified_build_lane_failure repeated in the build lane",
-      "detail": "3 repeats in 24h, 4 in 7d. Latest: FOUNDATION-TUNEUP-2026-05-29:done.",
-      "nextAction": "Watch unclassified_build_lane_failure; one more repeat should become repair work.",
-      "fingerprint": "d6f2c7283f2c2d06815baf84",
-      "commands": [
-        "process:action-route-promotion-workflow-check"
-      ],
-      "cardIds": [
-        "ACTION-ROUTE-PROMOTION-WORKFLOW-001"
-      ],
-      "rollupLevel": "watch",
-      "classification": {
-        "status": "classified",
-        "type": "watch_threshold",
-        "owner": "Foundation Process",
-        "reason": "Build-lane failure telemetry is already evaluated by the repeated-failure action gate; yellow fingerprints stay visible as watch rows instead of becoming unowned System Health noise.",
-        "threshold": "Blocks sprint when the action gate reports an unsatisfied red item or the fingerprint reaches the red threshold without a live repair route; yellow watch rows remain visible.",
-        "nextAction": "Watch unclassified_build_lane_failure; one more repeat should become repair work.",
-        "repairCardId": "BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001",
-        "relatedRepairCardIds": [],
-        "blocksCurrentSprint": false
       }
     }
   ]
