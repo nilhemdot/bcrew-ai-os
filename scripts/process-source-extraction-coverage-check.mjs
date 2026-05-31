@@ -26,6 +26,7 @@ import {
 import {
   getFoundationSnapshot,
 } from '../lib/foundation-strategy-docs-db.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   PROCESS_CHECK_WRITE_FLAGS,
   isProcessCheckWriteRequested,
@@ -110,7 +111,6 @@ async function main() {
     serverSource,
     foundationDbSource,
     foundationCurrentSprintSource,
-    foundationBuildLogSource,
     foundationVerifySource,
     publicFoundationSource,
     publicStylesSource,
@@ -119,7 +119,6 @@ async function main() {
     publicSourceLifecycleRenderersSource,
     frontendSourceLifecycleRenderersSource,
     foundationWorkflowStylesSource,
-    sourceOnceOverCloseoutSource,
     currentPlanText,
     currentStateText,
   ] = await Promise.all([
@@ -130,7 +129,6 @@ async function main() {
     readRepoFile('server.js'),
     readRepoFile('lib/foundation-db.js'),
     readRepoFile('lib/foundation-current-sprint.js'),
-    readRepoFile('lib/foundation-build-log.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('public/foundation.js'),
     readRepoFile('public/styles.css'),
@@ -139,7 +137,6 @@ async function main() {
     readRepoFile('public/foundation-source-lifecycle-renderers.js'),
     readRepoFile('lib/foundation-frontend-source-lifecycle-renderers-split.js'),
     readRepoFile('public/styles-foundation-workflows.css'),
-    readRepoFile('lib/foundation-build-closeout-source-once-over-records.js'),
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/rebuild/current-state.md'),
   ])
@@ -235,6 +232,8 @@ async function main() {
   const sourceExtractionCard = cardMap.get(SOURCE_EXTRACTION_COVERAGE_CARD_ID)
   const sourceCoverageCloseoutCard = cardMap.get(SOURCE_COVERAGE_CLOSEOUT_CARD_ID)
   const extractRunHardeningCard = cardMap.get(EXTRACT_RUN_HARDENING_CARD_ID)
+  const sourceExtractionCloseout = getFoundationBuildCloseouts()
+    .find(closeout => closeout.key === SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY) || null
   const routeSource = [
     serverSource,
     foundationSourceRoutesSource,
@@ -249,11 +248,6 @@ async function main() {
     publicStylesSource,
     foundationWorkflowStylesSource,
   ].join('\n')
-  const closeoutRecordsSource = [
-    foundationBuildLogSource,
-    sourceOnceOverCloseoutSource,
-  ].join('\n')
-
   addFinding(findings, approval.ok && approval.mode === 'v2' && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, '9.8 approval file is valid', approval.failures?.map(item => item.check).join(', ') || '')
   addFinding(findings, planCritic.status === 'pass' && planCritic.score >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic approves the Source Extraction Coverage plan', buildPlanCriticResultSummary(planCritic))
   addFinding(findings, Array.isArray(sourceExtractionCoverage.rows) && sourceExtractionCoverage.rows.length >= 35, 'source extraction coverage includes every source contract', String(sourceExtractionCoverage.rows.length))
@@ -316,11 +310,9 @@ async function main() {
     '.source-extraction-panel',
     '.source-extraction-table',
   ]), 'Foundation styles cover source extraction coverage')
-  addFinding(findings, includesAll(closeoutRecordsSource, [
-    SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY,
-    SOURCE_EXTRACTION_COVERAGE_CARD_ID,
-    SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
-  ]), 'Recent Work closeout record exists')
+  addFinding(findings, sourceExtractionCloseout &&
+    sourceExtractionCloseout.backlogIds?.includes(SOURCE_EXTRACTION_COVERAGE_CARD_ID) &&
+    sourceExtractionCloseout.mentionedBacklogIds?.includes(SOURCE_COVERAGE_CLOSEOUT_CARD_ID), 'Recent Work closeout record exists')
   addFinding(findings, includesAll(foundationVerifySource, [
     'buildSyntheticSourceExtractionCoverageProof',
     'SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY',
