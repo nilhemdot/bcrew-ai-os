@@ -106,6 +106,7 @@ const DEV_INTELLIGENCE_HYGIENE_JS_PATH = 'public/dev-intelligence-hygiene.js'
 const DEV_AUDITOR_FLOW_JS_PATH = 'public/dev-auditor-flow.js'
 const DEV_SYNTHESIS_SCOPE_JS_PATH = 'public/dev-synthesis-scope.js'
 const DEV_ROUTE_REVIEW_TRIAGE_JS_PATH = 'public/dev-route-review-triage.js'
+const DEV_SCOPER_RUNTIME_JS_PATH = 'public/dev-scoper-runtime-readback.js'
 const DEV_CSS_PATHS = [
   'public/dev.css',
   'public/dev-youtube-source.css',
@@ -115,6 +116,7 @@ const DEV_CSS_PATHS = [
   'public/dev-auditor-flow.css',
   'public/dev-synthesis-scope.css',
   'public/dev-route-review-triage.css',
+  'public/dev-scoper-runtime-readback.css',
 ]
 const NICK_SARAEV_VIBE_CODING_VIDEO_ID = 'gcuR_-rzlDw'
 const NICK_SARAEV_VIBE_CODING_REPORT_ARTIFACT_ID = 'batch:youtube-long-course:api-full-watch-v1:20260527135211'
@@ -230,6 +232,7 @@ function pageHasRequiredSections(html = '') {
 	    'id="auditor-flow"',
 	    'id="synthesis-scope"',
 	    'id="route-review-triage"',
+	    'id="scoper-runtime-readback"',
   ].every(marker => html.includes(marker))
 }
 
@@ -431,6 +434,7 @@ async function main() {
     auditorFlowJsSource,
     synthesisScopeJsSource,
     routeReviewTriageJsSource,
+    scoperRuntimeJsSource,
     cssSource,
     scriptSource,
     sourceHandoffRunnerSource,
@@ -451,6 +455,7 @@ async function main() {
     readRepoFile(DEV_AUDITOR_FLOW_JS_PATH),
     readRepoFile(DEV_SYNTHESIS_SCOPE_JS_PATH),
     readRepoFile(DEV_ROUTE_REVIEW_TRIAGE_JS_PATH),
+    readRepoFile(DEV_SCOPER_RUNTIME_JS_PATH),
     readDevCssBundle(),
     readRepoFile(SCRIPT_PATH),
     readRepoFile('scripts/run-source-god-mode-youtube-handoff.mjs'),
@@ -466,7 +471,7 @@ async function main() {
 
   const dogfood = buildDevTeamHubV0DogfoodProof()
   const opportunityLensDogfood = buildDevOpportunityVisionLensDogfood()
-  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}`
+  const readOnlyBundle = `${moduleSource}\n${sourceRunReadbackSource}\n${jsSource}\n${actionRouteReadbackJsSource}\n${foundationDoneBarJsSource}\n${scoperEvidenceTraceJsSource}\n${intelligenceHygieneJsSource}\n${auditorFlowJsSource}\n${synthesisScopeJsSource}\n${routeReviewTriageJsSource}\n${scoperRuntimeJsSource}`
 
   addCheck(checks, packageJson.scripts?.['process:dev-team-hub-v0-check'] === `node --env-file-if-exists=.env ${SCRIPT_PATH}`, 'package exposes focused Dev Team Hub proof', packageJson.scripts?.['process:dev-team-hub-v0-check'] || 'missing')
   addCheck(checks, includesAll(routeSource, ['DEV_TEAM_HUB_V0_API_ROUTE', 'getIntelligenceReportBundle', 'buildDevTeamHubV0Snapshot']), 'Build Intel routes expose read-only Dev Team Hub API', DEV_TEAM_HUB_V0_API_ROUTE)
@@ -617,6 +622,42 @@ async function main() {
       cssSource.includes('.scoper-evidence-trace'),
     'Dev Hub exposes Scoper evidence trace readback without promoting Director candidates',
     `reviewed=${payload?.scoperEvidenceTraceReadback?.summary?.reviewedCount || 0}; ready=${payload?.scoperEvidenceTraceReadback?.summary?.readyForPortfolioCount || 0}; parked=${payload?.scoperEvidenceTraceReadback?.summary?.parkedCount || 0}`,
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('buildDevHubScoperRuntimeReadback') &&
+      Object.prototype.hasOwnProperty.call(payload || {}, 'scoperRuntimeReadback') &&
+      payload?.scoperRuntimeReadback?.contractVersion === 'dev-hub-scoper-runtime-readback.v1' &&
+      payload?.scoperRuntimeReadback?.source?.registry === 'foundationJobs.jobs' &&
+      payload?.scoperRuntimeReadback?.source?.traceReadback === 'scoperEvidenceTraceReadback' &&
+      payload?.scoperRuntimeReadback?.source?.noSecondTruthLayer === true &&
+      payload?.scoperRuntimeReadback?.boundaries?.noScheduleMutation === true &&
+      payload?.scoperRuntimeReadback?.boundaries?.noScoperRun === true &&
+      payload?.scoperRuntimeReadback?.boundaries?.noScoperMutation === true &&
+      payload?.scoperRuntimeReadback?.boundaries?.noPortfolioMutation === true &&
+      payload?.scoperRuntimeReadback?.boundaries?.noBacklogMutation === true &&
+      payload?.scoperRuntimeReadback?.boundaries?.noAutoScoperPromotion === true &&
+      payload?.scoperRuntimeReadback?.boundaries?.noExternalWrites === true &&
+      Number(payload?.scoperRuntimeReadback?.summary?.scheduleMutationsByReadback || 0) === 0 &&
+      Number(payload?.scoperRuntimeReadback?.summary?.scoperRunsStartedByReadback || 0) === 0 &&
+      Number(payload?.scoperRuntimeReadback?.summary?.scoperRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.scoperRuntimeReadback?.summary?.portfolioRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.scoperRuntimeReadback?.summary?.backlogRecordsWrittenByReadback || 0) === 0 &&
+      Number(payload?.scoperRuntimeReadback?.summary?.autoPromotedCount || 0) === 0 &&
+      list(payload?.scoperRuntimeReadback?.jobs).length <= 5 &&
+      list(payload?.scoperRuntimeReadback?.runtimeBuckets).length <= 5 &&
+      list(payload?.scoperRuntimeReadback?.queues?.readyForPortfolioReview).length <= 5 &&
+      list(payload?.scoperRuntimeReadback?.queues?.parkedByEvidence).length <= 5 &&
+      htmlSource.includes('id="scoper-runtime-readback"') &&
+      htmlSource.includes('/dev-scoper-runtime-readback.css') &&
+      htmlSource.includes('/dev-scoper-runtime-readback.js') &&
+      scoperRuntimeJsSource.includes('scoperRuntimeReadback') &&
+      scoperRuntimeJsSource.includes('No schedule mutation') &&
+      cssSource.includes('.scoper-runtime-readback') &&
+      cssSource.includes('.scoper-runtime-summary') &&
+      cssSource.includes('.scoper-runtime-bucket'),
+    'Dev Hub exposes Scoper Runtime schedule/readiness without scheduling, running, or promoting',
+    `jobs=${payload?.scoperRuntimeReadback?.summary?.scoperJobCount || 0}; scheduled=${payload?.scoperRuntimeReadback?.summary?.scheduledScoperJobCount || 0}; ready=${payload?.scoperRuntimeReadback?.summary?.readyForPortfolioCount || 0}; parked=${payload?.scoperRuntimeReadback?.summary?.parkedCount || 0}`,
   )
   addCheck(
     checks,

@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/dev-auditor-flow.css?v=20260531-auditor-flow-v1" />
   <link rel="stylesheet" href="/dev-synthesis-scope.css?v=20260531-synthesis-scope-v1" />
   <link rel="stylesheet" href="/dev-route-review-triage.css?v=20260531-route-triage-v1" />
+  <link rel="stylesheet" href="/dev-scoper-runtime-readback.css?v=20260531-scoper-runtime-v1" />
 </head>
 <body>
   <header class="launcher-topbar">
@@ -164,6 +165,20 @@
 
           <section class="scoper-evidence-trace" id="scoper-evidence-trace" aria-label="Scoper evidence trace readback">
             <article class="loading-card">Loading Scoper evidence trace from Foundation...</article>
+          </section>
+        </section>
+
+        <section class="page-band">
+          <section class="section-head scoper-runtime-head">
+            <div>
+              <span>SCOPER RUNTIME</span>
+              <h2>Scheduled, Ready, Parked</h2>
+            </div>
+            <div class="scoper-runtime-head-stats" id="scoper-runtime-head-stats" aria-live="polite"></div>
+          </section>
+
+          <section class="scoper-runtime-readback" id="scoper-runtime-readback" aria-label="Dev Scoper runtime readback">
+            <article class="loading-card">Loading Scoper runtime from Foundation...</article>
           </section>
         </section>
 
@@ -358,5 +373,6 @@
   <script src="/dev-auditor-flow.js?v=20260531-auditor-flow-v1"></script>
   <script src="/dev-synthesis-scope.js?v=20260531-synthesis-scope-v1"></script>
   <script src="/dev-route-review-triage.js?v=20260531-route-triage-v1"></script>
+  <script src="/dev-scoper-runtime-readback.js?v=20260531-scoper-runtime-v1"></script>
 </body>
 </html>

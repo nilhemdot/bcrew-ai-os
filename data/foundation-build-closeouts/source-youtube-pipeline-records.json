@@ -1279,5 +1279,61 @@
       "A healthy real-corpus refresh configuration is not proof that a new refresh has run today.",
       "Future refresh execution must use a separate approved card with provider/model spend and route boundaries explicit."
     ]
+  },
+  {
+    "key": "dev-hub-scoper-runtime-readback-v1",
+    "backlogIds": [
+      "DEV-HUB-SCOPER-RUNTIME-READBACK-001"
+    ],
+    "match": {
+      "subjectIncludes": [
+        "Expose Dev Hub Scoper runtime readback",
+        "DEV-HUB-SCOPER-RUNTIME-READBACK-001",
+        "dev-hub-scoper-runtime-readback-v1"
+      ]
+    },
+    "operatorCloseout": true,
+    "mentionedBacklogIds": [
+      "DEV-HUB-SCOPER-EVIDENCE-TRACE-READBACK-001",
+      "DEV-BUILD-OPPORTUNITY-SCOPER-001",
+      "DEV-TEAM-INTELLIGENCE-DIRECTOR-001"
+    ],
+    "systemArea": "Dev Hub Scoper runtime visibility",
+    "status": "accepted",
+    "acceptanceState": "Verified",
+    "whatChanged": "Added a compact read-only Scoper Runtime readback to Dev Hub that shows scheduled-job presence, latest run state, ready/parked Director candidates, and no-schedule/no-promotion boundaries.",
+    "whatItDoes": "The Dev Hub now shows whether recommendations can flow into Scoper runtime or are parked by a missing schedule/evidence boundary. It does not schedule Scoper, run Scoper, promote Director recommendations, or create Scoper/backlog/Portfolio records.",
+    "whyItMatters": "Steve asked whether built intelligence keeps moving down the pipeline. This makes the Director-to-Scoper runtime seam visible without waking a job or recreating unsafe auto-build behavior.",
+    "whereItLives": [
+      "lib/dev-hub-scoper-runtime-readback.js compact runtime projection, validation, and dogfood proof",
+      "lib/dev-team-hub.js scoperRuntimeReadback payload wiring from existing job registry and trace readback",
+      "public/dev.html Scoper Runtime panel",
+      "public/dev-scoper-runtime-readback.js standalone renderer on Dev Hub snapshot events",
+      "public/dev-scoper-runtime-readback.css standalone Scoper Runtime panel styles",
+      "scripts/process-dev-hub-scoper-runtime-readback-check.mjs focused proof and guarded close-card path",
+      "scripts/process-dev-team-hub-v0-check.mjs Dev Hub regression coverage",
+      "docs/process/dev-hub-scoper-runtime-readback-001-plan.md",
+      "docs/process/approvals/DEV-HUB-SCOPER-RUNTIME-READBACK-001.json",
+      "package.json process:dev-hub-scoper-runtime-readback-check",
+      "lib/foundation-verify-coverage-card-ids.js verifier coverage card list",
+      "live backlog_items row for DEV-HUB-SCOPER-RUNTIME-READBACK-001"
+    ],
+    "proofCommands": [
+      "node --check lib/dev-hub-scoper-runtime-readback.js scripts/process-dev-hub-scoper-runtime-readback-check.mjs public/dev-scoper-runtime-readback.js lib/dev-team-hub.js scripts/process-dev-team-hub-v0-check.mjs",
+      "npm run process:dev-hub-scoper-runtime-readback-check -- --close-card --json",
+      "npm run process:dev-team-hub-v0-check -- --json",
+      "npm run process:process-check-readonly-mode-check -- --json",
+      "npm run foundation:verify -- --json-summary",
+      "npm run process:ship-check -- --card=DEV-HUB-SCOPER-RUNTIME-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-SCOPER-RUNTIME-READBACK-001.json --closeoutKey=dev-hub-scoper-runtime-readback-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify",
+      "npm run process:fanout-check -- --card=DEV-HUB-SCOPER-RUNTIME-READBACK-001 --closeoutKey=dev-hub-scoper-runtime-readback-v1",
+      "npm run process:foundation-ship -- --card=DEV-HUB-SCOPER-RUNTIME-READBACK-001 --planApprovalRef=docs/process/approvals/DEV-HUB-SCOPER-RUNTIME-READBACK-001.json --closeoutKey=dev-hub-scoper-runtime-readback-v1 --commitRef=HEAD"
+    ],
+    "proofStatus": "Focused proof dogfoods the exact failure modes: missing and scheduled Scoper runtime states validate, while schedule mutation, Scoper writes, and auto-promotion fail validation. Live readback validates current job registry and Scoper trace state with bounded rows and no schedule mutation, Scoper run, Scoper/backlog/Portfolio write, route mutation, Harlan send, extraction, model, or external write path.",
+    "reviewNext": "Waking or scheduling Scoper remains a separate approved card. Do not schedule Scoper or promote candidates from this readback.",
+    "knownLimits": [
+      "This is a read-only visibility slice; it does not schedule Scoper, run Scoper, create Scoper/backlog/Portfolio records, send Harlan, call a model, or write externally.",
+      "Ready-for-portfolio candidates are proposal-only and still need explicit operator approval before any destination write.",
+      "Future Scoper scheduling must own the runtime boundary and prove no auto-promotion."
+    ]
   }
 ]

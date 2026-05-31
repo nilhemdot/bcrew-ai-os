@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DEV-HUB-SCOPER-RUNTIME-READBACK-001",
+  "approvedBy": "Steve via Codex main session overnight approval",
+  "approvedAt": "2026-05-31T06:28:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/dev-hub-scoper-runtime-readback-001-plan.md",
+  "approvedPlanSha256": "0c3b866d0e05bee81225714ab5464d2b8dc1fbca0a192fdf5d563d60cff1a123",
+  "approvedRepoHead": "11fc0d1b21ecada1457e98adbee9a6e57033277d",
+  "approvalSource": "Steve approved the overnight Dev-Hub intelligence build and instructed Codex to keep going, park blocked work, and reduce intelligence-pipe overload without unsafe automation.",
+  "scopeSummary": "Expose a read-only Dev Hub Scoper Runtime readback that shows schedule/run truth and Director-to-Scoper flow without scheduling or promotion.",
+  "constraints": [
+    "Do not schedule, run, or mutate Scoper jobs from this readback.",
+    "Do not auto-promote Director recommendations into Scoper, backlog, Portfolio, decisions, or route destinations.",
+    "Do not create or update Scoper cards, backlog cards, Portfolio records, Current Sprint overlays, approval records, or destination records from this readback.",
+    "Do not run extraction, source sync, provider/model calls, login, Browserbase, paid/private source work, or external writes.",
+    "Do not send Telegram, email, Slack, Agent Feedback, public messages, or Harlan notifications outside the governed ship gate.",
+    "Fail proof if the readback starts a schedule/run, writes Scoper/backlog/Portfolio records, or marks a candidate auto-promoted."
+  ],
+  "approvalDigest": "ee67586ae0166f84416ef6c73f4502c4a014382b99bcb91aec6d247fdaa33c00"
+}
