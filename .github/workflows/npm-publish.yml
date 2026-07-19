@@ -1,0 +1,24 @@
+# This workflow installs dependencies and runs the foundation verification
+# when a release is created. This package is private and is not published.
+
+name: Node.js CI
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run foundation:verify
